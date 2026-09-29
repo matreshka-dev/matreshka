@@ -1,0 +1,12 @@
+/* Нативный [popover]: верхний слой, позиция — поведение UA при popovertarget + showPopover() */
+.native-popover {
+  border: none;
+  padding: 0;
+  background: transparent; // Перезаписывание стилей браузера по умолчанию
+}
+
+/* CSS Anchor Positioning: position-anchor + position-area задаются из компонента при `positionArea` в конфиге */
+.native-popover--anchor-positioned {
+  margin: 0;
+  max-height: min(70vh, 100dvh); // Кажется не решает проблему
+}

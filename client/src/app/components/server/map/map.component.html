@@ -1,0 +1,16 @@
+<div [id]="selecttorId" class="map__layout"></div>
+@if (nestedItems().length > 0) {
+  <div class="map__markers-container">
+    @for (marker of nestedItems(); track marker.id) {
+      <div
+        class="map__marker-host"
+        #markerHost
+        [attr.data-marker-id]="marker.id"
+      >
+        <app-server-components-list
+          [components]="itemComponents(marker)"
+        ></app-server-components-list>
+      </div>
+    }
+  </div>
+}

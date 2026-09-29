@@ -1,0 +1,29 @@
+.board {
+  overflow: hidden;
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  user-select: none;
+}
+
+.board__viewport {
+  flex: 1;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  touch-action: none;
+  position: relative;
+  cursor: grab;
+}
+
+.board__viewport:active {
+  cursor: grabbing;
+}
+
+.board__plane {
+  position: relative;
+}
+
+.board__item {
+  position: absolute;
+}

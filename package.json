@@ -1,0 +1,17 @@
+{
+  "name": "matreshka-workspace",
+  "private": true,
+  "workspaces": [
+    "bff",
+    "shared",
+    "gateway"
+  ],
+  "scripts": {
+    "build": "npm run build -w @matreshka/shared && npm run build -w @matreshka/gateway && npm run build -w @matreshka/bff",
+    "mcp:angular": "npm exec --prefix client -- ng mcp",
+    "prepublish:packages": "npm run build && npm test -w @matreshka/bff -- --run && npm test -w @matreshka/gateway -- --run"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3"
+  }
+}

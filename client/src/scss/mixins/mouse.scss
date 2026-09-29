@@ -1,0 +1,7 @@
+@mixin mouse() {
+  @media (hover: hover) {
+    &:not([disabled]) {
+      @content;
+    }
+  }
+}

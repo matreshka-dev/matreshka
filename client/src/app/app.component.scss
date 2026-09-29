@@ -1,0 +1,12 @@
+/*
+ * Отдельная view-transition-группа: корень перехода не двигает этот слой.
+ * fixed + inset: у слоя есть собственная «краска» для снимка VT (иначе при display:contents
+ * дочерний app-overlays не даёт бокса — снимок пустой и оверлеи пропадают на время анимации).
+ */
+.app-platform-overlays-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  pointer-events: none; // Этот слой может быть на весь экран, поэтому важно чтобы клики проходили сквозь него
+  view-transition-name: app-platform-overlays-layer;
+}

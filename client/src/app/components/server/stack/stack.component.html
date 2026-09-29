@@ -1,0 +1,16 @@
+@if (useNativeClickButton) {
+  <button
+    type="button"
+    class="stack__action"
+    [disabled]="isStackDisabled"
+    (click)="onClick($event)"
+  >
+    <app-server-components-list
+      [components]="config.properties.content"
+    ></app-server-components-list>
+  </button>
+} @else {
+  <app-server-components-list
+    [components]="config.properties.content"
+  ></app-server-components-list>
+}

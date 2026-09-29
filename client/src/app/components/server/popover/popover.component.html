@@ -1,0 +1,20 @@
+<div
+  #popoverRoot
+  class="popover native-popover"
+  popover="manual"
+  [attr.id]="'popover-' + config.id"
+>
+  @if (overlays().length > 0) {
+    <app-overlays [parent]="_configSignal()" [overlays]="overlays()">
+      <app-server-components-list
+        class="popover__children stack"
+        [components]="config.properties.content"
+      ></app-server-components-list>
+    </app-overlays>
+  } @else {
+    <app-server-components-list
+      class="popover__children stack"
+      [components]="config.properties.content"
+    ></app-server-components-list>
+  }
+</div>

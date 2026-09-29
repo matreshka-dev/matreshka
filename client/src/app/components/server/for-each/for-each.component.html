@@ -1,0 +1,19 @@
+@for (
+  components of elementsComponents();
+  track components[0]?.id;
+  let last = $last
+) {
+  <!-- Для каждого элемента списка генерируется свой постоянный
+список компонент, поэтому можно использовать id первого компонента -->
+  <app-server-components-list
+    class="for-each-item"
+    [components]="components"
+  ></app-server-components-list>
+  @let divider = config.properties.divider ?? [];
+  @if (!last && divider.length) {
+    <app-server-components-list
+      class="for-each-divider"
+      [components]="divider"
+    ></app-server-components-list>
+  }
+}

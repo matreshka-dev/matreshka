@@ -1,0 +1,38 @@
+.local-progress-spinner {
+  display: inline;
+  font-size: 0;
+  transform: rotate(-90deg);
+  transform-origin: center;
+  overflow: visible;
+  position: relative;
+}
+.local-progress-spinner__background {
+  fill: transparent;
+  transform-origin: center;
+  transition: stroke-dashoffset 0.3s ease-in-out;
+  stroke: var(--background-color);
+}
+.local-progress-spinner__circle {
+  fill: transparent;
+  transform-origin: center;
+  transition: stroke-dashoffset 0.3s ease-in-out;
+  stroke: var(--icon-color);
+}
+.local-progress-spinner_rotate {
+  animation: rotation 1.2s infinite cubic-bezier(0.65, 0.05, 0.36, 1);
+}
+//.progress-spinner__value {
+//  position: absolute;
+//  top: 50%;
+//  left: 50%;
+//  transform: translate(-50%, -50%) rotate(90deg);
+//  font-size: 10px;
+//}
+@keyframes rotation {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}

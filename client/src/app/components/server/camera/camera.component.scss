@@ -1,0 +1,23 @@
+.camera {
+  overflow: hidden;
+}
+
+.camera__layout {
+  flex: 1;
+}
+
+.camera__video {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  min-width: 100%;
+  min-height: 100%;
+  object-fit: cover; // Чтобы видео заполняло весь экран
+}
+
+// .camera__content {
+//   position: absolute;
+//   inset: 0;
+//   pointer-events: auto;
+// }

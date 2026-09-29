@@ -1,0 +1,16 @@
+// app-line .line {
+//   flex: 0 0 1px;
+//   background: var(--border-color);
+// }
+app-line {
+  display: flex;
+  flex-direction: var(--flex-direction);
+  flex: 0 0 1px;
+  background: var(--border-color);
+}
+// .button {
+//   // Не уверен, что это нужно
+//   app-line {
+//     height: 100%;
+//   }
+// }

@@ -1,0 +1,17 @@
+export enum ConditionType {
+  ContextValueEqual = "context-value-equal",
+  ContextValueNotEqual = "context-value-not-equal",
+  ContextValueIn = "context-value-in",
+  ContextValueDefined = "context-value-defined",
+  ContextValueUndefined = "context-value-undefined",
+  ContextArrayLength = "context-array-length",
+  ContextArrayIncludes = "context-array-includes",
+  ContextArrayNotIncludes = "context-array-not-includes",
+  MobileDevice = "mobile-device",
+  TabletDevice = "tablet-device",
+  DesktopDevice = "desktop-device",
+  NotTabletDevice = "not-tablet-device",
+  NotMobileDevice = "not-mobile-device",
+  NotDesktopDevice = "not-desktop-device",
+  Group = "condition-group",
+}

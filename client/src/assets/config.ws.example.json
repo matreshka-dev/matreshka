@@ -1,0 +1,9 @@
+{
+  "source": {
+    "type": "ws",
+    "params": {
+      "url": "wss://127.0.0.1:3001"
+    }
+  },
+  "debug": false
+}

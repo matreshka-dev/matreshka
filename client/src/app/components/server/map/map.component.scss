@@ -1,0 +1,10 @@
+.map {
+  overflow: hidden;
+  user-select: none;
+}
+.map__layout {
+  flex: 1;
+}
+.map__markers-container {
+  display: none;
+}

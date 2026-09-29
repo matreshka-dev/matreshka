@@ -1,0 +1,6 @@
+@let pageValue = page();
+@if (pageValue) {
+  <app-server-component-wrapper
+    [id]="pageValue.id"
+  ></app-server-component-wrapper>
+}

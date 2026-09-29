@@ -1,0 +1,64 @@
+{
+  "name": "@matreshka/gateway",
+  "version": "0.10.1",
+  "description": "Transport-agnostic message relay between Matreshka clients and BFF servers",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "rm -rf dist && tsc -p tsconfig.build.json",
+    "prepublishOnly": "npm run build && npm test -- --run",
+    "test": "vitest",
+    "format": "prettier --write .",
+    "lint": "eslint ."
+  },
+  "keywords": [
+    "matreshka",
+    "gateway",
+    "websocket",
+    "bff",
+    "relay"
+  ],
+  "author": "Dmitriy Tretyakov <dmitriy.tretyakov.work@gmail.com>",
+  "license": "CC-BY-NC-4.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/matreshka-dev/matreshka.git",
+    "directory": "gateway"
+  },
+  "bugs": {
+    "url": "https://github.com/matreshka-dev/matreshka/issues"
+  },
+  "homepage": "https://github.com/matreshka-dev/matreshka/tree/main/gateway",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@matreshka/shared": "^0.11.0",
+    "rxjs": "^7.8.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.27.0",
+    "@types/node": "^20.19.43",
+    "eslint": "^9.27.0",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-prettier": "^5.4.0",
+    "eslint-plugin-unused-imports": "^4.1.4",
+    "prettier": "3.5.3",
+    "prettier-plugin-organize-imports": "^4.1.0",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.32.1",
+    "vitest": "^4.1.0"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  }
+}

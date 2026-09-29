@@ -1,0 +1,15 @@
+@if (value()) {
+  @if (isMask()) {
+    <div
+      [class]="['vector', 'vector__mask', ratioClass()]"
+      [style.mask]="cssMask"
+      [style.-webkit-mask]="cssMask"
+    ></div>
+  } @else {
+    <img
+      [class]="['vector', ratioClass()]"
+      [style.aspect-ratio]="config.properties.ratio?.value"
+      [src]="nativeSrc"
+    />
+  }
+}

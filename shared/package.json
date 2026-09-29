@@ -1,0 +1,67 @@
+{
+  "name": "@matreshka/shared",
+  "version": "0.11.0",
+  "description": "Shared types, enums, and message contracts between Matreshka BFF and client",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "rm -rf dist && tsc -p tsconfig.build.json",
+    "prepublishOnly": "npm run build",
+    "format": "prettier --write .",
+    "lint": "eslint ."
+  },
+  "keywords": [
+    "matreshka",
+    "shared",
+    "protocol",
+    "messages",
+    "typescript"
+  ],
+  "author": "Dmitriy Tretyakov <dmitriy.tretyakov.work@gmail.com>",
+  "license": "CC-BY-NC-4.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/matreshka-dev/matreshka.git",
+    "directory": "shared"
+  },
+  "bugs": {
+    "url": "https://github.com/matreshka-dev/matreshka/issues"
+  },
+  "homepage": "https://github.com/matreshka-dev/matreshka/tree/main/shared",
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@simplewebauthn/types": "^12.0.0",
+    "rxjs": "^7.8.2",
+    "ts-essentials": "^10.0.4"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.27.0",
+    "@types/node": "^20.3.1",
+    "eslint": "^9.27.0",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-prettier": "^5.4.0",
+    "eslint-plugin-unused-imports": "^4.1.4",
+    "prettier": "3.5.3",
+    "prettier-plugin-organize-imports": "^4.1.0",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.32.1"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./*": {
+      "types": "./dist/*.d.ts",
+      "default": "./dist/*.js"
+    }
+  }
+}

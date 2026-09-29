@@ -1,0 +1,65 @@
+// Дублирует flex-колонку dialog: animate-component крутит transform здесь, не на якорном <dialog>.
+.dialog__animation-surface {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+.dialog {
+  margin: 0; /* обязательно чтобы сбросить центрирование по умолчанию */
+  border: none;
+  padding: 0;
+  height: auto;
+  width: auto;
+  position: fixed;
+  // overflow: hidden; // Лучше не блокировать, чтобы в случае необходимости браузер сам решал поведение. Блокировка скролла может быть достигнута если у диалога будет потомок со overflow: false и flex-shrink: 1;
+  display: flex; // не задаем через класс .stack, потому что он еще добавляет flex-wrap: wrap; а он порождает для сафари баг вычисления высоты диалога
+  flex-direction: column;
+  background: none;
+  // В случае если диалог не использует оба якоря top и bottom, то нужно ограничивать максимальную высоту для отображения backdrop
+  max-height: var(--dialog-max-height); // Значение
+}
+
+.dialog::backdrop {
+  background: var(--backdrop-color, rgba(0, 0, 0, 0.4));
+}
+// .dialog {
+//   opacity: 0;
+
+//   transform: translateY(10px) scale(0.96);
+
+//   transition: opacity 0.25s ease, transform 0.25s ease,
+//     overlay 0.25s ease allow-discrete, display 0.25s ease allow-discrete;
+// }
+
+// /* конечное состояние */
+
+// .dialog:open {
+//   opacity: 1;
+
+//   transform: translateY(0) scale(1);
+
+//   @starting-style {
+//     opacity: 0;
+
+//     transform: translateY(10px) scale(0.96);
+//   }
+// }
+
+// /* backdrop */
+
+// .dialog::backdrop {
+//   background: rgba(0 0 0 / 0);
+
+//   transition: background 0.25s ease, overlay 0.25s ease allow-discrete,
+//     display 0.25s ease allow-discrete;
+// }
+
+// .dialog:open::backdrop {
+//   background: rgba(0 0 0 / 0.45);
+
+//   @starting-style {
+//     background: rgba(0 0 0 / 0);
+//   }
+// }

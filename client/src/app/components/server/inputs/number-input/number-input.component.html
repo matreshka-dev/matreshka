@@ -1,0 +1,10 @@
+<input
+  class="native-input"
+  type="number"
+  [placeholder]="config.properties.placeholder | prepare"
+  [value]="value()"
+  (input)="onInputChange($event)"
+  [attr.min]="config.properties.min"
+  [attr.max]="config.properties.max"
+  [attr.step]="config.properties.step"
+/>

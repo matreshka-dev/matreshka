@@ -1,0 +1,21 @@
+:host {
+  display: contents;
+}
+
+.text-output {
+  display: inline;
+  text-decoration: var(--text-decoration);
+
+  a {
+    color: var(--link-color, inherit);
+    text-decoration: inherit;
+  }
+}
+
+.text-output_clamped {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  line-clamp: var(--text-output-max-lines);
+  -webkit-line-clamp: var(--text-output-max-lines);
+  overflow: hidden;
+}

@@ -1,0 +1,124 @@
+.overlay-transform,
+.component-overlay {
+  --overlay-tx: 0;
+  --overlay-ty: 0;
+  // Якорное центрирование; не анимировать translateX/Y на этом же узле — см. dialog__animation-surface.
+  transform: translate(var(--overlay-tx), var(--overlay-ty));
+  & > * {
+    pointer-events: auto; // Переписываем поведение app-platform-overlays-layer чтобы начать ловить клики внутри оверлея. Не на сам component-overlay, чтобы корректно пропускал клики на padding'и оверлея.
+  }
+}
+
+.component-overlay {
+  position: absolute;
+  z-index: 500;
+  display: block;
+}
+.component-overlay-anchor-top {
+  top: 0;
+}
+.dialog {
+  --dialog-max-height: 90vh; // Максимальная высота диалога по умолчанию
+}
+.dialog.component-overlay-anchor-bottom {
+  top: unset; // Фикс для диалога, без этого bottom не работает
+}
+.dialog.component-overlay-anchor-top.component-overlay-anchor-bottom {
+  --dialog-max-height: 100vh;
+}
+.component-overlay-anchor-bottom {
+  bottom: 0;
+}
+.component-overlay-anchor-start {
+  inset-inline-start: 0;
+}
+.dialog.component-overlay-anchor-end {
+  inset-inline-start: unset; // Фикс для диалога, без этого end не работает
+}
+.component-overlay-anchor-end {
+  inset-inline-end: 0;
+}
+.component-overlay-anchor-center {
+  inset-inline-start: 50%;
+  --overlay-tx: -50%;
+}
+
+// Диалог только с Center (без Start/End): inset 50% + translate ломает расчёт ширины.
+.dialog.component-overlay-anchor-center:not(
+    .component-overlay-anchor-start
+  ):not(.component-overlay-anchor-end) {
+  inset-inline-start: 0;
+  inset-inline-end: 0;
+  width: fit-content;
+  --overlay-tx: 0;
+  margin-inline: auto;
+}
+
+.component-overlay-anchor-middle {
+  top: 50%;
+  --overlay-ty: -50%;
+}
+
+// Диалог только с Middle (без Top/Bottom): top: 50% + translate ломает расчёт
+// высоты flex-потомков с overflow: auto — скролл появляется ~на половине экрана.
+.dialog.component-overlay-anchor-middle:not(.component-overlay-anchor-top):not(
+    .component-overlay-anchor-bottom
+  ) {
+  top: 0;
+  bottom: 0;
+  height: fit-content;
+  --overlay-ty: 0;
+  margin-block: auto;
+}
+
+// Комбинации для растяжения до середины
+.component-overlay-anchor-top.component-overlay-anchor-middle {
+  top: 0;
+  bottom: 50%;
+  --overlay-ty: 0;
+}
+.dialog.component-overlay-anchor-top.component-overlay-anchor-middle {
+  height: 50vh;
+}
+.component-overlay-anchor-middle.component-overlay-anchor-bottom {
+  top: 50%;
+  bottom: 0;
+  --overlay-ty: 0;
+}
+.dialog.component-overlay-anchor-middle.component-overlay-anchor-bottom {
+  height: 50vh;
+}
+
+.component-overlay-anchor-top.component-overlay-anchor-bottom {
+  top: 0;
+  bottom: 0;
+  --overlay-ty: 0;
+}
+.dialog.component-overlay-anchor-top.component-overlay-anchor-bottom {
+  height: 100vh;
+}
+
+.component-overlay-anchor-start.component-overlay-anchor-center {
+  inset-inline-start: 0;
+  inset-inline-end: 50%;
+  --overlay-tx: 0;
+}
+.dialog.component-overlay-anchor-start.component-overlay-anchor-center {
+  width: 50vw;
+}
+.component-overlay-anchor-center.component-overlay-anchor-end {
+  inset-inline-start: 50%;
+  inset-inline-end: 0;
+  --overlay-tx: 0;
+}
+.dialog.component-overlay-anchor-start.component-overlay-anchor-end {
+  min-width: 100vw; // Просто width: 100vw почему-то не растягивает область в сафари
+}
+.component-overlay-anchor-start.component-overlay-anchor-end {
+  inset-inline-start: 0;
+  inset-inline-end: 0;
+  --overlay-tx: 0;
+}
+.dialog.component-overlay-anchor-center.component-overlay-anchor-end {
+  width: 50vw;
+}

@@ -1,0 +1,9 @@
+# Ignore artifacts:
+dist
+.angular
+coverage
+node_modules
+
+# Native projects (Capacitor)
+android
+ios

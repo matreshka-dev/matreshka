@@ -1,0 +1,12 @@
+// Полоса прокрутки документа — только во вкладке браузера (PlatformId.WebBrowser → .web/browser).
+// На PWA и нативных оболочках страница прокручивается, scrollbar скрыт.
+
+body:not(.web\/browser),
+html:has(body:not(.web\/browser)) {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}

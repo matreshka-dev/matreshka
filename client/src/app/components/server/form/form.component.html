@@ -1,0 +1,7 @@
+<form (submit)="onSubmit()" class="form">
+  <!-- hidden button нужна для того чтобы срабатывал submit при нажатии на Enter и пробел -->
+  <button type="submit" style="display: none"></button>
+  <app-server-components-list
+    [components]="config.properties.content"
+  ></app-server-components-list>
+</form>

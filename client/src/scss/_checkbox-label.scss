@@ -1,0 +1,36 @@
+.checkbox-label {
+  display: inline-flex;
+  user-select: none;
+  align-items: flex-start;
+  cursor: pointer;
+  transition: color 0.3s ease-in-out;
+  padding: 0;
+  background-color: transparent;
+  border: 0;
+  &:active,
+  &:focus-visible {
+    &::before {
+      border-color: var(--background-color_active) !important;
+    }
+  }
+}
+
+.checkbox-label::before {
+  content: "";
+  display: inline-block;
+  width: var(--line-height);
+  height: var(--line-height);
+  flex-shrink: 0;
+  flex-grow: 0;
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  transition: background-color 0.3s ease-in-out;
+  background-repeat: no-repeat;
+  background-position: center center;
+  box-sizing: border-box;
+}
+
+.checkbox-label_checked::before {
+  background-color: var(----background-color_active);
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 20 20' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M17.5 5.83334L7.49999 15.8333L2.91666 11.25L4.09166 10.075L7.49999 13.475L16.325 4.65834L17.5 5.83334Z' fill='white'/%3E%3C/svg%3E");
+}

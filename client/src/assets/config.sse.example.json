@@ -1,0 +1,10 @@
+{
+  "source": {
+    "type": "sse",
+    "params": {
+      "eventsUrl": "https://127.0.0.1:3001/events",
+      "sendingMessagesUrl": "https://127.0.0.1:3001/send"
+    }
+  },
+  "debug": false
+}

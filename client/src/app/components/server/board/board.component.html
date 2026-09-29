@@ -1,0 +1,16 @@
+<div class="board__viewport" #viewport>
+  <div class="board__plane" #plane>
+    @for (item of items; track item.id) {
+      <div
+        class="board__item"
+        #boardItem
+        [style.left]="itemLeft(item)"
+        [style.top]="itemTop(item)"
+      >
+        <app-server-components-list
+          [components]="itemComponents(item)"
+        ></app-server-components-list>
+      </div>
+    }
+  </div>
+</div>

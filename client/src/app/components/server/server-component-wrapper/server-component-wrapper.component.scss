@@ -1,0 +1,7 @@
+app-server-component-wrapper {
+  display: contents;
+}
+app-server-component-wrapper a > *,
+app-server-component-wrapper > * {
+  position: relative;
+}

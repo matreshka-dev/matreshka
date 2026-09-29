@@ -1,0 +1,9 @@
+<textarea
+  #input
+  class="textarea__input"
+  [placeholder]="config.properties.placeholder | prepare"
+  [value]="value()"
+  (input)="onInputChange($event)"
+  [rows]="config.properties.rows ?? 5"
+  [style.resize]="config.properties.resize ?? null"
+></textarea>

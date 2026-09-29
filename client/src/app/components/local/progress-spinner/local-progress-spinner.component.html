@@ -1,0 +1,33 @@
+<svg
+  [style.width]="config().diameter | rem"
+  [style.height]="config().diameter | rem"
+  [attr.viewBox]="getViewBox()"
+  class="local-progress-spinner_rotate"
+  preserveAspectRatio="xMidYMid meet"
+  focusable="false"
+  aria-hidden="true"
+>
+  @if (config().background) {
+    <circle
+      cx="50%"
+      cy="50%"
+      [attr.r]="getCircleRadius()"
+      class="local-progress-spinner__background"
+      [attr.stroke-width]="strokeWidth"
+    ></circle>
+  }
+  <circle
+    cx="50%"
+    cy="50%"
+    [attr.r]="getCircleRadius()"
+    class="local-progress-spinner__circle"
+    [attr.stroke-dashoffset]="getStrokeDashOffset()"
+    [attr.stroke-dasharray]="getStrokeCircumference()"
+    [attr.stroke-width]="strokeWidth"
+  ></circle>
+</svg>
+<!--@if(config().mode === 'determinate') {-->
+<!--  <div class="local-progress-spinner__value">-->
+<!--    {{ $any(config()).value | number : '1.0-0' }}-->
+<!--  </div>-->
+<!--}-->

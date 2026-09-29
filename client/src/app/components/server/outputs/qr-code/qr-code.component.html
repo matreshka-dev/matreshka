@@ -1,0 +1,4 @@
+<div
+  class="qr-code__image"
+  [innerHTML]="(value() | prepare) ?? '' | qrCode | async"
+></div>

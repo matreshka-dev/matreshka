@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "967031881845",
+    "project_id": "matreshka-f3be1",
+    "storage_bucket": "matreshka-f3be1.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:967031881845:android:97ab16dee498f374f6383c",
+        "android_client_info": {
+          "package_name": "app.matreshka"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAhZST3fJKqEhDE4V-TgIS1fmlgEUh1oiU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,0 +1,115 @@
+{
+  "name": "@matreshka/bff",
+  "version": "0.11.2",
+  "description": "Matreshka BFF: server-driven UI runtime — routing, pages, context, component DSL, and platform APIs",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "rm -rf dist && tsc -p tsconfig.build.json",
+    "prepublishOnly": "npm run build && npm test -- --run",
+    "test": "vitest",
+    "format": "prettier --write ."
+  },
+  "keywords": [
+    "matreshka",
+    "bff",
+    "server-driven-ui",
+    "sdui",
+    "websocket",
+    "typescript"
+  ],
+  "author": "Dmitriy Tretyakov <dmitriy.tretyakov.work@gmail.com>",
+  "license": "CC-BY-NC-4.0",
+  "engines": {
+    "node": ">=20"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/matreshka-dev/matreshka.git",
+    "directory": "bff"
+  },
+  "bugs": {
+    "url": "https://github.com/matreshka-dev/matreshka/issues"
+  },
+  "homepage": "https://github.com/matreshka-dev/matreshka/tree/main/bff",
+  "publishConfig": {
+    "access": "public"
+  },
+  "nodemonConfig": {
+    "execMap": {
+      "ts": "ts-node"
+    }
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.27.0",
+    "@types/node": "^20.3.1",
+    "@types/ws": "^8.18.1",
+    "@vitest/coverage-v8": "^4.1.0",
+    "eslint": "^9.27.0",
+    "eslint-config-prettier": "^10.1.5",
+    "eslint-plugin-prettier": "^5.4.0",
+    "eslint-plugin-unused-imports": "^4.1.4",
+    "prettier": "3.5.3",
+    "prettier-plugin-organize-imports": "^4.1.0",
+    "ts-essentials": "^10.0.4",
+    "ts-node": "^10.9.1",
+    "tsconfig-paths": "^4.2.0",
+    "typescript": "^5.8.3",
+    "typescript-eslint": "^8.32.1",
+    "vitest": "^4.1.0"
+  },
+  "dependencies": {
+    "@matreshka/shared": "^0.11.0",
+    "@simplewebauthn/server": "^13.1.1",
+    "@simplewebauthn/types": "^12.0.0",
+    "fast-xml-parser": "^5.3.3",
+    "rxjs": "^7.8.2",
+    "ws": "^8.14.2",
+    "zod": "^3.25.28"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    },
+    "./components": {
+      "types": "./dist/components/index.d.ts",
+      "default": "./dist/components/index.js"
+    },
+    "./components/*": {
+      "types": "./dist/components/*.d.ts",
+      "default": "./dist/components/*.js"
+    },
+    "./core": {
+      "types": "./dist/core/index.d.ts",
+      "default": "./dist/core/index.js"
+    },
+    "./core/conditions": {
+      "types": "./dist/core/conditions/index.d.ts",
+      "default": "./dist/core/conditions/index.js"
+    },
+    "./core/conditions/*": {
+      "types": "./dist/core/conditions/*.d.ts",
+      "default": "./dist/core/conditions/*.js"
+    },
+    "./core/*": {
+      "types": "./dist/core/*.d.ts",
+      "default": "./dist/core/*.js"
+    },
+    "./platforms": {
+      "types": "./dist/platforms/index.d.ts",
+      "default": "./dist/platforms/index.js"
+    },
+    "./platforms/*": {
+      "types": "./dist/platforms/*.d.ts",
+      "default": "./dist/platforms/*.js"
+    },
+    "./webauthn": {
+      "types": "./dist/webauthn/index.d.ts",
+      "default": "./dist/webauthn/index.js"
+    }
+  }
+}

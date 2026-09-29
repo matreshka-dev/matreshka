@@ -1,0 +1,13 @@
+@for (config of components(); track config.id) {
+  <span class="server-components-list__item">
+    <!-- server-components-list__item используется для карт, чтобы можно было зацепиться за DOM-элемент компонента не завязываясь на условия рендера, позволяет не писать сложную логику ожидания и не нужно реагировать на зависимости -->
+    @if (
+      (componentHub.ready$(config) | async) && (display$.get(config) | async)
+    ) {
+      <app-server-component-wrapper
+        [class]="'component-wrapper-' + config.class"
+        [id]="config.id"
+      ></app-server-component-wrapper>
+    }
+  </span>
+}

@@ -1,0 +1,34 @@
+@if (!hasProcessors()) {
+  <span
+    class="text-output output"
+    [class.text-output_clamped]="(config.properties.maxLines ?? 0) > 0"
+    [style.--text-output-max-lines]="config.properties.maxLines"
+    [innerText]="preparedText()"
+  ></span>
+} @else {
+  <span
+    class="text-output output"
+    [class.text-output_clamped]="(config.properties.maxLines ?? 0) > 0"
+    [style.--text-output-max-lines]="config.properties.maxLines"
+  >
+    @for (segment of segments(); track $index) {
+      @switch (segment.kind) {
+        @case ("text") {
+          {{ segment.text }}
+        }
+        @case ("link") {
+          <a
+            [href]="segment.href"
+            [attr.target]="segment.target"
+            rel="noopener noreferrer"
+          >
+            {{ segment.text }}
+          </a>
+        }
+        @case ("lineBreak") {
+          <br />
+        }
+      }
+    }
+  </span>
+}

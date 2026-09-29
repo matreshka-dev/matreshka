@@ -1,0 +1,14 @@
+<input
+  #input
+  class="native-input"
+  type="text"
+  (focusin)="onFocusIn()"
+  (focusout)="onFocusOut()"
+  (keydown)="onKeydown($event)"
+  (animationstart)="onAutofillStart($event)"
+  [attr.inputmode]="nativeAttrs.inputMode"
+  [attr.autocomplete]="nativeAttrs.autocomplete"
+  [placeholder]="config.properties.placeholder | prepare"
+  [value]="value()"
+  (input)="onInputChange($event)"
+/>

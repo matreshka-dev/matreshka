@@ -1,0 +1,12 @@
+<input
+  type="file"
+  class="file-upload-area__html-input"
+  #input
+  [accept]="config.properties.accept ?? ''"
+  [attr.multiple]="config.properties.multiple ? 'multiple' : ''"
+  (change)="fileSelected($event)"
+/>
+<app-server-components-list
+  class="stack"
+  [components]="config.properties.content"
+></app-server-components-list>

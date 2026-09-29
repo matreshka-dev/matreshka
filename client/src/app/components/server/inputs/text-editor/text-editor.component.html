@@ -1,0 +1,10 @@
+<div
+  contenteditable
+  class="text-editor__contenteditable"
+  #input
+  (paste)="paste($event)"
+  (focusin)="focused.set(true)"
+  (focusout)="focused.set(false)"
+  [innerHTML]="inputValue()"
+  (input)="changeInput($event)"
+></div>

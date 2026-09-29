@@ -1,0 +1,13 @@
+.text-editor {
+  display: block;
+}
+
+.text-editor__contenteditable {
+  display: block;
+  resize: vertical;
+  border: 0;
+  font-size: inherit;
+  overflow: auto;
+  min-height: calc(var(--line-height) * 3);
+  padding: 0;
+}

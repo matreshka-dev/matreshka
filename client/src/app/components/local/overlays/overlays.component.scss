@@ -1,0 +1,19 @@
+app-overlays {
+  display: contents;
+}
+.server-components-list__overlay-host {
+  position: relative;
+  display: flex;
+  min-height: 0;
+  // Диалог и popover с overlays: ограничиваем высоту host, чтобы скролл был у контента внутри,
+  // а не у всего <dialog> или <popover> (иначе min-height: auto у flex-item не даёт сжаться).
+  &--dialog,
+  &--popover {
+    flex: 1 1 auto;
+    overflow: hidden;
+  }
+}
+/* Глобальный .component-overlay задаёт position: absolute — full-screen слой как у страницы */
+.component-overlay.page-overlay {
+  position: fixed;
+}

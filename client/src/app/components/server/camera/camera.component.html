@@ -1,0 +1,11 @@
+<div class="camera__layout">
+  <video #video class="camera__video" autoplay muted playsinline></video>
+
+  @if (config.properties.content.length > 0) {
+    <div class="camera__content">
+      <app-server-components-list
+        [components]="config.properties.content"
+      ></app-server-components-list>
+    </div>
+  }
+</div>

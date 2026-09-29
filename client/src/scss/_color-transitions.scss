@@ -1,0 +1,42 @@
+@function color-transition-duration($role, $suffix) {
+  @if $suffix == "" {
+    @return var(--#{$role}-color-transition-duration, 0s);
+  }
+  @return var(
+    --#{$role}-color-transition-duration#{$suffix},
+    var(--#{$role}-color-transition-duration, 0s)
+  );
+}
+
+@function color-transition-timing($role, $suffix) {
+  @if $suffix == "" {
+    @return var(--#{$role}-color-transition-timing-function, ease);
+  }
+  @return var(
+    --#{$role}-color-transition-timing-function#{$suffix},
+    var(--#{$role}-color-transition-timing-function, ease)
+  );
+}
+
+@mixin role-color-transitions($state: default) {
+  $suffix: "";
+  @if $state == hover {
+    $suffix: "_hover";
+  } @else if $state == active {
+    $suffix: "_active";
+  }
+
+  transition:
+    background-color color-transition-duration(background, $suffix)
+      color-transition-timing(background, $suffix),
+    color color-transition-duration(text, $suffix)
+      color-transition-timing(text, $suffix),
+    border-color color-transition-duration(border, $suffix)
+      color-transition-timing(border, $suffix),
+    box-shadow color-transition-duration(shadow, $suffix)
+      color-transition-timing(shadow, $suffix),
+    fill color-transition-duration(icon, $suffix)
+      color-transition-timing(icon, $suffix),
+    stroke color-transition-duration(icon, $suffix)
+      color-transition-timing(icon, $suffix);
+}

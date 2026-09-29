@@ -1,0 +1,183 @@
+@use "scss/normalize";
+@use "scss/typography";
+@use "scss/checkbox-label";
+@use "scss/view-transition";
+@use "scss/safe-padding";
+@use "scss/overlay-components";
+@use "scss/color-tokens";
+@use "scss/color-transitions";
+@use "scss/platform-scroll";
+@use "scss/mixins/mouse" as mouse;
+body {
+  // Лучше использовать body вместо :root, чтобы можно было перезаписать инлайн стилем
+
+  // Настройки размера по умолчанию
+  --line-height: calc(1em * 1.5);
+  --flex-direction: column;
+}
+* {
+  color: var(--text-color);
+  ::placeholder {
+    color: var(--placeholder-color);
+  }
+  line-height: var(--line-height);
+  font-family: var(--font-family);
+  box-sizing: border-box;
+  touch-action: manipulation; // Запрет зума на iOS через двойной тап
+  -webkit-tap-highlight-color: transparent;
+}
+body {
+  // overflow-x: hidden;
+  transition: filter 0.3s ease-in-out;
+  &.privacy-mode {
+    filter: blur(16px);
+  }
+}
+p {
+  margin: 0;
+  // font-size: inherit;
+}
+*:focus {
+  outline: none;
+}
+
+.overlay-backdrop {
+  background-color: rgba(0, 0, 0, 0.4);
+}
+.overlay-backdrop.cdk-overlay-backdrop-showing {
+  opacity: 0.5;
+}
+button {
+  padding: 0;
+  font-weight: inherit; // Чтобы жирность текста по умолчанию не перебивала
+  background: var(--background-color);
+  color: var(--text-color);
+  user-select: none;
+  cursor: pointer;
+  border-width: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+.focused-container:focus-within {
+  --background-color: var(--background-color_active);
+  --text-color: var(--text-color_active);
+  --link-color: var(--link-color_active);
+  --icon-color: var(--icon-color_active);
+  --placeholder-color: var(--placeholder-color_active);
+  --border-color: var(--border-color_active);
+  --shadow-color: var(--shadow-color_active);
+}
+// Overlays: клики проходят сквозь неинтерактивные обёртки (row/column/surface)
+// на страницу под ними. pointer-events не наследуется — без правила на *
+// потомки с дефолтным auto всё равно перехватывают hit.
+.component-overlay .pointer-transparent {
+  pointer-events: none;
+  *:not(.pointer-transparent) {
+    pointer-events: auto; // Чтобы можно было указать у потомков
+  }
+}
+//   // button / link / image с click — единственные hit-target'ы внутри оверлея
+//   .interactive,
+//   .interactive * {
+//     pointer-events: auto;
+//   }
+// }
+.interactive {
+  cursor: pointer;
+  &,
+  & * {
+    @include color-transitions.role-color-transitions($state: default);
+  }
+  @include mouse.mouse {
+    &:hover:not(:active):not(:focus-visible) {
+      --background-color: var(--background-color_hover);
+      --text-color: var(--text-color_hover);
+      --link-color: var(--link-color_hover);
+      --icon-color: var(--icon-color_hover);
+      --placeholder-color: var(--placeholder-color_hover);
+      --border-color: var(--border-color_hover);
+      --shadow-color: var(--shadow-color_hover);
+      &,
+      & * {
+        @include color-transitions.role-color-transitions($state: hover);
+      }
+    }
+  }
+  &:not([disabled]):active,
+  &:not([disabled]):focus-visible {
+    --background-color: var(--background-color_active) !important;
+    --text-color: var(--text-color_active) !important;
+    --link-color: var(--link-color_active) !important;
+    --icon-color: var(--icon-color_active) !important;
+    --placeholder-color: var(--placeholder-color_active) !important;
+    --border-color: var(--border-color_active) !important;
+    --shadow-color: var(--shadow-color_active) !important;
+    &,
+    & * {
+      @include color-transitions.role-color-transitions($state: active);
+    }
+  }
+}
+
+.stack {
+  --flex-direction: column;
+  display: flex;
+  flex-direction: column;
+  max-width: 100%; // Чтобы ограничить содержимое внутри и не дать ему выходить за пределы контейнера
+  // --some-direction-var: 1; // В качестве примера работы с переменными в CSS по направлениям
+}
+.row {
+  --flex-direction: row;
+  display: flex;
+  // --some-direction-var: 2;
+}
+// .some-direction-var {
+//   color: var(--some-direction-var);
+// }
+.surface {
+  background: var(--background-color);
+  -webkit-mask-image: var(--background-color-mask-image, none);
+  mask-image: var(--background-color-mask-image, none);
+}
+.border-outline {
+  border: var(--border-width) solid var(--border-color);
+}
+.shadow-outline {
+  box-shadow: var(--shadow-color) 0 0 12px;
+}
+@keyframes onAutofillStart {
+  from {
+    /* стили не важны */
+  }
+  to {
+  }
+}
+.native-input {
+  height: 100%;
+  width: 100%;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  color: var(--text-color);
+}
+@keyframes onAutofillStart {
+  from {
+    /* стили не важны */
+  }
+  to {
+  }
+}
+
+.native-input:-webkit-autofill,
+.native-input:autofill {
+  // Хак чтобы ловить автозаполнение из менеджера паролей
+  animation-name: onAutofillStart;
+  animation-duration: 0.001s;
+  // Хак для переписывания стилей браузера при автозаполнении
+  -webkit-text-fill-color: var(--text-color);
+  -webkit-box-shadow: 0 0 0 1000px var(--background-color) inset;
+  box-shadow: 0 0 0 1000px var(--background-color) inset;
+  caret-color: var(--text-color);
+}

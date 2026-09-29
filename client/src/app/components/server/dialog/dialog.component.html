@@ -1,0 +1,31 @@
+<dialog
+  #nativeDialog
+  class="dialog overlay-transform"
+  [attr.aria-modal]="ariaModal()"
+  [class.component-overlay-anchor-top]="anchorFlags().top"
+  [class.component-overlay-anchor-bottom]="anchorFlags().bottom"
+  [class.component-overlay-anchor-middle]="anchorFlags().middle"
+  [class.component-overlay-anchor-start]="anchorFlags().start"
+  [class.component-overlay-anchor-end]="anchorFlags().end"
+  [class.component-overlay-anchor-center]="anchorFlags().center"
+  (click)="onBackdropClick($event)"
+>
+  <!--
+    animate-component (translateX/translateY) идёт на эту обёртку, а не на <dialog>:
+    на dialog висит overlay-transform (translate через --overlay-tx/ty для якорей),
+    WAAPI transform перетирает stylesheet transform целиком.
+  -->
+  <div #animationSurface class="dialog__animation-surface">
+    @if (overlays().length > 0) {
+      <app-overlays [parent]="_configSignal()" [overlays]="overlays()">
+        <app-server-components-list
+          [components]="config.properties.content"
+        ></app-server-components-list>
+      </app-overlays>
+    } @else {
+      <app-server-components-list
+        [components]="config.properties.content"
+      ></app-server-components-list>
+    }
+  </div>
+</dialog>

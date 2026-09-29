@@ -1,0 +1,30 @@
+<div
+  class="server-components-list__overlay-host stack"
+  [class.server-components-list__overlay-host--dialog]="
+    parent()?.class === 'dialog'
+  "
+  [style]="overlayHostFlexStyles()"
+>
+  <!-- stack у host чтобы содержимое растягивалось-->
+  <ng-content></ng-content>
+
+  @for (overlay of overlays(); track overlay.component.id) {
+    @let flags = overlayAnchorFlags(overlay);
+    <div
+      [class]="
+        'component-overlay ' + (parent()?.class ?? 'page') + '-overlay stack'
+      "
+      [class.component-overlay-anchor-top]="flags.top"
+      [class.component-overlay-anchor-bottom]="flags.bottom"
+      [class.component-overlay-anchor-middle]="flags.middle"
+      [class.component-overlay-anchor-start]="flags.start"
+      [class.component-overlay-anchor-end]="flags.end"
+      [class.component-overlay-anchor-center]="flags.center"
+    >
+      <ng-container
+        [ngComponentOutlet]="listComponent"
+        [ngComponentOutletInputs]="{ components: [overlay.component] }"
+      ></ng-container>
+    </div>
+  }
+</div>

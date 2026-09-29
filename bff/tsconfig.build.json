@@ -1,0 +1,15 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "incremental": false,
+    "sourceMap": false
+  },
+  "include": [
+    "index.ts",
+    "components/**/*.ts",
+    "core/**/*.ts",
+    "platforms/**/*.ts",
+    "webauthn/**/*.ts"
+  ],
+  "exclude": ["**/*.spec.ts", "dist", "node_modules", "core/node_modules"]
+}

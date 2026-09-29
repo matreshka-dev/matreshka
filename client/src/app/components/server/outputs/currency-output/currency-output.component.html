@@ -1,0 +1,8 @@
+{{
+  value()
+    | currency
+      : (config.properties.currency | prepare) ?? ""
+      : config.properties.minIntegerDigits
+      : config.properties.minFractionDigits
+      : config.properties.maxFractionDigits
+}}

@@ -1,0 +1,5 @@
+app-form,
+.form {
+  // Структурные компоненты не отображаются в DOM
+  display: contents;
+}

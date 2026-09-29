@@ -1,0 +1,9 @@
+@let displayValue = value() | prepare;
+@if (displayValue && src()) {
+  <iframe
+    #iframe
+    class="iframe"
+    [src]="src()"
+    [style.aspect-ratio]="config.properties.ratio?.value"
+  ></iframe>
+}

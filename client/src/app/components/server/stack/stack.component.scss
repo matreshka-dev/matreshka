@@ -1,0 +1,105 @@
+/* Сброс стилей кнопки; растягиваем на контентную область хоста и наследуем flex-раскладку.
+   display:contents давал бы ту же сетку, но без hit-testing по «пустым» местам между/flex. */
+.stack__action {
+  display: flex;
+  flex: 1 1 auto;
+  align-self: stretch;
+  width: 100%;
+  min-height: 0;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  appearance: none;
+  cursor: inherit;
+  flex-direction: inherit;
+  flex-wrap: inherit;
+  align-items: inherit;
+  justify-content: inherit;
+  gap: inherit;
+}
+
+/* У <button> с display:contents визуал :focus-visible не везде предсказуем */
+:host.stack--native-action:focus-within {
+  --background-color: var(--background-color_active) !important;
+  --text-color: var(--text-color_active) !important;
+  --link-color: var(--link-color_active) !important;
+  --icon-color: var(--icon-color_active) !important;
+  --placeholder-color: var(--placeholder-color_active) !important;
+  --border-color: var(--border-color_active) !important;
+  --shadow-color: var(--shadow-color_active) !important;
+}
+
+:host.stack--disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+/* Flex-item с overflow внутри column/page должен сжиматься, иначе растёт по контенту. */
+app-stack.row {
+  min-width: 0;
+}
+
+app-stack.stack {
+  min-height: 0;
+}
+
+.stack,
+.row {
+  // Значение по умолчанию чтобы не передавались потомкам
+  --padding-top: 0;
+  --padding-bottom: 0;
+  --padding-start: 0;
+  --padding-end: 0;
+  padding-block-start: var(--padding-top, 0px);
+  padding-block-end: var(--padding-bottom, 0px);
+  padding-inline-start: var(--padding-start, 0px);
+  padding-inline-end: var(--padding-end, 0px);
+  scrollbar-width: none;
+  /*
+   flex-shrink: 1; // Закомментировал, так как это значение по умолчанию в браузере
+   По умолчанию все элементы сжимаются чтобы не появлялось скроллов из-за нехватки места (overflow: auto),
+   Если сделать всем overflow: hidden, то элементы будут переезжать на новую строку, что также является не явным поведением, поэтому выбрана стратегия сжатия по умолчанию.
+   При этом если элементу явно задан overflow: hidden, то это воспринимается как запрет на сжатие элемента.
+  */
+  // transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+
+app-stack.safe-area-top {
+  padding-block-start: calc(
+    var(--padding-top, 0px) + var(--safe-area-top, 0px)
+  );
+}
+
+app-stack.safe-area-bottom {
+  padding-block-end: calc(
+    var(--padding-bottom, 0px) + var(--safe-area-bottom, 0px)
+  );
+}
+
+[dir="ltr"] app-stack.safe-area-start {
+  padding-inline-start: calc(
+    var(--padding-start, 0px) + var(--safe-area-left, 0px)
+  );
+}
+
+[dir="rtl"] app-stack.safe-area-start {
+  padding-inline-start: calc(
+    var(--padding-start, 0px) + var(--safe-area-right, 0px)
+  );
+}
+
+[dir="ltr"] app-stack.safe-area-end {
+  padding-inline-end: calc(
+    var(--padding-end, 0px) + var(--safe-area-right, 0px)
+  );
+}
+
+[dir="rtl"] app-stack.safe-area-end {
+  padding-inline-end: calc(
+    var(--padding-end, 0px) + var(--safe-area-left, 0px)
+  );
+}

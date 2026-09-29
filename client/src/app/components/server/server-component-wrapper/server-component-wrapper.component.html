@@ -1,0 +1,52 @@
+@if (_configSignal(); as cfg) {
+  <ng-template #componentTpl let-config="config">
+    @let link = config.properties?.link;
+    @if (link) {
+      @if (stringIsExternalUrl(link.value)) {
+        <a
+          [href]="link.value | prepare"
+          (click)="$event.stopPropagation()"
+          target="_blank"
+          tabindex="-1"
+          class="interactive"
+        >
+          <ng-container
+            [ngComponentOutlet]="componentClasses[config.class].component"
+            [ngComponentOutletInputs]="{ id: config.id }"
+          ></ng-container>
+        </a>
+      } @else {
+        <a
+          [routerLink]="link.value | prepare"
+          (click)="$event.stopPropagation()"
+          tabindex="-1"
+          class="interactive"
+        >
+          <ng-container
+            [ngComponentOutlet]="componentClasses[config.class].component"
+            [ngComponentOutletInputs]="{ id: config.id }"
+          ></ng-container>
+        </a>
+      }
+    } @else {
+      <ng-container
+        [ngComponentOutlet]="componentClasses[config.class].component"
+        [ngComponentOutletInputs]="{ id: config.id }"
+      ></ng-container>
+    }
+  </ng-template>
+  @let overlays = overlaysFor(cfg);
+  @if (overlays.length > 0) {
+    <app-overlays [parent]="cfg" [overlays]="overlays">
+      <ng-container
+        [ngTemplateOutlet]="componentTpl"
+        [ngTemplateOutletContext]="{ config: cfg }"
+      ></ng-container>
+    </app-overlays>
+  } @else {
+    <ng-container
+      [ngTemplateOutlet]="componentTpl"
+      [ngTemplateOutletContext]="{ config: cfg }"
+    ></ng-container>
+  }
+}

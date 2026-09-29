@@ -1,0 +1,100 @@
+@keyframes slide-in-from-left {
+  from {
+    translate: -10vw 0;
+  }
+}
+@keyframes slide-in-from-right {
+  from {
+    translate: 100vw 0;
+  }
+}
+@keyframes slide-out-to-left {
+  to {
+    translate: -10vw 0;
+  }
+}
+@keyframes slide-out-to-right {
+  to {
+    translate: 100vw 0;
+  }
+}
+//@keyframes scale-up {
+//  from {
+//    scale: 0;
+//  }
+//}
+//@keyframes scale-down {
+//  to {
+//    scale: 0;
+//  }
+//}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+::view-transition-group(*) {
+  animation-duration: 0.3s;
+  animation-timing-function: ease-in-out;
+  animation-fill-mode: both;
+}
+
+/*
+ * Платформенные оверлеи: без slide/fade и поверх слоёв root (иначе на время
+ * анимации корень перекрывает группу — выглядит как исчезновение оверлеев).
+ */
+::view-transition-group(app-platform-overlays-layer) {
+  z-index: 10000;
+  animation: none !important;
+  animation-duration: 0s !important;
+}
+
+::view-transition-old(app-platform-overlays-layer),
+::view-transition-new(app-platform-overlays-layer) {
+  z-index: 10000;
+  animation: none !important;
+  opacity: 1 !important;
+}
+
+// Анимация по умолчанию (отключил, выставляю в js)
+::view-transition-old(root) {
+  animation-name: none;
+}
+
+::view-transition-new(root) {
+  animation-name: none;
+}
+
+html:active-view-transition-type(forwards) {
+  &::view-transition-old(root) {
+    animation-name: slide-out-to-left;
+  }
+  &::view-transition-new(root) {
+    animation-name: slide-in-from-right;
+  }
+}
+
+html:active-view-transition-type(backwards) {
+  &::view-transition-old(root) {
+    z-index: 1;
+    animation-name: slide-out-to-right;
+  }
+  &::view-transition-new(root) {
+    animation-name: slide-in-from-left;
+  }
+}
+html:active-view-transition-type(default) {
+  &::view-transition-old(root) {
+    z-index: 1;
+    animation-name: fade-out;
+  }
+  &::view-transition-new(root) {
+    animation-name: fade-in;
+  }
+}

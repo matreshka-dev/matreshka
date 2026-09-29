@@ -1,0 +1,12 @@
+.idea
+.DS_Store
+/.cursor/mcp.json
+vitest.log
+projects/*/node_modules
+projects/*/dist
+projects/*/tmp
+/node_modules
+**/.tsbuildinfo
+/shared/dist
+/gateway/node_modules
+/gateway/dist

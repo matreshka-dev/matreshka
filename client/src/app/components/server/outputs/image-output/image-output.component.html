@@ -1,0 +1,17 @@
+@if (value()) {
+  <img
+    (load)="loaded.set(true)"
+    [class.image_loaded]="loaded()"
+    [class]="[
+      'image',
+      config.properties.ratio ? 'image__' + config.properties.ratio.mode : '',
+    ]"
+    [style.border-start-start-radius]="rem(radiusPx.topStart)"
+    [style.border-start-end-radius]="rem(radiusPx.topEnd)"
+    [style.border-end-start-radius]="rem(radiusPx.bottomStart)"
+    [style.border-end-end-radius]="rem(radiusPx.bottomEnd)"
+    [style.aspect-ratio]="config.properties.ratio?.value"
+    [src]="value()"
+    loading="lazy"
+  />
+}
