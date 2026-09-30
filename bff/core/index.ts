@@ -8,6 +8,7 @@ export * from "./actions/write-text-to-clipboard";
 export * from "./boot";
 export * from "./client";
 export * from "./client-context";
+export * from "./client-storage";
 export * from "./entry-context";
 export * from "./gateway-connection";
 export * from "./matreshka";

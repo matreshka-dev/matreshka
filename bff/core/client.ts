@@ -7,7 +7,6 @@ import { BrowserName } from "@matreshka/shared/enums/browser-name";
 import { DeviceType } from "@matreshka/shared/enums/device-type";
 import { OsName } from "@matreshka/shared/enums/os-name";
 import { PlatformId } from "@matreshka/shared/enums/platform-id";
-import { AppStorageValueMessage } from "@matreshka/shared/messages/bff-to-client/app/index";
 import {
   AnyBffToClientMessage,
   BffToClientMessage,
@@ -23,20 +22,19 @@ import { ClientToBffMessageReceivedMessage } from "@matreshka/shared/messages/cl
 import { parseClientToBffMessage } from "@matreshka/shared/messages/client-to-bff/parse-client-to-bff-message";
 import { ReliableDelivery } from "@matreshka/shared/messages/reliable-delivery";
 import { ClientState } from "@matreshka/shared/types/client-state";
-import { fetchFromObject } from "@matreshka/shared/utils/fetch-from-object";
 import { BehaviorSubject, filter, Subject } from "rxjs";
 import { z } from "zod/v4";
 import { Page } from "../components";
 import { App } from "../components/app";
 import { Component } from "../components/component";
 import { runWithClient } from "./client-context";
+import { ClientStorage } from "./client-storage";
 import { ComponentInstance } from "./types/component-instance";
 import {
   type ComponentTreeNode,
   isComponentInstance,
 } from "./types/component-tree-node";
 import { incomingMessageObserver } from "./utils/incoming-message-observer";
-import { setObjectProperty } from "./utils/set-object-property";
 
 const resolveOsNameFromUserAgent = getOsNameFromUserAgent as unknown as (
   userAgent: string,
@@ -108,6 +106,7 @@ export class Client {
 
   readonly state$: BehaviorSubject<ClientState>;
   readonly applicationId$ = new BehaviorSubject<string | undefined>(undefined);
+  readonly storage = new ClientStorage(this);
 
   /**
    * Создает новый экземпляр клиента.
@@ -333,12 +332,10 @@ export class Client {
    *
    * @param key Ключ значения.
    * @returns Значение, если оно существует.
+   * @deprecated Используйте {@link Client.storage.get}.
    */
   getStorageValue(key: string) {
-    return fetchFromObject(
-      this.state$.getValue().storage,
-      key,
-    ) as unknown as string;
+    return this.storage.get(key);
   }
 
   /**
@@ -347,13 +344,10 @@ export class Client {
    * @param key Ключ значения.
    * @param value Значение или undefined для удаления.
    * @returns Ссылку на текущий экземпляр клиента.
+   * @deprecated Используйте {@link Client.storage.set}.
    */
   setStorageValue(key: string, value: string | undefined) {
-    const storage = this.state$.getValue().storage;
-    setObjectProperty(storage, key, value as any);
-    this.state$.next({ ...this.state$.getValue(), storage });
-    const message = new AppStorageValueMessage({ key, value });
-    this.outcomingMessage$.next(message);
+    this.storage.set(key, value);
     return this;
   }
 
@@ -362,9 +356,11 @@ export class Client {
    *
    * @param key Ключ для удаления.
    * @returns Ссылку на текущий экземпляр клиента.
+   * @deprecated Используйте {@link Client.storage.clear}.
    */
   clearStorageValue(key: string) {
-    return this.setStorageValue(key, undefined);
+    this.storage.clear(key);
+    return this;
   }
 
   private forwardToTransport(message: BffToClientMessage): void {

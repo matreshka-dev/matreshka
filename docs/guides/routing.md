@@ -50,7 +50,7 @@ async function getRoleFromJwt(jwt?: string) {
 }
 
 app.router.addPage("/admin", async (client) => {
-  const jwt = client.state$.getValue().storage.jwt;
+  const jwt = client.storage.get("jwt");
   const role = await getRoleFromJwt(jwt);
 
   return role === "admin" ? new AdminPage() : undefined;

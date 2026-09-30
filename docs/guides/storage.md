@@ -54,7 +54,7 @@ Storage хранится на стороне клиента, а BFF получа
 
 ```ts
 app.router.addPage("/admin", async (client) => {
-  const jwt = client.getStorageValue("jwt");
+  const jwt = client.storage.get("jwt");
   const session = await authService.findSessionByJwt(jwt);
 
   return session?.role === "admin" ? new AdminPage() : undefined;
@@ -67,14 +67,14 @@ app.router.addPage("/admin", async (client) => {
 const jwt = client.state$.getValue().storage.jwt;
 ```
 
-Метод `getStorageValue(...)` удобнее, когда нужно не привязываться к форме объекта напрямую.
+`client.storage.get(...)` удобнее, когда нужно не привязываться к форме объекта напрямую и поддерживать dot-path ключи.
 
 ## Запись storage с BFF
 
 BFF может попросить клиента сохранить значение:
 
 ```ts
-client.setStorageValue("jwt", token);
+client.storage.set("jwt", token);
 ```
 
 После этого matreshka:
@@ -86,15 +86,19 @@ client.setStorageValue("jwt", token);
 Удаление значения выглядит так:
 
 ```ts
-client.clearStorageValue("jwt");
+client.storage.clear("jwt");
 ```
+
+## Устаревший API
+
+Раньше те же операции вызывались методами `Client`: `getStorageValue`, `setStorageValue` и `clearStorageValue`. Они сохранены для совместимости, но помечены как deprecated. Используйте `client.storage.get`, `client.storage.set` и `client.storage.clear`.
 
 ## Что хранить
 
 Storage лучше держать маленьким и строковым. Если нужно сохранить структурированные данные, сериализуйте их явно:
 
 ```ts
-client.setStorageValue(
+client.storage.set(
   "filters",
   JSON.stringify({ status: "active", sort: "createdAt" }),
 );
@@ -103,7 +107,7 @@ client.setStorageValue(
 А при чтении разбирайте значение там, где оно реально нужно:
 
 ```ts
-const rawFilters = client.getStorageValue("filters");
+const rawFilters = client.storage.get("filters");
 const filters = rawFilters ? JSON.parse(rawFilters) : undefined;
 ```
 
