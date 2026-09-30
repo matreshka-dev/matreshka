@@ -1,8 +1,13 @@
 # Cookbook
 
-Короткие рецепты: **одна задача — один фрагмент кода**. Теория — в [getting started](../getting-started/overview.md) и [guides](../guides/README.md); полные props — в [reference](../reference/README.md).
+Короткие рецепты: **одна задача — один фрагмент кода**. Этот раздел рассчитан
+на разработчика, который уже прошёл
+[основной маршрут](../getting-started/next-steps.md): getting started и все
+базовые guides.
 
-Перед рецептом при необходимости: [Context](../guides/context.md), [События](../guides/events-and-actions.md), [Client settings](../reference/client-settings.md).
+Если вы пришли сюда раньше, начните с
+[обзора](../getting-started/overview.md). Полные props ищите в
+[reference](../reference/README.md).
 
 ---
 

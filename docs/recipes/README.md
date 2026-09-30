@@ -1,5 +1,9 @@
 # Рецепты
 
-[Cookbook](cookbook.md) — короткие решения типовых задач. Перед рецептом при необходимости прочитайте связанный guide (ссылки внутри рецептов).
+[Cookbook](cookbook.md) — короткие решения типовых задач для разработчика,
+который уже прошёл [основной маршрут](../getting-started/next-steps.md).
 
-Теория и полные API — в [guides](../guides/README.md) и [reference](../reference/README.md).
+Если основы ещё не пройдены, начните с
+[Getting started](../getting-started/overview.md). Теория остаётся в
+[guides](../guides/README.md), полные API — в
+[reference](../reference/README.md).

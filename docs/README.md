@@ -10,13 +10,17 @@ Matreshka — **server-driven UI** на BFF: вы описываете стра�
 
 ## С чего начать (BFF-разработчик)
 
-Пройдите короткий маршрут — **~1–2 часа до первого экрана в браузере**:
+Начните с onboarding — **~1–2 часа до первого экрана в браузере**:
 
 1. [Обзор](getting-started/overview.md) — модель и пакеты
 2. [Локальная настройка](getting-started/local-setup.md) — сборка и клиент
 3. [Первое приложение](getting-started/first-app.md) — Page, route, WebSocket
 4. [Состояние и события](getting-started/state-and-events.md) — Context и форма
-5. [Следующие шаги](getting-started/next-steps.md) — карта по задачам
+5. [Следующие шаги](getting-started/next-steps.md) — продолжение обязательного маршрута
+
+После onboarding не переходите сразу к рецептам: страница «Следующие шаги»
+последовательно проведёт через основы роутинга, состояния, компонентов, событий,
+layout и overlays. Только после этого маршрут ведёт в Cookbook.
 
 ## Разделы документации
 
@@ -31,7 +35,8 @@ Matreshka — **server-driven UI** на BFF: вы описываете стра�
 | Gateway | Несколько BFF / единая точка входа | [gateway/README.md](gateway/README.md) |
 | AI | Agent skills для Cursor | [ai/agent-skills.md](ai/agent-skills.md) |
 
-**Reference** и **platforms** не нужно читать подряд — открывайте по мере задачи.
+**Reference**, **Architecture**, **Advanced** и **Gateway** не входят в основной
+маршрут — открывайте их по мере задачи.
 
 ## Пакеты в монорепозитории
 

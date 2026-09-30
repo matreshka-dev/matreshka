@@ -2,7 +2,7 @@
 
 `storage` — это клиентское key-value хранилище, которое клиент передает в BFF как часть `ClientState`.
 
-Оно полезно для небольших значений, которые должны переживать reload и использоваться серверной логикой:
+Оно полезно для небольших значений, которые должны жить между сессиями и использоваться серверной логикой:
 
 - auth token или JWT;
 - выбранный tenant или organization id;
@@ -116,5 +116,8 @@ const filters = rawFilters ? JSON.parse(rawFilters) : undefined;
 
 ## Что читать дальше
 
-- [client-settings.md](../reference/client-settings.md) — глобальная конфигурация приложения (не storage).
-- [`context.md`](context.md) — чтобы сравнить storage с серверным состоянием UI-сценария.
+**Следующий обязательный шаг:** [Context](context.md) — серверное состояние
+UI-сценария и его отличие от клиентского storage.
+
+Дополнительно: [Client settings](../reference/client-settings.md) — глобальная
+конфигурация приложения.

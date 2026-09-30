@@ -6,7 +6,7 @@
 
 `Router` сопоставляет route mask с callback, который возвращает `Page`.
 
-После `bootServerComponents(app)` matreshka сама следит за `client-state`: когда клиент сообщает текущий route, BFF находит подходящую страницу, выполняет ее подготовку и отправляет клиенту `AppPageMessage`.
+Matreshka сама следит за `client-state`: когда клиент сообщает текущий route, BFF находит подходящую страницу, выполняет ее подготовку и отправляет клиенту `AppPageMessage`.
 
 ## Статическая страница
 
@@ -63,5 +63,8 @@ app.router.addPage("**", async () => new ForbiddenPage());
 
 ## Что читать дальше
 
-- [`storage.md`](storage.md) — чтобы понять, откуда берутся `ClientState.storage` и значения для route guards.
-- [client-settings.md](../reference/client-settings.md) — глобальная конфигурация клиентского приложения.
+**Следующий обязательный шаг:** [Storage](storage.md) — откуда берутся
+`ClientState.storage` и значения для route guards.
+
+Дополнительно: [Client settings](../reference/client-settings.md) — полная
+глобальная конфигурация клиентского приложения.

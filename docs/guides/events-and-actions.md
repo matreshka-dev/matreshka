@@ -14,15 +14,16 @@
 
 ## Серверный обработчик события
 
-Серверный обработчик выполняется на BFF. В нём удобно менять `Context`, принимать бизнес-решения, вызывать backend-сервисы или отправлять команды платформе.
+Серверный обработчик выполняется на BFF. Используйте его, когда нужно принять
+бизнес-решение, вызвать backend-сервис или выполнить другую серверную логику.
 
 Обработчик получает **`instance`** — конкретный инстанс компонента на клиенте, инициировавший событие (подробнее в advanced-разделе `component-instance.md`):
 
 ```ts
 button(
   {
-    onClick: ({ instance, payload }) => {
-      this.context.setValue("saved", true);
+    onClick: async ({ instance }) => {
+      await this.draftService.save(this.context.value("draft"));
       // instance.id — id DOM-инстанса; instance.component — BFF-объект
     },
   },
@@ -82,8 +83,6 @@ class FeedPage extends Page {
 - `onEnter` — после первого рендера entry-компонента (`Page`, `Dialog`, `Popover`);
 - `onLeave` — в момент начала ухода entry-компонента; клиент сразу запускает local actions, а BFF сразу выполняет server handlers;
 - `onMouseEnter` / `onMouseLeave` — при наведении и уходе курсора с host-элемента компонента.
-
-Важно: у `Page`, `Dialog` и `Popover` публичный lifecycle проходит через `onEnter` / `onLeave`. Вложенные обычные компоненты по-прежнему используют `onShow` / `onHide`, поэтому при уходе entry root получает `leave`, а дочерние узлы могут отдельно проиграть свои `hide`-анимации.
 
 ## Regular и entry lifecycle
 
@@ -145,12 +144,7 @@ const bounceAnimation = animate({
 
 button(
   {
-    onClick: [
-      bounceAnimation,
-      () => {
-        this.context.setValue("clicked", true);
-      },
-    ],
+    onClick: [bounceAnimation, () => this.analytics.trackButtonClick()],
   },
   [text("Нажать")],
 );
@@ -196,7 +190,8 @@ button(
 
 ## Анимация как `LocalAction`
 
-Анимации тоже можно запускать как клиентское действие на событие. В примере выше `bounceAnimation` выполняется на клиенте, а следующий обработчик в массиве выполняется на BFF.
+Анимации тоже можно запускать как клиентское действие на событие. В примере
+выше `bounceAnimation` выполняется на клиенте, а отправка аналитики — на BFF.
 
 ## `conditions` у действий
 
@@ -356,5 +351,10 @@ class SignInPage extends Page {
 
 ## Что читать дальше
 
-- [component-instance.md](../advanced/component-instance.md) — advanced: `ComponentInstance`, instance id и команды.
-- [platforms.md](../reference/platforms.md) — platform API на клиенте.
+**Следующий обязательный шаг:** [Layout](layout.md) — правила компоновки
+компонентов.
+
+Дополнительно:
+
+- [Component instances](../advanced/component-instance.md) — instance id и команды;
+- [Platform API](../reference/platforms.md) — API клиентских платформ.

@@ -109,6 +109,7 @@ export class GreetPage extends Page {
 
 ## Что дальше
 
-- [Основы компонентов](../guides/components-basics.md) — дерево, `forEach`, `rules`.
-- [Layout](../guides/layout.md) — `row`, `column`, `stack`.
-- [Следующие шаги](next-steps.md) — карта документации.
+Продолжите основной маршрут:
+
+**Следующий обязательный шаг:** [Следующие шаги](next-steps.md) — порядок всех
+базовых руководств от роутинга и `Context` до layout и overlays.

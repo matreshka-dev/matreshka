@@ -188,5 +188,5 @@ stack(
 
 ## Что читать дальше
 
-- [components-basics.md](components-basics.md) — как `conditions` работают вместе с `rules` и общей моделью компонентов.
-- [`events-and-actions.md`](events-and-actions.md) — чтобы разобраться, как условия управляют клиентскими и серверными действиями после событий.
+**Следующий обязательный шаг:** [Основы компонентов](components-basics.md) — как
+`conditions` работают вместе с `rules` и общей моделью компонентов.

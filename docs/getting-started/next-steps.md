@@ -1,6 +1,7 @@
 # Следующие шаги
 
-**Цель:** выбрать документ под задачу, не читая всё подряд.
+**Цель:** пройти все основы Matreshka в порядке, в котором они понадобятся при
+разработке приложения.
 
 ## Уже пройдено (onboarding)
 
@@ -9,31 +10,31 @@
 3. [Первое приложение](first-app.md)
 4. [Состояние и события](state-and-events.md)
 
-## Частые задачи → куда идти
+## Основной маршрут
 
-| Задача | Документ |
-| ------ | -------- |
-| Параметры URL, guard | [Роутинг](../guides/routing.md) |
-| JWT / ключи на клиенте | [Storage](../guides/storage.md) |
-| Цвета, шрифты, PWA | [Client settings](../reference/client-settings.md) (минимум — в first-app) |
-| Список компонентов и props | [Каталог компонентов](../reference/components-list.md) |
-| Карта, доска (itemList) | [Item list](../reference/item-list.md) |
-| Диалог, navigate, theme | [Platform API](../reference/platforms.md) |
-| Overlay, dialog на странице | [Overlays](../guides/overlays.md) |
-| Готовый рецепт «как сделать X» | [Cookbook](../recipes/cookbook.md) |
-| Адресация инстансов, broadcast | [Component instances](../advanced/component-instance.md) |
-| Несколько BFF, прокси | [Gateway](../gateway/README.md) |
-| Протокол, reconnect | [Architecture](../architecture/README.md) |
-| AI-агент в Cursor | [Agent skills](../ai/agent-skills.md) |
+Читайте главы последовательно: в конце каждой есть один следующий обязательный
+шаг.
 
-## Дорожки (не обязательны с первого дня)
+1. [Роутинг](../guides/routing.md) — параметры URL и guards
+2. [Storage](../guides/storage.md) — клиентское состояние и данные для guards
+3. [Context](../guides/context.md) — серверное состояние и `ContextRef`
+4. [Conditions](../guides/conditions.md) — условный UI и действия
+5. [Основы компонентов](../guides/components-basics.md) — дерево, `rules` и `forEach`
+6. [События и действия](../guides/events-and-actions.md) — обработчики и клиентские действия
+7. [Layout](../guides/layout.md) — `stack`, `grid`, `row`, `column` и `surface`
+8. [Overlays](../guides/overlays.md) — слои и диалоги
+9. [Cookbook](../recipes/cookbook.md) — практика после прохождения основ
 
-**Справочник** — [reference/README.md](../reference/README.md): большие файлы, открывайте по необходимости.
+## Не входят в основной маршрут
 
-**Протокол и эксплуатация** — [architecture/README.md](../architecture/README.md).
+Эти разделы открывайте по мере задачи:
 
-**Gateway** — [gateway/README.md](../gateway/README.md) (отдельная топология, помечена как развивающаяся).
+- [Reference](../reference/README.md) — полные каталоги API;
+- [Architecture](../architecture/README.md) — протокол, доставка и reconnect;
+- [Advanced](../advanced/README.md) — адресация инстансов и сложные сценарии;
+- [Gateway](../gateway/README.md) — несколько BFF и единая точка входа;
+- [Agent skills](../ai/agent-skills.md) — помощь AI-агенту при работе с Matreshka.
 
 ## Что дальше
 
-Вернитесь к [документации](../README.md) или откройте [руководства](../guides/README.md).
+**Следующий обязательный шаг:** [Роутинг](../guides/routing.md).

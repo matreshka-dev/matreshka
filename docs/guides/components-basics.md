@@ -391,6 +391,10 @@ forEach({
 
 ## Что читать дальше
 
-- [`layout.md`](layout.md) — чтобы отдельно разобрать `stack`, `grid`, алиасы и правила компоновки.
-- [components-list.md](../reference/components-list.md) — полный каталог компонентов.
-- [component-instance.md](../advanced/component-instance.md) — advanced: `ComponentInstance`, instance id и команды клиенту.
+**Следующий обязательный шаг:** [События и действия](events-and-actions.md) —
+обработчики компонентов и клиентские действия.
+
+Дополнительно:
+
+- [Каталог компонентов](../reference/components-list.md) — все компоненты и props;
+- [Component instances](../advanced/component-instance.md) — instance id и команды клиенту.

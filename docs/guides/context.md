@@ -8,7 +8,7 @@
 - синхронизирует эти данные с клиентом;
 - получает изменения от клиента;
 - отдает `ref()` для привязки к компонентам;
-- валидирует входящие изменения через `zod`, если задана схема.
+- валидирует входящие изменения, если задана схема.
 
 Если коротко:
 
@@ -48,7 +48,7 @@ textInput(this.context.ref("name"));
 ```
 
 ```ts
-text(`Привет, ${this.context.ref("name")}`);
+text(`Привет, ${this.context.ref("name").toString()}`);
 ```
 
 Подробные примеры использования `ref()` с `forEach` и другими компонентами — в [components-basics.md](components-basics.md) и [components-list.md](../reference/components-list.md).
@@ -135,19 +135,44 @@ context = new Context({
 ### 3. Ручной вызов `init()`
 
 ```ts
-async boot() {
-  await this.context.init();
-  return super.boot();
+class ProfilePage extends Page {
+  context = new Context({
+    data: async () => ({
+      name: "Alice",
+    }),
+  });
+
+  override async boot() {
+    await super.boot();
+    await this.context.init();
+  }
+
+  protected title() {
+    return "Профиль";
+  }
+
+  protected content() {
+    const name = this.context.value("name");
+    return [text(`Пользователь: ${name}`)];
+  }
 }
 ```
 
-Такой вариант нужен, когда BFF хочет сам контролировать момент инициализации.
+`boot()` — метод entry-компонента, здесь `ProfilePage`. BFF вызывает его до
+сериализации страницы и до вызова `content()`. Поэтому ручной `init()` нужен,
+когда загруженные данные контекста должны участвовать уже в построении разметки:
+например, `content()` или `overlays()` вызывает `context.value()` либо строит
+ветки и списки на основе полученных значений.
+
+Если разметка использует только `context.ref()` и клиентские `conditions`, обычно
+не нужно загружать значение вручную перед сериализацией.
 
 ### Практическое правило
 
 - `preload` — когда данные точно нужны сразу;
 - lazy — когда данные могут понадобиться позже;
-- ручной `init()` — когда сервер хочет явно контролировать момент загрузки.
+- ручной `init()` в `boot()` — когда данные нужны серверу для построения
+  `content()` или `overlays()` до отправки разметки клиенту.
 
 ## Валидация через `zod`
 
@@ -258,7 +283,7 @@ this.context.emitAfterInPlaceMutation();
 
 ## Что приходит с клиента
 
-Если компонент связан с `ContextRef`, клиент может присылать изменения в BFF. Обычно это происходит через `context-values`.
+Если компонент связан с `ContextRef`, клиент может присылать изменения в BFF.
 
 На практике это означает:
 
@@ -272,6 +297,8 @@ this.context.emitAfterInPlaceMutation();
 
 ## Что читать дальше
 
-- [`conditions.md`](conditions.md) — чтобы понять, как данные `Context` влияют на видимость компонентов и выполнение действий.
-- [components-basics.md](components-basics.md) — чтобы связать `ContextRef` с общей компонентной моделью.
-- [`../architecture/protocol.md`](../architecture/protocol.md) — если нужен транспортный уровень `context-init` и `context-values`.
+**Следующий обязательный шаг:** [Conditions](conditions.md) — как данные
+`Context` влияют на видимость компонентов и выполнение действий.
+
+Дополнительно: [Протокол](../architecture/protocol.md) — транспортный уровень
+`context-init` и `context-values`.

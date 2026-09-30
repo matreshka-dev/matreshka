@@ -76,5 +76,8 @@ ng serve
 
 ## Что дальше
 
-- [Первое приложение](first-app.md) — код BFF и transport.
-- [client/README.md](../../client/README.md) — платформы и production-сборки клиента.
+**Следующий обязательный шаг:** [Первое приложение](first-app.md) — код BFF и
+transport.
+
+Дополнительно: [client/README.md](../../client/README.md) — платформы и
+production-сборки клиента.
