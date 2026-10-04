@@ -18,7 +18,6 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ColorRole } from '@shared/enums/color-role';
 import {
   ComponentCommandMessage,
   isComponentCommandMessage,
@@ -41,7 +40,6 @@ import { ComponentHubService } from '../../services/component-hub.service';
 import { ContextHubService } from '../../services/context-hub.service';
 import { FontRegistryService } from '../../services/font-registry.service';
 import { PostmanService } from '../../services/postman.service';
-import { registerColorRole } from '../../utils/register-colors';
 import type { Overlay } from './server-component-config';
 import { ServerComponentConfig } from './server-component-config';
 import { getOverlaysFromConfig } from './server-component-overlays';
@@ -70,7 +68,6 @@ export abstract class ServerComponent<T extends ServerComponentConfig>
   implements OnInit, OnDestroy, AfterViewInit
 {
   destroy$ = new Subject<void>();
-  private appliedColorClasses = new Set<string>();
   contextHub = inject(ContextHubService);
   postman = inject(PostmanService);
   componentHub = inject(ComponentHubService);
@@ -126,7 +123,6 @@ export abstract class ServerComponent<T extends ServerComponentConfig>
         return;
       }
       this.calculateStyles();
-      this.syncColors();
       this.cdr.markForCheck();
     });
   }
@@ -195,23 +191,6 @@ export abstract class ServerComponent<T extends ServerComponentConfig>
     );
   }
 
-  syncColors() {
-    this.appliedColorClasses.forEach((className) => {
-      this.elementRef.nativeElement.classList.remove(className);
-    });
-    this.appliedColorClasses.clear();
-    if (this.config.properties?.colors) {
-      Object.entries(this.config.properties.colors).forEach(
-        ([role, paletteId]) => {
-          const className = 'color-token-' + paletteId + '-' + role;
-          registerColorRole(this.document, paletteId, role as ColorRole);
-          this.elementRef.nativeElement.classList.add(className);
-          this.appliedColorClasses.add(className);
-        },
-      );
-    }
-  }
-
   calculateStyles() {
     const sizeStyles = calculateSizeStyles({
       flexItem: this.config.properties?.flexItem,
@@ -275,7 +254,6 @@ export abstract class ServerComponent<T extends ServerComponentConfig>
       // Добавление инстанса возвращает Subject, который вызывается когда компонент нужно ререндерить
       this.cdr.markForCheck();
     });
-    this.syncColors();
   }
 
   private subscribeContextFreezeState(): void {

@@ -3,7 +3,6 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { firstValueFrom } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { ColorRole } from '@shared/enums/color-role';
 import { ConditionType } from '@shared/enums/condition-type';
 import { DimensionalUnit } from '@shared/enums/dimensional-unit';
 import { ServerComponentClass } from '@shared/enums/server-component-class';
@@ -17,7 +16,6 @@ import { PostmanService } from '../../services/postman.service';
 import { SsrService } from '../../services/ssr.service';
 import { TestPostmanService } from '../../services/tests/test-postman.service';
 import { TestSsrService } from '../../services/tests/test-ssr.service';
-import * as colorRegister from '../../utils/register-colors';
 import { ServerComponent } from './server-component';
 import {
   ComponentDependencies,
@@ -99,125 +97,6 @@ describe('ServerComponent (abstract базовый компонент)', () => {
   afterEach(() => {
     fixture.destroy(); // Уничтожение компонента до удаления конфига, иначе компонент теряет значение конфига
     componentHub.deleteConfig(config);
-  });
-
-  describe('syncColors', () => {
-    beforeEach(() => {
-      // Регистрируем тестовые цветовые схемы
-      colorRegister.registerColors({
-        'test-scheme-1': {
-          default: '#000000',
-        },
-        'test-scheme-2': {
-          default: '#ffffff',
-        },
-      });
-    });
-
-    it('должен добавлять CSS‑классы для каждой роли из colors', () => {
-      const nativeElement: HTMLElement = (component as any).elementRef
-        .nativeElement;
-
-      config.properties = {
-        colors: {
-          [ColorRole.Background]: 'test-scheme-1',
-          [ColorRole.Text]: 'test-scheme-2',
-          [ColorRole.Link]: 'test-scheme-2',
-          [ColorRole.Icon]: 'test-scheme-2',
-          [ColorRole.Placeholder]: 'test-scheme-2',
-        },
-      };
-
-      component.syncColors();
-
-      expect(
-        nativeElement.classList.contains(
-          'color-token-test-scheme-1-background',
-        ),
-      ).toBeTruthy();
-      expect(
-        nativeElement.classList.contains('color-token-test-scheme-2-text'),
-      ).toBeTruthy();
-      expect(
-        nativeElement.classList.contains('color-token-test-scheme-2-link'),
-      ).toBeTruthy();
-      expect(
-        nativeElement.classList.contains('color-token-test-scheme-2-icon'),
-      ).toBeTruthy();
-      expect(
-        nativeElement.classList.contains(
-          'color-token-test-scheme-2-placeholder',
-        ),
-      ).toBeTruthy();
-    });
-
-    it('должен регистрировать стили для каждой роли', () => {
-      config.properties = {
-        colors: {
-          [ColorRole.Background]: 'test-scheme-1',
-          [ColorRole.Text]: 'test-scheme-2',
-          [ColorRole.Link]: 'test-scheme-2',
-          [ColorRole.Icon]: 'test-scheme-2',
-          [ColorRole.Placeholder]: 'test-scheme-2',
-        },
-      };
-
-      component.syncColors();
-
-      const styles = Array.from(
-        component.document.head.querySelectorAll('style'),
-      );
-      expect(
-        styles.some((style) =>
-          style.innerHTML.includes('.color-token-test-scheme-1-background'),
-        ),
-      ).toBe(true);
-      expect(
-        styles.some((style) =>
-          style.innerHTML.includes('.color-token-test-scheme-2-text'),
-        ),
-      ).toBe(true);
-      expect(
-        styles.some((style) =>
-          style.innerHTML.includes('.color-token-test-scheme-2-link'),
-        ),
-      ).toBe(true);
-      expect(
-        styles.some((style) =>
-          style.innerHTML.includes('.color-token-test-scheme-2-icon'),
-        ),
-      ).toBe(true);
-      expect(
-        styles.some((style) =>
-          style.innerHTML.includes('.color-token-test-scheme-2-placeholder'),
-        ),
-      ).toBe(true);
-    });
-
-    it('не должен добавлять CSS‑классы, если colors не задан', () => {
-      const nativeElement: HTMLElement = (component as any).elementRef
-        .nativeElement;
-
-      component.syncColors();
-
-      // Класс не должен появиться
-      expect(
-        Array.from(nativeElement.classList).some((cls) =>
-          cls.startsWith('color-token-'),
-        ),
-      ).toBe(false);
-    });
-
-    it('не должен регистрировать новые стили, если colors не задан', () => {
-      const initialStylesCount =
-        component.document.head.querySelectorAll('style').length;
-
-      component.syncColors();
-
-      expect(component.document.head.querySelectorAll('style')).toHaveLength(
-        initialStylesCount,
-      );
-    });
   });
 
   describe('calculateStyles', () => {
