@@ -16,7 +16,7 @@ export function serializeBffHandshake(token: string): string {
     settings: {
       appName: "Test",
       fonts: {},
-      colors: {},
+      colors: { registry: {}, default: {} },
     },
   });
   return JSON.stringify(message.toJSON());

@@ -1,5 +1,13 @@
+import { ColorRole } from "@matreshka/shared/enums/color-role";
 import { ColorToken } from "@matreshka/shared/types/color-token";
 import { AppFontsConfig } from "@matreshka/shared/types/fonts";
+
+export type ClientSettingsColors = {
+  /** Реестр определений токенов для handshake и резолва id в UI. */
+  registry: ColorToken[];
+  /** Глобальные роли по умолчанию на клиенте. */
+  default: Partial<Record<ColorRole, ColorToken>>;
+};
 
 /**
  * Настройки интерфейса приложения, передаваемые клиенту.
@@ -9,7 +17,7 @@ import { AppFontsConfig } from "@matreshka/shared/types/fonts";
  * @property faviconUrl Ссылки на иконки favicon.
  * @property pwaIconUrl Ссылки на иконки для установки как PWA.
  * @property fonts Реестр и стек шрифтов интерфейса.
- * @property colors Цветовые схемы интерфейса.
+ * @property colors Реестр токенов и глобальные роли по умолчанию.
  */
 export type ClientSettings = {
   appName: string;
@@ -29,5 +37,5 @@ export type ClientSettings = {
     svg?: string;
   };
   fonts: AppFontsConfig;
-  colors: ColorToken[];
+  colors: ClientSettingsColors;
 };

@@ -20,6 +20,8 @@ export * from "./context/context-ref";
 
 export * from "./utils/calculate-components";
 export * from "./utils/color-token-id";
+export * from "./utils/color-roles-to-ids";
+export * from "./types/client-settings";
 export * from "./utils/serialize-component-tree";
 
 export * from "@matreshka/shared/types/json";

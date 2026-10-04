@@ -58,7 +58,10 @@ export const clientSettings: ClientSettings = {
       weights: [400, 500, 700],
     },
   },
-  colors: [],
+  colors: {
+    registry: [],
+    default: {},
+  },
 };
 
 /** BFF может обслуживать несколько applicationId — верните настройки по id клиента. */

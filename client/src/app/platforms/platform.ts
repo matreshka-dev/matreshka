@@ -34,6 +34,7 @@ import {
 } from '../utils/apply-color-scheme-preference';
 import { parseContextPath } from '../utils/parse-context-path';
 import { registerColors } from '../utils/register-colors';
+import { syncConfigColorsToElement } from '../utils/sync-config-colors-to-element';
 import { stringIsExternalUrl } from '../utils/string-is-external-url';
 
 export const PLATFORM = new InjectionToken<Platform>('');
@@ -50,6 +51,7 @@ export abstract class Platform {
 
   /** Конфиги платформенных оверлеев (вне страницы, переживают навигацию). */
   readonly platformOverlays = signal<Overlay[]>([]);
+  private readonly defaultColorClasses = new Set<string>();
   serverInstanceId?: string;
   router = inject(Router);
   abstract id(): PlatformId; // Уникальный идентификатор платформы для распознавания на сервере
@@ -76,7 +78,13 @@ export abstract class Platform {
         } else if (this.serverInstanceId !== payload.serverInstanceId) {
           this.window.location.reload();
         }
-        registerColors(payload.settings.colors);
+        registerColors(payload.settings.colors.registry);
+        syncConfigColorsToElement(
+          this.document,
+          this.document.documentElement,
+          payload.settings.colors.default,
+          this.defaultColorClasses,
+        );
         this.fontRegistry.setConfig(payload.settings.fonts);
         applyFontsToDocument(this.document, payload.settings.fonts);
         if (payload.settings.analytics?.yandex) {

@@ -4,14 +4,13 @@ import {
   HandshakeMessage,
 } from "@matreshka/shared/messages/bff-to-client/app/index";
 import { HandshakeMessage as ClientHandshakeMessage } from "@matreshka/shared/messages/client-to-bff/app/handshake-message";
-import { ColorToken } from "@matreshka/shared/types/color-token";
 import * as crypto from "crypto";
 import { filter, Subject, Subscription, take } from "rxjs";
 import { Client } from "./client";
 import { GatewayConnection } from "./gateway-connection";
 import { Router } from "./router";
 import { ClientSettings } from "./types/client-settings";
-import { colorTokenId } from "./utils/color-token-id";
+import { serializeClientSettingsColorsForHandshake } from "./utils/serialize-client-settings-colors-for-handshake";
 
 const CLIENT_DESTROY_TIMEOUT_MS = 15 * 60 * 1000; // 15 минут
 
@@ -185,13 +184,7 @@ export class Matreshka {
       clientDestroyTimeoutMs: CLIENT_DESTROY_TIMEOUT_MS,
       settings: {
         ...settings,
-        colors: settings.colors.reduce(
-          (acc, cur: ColorToken) => {
-            acc[colorTokenId(cur)] = cur;
-            return acc;
-          },
-          {} as Record<string, ColorToken>,
-        ),
+        colors: serializeClientSettingsColorsForHandshake(settings.colors),
       },
     });
     client.outcomingMessage$.next(message);

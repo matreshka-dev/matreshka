@@ -1,3 +1,4 @@
+import { ColorRole } from "../../../enums/color-role";
 import { ColorToken } from "../../../types/color-token";
 import { AppFontsConfig } from "../../../types/fonts";
 import { ReliableBffToClientMessage } from "../reliable-bff-to-client-message";
@@ -13,7 +14,10 @@ export type HandshakePayload = {
     faviconUrl?: { svg?: string; png: string };
     pwaIconUrl?: { png: string; svg?: string };
     fonts: AppFontsConfig;
-    colors: Record<string, ColorToken>;
+    colors: {
+      registry: Record<string, ColorToken>;
+      default: Partial<Record<ColorRole, string>>;
+    };
   };
 };
 

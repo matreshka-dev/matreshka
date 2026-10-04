@@ -16,6 +16,7 @@ import {
   Action,
   Client,
   colorTokenId,
+  resolvePartialColorsToIds,
   Componentable,
   ComponentInstance,
   currentClient,
@@ -61,18 +62,6 @@ export type ComponentRuleOverrides<PropertiesType extends ComponentProperties> =
   Partial<Omit<PropertiesType, "colors">> & {
     colors?: Partial<Record<ColorRole, ColorToken>>;
   };
-
-function resolvePartialColorsToIds(
-  colors: Partial<Record<ColorRole, ColorToken>>,
-): Partial<Record<ColorRole, string>> {
-  return Object.entries(colors).reduce(
-    (acc, [role, value]) => {
-      acc[role as ColorRole] = colorTokenId(value);
-      return acc;
-    },
-    {} as Record<ColorRole, string>,
-  );
-}
 
 /**
  * @prop onShow - обработчики, которые должны выполниться при инициализации компонента на стороне клиента

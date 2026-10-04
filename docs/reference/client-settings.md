@@ -45,7 +45,10 @@ type ClientSettings = {
     svg?: string;
   };
   fonts: AppFontsConfig;
-  colors: ColorToken[];
+  colors: {
+    registry: ColorToken[];
+    default: Partial<Record<ColorRole, ColorToken>>;
+  };
 };
 ```
 
@@ -53,13 +56,19 @@ type ClientSettings = {
 
 ```ts
 import type { ClientSettings } from "@matreshka/bff/core/types/client-settings";
+import { ColorRole } from "@matreshka/shared/enums/color-role";
 import { appFonts } from "./font-tokens";
 import { selectBackgroundColorToken } from "./color-tokens/select-background";
 
 export const clientSettings: ClientSettings = {
   appName: "Панель управления тестами",
   fonts: appFonts,
-  colors: [selectBackgroundColorToken],
+  colors: {
+    registry: [selectBackgroundColorToken],
+    default: {
+      [ColorRole.Background]: selectBackgroundColorToken,
+    },
+  },
 };
 ```
 
@@ -67,7 +76,7 @@ export const clientSettings: ClientSettings = {
 
 - клиент получил имя приложения;
 - зарегистрировал шрифты;
-- зарегистрировал цветовую палитру.
+- зарегистрировал цветовую палитру и глобальные роли на `html`.
 
 ## Поля и их влияние
 
@@ -167,11 +176,16 @@ pwaIconUrl: {
 
 ### `colors`
 
-Реестр цветовых токенов приложения.
+Объект с двумя частями:
 
-Это список палитр, которые клиент должен знать заранее, чтобы потом компоненты могли ссылаться на них через `properties.colors`.
+- **`registry`** — реестр определений `ColorToken[]` (как раньше массив `colors`). Клиент регистрирует их при handshake, чтобы резолвить id в `properties.colors` компонентов.
+- **`default`** — глобальные роли по умолчанию (`Partial<Record<ColorRole, ColorToken>>`). Клиент вешает их на `document.documentElement`; наследуют platform overlays, узлы без своих `colors` и subtree под `ServerComponentWrapper`.
 
-Важно: если вы используете цветовой токен в компоненте, этот токен должен быть добавлен в `clientSettings.colors`.
+Локальные `properties.colors` на компоненте (через wrapper) перекрывают `default` для своей ветки.
+
+Каждый токен из `default` должен быть в `registry`, иначе клиент не найдёт id при применении ролей на `html`.
+
+Если вы используете токен в компоненте или в `default`, добавьте его в `colors.registry`.
 
 ## Подробно про шрифты
 
@@ -409,9 +423,9 @@ stack([
 
 ## Подробно про цветовые токены
 
-`colors` — это массив `ColorToken[]`.
+`colors.registry` — массив определений `ColorToken[]`; `colors.default` — необязательные глобальные роли на `html`.
 
-Поддерживаются два формата токена.
+Поддерживаются два формата каждого токена в `registry`.
 
 ### 1. Один набор цветов для всех тем
 
@@ -535,11 +549,17 @@ surface(
 export const clientSettings: ClientSettings = {
   appName: "Delta",
   fonts: appFonts,
-  colors: [selectBackgroundColorToken, accentColorToken],
+  colors: {
+    registry: [selectBackgroundColorToken, accentColorToken],
+    default: {
+      [ColorRole.Background]: selectBackgroundColorToken,
+      [ColorRole.Text]: accentColorToken,
+    },
+  },
 };
 ```
 
-Клиент получает массив токенов и регистрирует их у себя.
+Клиент получает реестр и default-роли и регистрирует их при handshake.
 
 ### Как использовать токен в компоненте
 
@@ -620,17 +640,18 @@ stack(
 
 ## Частая ошибка
 
-Если токен используется в компоненте, но отсутствует в `clientSettings.colors`, клиент не сможет его корректно зарегистрировать.
+Если токен используется в компоненте или в `colors.default`, но отсутствует в `clientSettings.colors.registry`, клиент не сможет его корректно зарегистрировать.
 
 Практическое правило простое:
 
-- все токены, которые планируется использовать в `properties.colors`, нужно включать в `clientSettings.colors`;
+- все токены из `properties.colors` и `colors.default` — в `colors.registry`;
 - если шрифт или палитра не зарегистрированы в `clientSettings`, не стоит ожидать, что клиент узнает о них сам.
 
 ## Полный пример
 
 ```ts
 import type { ClientSettings } from "@matreshka/bff/core/types/client-settings";
+import { ColorRole } from "@matreshka/shared/enums/color-role";
 import { appFonts } from "./font-tokens";
 import { selectBackgroundColorToken } from "./color-tokens/select-background";
 
@@ -651,7 +672,12 @@ export const clientSettings: ClientSettings = {
     },
   },
   fonts: appFonts,
-  colors: [selectBackgroundColorToken],
+  colors: {
+    registry: [selectBackgroundColorToken],
+    default: {
+      [ColorRole.Background]: selectBackgroundColorToken,
+    },
+  },
 };
 ```
 
