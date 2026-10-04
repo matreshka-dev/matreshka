@@ -1,7 +1,7 @@
 import {
+  CompatibleContextValueRef,
   Componentable,
   ContextRef,
-  ContextRefValue,
   StandaloneComponent,
 } from "../../core";
 import {
@@ -14,10 +14,11 @@ import {
  * Конфигурация инициализации компонента ввода.
  * @property ref Ссылка в контексте.
  */
+/** @see CompatibleContextValueRef */
 export type CompatibleInputRef<
   ValueType,
   RefType extends ContextRef<any, any>,
-> = ValueType extends ContextRefValue<RefType> ? RefType : never;
+> = CompatibleContextValueRef<ValueType, RefType>;
 
 export type InputInitConfig<
   ValueType,

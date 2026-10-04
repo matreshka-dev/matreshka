@@ -79,11 +79,6 @@ type ForEachInstanceState = {
   componentsCache: Map<string, ComponentTreeNode | ComponentTreeNode[]>;
 };
 
-export type ForEachDataRef<DataType> = ContextRef<any, any> & {
-  readonly __valueType?: DataType[];
-  value(): DataType[] | undefined;
-};
-
 /** Возвращает массив элементов списка из ref; не-массив даёт пустой массив. */
 function getForEachValue<RefType extends ContextRef<any, any>>(
   ref: RefType,

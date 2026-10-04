@@ -1,5 +1,5 @@
 import { ServerComponentClass } from "@matreshka/shared/enums/server-component-class";
-import { Componentable, ContextRef } from "../../core";
+import { Componentable, ContextRef, ContextValueRef } from "../../core";
 import {
   InputComponent,
   InputInitConfig,
@@ -13,12 +13,15 @@ export type NumberInputProperties = {
   step?: number;
 } & InputProperties;
 
+/** Ссылка контекста со значением `number | undefined` для {@link NumberInput}. */
+export type NumberInputContextRef = ContextValueRef<number | undefined>;
+
 /**
  * Конфигурация инициализации компонента ввода числа.
  */
 export type NumberInputInitConfig<
   ComponentType extends Componentable = NumberInput,
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends NumberInputContextRef = NumberInputContextRef,
   PropertiesType extends NumberInputProperties = NumberInputProperties,
 > = {
   /**
@@ -42,24 +45,20 @@ export type NumberInputInitConfig<
   step?: number;
 } & InputInitConfig<number, ComponentType, RefType, PropertiesType>;
 
-type DefaultInitConfigType<RefType extends ContextRef<any, any>> =
+type DefaultInitConfigType<RefType extends NumberInputContextRef> =
   NumberInputInitConfig<NumberInput, RefType>;
 
-export function numberInput<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
->(
+export function numberInput<RefType extends NumberInputContextRef>(
   options: Omit<DefaultInitConfigType<RefType>, "ref">,
   ref: DefaultInitConfigType<RefType>["ref"],
 ): NumberInput<RefType>;
-export function numberInput<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
->(ref: DefaultInitConfigType<RefType>["ref"]): NumberInput<RefType>;
-export function numberInput<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
->(config: NumberInputInitConfig<any, RefType>): NumberInput<RefType>;
-export function numberInput<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
->(
+export function numberInput<RefType extends NumberInputContextRef>(
+  ref: DefaultInitConfigType<RefType>["ref"],
+): NumberInput<RefType>;
+export function numberInput<RefType extends NumberInputContextRef>(
+  config: NumberInputInitConfig<any, RefType>,
+): NumberInput<RefType>;
+export function numberInput<RefType extends NumberInputContextRef>(
   arg0:
     | DefaultInitConfigType<RefType>["ref"]
     | Omit<DefaultInitConfigType<RefType>, "ref">
@@ -87,7 +86,7 @@ export function numberInput<
  * Наследует функциональность от {@link InputComponent}.
  */
 export class NumberInput<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends NumberInputContextRef = NumberInputContextRef,
   PropertiesType extends NumberInputProperties = NumberInputProperties,
 > extends InputComponent<DefaultInitConfigType<RefType>, PropertiesType> {
   constructor(config: DefaultInitConfigType<RefType>) {

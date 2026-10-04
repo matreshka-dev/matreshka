@@ -1,7 +1,7 @@
 import { describe, expectTypeOf, it } from "vitest";
-import { ContextRefValue } from "../core";
+import { ContextArrayRef, ContextRefValue } from "../core";
 import { Context } from "../core/context/context";
-import { ForEach, ForEachDataRef } from "./for-each";
+import { ForEach } from "./for-each";
 import { Text } from "./outputs/text";
 
 describe("ForEach type inference", () => {
@@ -100,7 +100,7 @@ describe("ForEach type inference", () => {
     });
   });
 
-  it("использует внешний ForEachDataRef без явного generic у ForEach", () => {
+  it("использует внешний ContextArrayRef без явного generic у ForEach", () => {
     type Block = {
       id: string;
       type: string;
@@ -115,7 +115,7 @@ describe("ForEach type inference", () => {
       }),
     });
 
-    const createEditor = (ref: ForEachDataRef<Block>) =>
+    const createEditor = (ref: ContextArrayRef<Block>) =>
       new ForEach({
         ref,
         track: (block) => block.id,

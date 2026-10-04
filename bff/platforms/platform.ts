@@ -28,7 +28,7 @@ import {
   Client,
   Componentable,
   ComponentInstance,
-  NativePickerContextRef,
+  NativePickerValueRef,
   runWithEntry,
   serializeOverlays,
 } from "../core";
@@ -137,28 +137,28 @@ export abstract class Platform {
 
   showDatePicker(
     anchor: ComponentInstance | Componentable,
-    ref: NativePickerContextRef<string>,
+    ref: NativePickerValueRef,
   ) {
     this.emitNativePickerCommand(anchor, "date", ref);
   }
 
   showColorPicker(
     anchor: ComponentInstance | Componentable,
-    ref: NativePickerContextRef<string>,
+    ref: NativePickerValueRef,
   ) {
     this.emitNativePickerCommand(anchor, "color", ref);
   }
 
   showTimePicker(
     anchor: ComponentInstance | Componentable,
-    ref: NativePickerContextRef<string>,
+    ref: NativePickerValueRef,
   ) {
     this.emitNativePickerCommand(anchor, "time", ref);
   }
 
   showDateTimePicker(
     anchor: ComponentInstance | Componentable,
-    ref: NativePickerContextRef<string>,
+    ref: NativePickerValueRef,
   ) {
     this.emitNativePickerCommand(anchor, "datetime-local", ref);
   }
@@ -166,7 +166,7 @@ export abstract class Platform {
   private emitNativePickerCommand<T extends PlatformNativePickerInputType>(
     anchor: ComponentInstance | Componentable,
     inputType: T,
-    ref: NativePickerContextRef<string>,
+    ref: NativePickerValueRef,
   ) {
     this.client.outcomingMessage$.next(
       new PlatformShowNativePickerMessage({

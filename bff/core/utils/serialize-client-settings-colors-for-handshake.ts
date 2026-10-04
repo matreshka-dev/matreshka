@@ -1,8 +1,8 @@
 import { ColorRole } from "@matreshka/shared/enums/color-role";
 import { ColorToken } from "@matreshka/shared/types/color-token";
 import type { ClientSettingsColors } from "../types/client-settings";
-import { colorTokenId } from "./color-token-id";
 import { resolvePartialColorsToIds } from "./color-roles-to-ids";
+import { colorTokenId } from "./color-token-id";
 
 export type HandshakeClientSettingsColors = {
   registry: Record<string, ColorToken>;

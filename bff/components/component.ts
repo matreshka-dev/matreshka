@@ -15,12 +15,11 @@ import { filter, Subject, Subscription } from "rxjs";
 import {
   Action,
   Client,
-  colorTokenId,
-  resolvePartialColorsToIds,
   Componentable,
   ComponentInstance,
   currentClient,
   LocalAction,
+  resolvePartialColorsToIds,
   runWithClient,
   SerializedComponentRule,
   tryCurrentEntry,
