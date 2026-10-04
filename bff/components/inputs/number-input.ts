@@ -1,7 +1,8 @@
 import { ServerComponentClass } from "@matreshka/shared/enums/server-component-class";
-import { Componentable, ContextRef, ContextValueRef } from "../../core";
+import { Componentable, ContextRef } from "../../core";
 import {
   InputComponent,
+  InputContextRef,
   InputInitConfig,
   InputProperties,
 } from "./input-component";
@@ -13,8 +14,8 @@ export type NumberInputProperties = {
   step?: number;
 } & InputProperties;
 
-/** Ссылка контекста со значением `number | undefined` для {@link NumberInput}. */
-export type NumberInputContextRef = ContextValueRef<number | undefined>;
+/** Ссылка контекста для {@link NumberInput}. */
+export type NumberInputContextRef = InputContextRef<number>;
 
 /**
  * Конфигурация инициализации компонента ввода числа.

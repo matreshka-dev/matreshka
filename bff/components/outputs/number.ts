@@ -2,6 +2,7 @@ import { ServerComponentClass } from "@matreshka/shared/enums/server-component-c
 import { Componentable, ContextRef, StandaloneComponent } from "../../core";
 import {
   CompatibleOutputRef,
+  NumberOutputContextRef,
   OutputComponent,
   OutputInitConfig,
   OutputProperties,
@@ -20,31 +21,31 @@ export type NumberProperties = {} & OutputProperties;
  */
 export type NumberInitConfig<
   ComponentType extends Componentable = Number,
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends NumberOutputContextRef = NumberOutputContextRef,
   PropertiesType extends NumberProperties = NumberProperties,
 > = {} & OutputInitConfig<NumericValue, ComponentType, RefType, PropertiesType>;
 
-type DefaultInitConfigType<RefType extends ContextRef<any, any>> =
+type DefaultInitConfigType<RefType extends NumberOutputContextRef> =
   NumberInitConfig<Number, RefType>;
 
-type NumberValueOrRef<RefType extends ContextRef<any, any>> =
+type NumberValueOrRef<RefType extends NumberOutputContextRef> =
   | NumericValue
   | CompatibleOutputRef<NumericValue, RefType>;
 
 export function number<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends NumberOutputContextRef = NumberOutputContextRef,
 >(
   options: Omit<DefaultInitConfigType<RefType>, "value" | "ref">,
   valueOrRef: NumberValueOrRef<RefType>,
 ): Number<RefType>;
 export function number<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends NumberOutputContextRef = NumberOutputContextRef,
 >(valueOrRef: NumberValueOrRef<RefType>): Number<RefType>;
 export function number<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends NumberOutputContextRef = NumberOutputContextRef,
 >(config: NumberInitConfig<Number, RefType>): Number<RefType>;
 export function number<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends NumberOutputContextRef = NumberOutputContextRef,
 >(
   arg0:
     | NumberValueOrRef<RefType>
@@ -75,7 +76,7 @@ export function number<
  * Наследуется от {@link OutputComponent}.
  */
 export class Number<
-    RefType extends ContextRef<any, any> = ContextRef<any, any>,
+    RefType extends NumberOutputContextRef = NumberOutputContextRef,
     PropertiesType extends NumberProperties = NumberProperties,
   >
   extends OutputComponent<DefaultInitConfigType<RefType>, PropertiesType>

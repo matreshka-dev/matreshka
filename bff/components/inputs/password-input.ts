@@ -5,6 +5,7 @@ import {
   InputComponent,
   InputInitConfig,
   InputProperties,
+  StringInputContextRef,
 } from "./input-component";
 
 export type PasswordInputProperties = {
@@ -14,30 +15,30 @@ export type PasswordInputProperties = {
 
 export type PasswordInputInitConfig<
   ComponentType extends Componentable = PasswordInput,
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringInputContextRef = StringInputContextRef,
   PropertiesType extends PasswordInputProperties = PasswordInputProperties,
 > = {
   placeholder?: string;
   kind?: PasswordInputKind;
 } & InputInitConfig<string, ComponentType, RefType, PropertiesType>;
 
-type DefaultInitConfigType<RefType extends ContextRef<any, any>> =
+type DefaultInitConfigType<RefType extends StringInputContextRef> =
   PasswordInputInitConfig<PasswordInput, RefType>;
 
 export function passwordInput<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringInputContextRef = StringInputContextRef,
 >(
   options: Omit<DefaultInitConfigType<RefType>, "ref">,
   ref: DefaultInitConfigType<RefType>["ref"],
 ): PasswordInput<RefType>;
 export function passwordInput<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringInputContextRef = StringInputContextRef,
 >(ref: DefaultInitConfigType<RefType>["ref"]): PasswordInput<RefType>;
 export function passwordInput<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringInputContextRef = StringInputContextRef,
 >(config: PasswordInputInitConfig<any, RefType>): PasswordInput<RefType>;
 export function passwordInput<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringInputContextRef = StringInputContextRef,
 >(
   arg0:
     | DefaultInitConfigType<RefType>["ref"]
@@ -67,7 +68,7 @@ export function passwordInput<
  * Наследует функциональность от {@link InputComponent}.
  */
 export class PasswordInput<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringInputContextRef = StringInputContextRef,
   PropertiesType extends PasswordInputProperties = PasswordInputProperties,
 > extends InputComponent<DefaultInitConfigType<RefType>, PropertiesType> {
   constructor(config: DefaultInitConfigType<RefType>) {

@@ -13,6 +13,7 @@ import {
   OutputComponent,
   OutputInitConfig,
   OutputProperties,
+  StringOutputContextRef,
   outputValueRefToConfig,
 } from "./output-component";
 
@@ -45,7 +46,7 @@ export type TextProperties = {
  */
 export type TextInitConfig<
   ComponentType extends Componentable = Text,
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringOutputContextRef = StringOutputContextRef,
   PropertiesType extends TextProperties = TextProperties,
 > = {
   /**
@@ -55,10 +56,10 @@ export type TextInitConfig<
   processors?: TextOutputProcessorConfig[];
 } & OutputInitConfig<string, ComponentType, RefType, PropertiesType>;
 
-type DefaultInitConfigType<RefType extends ContextRef<any, any>> =
+type DefaultInitConfigType<RefType extends StringOutputContextRef> =
   TextInitConfig<Text, RefType>;
 
-type TextValueOrRef<RefType extends ContextRef<any, any>> =
+type TextValueOrRef<RefType extends StringOutputContextRef> =
   | string
   | CompatibleOutputRef<string, RefType>;
 
@@ -79,19 +80,19 @@ export function autolink(
 }
 
 export function text<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringOutputContextRef = StringOutputContextRef,
 >(
   options: Omit<DefaultInitConfigType<RefType>, "value" | "ref">,
   valueOrRef: TextValueOrRef<RefType>,
 ): Text<RefType>;
 export function text<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringOutputContextRef = StringOutputContextRef,
 >(valueOrRef: TextValueOrRef<RefType>): Text<RefType>;
 export function text<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringOutputContextRef = StringOutputContextRef,
 >(config: TextInitConfig<Text, RefType>): Text<RefType>;
 export function text<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringOutputContextRef = StringOutputContextRef,
 >(
   arg0:
     | TextValueOrRef<RefType>
@@ -122,7 +123,7 @@ export function text<
  * Наследуется от {@link OutputComponent}.
  */
 export class Text<
-    RefType extends ContextRef<any, any> = ContextRef<any, any>,
+    RefType extends StringOutputContextRef = StringOutputContextRef,
     PropertiesType extends TextProperties = TextProperties,
   >
   extends OutputComponent<TextInitConfig<Text, RefType>, PropertiesType>

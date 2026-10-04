@@ -5,6 +5,7 @@ import {
   OutputComponent,
   OutputInitConfig,
   OutputProperties,
+  StringOutputContextRef,
   outputValueRefToConfig,
 } from "./output-component";
 
@@ -53,34 +54,34 @@ export type DatetimeProperties = {
  */
 export type DatetimeInitConfig<
   ComponentType extends Componentable = Datetime,
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringOutputContextRef = StringOutputContextRef,
   PropertiesType extends DatetimeProperties = DatetimeProperties,
 > = {
   locales?: string[];
   options?: DateTimeOptions;
 } & OutputInitConfig<string, ComponentType, RefType, PropertiesType>;
 
-type DefaultInitConfigType<RefType extends ContextRef<any, any>> =
+type DefaultInitConfigType<RefType extends StringOutputContextRef> =
   DatetimeInitConfig<Datetime, RefType>;
 
-type DatetimeValueOrRef<RefType extends ContextRef<any, any>> =
+type DatetimeValueOrRef<RefType extends StringOutputContextRef> =
   | string
   | CompatibleOutputRef<string, RefType>;
 
 export function datetime<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringOutputContextRef = StringOutputContextRef,
 >(
   options: Omit<DefaultInitConfigType<RefType>, "value" | "ref">,
   valueOrRef: DatetimeValueOrRef<RefType>,
 ): Datetime<RefType>;
 export function datetime<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringOutputContextRef = StringOutputContextRef,
 >(valueOrRef: DatetimeValueOrRef<RefType>): Datetime<RefType>;
 export function datetime<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringOutputContextRef = StringOutputContextRef,
 >(config: DatetimeInitConfig<Datetime, RefType>): Datetime<RefType>;
 export function datetime<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringOutputContextRef = StringOutputContextRef,
 >(
   arg0:
     | DatetimeValueOrRef<RefType>
@@ -114,7 +115,7 @@ export function datetime<
  * Наследуется от {@link OutputComponent} и реализует {@link StandaloneComponent}.
  */
 export class Datetime<
-    RefType extends ContextRef<any, any> = ContextRef<any, any>,
+    RefType extends StringOutputContextRef = StringOutputContextRef,
     PropertiesType extends DatetimeProperties = DatetimeProperties,
   >
   extends OutputComponent<DefaultInitConfigType<RefType>, PropertiesType>

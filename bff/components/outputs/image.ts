@@ -12,6 +12,7 @@ import {
   OutputComponent,
   OutputInitConfig,
   OutputProperties,
+  StringOutputContextRef,
   outputValueRefToConfig,
 } from "./output-component";
 export { RatioMode } from "@matreshka/shared/enums/ratio-mode";
@@ -45,7 +46,7 @@ export type ImageProperties = {
  */
 export type ImageInitConfig<
   ComponentType extends Componentable = Image,
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringOutputContextRef = StringOutputContextRef,
   PropertiesType extends ImageProperties = ImageProperties,
 > = {
   ratio?: {
@@ -65,27 +66,27 @@ export type ImageInitConfig<
     | ServerComponentAction<ComponentType>[];
 } & OutputInitConfig<string, ComponentType, RefType, PropertiesType>;
 
-type DefaultInitConfigType<RefType extends ContextRef<any, any>> =
+type DefaultInitConfigType<RefType extends StringOutputContextRef> =
   ImageInitConfig<any, RefType>;
 
-type ImageValueOrRef<RefType extends ContextRef<any, any>> =
+type ImageValueOrRef<RefType extends StringOutputContextRef> =
   | string
   | CompatibleOutputRef<string, RefType>;
 
 export function image<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringOutputContextRef = StringOutputContextRef,
 >(
   options: Omit<DefaultInitConfigType<RefType>, "value" | "ref">,
   valueOrRef: ImageValueOrRef<RefType>,
 ): Image<RefType>;
 export function image<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringOutputContextRef = StringOutputContextRef,
 >(valueOrRef: ImageValueOrRef<RefType>): Image<RefType>;
 export function image<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringOutputContextRef = StringOutputContextRef,
 >(config: ImageInitConfig<any, RefType>): Image<RefType>;
 export function image<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringOutputContextRef = StringOutputContextRef,
 >(
   arg0:
     | ImageValueOrRef<RefType>
@@ -114,7 +115,7 @@ export function image<
  * Компонент для вывода изображения.
  */
 export class Image<
-    RefType extends ContextRef<any, any> = ContextRef<any, any>,
+    RefType extends StringOutputContextRef = StringOutputContextRef,
     PropertiesType extends ImageProperties = ImageProperties,
   >
   extends OutputComponent<DefaultInitConfigType<RefType>, PropertiesType>

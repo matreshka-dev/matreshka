@@ -2,6 +2,7 @@ import {
   Componentable,
   ContextRef,
   ContextRefValue,
+  ContextValueRef,
   StandaloneComponent,
 } from "../../core";
 import {
@@ -18,20 +19,27 @@ import {
  * @property ref Ссылка на значение в контексте, откуда будет браться значение.
  * @property value Статическое значение.
  */
-type RefCompatibleValue<ValueType> = Exclude<ValueType, ContextRef<any, any>>;
+
+/** Ref на поле вывода (`ContextValueRef` для скalar `ValueType` компонента). */
+export type OutputContextRef<ValueType> = ContextValueRef<
+  ValueType | undefined
+>;
+
+/** Ref на строковое поле вывода. */
+export type StringOutputContextRef = OutputContextRef<string>;
+
+/** Ref на числовое поле вывода. */
+export type NumberOutputContextRef = OutputContextRef<number>;
 
 export type CompatibleOutputRef<
   ValueType,
-  RefType extends ContextRef<any, any>,
-> =
-  RefCompatibleValue<ValueType> extends ContextRefValue<RefType>
-    ? RefType
-    : never;
+  RefType extends OutputContextRef<ValueType>,
+> = ValueType extends ContextRefValue<RefType> ? RefType : never;
 
 export type OutputInitConfig<
   ValueType,
   ComponentType extends Componentable = OutputComponent,
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends OutputContextRef<ValueType> = OutputContextRef<ValueType>,
   PropertiesType extends OutputProperties = OutputProperties,
 > = ({ ref: CompatibleOutputRef<ValueType, RefType> } | { value: ValueType }) &
   ComponentInitConfig<ComponentType, PropertiesType>;
@@ -103,11 +111,9 @@ export abstract class OutputComponent<
 export function outputValueRefToConfig<TOpts extends object>(
   valueOrRef: unknown,
   opts: TOpts,
-): TOpts & ({ ref: ContextRef<any, any> } | { value: unknown }) {
+): TOpts & ({ ref: ContextValueRef<unknown> } | { value: unknown }) {
   if (valueOrRef instanceof ContextRef) {
-    return { ...opts, ref: valueOrRef } as TOpts & {
-      ref: ContextRef<any, any>;
-    };
+    return { ...opts, ref: valueOrRef };
   }
-  return { ...opts, value: valueOrRef } as TOpts & { value: unknown };
+  return { ...opts, value: valueOrRef };
 }

@@ -1,19 +1,15 @@
-import { ContextRef, ContextRefValue } from "../context/context-ref";
+import { ContextValueRef } from "../types/context-value-ref";
 import { ActionConfig } from "./action";
 import { LocalAction } from "./local-action";
 
-/**
- * `ContextRef`, значение которого — `boolean` (допустимо `boolean | undefined`).
- */
-export type BooleanContextRef<R extends ContextRef<any, any>> =
-  Exclude<ContextRefValue<R>, undefined> extends boolean ? R : never;
-
+/** Ref на boolean-поле контекста. */
+export type BooleanValueRef = ContextValueRef<boolean | undefined>;
 /**
  * Инверсия boolean-значения в Context на клиенте (с sync на BFF через `context-values`).
  */
 export class ToggleContextValue extends LocalAction {
   constructor(
-    private readonly ref: ContextRef<any, any>,
+    private readonly ref: BooleanValueRef,
     config: ActionConfig = {},
   ) {
     super(config.conditions);
@@ -34,8 +30,8 @@ export class ToggleContextValue extends LocalAction {
  * Функциональная форма {@link ToggleContextValue}.
  * Принимает только `ContextRef` с boolean-значением.
  */
-export function toggleContextValue<R extends ContextRef<any, any>>(
-  ref: BooleanContextRef<R>,
+export function toggleContextValue(
+  ref: BooleanValueRef,
   config: ActionConfig = {},
 ): ToggleContextValue {
   return new ToggleContextValue(ref, config);

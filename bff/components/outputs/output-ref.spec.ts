@@ -17,17 +17,9 @@ describe("Output ref typing", () => {
       }),
     });
 
-    const numericRef = context.ref("numeric");
-    const maybeNumericRef = numericRef as typeof numericRef & {
-      readonly __valueType?: number | undefined;
-      value(): number | undefined;
-    };
-
-    void number(numericRef);
+    void number(context.ref("numeric"));
 
     void number(context.ref("numericOrText"));
-
-    void number(maybeNumericRef);
 
     void number(
       // @ts-expect-error string-only ref несовместим с Number output

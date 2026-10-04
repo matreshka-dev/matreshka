@@ -19,6 +19,7 @@ import {
   InputComponent,
   InputInitConfig,
   InputProperties,
+  StringInputContextRef,
 } from "./input-component";
 
 /**
@@ -31,7 +32,7 @@ export type TextEditorProperties = InputProperties;
  */
 export type TextEditorInitConfig<
   ComponentType extends Componentable = TextEditor,
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringInputContextRef = StringInputContextRef,
   PropertiesType extends TextEditorProperties = TextEditorProperties,
 > = InputInitConfig<string, ComponentType, RefType, PropertiesType> & {
   /**
@@ -42,23 +43,23 @@ export type TextEditorInitConfig<
     | ServerComponentAction<ComponentType, string>[];
 };
 
-type DefaultInitConfigType<RefType extends ContextRef<any, any>> =
+type DefaultInitConfigType<RefType extends StringInputContextRef> =
   TextEditorInitConfig<TextEditor, RefType>;
 
 export function textEditor<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringInputContextRef = StringInputContextRef,
 >(
   options: Omit<DefaultInitConfigType<RefType>, "ref">,
   ref: DefaultInitConfigType<RefType>["ref"],
 ): TextEditor<RefType>;
 export function textEditor<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringInputContextRef = StringInputContextRef,
 >(ref: DefaultInitConfigType<RefType>["ref"]): TextEditor<RefType>;
 export function textEditor<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringInputContextRef = StringInputContextRef,
 >(config: TextEditorInitConfig<any, RefType>): TextEditor<RefType>;
 export function textEditor<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringInputContextRef = StringInputContextRef,
 >(
   arg0:
     | DefaultInitConfigType<RefType>["ref"]
@@ -85,7 +86,7 @@ export function textEditor<
  * Поддерживает панель инструментов, вложенные компоненты и команды форматирования.
  */
 export class TextEditor<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringInputContextRef = StringInputContextRef,
   InitConfigType extends TextEditorInitConfig<
     any,
     RefType

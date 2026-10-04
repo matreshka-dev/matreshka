@@ -57,7 +57,9 @@ npx skills add matreshka-dev/agents--skill --skill context-init-in-boot prefer-c
 | -------------------------------------- | ---------------------------------------------------------------------- |
 | Page/Dialog lifecycle и анимации       | `entry-lifecycle-on-enter-leave`                                       |
 | Loading на кнопке                      | `rules-not-conditions-for-loading-ui`, `prevent-duplicate-form-submit` |
-| Списки `forEach`                       | `foreach-stable-track`, `strict-context-ref`                           |
+| Списки `forEach`                       | `foreach-stable-track`, `strict-context-ref`, `context-value-ref-in-api` |
+| Shared-хелпер / метод с ref по типу значения | `context-value-ref-in-api`                                         |
+| Типы ref на странице (контекст + путь) | `strict-context-ref`                                                   |
 | OR/AND в conditions                    | `when-oneof-vs-when-any`                                               |
 | Один Component в двух местах / animate | `create-instance-before-serialize`                                     |
 | Color token «not found»                | `register-color-tokens`                                                |

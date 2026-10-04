@@ -2,6 +2,7 @@ import { ServerComponentClass } from "@matreshka/shared/enums/server-component-c
 import { Componentable, ContextRef, StandaloneComponent } from "../../core";
 import {
   CompatibleOutputRef,
+  NumberOutputContextRef,
   OutputComponent,
   OutputInitConfig,
   OutputProperties,
@@ -20,35 +21,35 @@ export type ProgressSpinnerProperties = {
  */
 export type ProgressSpinnerInitConfig<
   ComponentType extends Componentable = ProgressSpinner,
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends NumberOutputContextRef = NumberOutputContextRef,
   PropertiesType extends ProgressSpinnerProperties = ProgressSpinnerProperties,
 > = {
   background?: boolean;
 } & OutputInitConfig<number, ComponentType, RefType, PropertiesType>;
 
-type DefaultInitConfigType<RefType extends ContextRef<any, any>> =
+type DefaultInitConfigType<RefType extends NumberOutputContextRef> =
   ProgressSpinnerInitConfig<ProgressSpinner, RefType>;
 
-type SpinnerValueOrRef<RefType extends ContextRef<any, any>> =
+type SpinnerValueOrRef<RefType extends NumberOutputContextRef> =
   | number
   | CompatibleOutputRef<number, RefType>;
 
 export function progressSpinner<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends NumberOutputContextRef = NumberOutputContextRef,
 >(
   options: Omit<DefaultInitConfigType<RefType>, "value" | "ref">,
   valueOrRef: SpinnerValueOrRef<RefType>,
 ): ProgressSpinner<RefType>;
 export function progressSpinner<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends NumberOutputContextRef = NumberOutputContextRef,
 >(valueOrRef: SpinnerValueOrRef<RefType>): ProgressSpinner<RefType>;
 export function progressSpinner<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends NumberOutputContextRef = NumberOutputContextRef,
 >(
   config: ProgressSpinnerInitConfig<ProgressSpinner, RefType>,
 ): ProgressSpinner<RefType>;
 export function progressSpinner<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends NumberOutputContextRef = NumberOutputContextRef,
 >(
   arg0:
     | SpinnerValueOrRef<RefType>
@@ -84,7 +85,7 @@ export function progressSpinner<
  * Наследуется от {@link OutputComponent}.
  */
 export class ProgressSpinner<
-    RefType extends ContextRef<any, any> = ContextRef<any, any>,
+    RefType extends NumberOutputContextRef = NumberOutputContextRef,
     PropertiesType extends
       ProgressSpinnerProperties = ProgressSpinnerProperties,
   >

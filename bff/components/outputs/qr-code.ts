@@ -5,6 +5,7 @@ import {
   OutputComponent,
   OutputInitConfig,
   OutputProperties,
+  StringOutputContextRef,
   outputValueRefToConfig,
 } from "./output-component";
 
@@ -15,31 +16,31 @@ export type QrCodeProperties = {} & OutputProperties;
  */
 export type QrCodeInitConfig<
   ComponentType extends Componentable = QrCode,
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringOutputContextRef = StringOutputContextRef,
   PropertiesType extends QrCodeProperties = QrCodeProperties,
 > = {} & OutputInitConfig<string, ComponentType, RefType, PropertiesType>;
 
-type DefaultInitConfigType<RefType extends ContextRef<any, any>> =
+type DefaultInitConfigType<RefType extends StringOutputContextRef> =
   QrCodeInitConfig<QrCode, RefType>;
 
-type QrValueOrRef<RefType extends ContextRef<any, any>> =
+type QrValueOrRef<RefType extends StringOutputContextRef> =
   | string
   | CompatibleOutputRef<string, RefType>;
 
 export function qrCode<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringOutputContextRef = StringOutputContextRef,
 >(
   options: Omit<DefaultInitConfigType<RefType>, "value" | "ref">,
   valueOrRef: QrValueOrRef<RefType>,
 ): QrCode<RefType>;
 export function qrCode<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringOutputContextRef = StringOutputContextRef,
 >(valueOrRef: QrValueOrRef<RefType>): QrCode<RefType>;
 export function qrCode<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringOutputContextRef = StringOutputContextRef,
 >(config: QrCodeInitConfig<QrCode, RefType>): QrCode<RefType>;
 export function qrCode<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringOutputContextRef = StringOutputContextRef,
 >(
   arg0:
     | QrValueOrRef<RefType>
@@ -68,7 +69,7 @@ export function qrCode<
  * Компонент для отображения QR-кода.
  */
 export class QrCode<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringOutputContextRef = StringOutputContextRef,
   PropertiesType extends QrCodeProperties = QrCodeProperties,
 > extends OutputComponent<DefaultInitConfigType<RefType>, PropertiesType> {
   constructor(config: DefaultInitConfigType<RefType>) {

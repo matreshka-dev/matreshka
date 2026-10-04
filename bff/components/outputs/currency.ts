@@ -1,7 +1,8 @@
 import { ServerComponentClass } from "@matreshka/shared/enums/server-component-class";
-import { Componentable, ContextRef, StandaloneComponent } from "../../core";
+import { Componentable, StandaloneComponent } from "../../core";
 import {
   CompatibleOutputRef,
+  NumberOutputContextRef,
   OutputComponent,
   OutputInitConfig,
   OutputProperties,
@@ -43,7 +44,7 @@ export type CurrencyProperties = {
  */
 export type CurrencyInitConfig<
   ComponentType extends Componentable = Currency,
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends NumberOutputContextRef = NumberOutputContextRef,
   PropertiesType extends CurrencyProperties = CurrencyProperties,
 > = {
   currency: string;
@@ -52,24 +53,24 @@ export type CurrencyInitConfig<
   maxFractionDigits?: number;
 } & OutputInitConfig<number, ComponentType, RefType, PropertiesType>;
 
-type DefaultInitConfigType<RefType extends ContextRef<any, any>> =
+type DefaultInitConfigType<RefType extends NumberOutputContextRef> =
   CurrencyInitConfig<Currency, RefType>;
 
-type CurrencyValueOrRef<RefType extends ContextRef<any, any>> =
+type CurrencyValueOrRef<RefType extends NumberOutputContextRef> =
   | number
   | CompatibleOutputRef<number, RefType>;
 
 export function currency<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends NumberOutputContextRef = NumberOutputContextRef,
 >(
   options: Omit<DefaultInitConfigType<RefType>, "value" | "ref">,
   valueOrRef: CurrencyValueOrRef<RefType>,
 ): Currency<RefType>;
 export function currency<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends NumberOutputContextRef = NumberOutputContextRef,
 >(config: CurrencyInitConfig<Currency, RefType>): Currency<RefType>;
 export function currency<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends NumberOutputContextRef = NumberOutputContextRef,
 >(
   arg0:
     | Omit<DefaultInitConfigType<RefType>, "value" | "ref">
@@ -94,7 +95,7 @@ export function currency<
  * Поддерживает встроенное отображение.
  */
 export class Currency<
-    RefType extends ContextRef<any, any> = ContextRef<any, any>,
+    RefType extends NumberOutputContextRef = NumberOutputContextRef,
     PropertiesType extends CurrencyProperties = CurrencyProperties,
   >
   extends OutputComponent<DefaultInitConfigType<RefType>, PropertiesType>

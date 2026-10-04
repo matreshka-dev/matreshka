@@ -5,6 +5,7 @@ import {
   InputComponent,
   InputInitConfig,
   InputProperties,
+  StringInputContextRef,
 } from "./input-component";
 
 /**
@@ -37,7 +38,7 @@ export type TextInputProperties = {
  */
 export type TextInputInitConfig<
   ComponentType extends Componentable = TextInput,
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringInputContextRef = StringInputContextRef,
   PropertiesType extends TextInputProperties = TextInputProperties,
 > = {
   placeholder?: string;
@@ -45,23 +46,23 @@ export type TextInputInitConfig<
   mask?: InputMaskProperties;
 } & InputInitConfig<string, ComponentType, RefType, PropertiesType>;
 
-type DefaultInitConfigType<RefType extends ContextRef<any, any>> =
+type DefaultInitConfigType<RefType extends StringInputContextRef> =
   TextInputInitConfig<TextInput, RefType>;
 
 export function textInput<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringInputContextRef = StringInputContextRef,
 >(
   options: Omit<DefaultInitConfigType<RefType>, "ref">,
   ref: DefaultInitConfigType<RefType>["ref"],
 ): TextInput<RefType>;
 export function textInput<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringInputContextRef = StringInputContextRef,
 >(ref: DefaultInitConfigType<RefType>["ref"]): TextInput<RefType>;
 export function textInput<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringInputContextRef = StringInputContextRef,
 >(config: TextInputInitConfig<any, RefType>): TextInput<RefType>;
 export function textInput<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringInputContextRef = StringInputContextRef,
 >(
   arg0:
     | DefaultInitConfigType<RefType>["ref"]
@@ -86,7 +87,7 @@ export function textInput<
  * Компонент ввода текста.
  */
 export class TextInput<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringInputContextRef = StringInputContextRef,
   InitConfigType extends TextInputInitConfig<
     any,
     RefType

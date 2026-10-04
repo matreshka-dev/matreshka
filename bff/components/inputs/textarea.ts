@@ -5,6 +5,7 @@ import {
   InputComponent,
   InputInitConfig,
   InputProperties,
+  StringInputContextRef,
 } from "./input-component";
 
 export type TextareaProperties = {
@@ -22,7 +23,7 @@ export type TextareaProperties = {
  */
 export type TextareaInitConfig<
   ComponentType extends Componentable = Textarea,
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringInputContextRef = StringInputContextRef,
   PropertiesType extends TextareaProperties = TextareaProperties,
 > = {
   placeholder?: string;
@@ -30,23 +31,23 @@ export type TextareaInitConfig<
   resize?: TextareaResize;
 } & InputInitConfig<string, ComponentType, RefType, PropertiesType>;
 
-type DefaultInitConfigType<RefType extends ContextRef<any, any>> =
+type DefaultInitConfigType<RefType extends StringInputContextRef> =
   TextareaInitConfig<Textarea, RefType>;
 
 export function textarea<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringInputContextRef = StringInputContextRef,
 >(
   options: Omit<DefaultInitConfigType<RefType>, "ref">,
   ref: DefaultInitConfigType<RefType>["ref"],
 ): Textarea<RefType>;
 export function textarea<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringInputContextRef = StringInputContextRef,
 >(ref: DefaultInitConfigType<RefType>["ref"]): Textarea<RefType>;
 export function textarea<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringInputContextRef = StringInputContextRef,
 >(config: TextareaInitConfig<any, RefType>): Textarea<RefType>;
 export function textarea<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringInputContextRef = StringInputContextRef,
 >(
   arg0:
     | DefaultInitConfigType<RefType>["ref"]
@@ -73,7 +74,7 @@ export function textarea<
  * Наследует поведение от {@link InputComponent}.
  */
 export class Textarea<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringInputContextRef = StringInputContextRef,
   PropertiesType extends TextareaProperties = TextareaProperties,
 > extends InputComponent<DefaultInitConfigType<RefType>, PropertiesType> {
   constructor(config: DefaultInitConfigType<RefType>) {

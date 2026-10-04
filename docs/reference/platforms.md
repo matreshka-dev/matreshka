@@ -184,15 +184,15 @@ currentClientPlatform().showPopover(instance, popover);
 
 Использовать, когда нужен локальный всплывающий UI рядом с конкретным элементом. В `onClick` и других server-обработчиках якорь берётся из `instance` (см. `component-instance.md`).
 
-### `showDatePicker(anchor, ref: NativePickerContextRef<string>)`
+### `showDatePicker(anchor, ref: ContextValueRef<string | undefined>)`
 
-Открывает native date picker и связывает результат с `ref` — `ContextRef` на строковое поле.
+Открывает native date picker и связывает результат с `ref` — ссылка на строковое поле контекста.
 
 ```ts
 currentClientPlatform().showDatePicker(instance, this.context.ref("birthday"));
 ```
 
-### `showColorPicker(anchor, ref: NativePickerContextRef<string>)`
+### `showColorPicker(anchor, ref: ContextValueRef<string | undefined>)`
 
 Открывает native color picker.
 
@@ -200,7 +200,7 @@ currentClientPlatform().showDatePicker(instance, this.context.ref("birthday"));
 currentClientPlatform().showColorPicker(instance, this.context.ref("color"));
 ```
 
-### `showTimePicker(anchor, ref: NativePickerContextRef<string>)`
+### `showTimePicker(anchor, ref: ContextValueRef<string | undefined>)`
 
 Открывает native time picker.
 
@@ -208,7 +208,7 @@ currentClientPlatform().showColorPicker(instance, this.context.ref("color"));
 currentClientPlatform().showTimePicker(instance, this.context.ref("time"));
 ```
 
-### `showDateTimePicker(anchor, ref: NativePickerContextRef<string>)`
+### `showDateTimePicker(anchor, ref: ContextValueRef<string | undefined>)`
 
 Открывает native datetime picker.
 

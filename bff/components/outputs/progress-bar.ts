@@ -2,6 +2,7 @@ import { ServerComponentClass } from "@matreshka/shared/enums/server-component-c
 import { Componentable, ContextRef, StandaloneComponent } from "../../core";
 import {
   CompatibleOutputRef,
+  NumberOutputContextRef,
   OutputComponent,
   OutputInitConfig,
   OutputProperties,
@@ -18,31 +19,31 @@ export type ProgressBarProperties = {} & OutputProperties;
  */
 export type ProgressBarInitConfig<
   ComponentType extends Componentable = ProgressBar,
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends NumberOutputContextRef = NumberOutputContextRef,
   PropertiesType extends ProgressBarProperties = ProgressBarProperties,
 > = {} & OutputInitConfig<number, ComponentType, RefType, PropertiesType>;
 
-type DefaultInitConfigType<RefType extends ContextRef<any, any>> =
+type DefaultInitConfigType<RefType extends NumberOutputContextRef> =
   ProgressBarInitConfig<ProgressBar, RefType>;
 
-type ProgressBarValueOrRef<RefType extends ContextRef<any, any>> =
+type ProgressBarValueOrRef<RefType extends NumberOutputContextRef> =
   | number
   | CompatibleOutputRef<number, RefType>;
 
 export function progressBar<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends NumberOutputContextRef = NumberOutputContextRef,
 >(
   options: Omit<DefaultInitConfigType<RefType>, "value" | "ref">,
   valueOrRef: ProgressBarValueOrRef<RefType>,
 ): ProgressBar<RefType>;
 export function progressBar<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends NumberOutputContextRef = NumberOutputContextRef,
 >(valueOrRef: ProgressBarValueOrRef<RefType>): ProgressBar<RefType>;
 export function progressBar<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends NumberOutputContextRef = NumberOutputContextRef,
 >(config: ProgressBarInitConfig<ProgressBar, RefType>): ProgressBar<RefType>;
 export function progressBar<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends NumberOutputContextRef = NumberOutputContextRef,
 >(
   arg0:
     | ProgressBarValueOrRef<RefType>
@@ -78,7 +79,7 @@ export function progressBar<
  * Наследуется от {@link OutputComponent}.
  */
 export class ProgressBar<
-    RefType extends ContextRef<any, any> = ContextRef<any, any>,
+    RefType extends NumberOutputContextRef = NumberOutputContextRef,
     PropertiesType extends ProgressBarProperties = ProgressBarProperties,
   >
   extends OutputComponent<DefaultInitConfigType<RefType>, PropertiesType>

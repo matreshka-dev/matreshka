@@ -1,4 +1,5 @@
-import { ContextRef, ContextRefValue } from "../context/context-ref";
+import { ContextRefValue } from "../context/context-ref";
+import { ContextValueRef } from "../types/context-value-ref";
 import { ActionConfig } from "./action";
 import { LocalAction } from "./local-action";
 
@@ -7,14 +8,16 @@ import { LocalAction } from "./local-action";
  * Тип `value` выводится из конкретного `ref`.
  */
 export type ContextValueAssignment<
-  R extends ContextRef<any, any> = ContextRef<any, any>,
+  R extends ContextValueRef<unknown> = ContextValueRef<unknown>,
 > = {
   ref: R;
   value: ContextRefValue<R>;
 };
 
 type AssertContextValueAssignments<T extends readonly unknown[]> = {
-  [K in keyof T]: T[K] extends { ref: infer R extends ContextRef<any, any> }
+  [K in keyof T]: T[K] extends {
+    ref: infer R extends ContextValueRef<unknown>;
+  }
     ? ContextValueAssignment<R>
     : never;
 };

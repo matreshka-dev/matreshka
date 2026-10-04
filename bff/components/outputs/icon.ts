@@ -1,10 +1,11 @@
 import { ServerComponentClass } from "@matreshka/shared/enums/server-component-class";
-import { Componentable, ContextRef, StandaloneComponent } from "../../core";
+import { Componentable, StandaloneComponent } from "../../core";
 import {
   CompatibleOutputRef,
   OutputComponent,
   OutputInitConfig,
   OutputProperties,
+  StringOutputContextRef,
   outputValueRefToConfig,
 } from "./output-component";
 
@@ -25,7 +26,7 @@ export type IconProperties = {
  */
 export type IconInitConfig<
   ComponentType extends Componentable = Icon,
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringOutputContextRef = StringOutputContextRef,
   PropertiesType extends IconProperties = IconProperties,
 > = {
   /**
@@ -34,24 +35,24 @@ export type IconInitConfig<
   size: number;
 } & OutputInitConfig<IconValue, ComponentType, RefType, PropertiesType>;
 
-type DefaultInitConfigType<RefType extends ContextRef<any, any>> =
+type DefaultInitConfigType<RefType extends StringOutputContextRef> =
   IconInitConfig<Icon, RefType>;
 
-type IconValueOrRef<RefType extends ContextRef<any, any>> =
+type IconValueOrRef<RefType extends StringOutputContextRef> =
   | IconValue
   | CompatibleOutputRef<IconValue, RefType>;
 
 export function icon<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringOutputContextRef = StringOutputContextRef,
 >(
   options: Omit<DefaultInitConfigType<RefType>, "value" | "ref">,
   valueOrRef: IconValueOrRef<RefType>,
 ): Icon<RefType>;
 export function icon<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringOutputContextRef = StringOutputContextRef,
 >(config: IconInitConfig<Icon, RefType>): Icon<RefType>;
 export function icon<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringOutputContextRef = StringOutputContextRef,
 >(
   arg0:
     | Omit<DefaultInitConfigType<RefType>, "value" | "ref">
@@ -75,7 +76,7 @@ export function icon<
  * Наследуется от {@link OutputComponent}.
  */
 export class Icon<
-    RefType extends ContextRef<any, any> = ContextRef<any, any>,
+    RefType extends StringOutputContextRef = StringOutputContextRef,
     PropertiesType extends IconProperties = IconProperties,
   >
   extends OutputComponent<DefaultInitConfigType<RefType>, PropertiesType>

@@ -11,6 +11,7 @@ import {
   OutputComponent,
   OutputInitConfig,
   OutputProperties,
+  StringOutputContextRef,
   outputValueRefToConfig,
 } from "./output-component";
 
@@ -38,7 +39,7 @@ export type VectorProperties = {
  */
 export type VectorInitConfig<
   ComponentType extends Componentable = Vector,
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringOutputContextRef = StringOutputContextRef,
   PropertiesType extends VectorProperties = VectorProperties,
 > = {
   mode?: VectorMode;
@@ -49,27 +50,27 @@ export type VectorInitConfig<
   };
 } & OutputInitConfig<VectorValue, ComponentType, RefType, PropertiesType>;
 
-type DefaultInitConfigType<RefType extends ContextRef<any, any>> =
+type DefaultInitConfigType<RefType extends StringOutputContextRef> =
   VectorInitConfig<Vector, RefType>;
 
-type VectorValueOrRef<RefType extends ContextRef<any, any>> =
+type VectorValueOrRef<RefType extends StringOutputContextRef> =
   | VectorValue
   | CompatibleOutputRef<VectorValue, RefType>;
 
 export function vector<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringOutputContextRef = StringOutputContextRef,
 >(
   options: Omit<DefaultInitConfigType<RefType>, "value" | "ref">,
   valueOrRef: VectorValueOrRef<RefType>,
 ): Vector<RefType>;
 export function vector<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringOutputContextRef = StringOutputContextRef,
 >(valueOrRef: VectorValueOrRef<RefType>): Vector<RefType>;
 export function vector<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringOutputContextRef = StringOutputContextRef,
 >(config: VectorInitConfig<Vector, RefType>): Vector<RefType>;
 export function vector<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringOutputContextRef = StringOutputContextRef,
 >(
   arg0:
     | VectorValueOrRef<RefType>
@@ -98,7 +99,7 @@ export function vector<
  * Компонент для вывода векторной графики (SVG).
  */
 export class Vector<
-    RefType extends ContextRef<any, any> = ContextRef<any, any>,
+    RefType extends StringOutputContextRef = StringOutputContextRef,
     PropertiesType extends VectorProperties = VectorProperties,
   >
   extends OutputComponent<DefaultInitConfigType<RefType>, PropertiesType>

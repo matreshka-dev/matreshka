@@ -6,6 +6,7 @@ import {
   OutputComponent,
   OutputInitConfig,
   OutputProperties,
+  StringOutputContextRef,
   outputValueRefToConfig,
 } from "./output-component";
 
@@ -32,7 +33,7 @@ export type IframeProperties = {
  */
 export type IframeInitConfig<
   ComponentType extends Componentable = Iframe,
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringOutputContextRef = StringOutputContextRef,
   PropertiesType extends IframeProperties = IframeProperties,
 > = {
   allow?: IframeAllow[];
@@ -41,27 +42,27 @@ export type IframeInitConfig<
   };
 } & OutputInitConfig<string, ComponentType, RefType, PropertiesType>;
 
-type DefaultInitConfigType<RefType extends ContextRef<any, any>> =
+type DefaultInitConfigType<RefType extends StringOutputContextRef> =
   IframeInitConfig<Iframe, RefType>;
 
-type IframeValueOrRef<RefType extends ContextRef<any, any>> =
+type IframeValueOrRef<RefType extends StringOutputContextRef> =
   | string
   | CompatibleOutputRef<string, RefType>;
 
 export function iframe<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringOutputContextRef = StringOutputContextRef,
 >(
   options: Omit<DefaultInitConfigType<RefType>, "value" | "ref">,
   valueOrRef: IframeValueOrRef<RefType>,
 ): Iframe<RefType>;
 export function iframe<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringOutputContextRef = StringOutputContextRef,
 >(valueOrRef: IframeValueOrRef<RefType>): Iframe<RefType>;
 export function iframe<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringOutputContextRef = StringOutputContextRef,
 >(config: IframeInitConfig<Iframe, RefType>): Iframe<RefType>;
 export function iframe<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringOutputContextRef = StringOutputContextRef,
 >(
   arg0:
     | IframeValueOrRef<RefType>
@@ -90,7 +91,7 @@ export function iframe<
  * Компонент вывода iframe.
  */
 export class Iframe<
-  RefType extends ContextRef<any, any> = ContextRef<any, any>,
+  RefType extends StringOutputContextRef = StringOutputContextRef,
   PropertiesType extends IframeProperties = IframeProperties,
 > extends OutputComponent<DefaultInitConfigType<RefType>, PropertiesType> {
   constructor(config: DefaultInitConfigType<RefType>) {

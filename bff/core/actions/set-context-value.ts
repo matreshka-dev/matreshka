@@ -1,14 +1,19 @@
-import { ContextRef, ContextRefValue } from "../context/context-ref";
+import { ContextRefValue } from "../context/context-ref";
+import { ContextValueRef } from "../types/context-value-ref";
 import { ActionConfig } from "./action";
 import { LocalAction } from "./local-action";
 
 /**
  * Запись одного значения в Context на клиенте (с sync на BFF через `context-values`).
+ *
+ * `R` — конкретный ref; `value` имеет тип значения по этому ref.
  */
-export class SetContextValue extends LocalAction {
+export class SetContextValue<
+  R extends ContextValueRef<unknown>,
+> extends LocalAction {
   constructor(
-    private readonly ref: ContextRef<any, any>,
-    private readonly value: unknown,
+    private readonly ref: R,
+    private readonly value: ContextRefValue<R>,
     config: ActionConfig = {},
   ) {
     super(config.conditions);
@@ -30,10 +35,10 @@ export class SetContextValue extends LocalAction {
  * Функциональная форма {@link SetContextValue}.
  * Тип `value` должен совпадать с типом значения по `ref`.
  */
-export function setContextValue<R extends ContextRef<any, any>>(
+export function setContextValue<R extends ContextValueRef<unknown>>(
   ref: R,
   value: ContextRefValue<R>,
   config: ActionConfig = {},
-): SetContextValue {
+): SetContextValue<R> {
   return new SetContextValue(ref, value, config);
 }
