@@ -53,12 +53,49 @@ text(`Привет, ${this.context.ref("name").toString()}`);
 
 Подробные примеры использования `ref()` с `forEach` и другими компонентами — в [components-basics.md](components-basics.md) и [components-list.md](../reference/components-list.md).
 
+### `ContextRef.value()` и `ContextRef.setValue()`
+
+Объект, который возвращает `ref()`, — это `ContextRef`. Помимо передачи в props компонентов, у него есть методы чтения и записи **по уже известному пути ref** с сохранением типов TypeScript.
+
+Чтение (аналог `context.value("…")`, но тип выводится из ref):
+
+```ts
+const nameRef = this.context.ref("name");
+const current = nameRef.value();
+```
+
+Запись из серверной логики (аналог `context.setValue("…", value)`):
+
+```ts
+const loadingRef = this.context.ref("loading");
+loadingRef.setValue(true);
+```
+
+`setValue` на ref внутри вызывает `Context.setValue` для того же пути: изменение попадает в `data$` и синхронизируется с клиентом так же, как при записи через контекст.
+
+Это удобно, когда ref уже есть в параметре — например, в общем хелпере с `ContextValueRef<boolean | undefined>` не нужно обращаться к `ref.context` и вручную приводить типы:
+
+```ts
+import type { ContextValueRef } from "@matreshka/bff/core";
+
+function finishSubmit(loadingRef: ContextValueRef<boolean | undefined>) {
+  loadingRef.setValue(false);
+}
+```
+
+Если контекст к этому моменту уже уничтожен (например, пользователь ушёл со страницы во время async-запроса), `ContextRef.setValue` **ничего не делает** и не бросает исключение. Такой вызов безопасно оставлять в `finally` после `await`.
+
+Для мгновенного обновления UI **из массива actions** на клиенте по-прежнему используйте `setContextValue(ref, value)` — см. [events-and-actions.md](events-and-actions.md). `ContextRef.setValue` — прямая запись на BFF в обработчиках, сервисах и `ServerAction`.
+
 ## Изменение значения на BFF
 
-Если нужно обновить данные из серверной логики:
+Если нужно обновить данные из серверной логики, можно указать путь строкой или записать через ref:
 
 ```ts
 this.context.setValue("name", "Bob");
+
+const nameRef = this.context.ref("name");
+nameRef.setValue("Bob");
 ```
 
 Если нужно не только менять контекст, но и реагировать на его изменения, можно подписаться на `data$`:

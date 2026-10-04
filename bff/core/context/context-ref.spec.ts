@@ -66,6 +66,43 @@ describe("Context.ref и ContextRef.ref", () => {
     expect(combined.path).toBe("user.profile.name");
     expect(combined.value()).toBe("Bob");
   });
+
+  it("ContextRef.setValue должен записывать значение по пути ref", async () => {
+    type TestContext = {
+      user: { name: string };
+      loading: boolean;
+    };
+
+    const ctx = new Context<TestContext>({
+      data: async () => ({
+        user: { name: "Alice" },
+        loading: false,
+      }),
+    });
+
+    await ctx.init();
+
+    const nameRef = ctx.ref("user").ref("name");
+    nameRef.setValue("Carol");
+    expect(nameRef.value()).toBe("Carol");
+
+    const loadingRef = ctx.ref("loading");
+    loadingRef.setValue(true);
+    expect(loadingRef.value()).toBe(true);
+  });
+
+  it("ContextRef.setValue не должен бросать после destroy контекста", async () => {
+    const ctx = new Context({
+      data: async () => ({ flag: false }),
+    });
+
+    await ctx.init();
+
+    const flagRef = ctx.ref("flag");
+    ctx.destroy();
+
+    expect(() => flagRef.setValue(true)).not.toThrow();
+  });
 });
 
 describe("Context.strictRef", () => {

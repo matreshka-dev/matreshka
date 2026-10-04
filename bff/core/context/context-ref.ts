@@ -96,6 +96,22 @@ export class ContextRef<
     ) as PathValue<ContextType, PathType>;
   }
 
+  /**
+   * Запись значения по текущему пути через {@link Context.setValue}.
+   * Если контекст уже уничтожен, вызов игнорируется (без исключения).
+   */
+  setValue(value: PathValue<ContextType, PathType>): void {
+    if (this.context.isDestroyed()) {
+      return;
+    }
+    (
+      this.context.setValue as (
+        path: PathType,
+        value: PathValue<ContextType, PathType>,
+      ) => void
+    )(this.path, value);
+  }
+
   toString() {
     return `@{${this.context.id}.${this.path}}`;
   }

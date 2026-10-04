@@ -19,6 +19,7 @@ import { ContextRef, ContextRefValue } from "../context/context-ref";
 export type ContextValueRef<ValueType> = ContextRef<any, any> & {
   readonly __valueType?: ValueType;
   value(): ValueType;
+  setValue(value: ValueType): void;
 };
 
 /**
