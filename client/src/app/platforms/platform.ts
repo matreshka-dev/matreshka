@@ -34,8 +34,8 @@ import {
 } from '../utils/apply-color-scheme-preference';
 import { parseContextPath } from '../utils/parse-context-path';
 import { registerColors } from '../utils/register-colors';
-import { syncConfigColorsToElement } from '../utils/sync-config-colors-to-element';
 import { stringIsExternalUrl } from '../utils/string-is-external-url';
+import { syncConfigColorsToElement } from '../utils/sync-config-colors-to-element';
 
 export const PLATFORM = new InjectionToken<Platform>('');
 

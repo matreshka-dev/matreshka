@@ -32,7 +32,7 @@ stack(
 | `rules[].conditions` | Применять ли переопределения свойств (`overrides`) |
 | `conditions` у действия | Выполнять ли действие на **клиенте** после события (local action или отправка interaction) |
 
-Проверка conditions для действий выполняется только на клиенте; BFF не повторяет их перед `ServerAction`. См. [События и действия](events-and-actions.md) и скилл `server-action-validate-in-handler`.
+Проверка conditions для действий выполняется только на клиенте; BFF не повторяет их, а запускает те `ServerAction`, чьи индексы в `interactions[event][]` клиент передал в `handlers`. См. [События и действия](events-and-actions.md) и скилл `server-action-validate-in-handler`.
 
 Несколько условий в списке объединяются по **И** — компонент показывается (или действие выполняется), только когда выполнены все.
 

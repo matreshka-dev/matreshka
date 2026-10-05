@@ -83,48 +83,73 @@ function serializePageWithSwitch(client: Client, page: Page): PageConfig {
   });
 }
 
-function sendComponentClick(client: Client, instanceId: string): void {
+function sendComponentClick(
+  client: Client,
+  instanceId: string,
+  handlers: number[] = [0],
+): void {
   client.newMessage(
     JSON.stringify({
       type: ComponentClickMessage.type,
       target: instanceId,
       payload: {},
+      handlers,
     }),
   );
 }
 
-function sendComponentShow(client: Client, instanceId: string): void {
+function sendComponentShow(
+  client: Client,
+  instanceId: string,
+  handlers: number[] = [0],
+): void {
   client.newMessage(
     JSON.stringify({
       type: ComponentShowMessage.type,
       target: instanceId,
+      handlers,
     }),
   );
 }
 
-function sendComponentEnter(client: Client, instanceId: string): void {
+function sendComponentEnter(
+  client: Client,
+  instanceId: string,
+  handlers: number[] = [0],
+): void {
   client.newMessage(
     JSON.stringify({
       type: ComponentEnterMessage.type,
       target: instanceId,
+      handlers,
     }),
   );
 }
 
-function sendComponentHide(client: Client, instanceId: string): void {
+function sendComponentHide(
+  client: Client,
+  instanceId: string,
+  handlers: number[] = [0],
+): void {
   client.newMessage(
     JSON.stringify({
       type: ComponentHideMessage.type,
       target: instanceId,
+      handlers,
     }),
   );
 }
 
-function sendComponentLeave(client: Client, instanceId: string): void {
+function sendComponentLeave(
+  client: Client,
+  instanceId: string,
+  handlers: number[] = [0],
+): void {
   client.newMessage(
     JSON.stringify({
       type: ComponentLeaveMessage.type,
       target: instanceId,
+      handlers,
     }),
   );
 }
@@ -817,9 +842,49 @@ describe("Component instance: entry lifecycle", () => {
     sendComponentLeave(
       desktopClient,
       desktopPage.getInstances({ client: desktopClient })[0].id,
+      [],
     );
 
     expect(leaveEvents).toEqual(["mobile"]);
+  });
+
+  it("запускает только ServerAction с индексами из handlers", () => {
+    const client = createClient();
+    const events: string[] = [];
+
+    const btn = button(
+      {
+        onClick: [
+          new ServerAction(() => {
+            events.push("first");
+          }),
+          new ServerAction(() => {
+            events.push("second");
+          }),
+        ],
+      },
+      [text("Go")],
+    );
+
+    class BranchPage extends Page {
+      protected title(): string {
+        return "Branch";
+      }
+
+      protected content(): ComponentTreeNode[] {
+        return [btn];
+      }
+    }
+
+    serializePage(client, new BranchPage());
+    const btnInstance = btn.getInstances({ client })[0];
+
+    sendComponentClick(client, btnInstance.id, [0]);
+    expect(events).toEqual(["first"]);
+
+    events.length = 0;
+    sendComponentClick(client, btnInstance.id, [1]);
+    expect(events).toEqual(["second"]);
   });
 });
 

@@ -20,6 +20,11 @@ import { ServerComponentsListComponent } from '../server-components-list/server-
 })
 export class FormComponent extends ServerComponent<FormConfig> {
   onSubmit() {
-    this.interact('submit', () => new FormSubmitMessage(this.id()));
+    this.interact(
+      'submit',
+      this.componentInteractionMessage(
+        (target) => new FormSubmitMessage(target),
+      ),
+    );
   }
 }

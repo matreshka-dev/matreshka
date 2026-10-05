@@ -10,6 +10,7 @@ export type MessageData = {
 /** JSON до парсинга (target только у targeted-сообщений). */
 export type IncomingMessageData = MessageData & {
   target?: string;
+  handlers?: number[];
 };
 
 export abstract class Message<PAYLOAD = unknown> {

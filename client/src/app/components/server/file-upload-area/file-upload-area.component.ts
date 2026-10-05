@@ -64,15 +64,17 @@ export class FileUploadAreaComponent extends ServerComponent<FileUploadAreaConfi
 
       this.interact(
         'start',
-        () =>
-          new FileUploadAreaStartMessage(this.id(), {
-            id: uploadId,
-            type: file.type,
-            size: file.size,
-            name: file.name,
-            lastModified: file.lastModified,
-            url: blobUrl,
-          }),
+        this.componentInteractionMessage(
+          (target) =>
+            new FileUploadAreaStartMessage(target, {
+              id: uploadId,
+              type: file.type,
+              size: file.size,
+              name: file.name,
+              lastModified: file.lastModified,
+              url: blobUrl,
+            }),
+        ),
       );
       let progress = 0;
 
@@ -94,11 +96,13 @@ export class FileUploadAreaComponent extends ServerComponent<FileUploadAreaConfi
                   progress = newProgress;
                   this.interact(
                     'progress',
-                    () =>
-                      new FileUploadAreaProgressMessage(this.id(), {
-                        id: uploadId,
-                        progress: progress,
-                      }),
+                    this.componentInteractionMessage(
+                      (target) =>
+                        new FileUploadAreaProgressMessage(target, {
+                          id: uploadId,
+                          progress: progress,
+                        }),
+                    ),
                   );
                 }
                 break;
@@ -106,11 +110,13 @@ export class FileUploadAreaComponent extends ServerComponent<FileUploadAreaConfi
                 const response = event.body;
                 this.interact(
                   'complete',
-                  () =>
-                    new FileUploadAreaCompleteMessage(this.id(), {
-                      id: uploadId,
-                      response: response,
-                    }),
+                  this.componentInteractionMessage(
+                    (target) =>
+                      new FileUploadAreaCompleteMessage(target, {
+                        id: uploadId,
+                        response: response,
+                      }),
+                  ),
                 );
                 this.cleanupUpload(uploadId);
                 break;
@@ -119,12 +125,14 @@ export class FileUploadAreaComponent extends ServerComponent<FileUploadAreaConfi
           error: (response: HttpErrorResponse) => {
             this.interact(
               'error',
-              () =>
-                new FileUploadAreaErrorMessage(this.id(), {
-                  id: uploadId,
-                  response: response.error,
-                  code: response.status,
-                }),
+              this.componentInteractionMessage(
+                (target) =>
+                  new FileUploadAreaErrorMessage(target, {
+                    id: uploadId,
+                    response: response.error,
+                    code: response.status,
+                  }),
+              ),
             );
             this.cleanupUpload(uploadId);
           },

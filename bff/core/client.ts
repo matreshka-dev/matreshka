@@ -211,6 +211,7 @@ export class Client {
         target: z.string().optional(),
         id: z.string().optional(),
         attempt: z.number().int().positive().optional(),
+        handlers: z.array(z.number().int().nonnegative()).optional(),
       });
       const message = abstractMessageSchema.parse(JSON.parse(messageString));
       runWithClient(this, () => {

@@ -85,10 +85,12 @@ export class CameraComponent extends ServerComponent<CameraConfig> {
     } catch (e: unknown) {
       this.interact(
         'error',
-        () =>
-          new ErrorMessage(this.id(), {
-            message: e instanceof Error ? e.message : String(e),
-          }),
+        this.componentInteractionMessage(
+          (target) =>
+            new ErrorMessage(target, {
+              message: e instanceof Error ? e.message : String(e),
+            }),
+        ),
       );
     }
   }
@@ -108,7 +110,9 @@ export class CameraComponent extends ServerComponent<CameraConfig> {
     if (deviceId) {
       this.interact(
         'device-change',
-        () => new CameraDeviceChangeMessage(this.id(), { deviceId }),
+        this.componentInteractionMessage(
+          (target) => new CameraDeviceChangeMessage(target, { deviceId }),
+        ),
       );
     }
   }
@@ -179,7 +183,9 @@ export class CameraComponent extends ServerComponent<CameraConfig> {
               this.lastQrCodeSentAt = sentNow;
               this.interact(
                 'qr-code',
-                () => new CameraQrCodeMessage(this.id(), qr),
+                this.componentInteractionMessage(
+                  (target) => new CameraQrCodeMessage(target, qr),
+                ),
               );
             }
           }

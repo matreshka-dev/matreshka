@@ -1,6 +1,10 @@
 import { IncomingMessageData } from "../message";
 import { isTargetedMessageClass } from "../targeted-message";
 import { clientToBffMessageRegistry } from "./client-to-bff-message-registry";
+import {
+  ComponentInteractionMessage,
+  parseHandlers,
+} from "./components/component-interaction-message";
 import { isReliableClientToBffMessage } from "./reliable-client-to-bff-message";
 
 export function parseClientToBffMessage(data: IncomingMessageData) {
@@ -22,6 +26,10 @@ export function parseClientToBffMessage(data: IncomingMessageData) {
 
   if (isReliableClientToBffMessage(message)) {
     message.restoreDelivery(data);
+  }
+
+  if (message instanceof ComponentInteractionMessage) {
+    message.setHandlers(parseHandlers(data.handlers));
   }
 
   return message;

@@ -81,7 +81,12 @@ describe('syncConfigColorsToElement', () => {
   });
 
   it('не должен добавлять CSS‑классы, если colors не задан', () => {
-    syncConfigColorsToElement(document, element, undefined, appliedColorClasses);
+    syncConfigColorsToElement(
+      document,
+      element,
+      undefined,
+      appliedColorClasses,
+    );
 
     expect(
       Array.from(element.classList).some((cls) =>
@@ -97,7 +102,12 @@ describe('syncConfigColorsToElement', () => {
       { [ColorRole.Background]: 'test-scheme-1' },
       appliedColorClasses,
     );
-    syncConfigColorsToElement(document, element, undefined, appliedColorClasses);
+    syncConfigColorsToElement(
+      document,
+      element,
+      undefined,
+      appliedColorClasses,
+    );
 
     expect(
       element.classList.contains('color-token-test-scheme-1-background'),

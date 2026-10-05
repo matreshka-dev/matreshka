@@ -185,7 +185,10 @@ export class TextEditorComponent
       this.lastSelection = newSelection;
       this.interact(
         'selection-change',
-        () => new TextEditorSelectionChangeMessage(this.id(), newSelection),
+        this.componentInteractionMessage(
+          (target) =>
+            new TextEditorSelectionChangeMessage(target, newSelection),
+        ),
       );
     }
   }

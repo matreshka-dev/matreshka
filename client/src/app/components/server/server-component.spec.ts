@@ -8,6 +8,7 @@ import { DimensionalUnit } from '@shared/enums/dimensional-unit';
 import { ServerComponentClass } from '@shared/enums/server-component-class';
 import { TextDecoration } from '@shared/enums/text-decoration';
 import { ContextInitMessage as BffToClientContextInitMessage } from '@shared/messages/bff-to-client/context/context-init-message';
+import { ComponentClickMessage } from '@shared/messages/client-to-bff/components/component-click-message';
 import { PLATFORM } from '../../platforms/platform';
 import { TestPlatform } from '../../platforms/tests/test-platform';
 import { ComponentHubService } from '../../services/component-hub.service';
@@ -293,12 +294,35 @@ describe('ServerComponent (abstract базовый компонент)', () => {
 
       const message = { type: 'test-message' };
 
-      component.interact('click', () => message as any);
+      component.interact('click', () => message as any); // indices не используются в заглушке
 
       expect(replaceSpy).toHaveBeenCalledWith('raw text');
       expect(writeText).toHaveBeenCalledWith('raw text');
       expect(sentMessages).toHaveLength(1);
       expect(sentMessages[0]).toBe(message);
+    });
+
+    it('должен передавать handlers в сообщение на BFF', () => {
+      const sentMessages: unknown[] = [];
+      postman.outcomingMessage$.subscribe((msg) => sentMessages.push(msg));
+
+      config.interactions = {
+        click: [
+          { class: 'set-context-value', payload: { ref: 'x.y', value: 1 } },
+          { class: 'server-interaction', payload: {} },
+          { class: 'server-interaction', payload: {} },
+        ],
+      };
+
+      component.interact(
+        'click',
+        (handlers) => new ComponentClickMessage(component.id()).setHandlers(handlers),
+      );
+
+      expect(sentMessages).toHaveLength(1);
+      expect((sentMessages[0] as ComponentClickMessage).getHandlers()).toEqual([
+        1, 2,
+      ]);
     });
 
     it('должен логировать ошибку для неизвестного типа client‑interaction и не кидать исключение', () => {
@@ -308,7 +332,7 @@ describe('ServerComponent (abstract базовый компонент)', () => {
         click: [{ class: 'unknown-interaction' } as any],
       };
 
-      const factory = () => ({}) as any;
+      const factory = (_indices: number[]) => ({}) as any;
 
       expect(() => component.interact('click', factory)).not.toThrow();
 
@@ -332,7 +356,7 @@ describe('ServerComponent (abstract базовый компонент)', () => {
         ],
       };
 
-      const factory = () => ({}) as any;
+      const factory = (_indices: number[]) => ({}) as any;
 
       component.interact('click', factory);
 
@@ -380,7 +404,7 @@ describe('ServerComponent (abstract базовый компонент)', () => {
         ],
       };
 
-      component.interact('click', () => ({}) as any);
+      component.interact('click', (_indices) => ({}) as any);
 
       expect(setValuesSpy).toHaveBeenCalledTimes(1);
       expect(setValuesSpy).toHaveBeenCalledWith(contextId, [

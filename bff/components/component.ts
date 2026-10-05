@@ -268,15 +268,23 @@ export abstract class Component<
     type: string,
     payload: unknown,
     instance: ComponentInstance<this>,
+    handlers: number[],
   ): void {
-    this.interactions.get(type)?.forEach((handler) => {
-      if (handler instanceof ServerAction) {
-        handler.execute({
-          instance,
-          payload,
-        });
+    const eventHandlers = this.interactions.get(type);
+    if (!eventHandlers) {
+      return;
+    }
+
+    for (const index of handlers) {
+      const handler = eventHandlers[index];
+      if (!(handler instanceof ServerAction)) {
+        continue;
       }
-    });
+      handler.execute({
+        instance,
+        payload,
+      });
+    }
   }
 
   /** Выполняет server-only cleanup перед окончательным release instance. */
@@ -504,7 +512,12 @@ export abstract class Component<
               );
               return;
             }
-            this.emitInteraction(message.eventType, message.payload, instance);
+            this.emitInteraction(
+              message.eventType,
+              message.payload,
+              instance,
+              message.getHandlers(),
+            );
           }),
         ),
     );

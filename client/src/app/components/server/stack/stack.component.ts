@@ -273,7 +273,12 @@ export class StackComponent extends ServerComponent<StackConfig> {
     if (!this.config.properties.link) {
       $event.stopPropagation();
     }
-    this.interact('click', () => new ComponentClickMessage(this.id()));
+    this.interact(
+      'click',
+      this.componentInteractionMessage(
+        (target) => new ComponentClickMessage(target),
+      ),
+    );
   }
 
   onKeyDown(event: KeyboardEvent): void {
@@ -287,7 +292,9 @@ export class StackComponent extends ServerComponent<StackConfig> {
     event.stopPropagation();
     this.interact(
       'keydown',
-      () => new ComponentKeyDownMessage(this.id(), { key: event.key }),
+      this.componentInteractionMessage(
+        (target) => new ComponentKeyDownMessage(target, { key: event.key }),
+      ),
     );
   }
 }

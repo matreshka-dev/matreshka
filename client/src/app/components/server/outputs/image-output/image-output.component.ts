@@ -51,6 +51,11 @@ export class ImageOutputComponent extends ServerOutputComponent<
   }
 
   onClick($event: MouseEvent) {
-    this.interact('click', () => new ComponentClickMessage(this.id()));
+    this.interact(
+      'click',
+      this.componentInteractionMessage(
+        (target) => new ComponentClickMessage(target),
+      ),
+    );
   }
 }

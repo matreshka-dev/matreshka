@@ -322,11 +322,15 @@ export class BoardComponent extends NestedItemsHostComponent<
     this.currentZoom = zoom;
     this.interact(
       'center-change',
-      () => new BoardCenterChangeMessage(this.id(), center),
+      this.componentInteractionMessage(
+        (target) => new BoardCenterChangeMessage(target, center),
+      ),
     );
     this.interact(
       'zoom-change',
-      () => new BoardZoomChangeMessage(this.id(), zoom),
+      this.componentInteractionMessage(
+        (target) => new BoardZoomChangeMessage(target, zoom),
+      ),
     );
   }
 

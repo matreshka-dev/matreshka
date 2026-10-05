@@ -25,6 +25,7 @@ import {
 import { ClientToBffMessage } from '@shared/messages/client-to-bff/client-to-bff-message';
 import { ComponentEnterMessage } from '@shared/messages/client-to-bff/components/component-enter-message';
 import { ComponentHideMessage } from '@shared/messages/client-to-bff/components/component-hide-message';
+import { ComponentInteractionMessage } from '@shared/messages/client-to-bff/components/component-interaction-message';
 import { ComponentLeaveMessage } from '@shared/messages/client-to-bff/components/component-leave-message';
 import { ComponentMouseEnterMessage } from '@shared/messages/client-to-bff/components/component-mouseenter-message';
 import { ComponentMouseLeaveMessage } from '@shared/messages/client-to-bff/components/component-mouseleave-message';
@@ -179,7 +180,9 @@ export abstract class ServerComponent<T extends ServerComponentConfig>
       }
       this.interact(
         'scroll',
-        () => new ComponentScrollMessage(this.id(), payload),
+        this.componentInteractionMessage(
+          (target) => new ComponentScrollMessage(target, payload),
+        ),
       );
     };
 
@@ -307,7 +310,12 @@ export abstract class ServerComponent<T extends ServerComponentConfig>
   triggerLifecycle(
     type: 'show' | 'hide' | 'enter' | 'leave',
   ): Promise<Animation[]> {
-    return this.interact(type, () => this.createLifecycleMessage(type));
+    return this.interact(
+      type,
+      this.componentInteractionMessage((target) =>
+        this.createLifecycleMessage(type, target),
+      ),
+    );
   }
 
   onMouseEnter(_event: MouseEvent): void {
@@ -316,7 +324,9 @@ export abstract class ServerComponent<T extends ServerComponentConfig>
     }
     this.interact(
       'mouseenter',
-      () => new ComponentMouseEnterMessage(this.id()),
+      this.componentInteractionMessage(
+        (target) => new ComponentMouseEnterMessage(target),
+      ),
     );
   }
 
@@ -326,7 +336,9 @@ export abstract class ServerComponent<T extends ServerComponentConfig>
     }
     this.interact(
       'mouseleave',
-      () => new ComponentMouseLeaveMessage(this.id()),
+      this.componentInteractionMessage(
+        (target) => new ComponentMouseLeaveMessage(target),
+      ),
     );
   }
 
@@ -383,21 +395,25 @@ export abstract class ServerComponent<T extends ServerComponentConfig>
 
   interact(
     type: string,
-    createMessage: () => ClientToBffMessage,
+    createMessage: (handlers: number[]) => ClientToBffMessage,
   ): Promise<Animation[]> {
     // Накопление animate-component по целевому id до явного сброса (не применяем по одному в цикле).
     const animateByTarget = new Map<string, ComponentAnimationPayload[]>();
-    let hasActiveServerInteraction = false;
+    const handlers: number[] = [];
 
     // Conditions снимаем до выполнения: иначе первый set-context-value меняет
     // Context, и взаимоисключающие действия в том же массиве начинают срабатывать подряд.
-    const interactions = (this.config.interactions?.[type] || []).filter(
-      (interaction) => this.interactionConditionsMet(interaction),
-    );
+    const sourceInteractions = this.config.interactions?.[type] || [];
+    const interactions = sourceInteractions.filter((interaction, index) => {
+      const conditionsMet = this.interactionConditionsMet(interaction);
+      if (conditionsMet && interaction.class === 'server-interaction') {
+        handlers.push(index);
+      }
+      return conditionsMet;
+    });
 
     interactions.forEach((interaction) => {
       if (interaction.class === 'server-interaction') {
-        hasActiveServerInteraction = true;
         return;
       }
 
@@ -448,25 +464,32 @@ export abstract class ServerComponent<T extends ServerComponentConfig>
       animations = this.animateInteraction(type);
     }
 
-    if (hasActiveServerInteraction) {
-      this.postman.outcomingMessage$.next(createMessage());
+    if (handlers.length > 0) {
+      this.postman.outcomingMessage$.next(createMessage(handlers));
     }
 
     return animations;
   }
 
+  protected componentInteractionMessage<T extends ComponentInteractionMessage>(
+    create: (target: string) => T,
+  ): (handlers: number[]) => T {
+    return (handlers) => create(this.id()).setHandlers(handlers);
+  }
+
   protected createLifecycleMessage(
     type: 'show' | 'hide' | 'enter' | 'leave',
-  ): ClientToBffMessage {
+    target: string,
+  ): ComponentInteractionMessage {
     switch (type) {
       case 'show':
-        return new ComponentShowMessage(this.id());
+        return new ComponentShowMessage(target);
       case 'hide':
-        return new ComponentHideMessage(this.id());
+        return new ComponentHideMessage(target);
       case 'enter':
-        return new ComponentEnterMessage(this.id());
+        return new ComponentEnterMessage(target);
       case 'leave':
-        return new ComponentLeaveMessage(this.id());
+        return new ComponentLeaveMessage(target);
     }
   }
 

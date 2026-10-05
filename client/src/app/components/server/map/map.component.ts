@@ -218,18 +218,24 @@ export class MapComponent extends NestedItemsHostComponent<
               this.currentZoom = event.location.zoom;
               this.interact(
                 'zoom-change',
-                () => new MapZoomChangeMessage(this.id(), event.location.zoom),
+                this.componentInteractionMessage(
+                  (target) =>
+                    new MapZoomChangeMessage(target, event.location.zoom),
+                ),
               );
-              this.interact('center-change', () => {
-                const alt = centerArr[2];
-                return new MapCenterChangeMessage(this.id(), {
-                  longitude: centerArr[0],
-                  latitude: centerArr[1],
-                  ...(alt !== undefined && !Number.isNaN(alt)
-                    ? { altitude: alt }
-                    : {}),
-                });
-              });
+              this.interact(
+                'center-change',
+                this.componentInteractionMessage((target) => {
+                  const alt = centerArr[2];
+                  return new MapCenterChangeMessage(target, {
+                    longitude: centerArr[0],
+                    latitude: centerArr[1],
+                    ...(alt !== undefined && !Number.isNaN(alt)
+                      ? { altitude: alt }
+                      : {}),
+                  });
+                }),
+              );
             },
           }),
         );
