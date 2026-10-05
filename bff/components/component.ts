@@ -269,9 +269,8 @@ export abstract class Component<
     payload: unknown,
     instance: ComponentInstance<this>,
   ): void {
-    const client = currentClient();
     this.interactions.get(type)?.forEach((handler) => {
-      if (handler instanceof ServerAction && handler.canExecute(client)) {
+      if (handler instanceof ServerAction) {
         handler.execute({
           instance,
           payload,
@@ -291,12 +290,10 @@ export abstract class Component<
     }
     runWithClient(client, () => {
       this.destroyHandlers.forEach((handler) => {
-        if (handler.canExecute(client)) {
-          handler.execute({
-            instance,
-            payload: undefined,
-          });
-        }
+        handler.execute({
+          instance,
+          payload: undefined,
+        });
       });
     });
   }

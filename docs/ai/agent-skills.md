@@ -70,6 +70,7 @@ npx skills add matreshka-dev/agents--skill --skill context-init-in-boot prefer-c
 | ------------------------------------ | ------------------------------ |
 | Форма и Enter                        | `form-submit-shared-handler`   |
 | Async ошибки в UI                    | `return-server-action-promise` |
+| Auth и инварианты в ServerAction     | `server-action-validate-in-handler` |
 | Мгновенный toggle/loading на клиенте | `instant-ui-set-context-value` |
 | Ссылка vs программный переход        | `link-vs-navigate`             |
 | Диалог vs меню у кнопки              | `dialog-vs-popover-platform`   |
