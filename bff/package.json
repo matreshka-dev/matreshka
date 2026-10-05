@@ -1,6 +1,6 @@
 {
   "name": "@matreshka/bff",
-  "version": "0.13.0",
+  "version": "0.14.2",
   "description": "Matreshka BFF: server-driven UI runtime — routing, pages, context, component DSL, and platform APIs",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -62,7 +62,7 @@
     "vitest": "^4.1.0"
   },
   "dependencies": {
-    "@matreshka/shared": "^0.12.0",
+    "@matreshka/shared": "^0.13.0",
     "@simplewebauthn/server": "^13.1.1",
     "@simplewebauthn/types": "^12.0.0",
     "fast-xml-parser": "^5.3.3",

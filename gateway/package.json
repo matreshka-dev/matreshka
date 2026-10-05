@@ -1,6 +1,6 @@
 {
   "name": "@matreshka/gateway",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "description": "Transport-agnostic message relay between Matreshka clients and BFF servers",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -39,7 +39,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@matreshka/shared": "^0.12.0",
+    "@matreshka/shared": "^0.13.0",
     "rxjs": "^7.8.2"
   },
   "devDependencies": {

@@ -21,10 +21,14 @@ export type CompatibleArrayContextRef<R extends ContextRef> = [
 
 /**
  * Операнд сравнения по известному типу значения: JSON-примитив или совместимая `ContextRef`.
+ *
+ * Ref-операнд: {@link CompatibleContextValueRef} с `ContextRef<any, any>` (item-ref из `forEach`
+ * и ref из другого контекста). Без `| undefined` у ValueType — иначе `(T | undefined) extends T`
+ * отсекает ref↔ref сравнения.
  */
 export type ConditionOperandFor<ValueType> =
   | (ValueType & JsonPrimitive)
-  | CompatibleContextValueRef<ValueType | undefined, ContextRef>;
+  | CompatibleContextValueRef<ValueType, ContextRef<any, any>>; // Пришлось оставить <any, any>, без этого ругается на типы в условиях
 
 /**
  * Операнд условия на BFF: JSON-примитив того же типа, что значение по `ref`,
