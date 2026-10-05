@@ -1,13 +1,12 @@
 import { ArrayLengthCompare } from "@matreshka/shared/enums/array-length-compare";
 import { ConditionType } from "@matreshka/shared/enums/condition-type";
-import { ContextRef, ContextRefValue } from "../context/context-ref";
+import { ContextRef } from "../context/context-ref";
 import { Condition } from "./condition";
-import { ConditionLengthOperand, toWireOperand } from "./condition-operand";
-
-type ContextArrayValue = readonly unknown[] | unknown[];
-
-type CompatibleArrayContextRef<R extends ContextRef> =
-  Extract<ContextRefValue<R>, ContextArrayValue> extends never ? never : R;
+import {
+  CompatibleArrayContextRef,
+  ConditionLengthOperand,
+  toWireOperand,
+} from "./condition-operand";
 
 /**
  * Условие сравнения длины массива в контексте с операндом
