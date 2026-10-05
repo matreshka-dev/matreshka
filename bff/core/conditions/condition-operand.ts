@@ -7,15 +7,15 @@ import type { ContextRefPrimitiveValue } from "../types/context-ref-primitive-va
  * Операнд условия на BFF: литерал того же примитивного типа, что значение по `ref`,
  * либо другая `ContextRef` (сравнение в рантайме через `===`).
  */
-export type ConditionOperand<R extends ContextRef<any, any>> =
+export type ConditionOperand<R extends ContextRef> =
   | ContextRefPrimitiveValue<R>
-  | ContextRef<any, any>;
+  | ContextRef;
 
 /** Операнд без привязки к конкретному `ref` (например, поле элемента массива). */
-export type UntypedConditionOperand = JsonPrimitive | ContextRef<any, any>;
+export type UntypedConditionOperand = JsonPrimitive | ContextRef;
 
 /** Операнд длины массива: число или ссылка на число в контексте. */
-export type ConditionLengthOperand = number | ContextRef<any, any>;
+export type ConditionLengthOperand = number | ContextRef;
 
 /**
  * До JSON-сериализации в `kind: "ref"` лежит `ContextRef`;
@@ -23,7 +23,7 @@ export type ConditionLengthOperand = number | ContextRef<any, any>;
  */
 export type BffSerializedOperand =
   | { kind: "literal"; value: JsonPrimitive }
-  | { kind: "ref"; ref: ContextRef<any, any> };
+  | { kind: "ref"; ref: ContextRef };
 
 export function toSerializedOperand(
   value: UntypedConditionOperand,

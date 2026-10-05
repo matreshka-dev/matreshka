@@ -126,7 +126,7 @@ export type ForEachGeneratorProperties<
  * @property ref Ссылка в контексте, по которой хранятся данные списка.
  */
 export type ForEachProperties = {
-  ref: ContextRef<any, any>;
+  ref: ContextRef;
   componentContext: Context<any>;
   components?: (ComponentTreeNode | ComponentTreeNode[])[];
   divider?: ComponentTreeNode[];

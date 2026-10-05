@@ -5,7 +5,7 @@ import { UntypedConditionOperand, toWireOperand } from "./condition-operand";
 
 type ContextArrayValue = readonly unknown[] | unknown[];
 
-type CompatibleArrayContextRef<R extends ContextRef<any, any>> =
+type CompatibleArrayContextRef<R extends ContextRef> =
   Extract<ContextRefValue<R>, ContextArrayValue> extends never ? never : R;
 
 /**
@@ -16,9 +16,7 @@ type CompatibleArrayContextRef<R extends ContextRef<any, any>> =
  *
  * @internal Используйте {@link contextArrayIncludes} / {@link when.includes}.
  */
-export class ContextArrayIncludes<
-  R extends ContextRef<any, any>,
-> extends Condition {
+export class ContextArrayIncludes<R extends ContextRef> extends Condition {
   constructor(
     ref: CompatibleArrayContextRef<R>,
     itemPath: string,
@@ -33,7 +31,7 @@ export class ContextArrayIncludes<
 }
 
 /** Функциональная форма {@link ContextArrayIncludes}. */
-export function contextArrayIncludes<R extends ContextRef<any, any>>(
+export function contextArrayIncludes<R extends ContextRef>(
   ref: CompatibleArrayContextRef<R>,
   itemPath: string,
   value: UntypedConditionOperand,
@@ -49,9 +47,7 @@ export function contextArrayIncludes<R extends ContextRef<any, any>>(
  *
  * @internal Используйте {@link contextArrayNotIncludes} / {@link when.excludes}.
  */
-export class ContextArrayNotIncludes<
-  R extends ContextRef<any, any>,
-> extends Condition {
+export class ContextArrayNotIncludes<R extends ContextRef> extends Condition {
   constructor(
     ref: CompatibleArrayContextRef<R>,
     itemPath: string,
@@ -66,7 +62,7 @@ export class ContextArrayNotIncludes<
 }
 
 /** Функциональная форма {@link ContextArrayNotIncludes}. */
-export function contextArrayNotIncludes<R extends ContextRef<any, any>>(
+export function contextArrayNotIncludes<R extends ContextRef>(
   ref: CompatibleArrayContextRef<R>,
   itemPath: string,
   value: UntypedConditionOperand,

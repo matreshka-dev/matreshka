@@ -25,10 +25,8 @@ export type ContextValueRef<ValueType> = ContextRef<any, any> & {
 /**
  * Ref `R` совместим с ожидаемым типом значения `ValueType` (проверка на call site).
  */
-export type CompatibleContextValueRef<
-  ValueType,
-  R extends ContextRef<any, any>,
-> = ValueType extends ContextRefValue<R> ? R : never;
+export type CompatibleContextValueRef<ValueType, R extends ContextRef> =
+  ValueType extends ContextRefValue<R> ? R : never;
 
 /**
  * Ссылка на массив элементов в контексте (`ItemType[] | undefined`).

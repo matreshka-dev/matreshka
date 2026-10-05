@@ -31,7 +31,6 @@ export * from "./types/componentable";
 export * from "./types/context-value-ref";
 export * from "./types/message";
 export * from "./types/mixed-with-callbacks-array";
-export * from "./types/native-picker-context-ref";
 export * from "./types/pageable";
 export * from "./types/standalone-component";
 export * from "./types/status-code";

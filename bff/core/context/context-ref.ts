@@ -3,7 +3,7 @@ import { Paths, PathValue } from "ts-essentials";
 import { currentClient } from "../client-context";
 import { Context } from "./context";
 
-export type ContextRefValue<R extends ContextRef<any, any>> = R extends {
+export type ContextRefValue<R extends ContextRef> = R extends {
   readonly __valueType?: infer ValueType;
 }
   ? Exclude<ValueType, undefined>
@@ -12,7 +12,7 @@ export type ContextRefValue<R extends ContextRef<any, any>> = R extends {
     : never;
 
 export class ContextRef<
-  ContextType extends JsonObject = any,
+  ContextType extends JsonObject = JsonObject,
   PathType extends string = string,
 > {
   constructor(

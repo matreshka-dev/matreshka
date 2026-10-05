@@ -4,7 +4,7 @@ import { ContextRefPrimitiveValue } from "../types/context-ref-primitive-value";
 import { Condition } from "./condition";
 import { ConditionOperand, toWireOperand } from "./condition-operand";
 
-type CompatiblePrimitiveContextRef<R extends ContextRef<any, any>> =
+type CompatiblePrimitiveContextRef<R extends ContextRef> =
   ContextRefPrimitiveValue<R> extends never ? never : R;
 
 /**
@@ -13,7 +13,7 @@ type CompatiblePrimitiveContextRef<R extends ContextRef<any, any>> =
  *
  * @internal Используйте {@link contextValueIn} / {@link when.oneOf}.
  */
-export class ContextValueIn<R extends ContextRef<any, any>> extends Condition {
+export class ContextValueIn<R extends ContextRef> extends Condition {
   constructor(
     ref: CompatiblePrimitiveContextRef<R>,
     value: ConditionOperand<R>[],
@@ -26,7 +26,7 @@ export class ContextValueIn<R extends ContextRef<any, any>> extends Condition {
 }
 
 /** Функциональная форма {@link ContextValueIn}. */
-export function contextValueIn<R extends ContextRef<any, any>>(
+export function contextValueIn<R extends ContextRef>(
   ref: CompatiblePrimitiveContextRef<R>,
   value: ConditionOperand<R>[],
 ): ContextValueIn<R> {
