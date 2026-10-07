@@ -38,14 +38,14 @@
   cursor: not-allowed;
   opacity: 0.5;
 }
-/* Flex-item с overflow внутри column/page должен сжиматься, иначе растёт по контенту. */
-app-stack.row {
-  min-width: 0;
-}
+// /* Flex-item с overflow внутри column/page должен сжиматься, иначе растёт по контенту. */
+// app-stack.row {
+//   min-width: 0;
+// }
 
-app-stack.stack {
-  min-height: 0;
-}
+// app-stack.stack {
+//   min-height: 0;
+// }
 
 .stack,
 .row {
