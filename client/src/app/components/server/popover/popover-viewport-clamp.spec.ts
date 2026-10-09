@@ -33,18 +33,17 @@ function popover(
 describe('computePopoverViewportMaxAvailable', () => {
   it('считает доступное место от top/left popover до краёв viewport', () => {
     const el = document.createElement('div');
-    el.getBoundingClientRect = () =>
-      ({
-        top: 100,
-        left: 50,
-        right: 250,
-        bottom: 400,
-        width: 200,
-        height: 300,
-        x: 50,
-        y: 100,
-        toJSON: () => ({}),
-      }) as DOMRect;
+    el.getBoundingClientRect = () => ({
+      top: 100,
+      left: 50,
+      right: 250,
+      bottom: 400,
+      width: 200,
+      height: 300,
+      x: 50,
+      y: 100,
+      toJSON: () => ({}),
+    });
 
     expect(computePopoverViewportMaxAvailable(el, viewport)).toEqual({
       maxHeight: 700,

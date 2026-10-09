@@ -49,7 +49,7 @@ export class PopoverComponent
   private readonly platformId = inject(PLATFORM_ID);
   private popoverWidth?: string;
   private isViewInitialized = false;
-  /** Ограничение по viewport только при anchor + positionArea в конфиге. */
+  /** Динамический clamp (--popover-max-*) только при positionArea. */
   private viewportClampEnabled = false;
   private viewportClampRaf = 0;
   private lastViewportClampKey: string | null = null;
@@ -94,6 +94,8 @@ export class PopoverComponent
         el.classList.add('native-popover--anchor-positioned');
         this.viewportClampEnabled = true;
         this.bindViewportClamp(el);
+      } else {
+        el.classList.add('native-popover--not-positioned');
       }
     }
     el.showPopover();

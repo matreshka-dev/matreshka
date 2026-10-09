@@ -22,3 +22,9 @@
     max-width: inherit;
   }
 }
+
+/* Без positionArea: UA-позиция, потолок — размер окна (см. docs popover-viewport-size-limit). */
+.native-popover--not-positioned {
+  max-height: 100vh;
+  max-width: 100vw;
+}
