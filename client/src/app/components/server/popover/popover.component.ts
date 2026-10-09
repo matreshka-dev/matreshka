@@ -23,6 +23,12 @@ import {
   calculatePopoverWidth,
   calculateScaleStyles,
 } from '../utils/calculate-styles';
+import {
+  applyPopoverViewportClampStyles,
+  computePopoverViewportMaxAvailable,
+  getVisualViewportBounds,
+  popoverViewportClampKey,
+} from './popover-viewport-clamp';
 
 @Component({
   selector: 'app-popover',
@@ -43,6 +49,10 @@ export class PopoverComponent
   private readonly platformId = inject(PLATFORM_ID);
   private popoverWidth?: string;
   private isViewInitialized = false;
+  /** Ограничение по viewport только при anchor + positionArea в конфиге. */
+  private viewportClampEnabled = false;
+  private viewportClampRaf = 0;
+  private lastViewportClampKey: string | null = null;
 
   private readonly popoverRef =
     viewChild.required<ElementRef<HTMLElement>>('popoverRoot');
@@ -82,9 +92,14 @@ export class PopoverComponent
         el.style.setProperty('position-anchor', anchorCssName);
         el.style.setProperty('position-area', positionArea);
         el.classList.add('native-popover--anchor-positioned');
+        this.viewportClampEnabled = true;
+        this.bindViewportClamp(el);
       }
     }
     el.showPopover();
+    if (this.viewportClampEnabled) {
+      this.scheduleInitialViewportClamps(el);
+    }
     this.bindLightDismiss(el);
 
     this.popupService.close$
@@ -173,6 +188,73 @@ export class PopoverComponent
     } else {
       el.style.removeProperty('width');
     }
+  }
+
+  /**
+   * Пересчёт --popover-max-* при scroll/resize viewport и якоря (без ResizeObserver на popover:
+   * иначе max-* ↔ layout ↔ RO зацикливаются, особенно с overflow: auto у потомков).
+   */
+  private bindViewportClamp(el: HTMLElement): void {
+    const update = () => {
+      this.scheduleViewportClampOnFrame(el);
+    };
+    const vv = window.visualViewport;
+    vv?.addEventListener('resize', update);
+    vv?.addEventListener('scroll', update);
+    window.addEventListener('resize', update);
+    window.addEventListener('scroll', update, true);
+
+    this.destroyRef.onDestroy(() => {
+      vv?.removeEventListener('resize', update);
+      vv?.removeEventListener('scroll', update);
+      window.removeEventListener('resize', update);
+      window.removeEventListener('scroll', update, true);
+      if (this.viewportClampRaf) {
+        cancelAnimationFrame(this.viewportClampRaf);
+      }
+      this.lastViewportClampKey = null;
+      applyPopoverViewportClampStyles(el, null);
+    });
+  }
+
+  /** Несколько кадров после showPopover — anchor layout и async server-components-list. */
+  private scheduleInitialViewportClamps(el: HTMLElement): void {
+    this.scheduleViewportClampOnFrame(el);
+    requestAnimationFrame(() => {
+      this.scheduleViewportClampOnFrame(el);
+      requestAnimationFrame(() => {
+        this.scheduleViewportClampOnFrame(el);
+      });
+    });
+  }
+
+  /** Не чаще одного пересчёта на кадр; пропуск, если clamp не изменился. */
+  private scheduleViewportClampOnFrame(el: HTMLElement): void {
+    if (this.viewportClampRaf) {
+      return;
+    }
+    this.viewportClampRaf = requestAnimationFrame(() => {
+      this.viewportClampRaf = 0;
+      this.updateViewportClamp(el);
+    });
+  }
+
+  private updateViewportClamp(el: HTMLElement): void {
+    const rect = el.getBoundingClientRect();
+    if (rect.width === 0 && rect.height === 0) {
+      return;
+    }
+    const clamp = computePopoverViewportMaxAvailable(
+      el,
+      getVisualViewportBounds(),
+      this.popupService.getPopoverAnchor(this.id()),
+    );
+    const key = popoverViewportClampKey(clamp);
+    if (key === this.lastViewportClampKey) {
+      return;
+    }
+    this.lastViewportClampKey = key;
+    applyPopoverViewportClampStyles(el, clamp);
   }
 
   override ngOnDestroy() {

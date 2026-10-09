@@ -3,10 +3,22 @@
   border: none;
   padding: 0;
   background: transparent; // Перезаписывание стилей браузера по умолчанию
+  overflow: hidden;
 }
 
 /* CSS Anchor Positioning: position-anchor + position-area задаются из компонента при `positionArea` в конфиге */
 .native-popover--anchor-positioned {
   margin: 0;
-  max-height: min(70vh, 100dvh); // Кажется не решает проблему
+  box-sizing: border-box;
+  /* Значения px выставляет PopoverComponent (popover-viewport-clamp.ts). */
+  max-height: var(--popover-max-height, none);
+  max-width: var(--popover-max-width, none);
+
+  /* Лимит и flex-shrink до surface/column с overflow: auto в BFF. */
+  .popover__children {
+    // min-height: 0;
+    // min-width: 0;
+    max-height: inherit;
+    max-width: inherit;
+  }
 }
