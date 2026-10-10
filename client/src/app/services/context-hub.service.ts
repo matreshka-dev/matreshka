@@ -19,6 +19,7 @@ import { ContextChangeEvent } from '../types/context-change-event';
 import { findContextKeys } from '../utils/find-context-keys';
 import { objectSetValue } from '../utils/object-set-value';
 import { parseContextPath } from '../utils/parse-context-path';
+import { ContextHoldRegistry } from './context-hold-registry';
 import { PostmanService } from './postman.service';
 import { SsrService } from './ssr.service';
 
@@ -41,11 +42,17 @@ class Context {
   private id!: string;
   private needSync = true;
   private subscription?: Subscription;
+  /** BFF уже уничтожил контекст; на клиенте остаётся snapshot до evict. */
+  private pendingDestroy = false;
+  /** Исходящий context-values на BFF (выключается при pendingDestroy). */
+  private syncToBff = true;
 
   init(postman: PostmanService, id: string, values: object) {
     this.postman = postman;
     this.id = id;
     this.values$ = new BehaviorSubject<object>(values);
+    this.pendingDestroy = false;
+    this.syncToBff = true;
     this.subscription = this.postman.incomingMessage$
       .pipe(
         filter(
@@ -73,6 +80,16 @@ class Context {
     return this._change$;
   }
 
+  isPendingDestroy() {
+    return this.pendingDestroy;
+  }
+
+  /** После context-destroy с BFF: только чтение snapshot, без sync на сервер. */
+  markPendingDestroyFromServer() {
+    this.pendingDestroy = true;
+    this.syncToBff = false;
+  }
+
   private emitChange(values: { key: string; value: unknown }[]) {
     this._change$.next(values);
   }
@@ -92,7 +109,7 @@ class Context {
     changes.forEach((item) => {
       objectSetValue(values, item.key, item.value);
     });
-    if (this.needSync && changes.length > 0) {
+    if (this.needSync && this.syncToBff && changes.length > 0) {
       this.postman.outcomingMessage$.next(
         new ClientToBffContextValuesMessage(this.id, changes),
       );
@@ -109,6 +126,7 @@ class Context {
 })
 export class ContextHubService {
   private contextMap: Map<string, Context> = new Map();
+  private readonly holdRegistry = new ContextHoldRegistry();
   private postman = inject(PostmanService);
   private readonly changeSubject = new Subject<ContextChangeEvent>();
   readonly change$ = this.changeSubject.asObservable();
@@ -124,25 +142,7 @@ export class ContextHubService {
         ),
       )
       .subscribe((message: BffToClientContextInitMessage) => {
-        const contextId = message.target;
-        const values = message.payload;
-        const subject =
-          this.contextInitMap.get(contextId) || new ReplaySubject<true>(1);
-        if (!this.contextInitMap.has(contextId)) {
-          this.contextInitMap.set(contextId, subject);
-        }
-        const previousContext = this.contextMap.get(contextId);
-        previousContext?.destroy();
-
-        const context = new Context().init(this.postman, contextId, values);
-        context.change$().subscribe((values) => {
-          this.changeSubject.next({ contextId, values });
-        });
-        this.contextMap.set(contextId, context);
-        // Инициализация не проходит через setValues → подписчики change$ (инпуты) иначе
-        // не подхватывают значения, если смонтировались в том же цикле, что и ContextInit.
-        this.changeSubject.next({ contextId, values: [] });
-        subject.next(true);
+        this.applyContextInit(message.target, message.payload);
       });
 
     this.postman.incomingMessage$
@@ -153,23 +153,109 @@ export class ContextHubService {
         ),
       )
       .subscribe((message) => {
-        this.removeContext(message.target);
+        this.requestDestroyFromServer(message.target);
       });
   }
 
-  private removeContext(contextId: string) {
+  private applyContextInit(contextId: string, values: object) {
+    const subject =
+      this.contextInitMap.get(contextId) || new ReplaySubject<true>(1);
+    if (!this.contextInitMap.has(contextId)) {
+      this.contextInitMap.set(contextId, subject);
+    }
+    const previousContext = this.contextMap.get(contextId);
+    previousContext?.destroy();
+
+    const context = new Context().init(this.postman, contextId, values);
+    context.change$().subscribe((values) => {
+      this.changeSubject.next({ contextId, values });
+    });
+    this.contextMap.set(contextId, context);
+    // Инициализация не проходит через setValues → подписчики change$ (инпуты) иначе
+    // не подхватывают значения, если смонтировались в том же цикле, что и ContextInit.
+    this.changeSubject.next({ contextId, values: [] });
+    subject.next(true);
+  }
+
+  /**
+   * BFF сообщил context-destroy: сразу evict, если нет holds;
+   * иначе помечаем pending и держим snapshot для UI.
+   */
+  requestDestroyFromServer(contextId: string) {
+    const context = this.contextMap.get(contextId);
+    if (!context) {
+      return;
+    }
+    if (this.holdRegistry.holdCount(contextId) > 0) {
+      context.markPendingDestroyFromServer();
+      return;
+    }
+    this.evictContext(contextId);
+  }
+
+  /** Физически удалить контекст из hub (после evict или когда holds = 0). */
+  private evictContext(contextId: string) {
     this.contextMap.get(contextId)?.destroy();
     this.contextMap.delete(contextId);
     this.contextInitMap.delete(contextId);
   }
+
+  /** После release: если сервер уже уничтожил id и holds не осталось — evict. */
+  private tryEvictAfterRelease(contextId: string) {
+    const context = this.contextMap.get(contextId);
+    if (context?.isPendingDestroy()) {
+      this.evictContext(contextId);
+    }
+  }
+
+  /**
+   * Удержание contextId узлом config store (ref / rules / плейсхолдеры).
+   * @internal вызывается из ComponentHubService.
+   */
+  retain(contextId: string): void {
+    this.holdRegistry.retain(contextId);
+  }
+
+  /**
+   * Снятие удержания; при holdCount → 0 и pendingDestroy — evict snapshot.
+   * @internal вызывается из ComponentHubService.
+   */
+  release(contextId: string): void {
+    const remaining = this.holdRegistry.release(contextId);
+    if (remaining === 0) {
+      this.tryEvictAfterRelease(contextId);
+    }
+  }
+
+  /** @internal для тестов */
+  holdCount(contextId: string): number {
+    return this.holdRegistry.holdCount(contextId);
+  }
+
+  /** Сервер уничтожил контекст, на клиенте ещё жив snapshot (есть holds). */
+  isPendingDestroy(contextId: string): boolean {
+    return this.contextMap.get(contextId)?.isPendingDestroy() ?? false;
+  }
+
   /** Отслеживание инициализации контекста чтобы рендерить компоненты */
   init$(contextId: string): ReplaySubject<true> {
+    const pendingSnapshot = this.contextMap.get(contextId);
+    if (pendingSnapshot?.isPendingDestroy()) {
+      let subject = this.contextInitMap.get(contextId);
+      if (!subject) {
+        subject = new ReplaySubject<true>(1);
+        this.contextInitMap.set(contextId, subject);
+      }
+      // На BFF контекста уже нет — не шлём ContextInitMessage, snapshot достаточен для ready$.
+      subject.next(true);
+      return subject;
+    }
+
     const subject =
       this.contextInitMap.get(contextId) || new ReplaySubject<true>(1);
     if (!this.contextInitMap.has(contextId)) {
       const initContextTask = this.ssr.addTask();
       this.contextInitMap.set(contextId, subject);
-      // Запрос значений контекста с сервера
       subject.subscribe(() => {
         this.ssr.cleanupTask(initContextTask);
       });
@@ -194,6 +280,7 @@ export class ContextHubService {
     return context.value(pathInfo.key);
   }
 
+  /** true, если контекст в map (включая pendingDestroy snapshot). */
   loaded(contextId: string) {
     return this.contextMap.get(contextId) !== undefined;
   }

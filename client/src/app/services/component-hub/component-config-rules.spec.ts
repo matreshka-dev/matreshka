@@ -271,10 +271,170 @@ describe('ComponentConfigRules (через ComponentHubService)', () => {
       ]),
     );
 
+    expect(config.properties.title).toBe('Hello @{ctx-user.name}');
+    // До активации rule имя уже меняли на Jane — в override остаётся шаблон, значение из контекста.
+    expect(env.contextHub.replacePlaceholders(config.properties.title)).toBe(
+      'Hello Jane',
+    );
+
     rerenderCalled = false;
     env.contextHub.setValues('ctx-user', [{ key: 'name', value: 'Alice' }]);
     await new Promise((resolve) => setTimeout(resolve, 100));
 
     expect(rerenderCalled).toBe(true);
+    expect(env.contextHub.replacePlaceholders(config.properties.title)).toBe(
+      'Hello Alice',
+    );
+  });
+
+  it('должен добавлять holds для contextId из override после активации rule', async () => {
+    env.mockServerComponents[
+      ServerComponentClass.UnitTest
+    ].dependencies.pathsWithPlaceholdersInTemplate = ['title'];
+
+    await env.initContext('ctx-mode', { mode: 'default' });
+    await env.initContext('ctx-user', { name: 'John' });
+
+    const config: { properties: { title: string } } & ServerComponentConfig = {
+      id: 'config-rules-holds-on-activate',
+      class: ServerComponentClass.UnitTest,
+      properties: { title: 'default' },
+      rules: [
+        {
+          conditions: [
+            {
+              type: ConditionType.ContextValueEqual,
+              payload: {
+                ref: 'ctx-mode.mode',
+                value: { kind: 'literal', value: 'alt' },
+              },
+            },
+          ],
+          overrides: {
+            title: 'Hello @{ctx-user.name}',
+          },
+        },
+      ],
+    };
+
+    env.service.registerConfig(config);
+    await firstValueFrom(env.service.ready$(config));
+
+    expect(env.contextHub.holdCount('ctx-user')).toBe(0);
+
+    env.contextHub.setValues('ctx-mode', [{ key: 'mode', value: 'alt' }]);
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    expect(env.contextHub.holdCount('ctx-user')).toBe(1);
+    expect(
+      hubConfigEntry(env.service, config.id).heldContextIds.has('ctx-user'),
+    ).toBe(true);
+  });
+
+  it('должен переключать holds при смене активного rule с разными contextId в override', async () => {
+    env.mockServerComponents[
+      ServerComponentClass.UnitTest
+    ].dependencies.pathsWithPlaceholdersInTemplate = ['title'];
+
+    await env.initContext('ctx-mode', { mode: 'alt' });
+    await env.initContext('ctx-a', { label: 'A' });
+    await env.initContext('ctx-b', { label: 'B' });
+
+    const config: { properties: { title: string } } & ServerComponentConfig = {
+      id: 'config-rules-holds-switch',
+      class: ServerComponentClass.UnitTest,
+      properties: { title: 'default' },
+      rules: [
+        {
+          conditions: [
+            {
+              type: ConditionType.ContextValueEqual,
+              payload: {
+                ref: 'ctx-mode.mode',
+                value: { kind: 'literal', value: 'alt' },
+              },
+            },
+          ],
+          overrides: {
+            title: '@{ctx-a.label}',
+          },
+        },
+        {
+          conditions: [
+            {
+              type: ConditionType.ContextValueEqual,
+              payload: {
+                ref: 'ctx-mode.mode',
+                value: { kind: 'literal', value: 'other' },
+              },
+            },
+          ],
+          overrides: {
+            title: '@{ctx-b.label}',
+          },
+        },
+      ],
+    };
+
+    env.service.registerConfig(config);
+    await firstValueFrom(env.service.ready$(config));
+
+    expect(env.contextHub.holdCount('ctx-a')).toBe(1);
+    expect(env.contextHub.holdCount('ctx-b')).toBe(0);
+
+    env.contextHub.setValues('ctx-mode', [{ key: 'mode', value: 'other' }]);
+    await new Promise((resolve) => setTimeout(resolve, 100));
+
+    expect(env.contextHub.holdCount('ctx-a')).toBe(0);
+    expect(env.contextHub.holdCount('ctx-b')).toBe(1);
+  });
+
+  it('должен учитывать вложенные плейсхолдеры в override активного rule', async () => {
+    env.mockServerComponents[
+      ServerComponentClass.UnitTest
+    ].dependencies.pathsWithPlaceholdersInTemplate = ['title'];
+
+    await env.initContext('ctx2', { nested: 'final' });
+    await env.initContext('ctx1', { field: '@{ctx2.nested}' });
+    await env.initContext('ctx-mode', { mode: 'alt' });
+
+    const config: { properties: { title: string } } & ServerComponentConfig = {
+      id: 'config-rules-nested-placeholder',
+      class: ServerComponentClass.UnitTest,
+      properties: { title: 'default' },
+      rules: [
+        {
+          conditions: [
+            {
+              type: ConditionType.ContextValueEqual,
+              payload: {
+                ref: 'ctx-mode.mode',
+                value: { kind: 'literal', value: 'alt' },
+              },
+            },
+          ],
+          overrides: {
+            title: '@{ctx1.field}',
+          },
+        },
+      ],
+    };
+
+    env.service.registerConfig(config);
+    await firstValueFrom(env.service.ready$(config));
+
+    const entry = hubConfigEntry(env.service, config.id);
+    const titleDeps = entry.contextDependencies.get('title')!;
+    const contextIds = titleDeps.map((d: { contextId: string }) => d.contextId);
+
+    expect(contextIds).toContain('ctx1');
+    expect(contextIds).toContain('ctx2');
+    expect(env.contextHub.holdCount('ctx1')).toBe(1);
+    expect(env.contextHub.holdCount('ctx2')).toBe(1);
+
+    expect(config.properties.title).toBe('@{ctx1.field}');
+    expect(env.contextHub.replacePlaceholders(config.properties.title)).toBe(
+      'final',
+    );
   });
 });

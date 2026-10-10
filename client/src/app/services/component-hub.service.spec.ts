@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { ConditionType } from '@shared/enums/condition-type';
 import { ServerComponentClass } from '@shared/enums/server-component-class';
+import { ContextDestroyMessage } from '@shared/messages/bff-to-client/context';
 import { ContextInitMessage as BffToClientContextInitMessage } from '@shared/messages/bff-to-client/context/context-init-message';
 import { ContextInitMessage as ClientToBffContextInitMessage } from '@shared/messages/client-to-bff/context/context-init-message';
 import { firstValueFrom } from 'rxjs';
@@ -1361,6 +1362,36 @@ describe('ComponentHubService', () => {
 
       expect(parentInstance.animateInteraction).not.toHaveBeenCalled();
       expect(childInstance.animateInteraction).toHaveBeenCalledWith('hide');
+    });
+  });
+
+  describe('отложенное уничтожение контекста (holds)', () => {
+    it('snapshot до deleteConfig после context-destroy', async () => {
+      const config: ServerComponentConfig = {
+        id: 'page-with-ctx',
+        class: ServerComponentClass.Text,
+        properties: {
+          ref: 'ctx-page.title',
+          text: '',
+        },
+      };
+
+      await initContext('ctx-page', { title: 'hello' });
+      await initContext('ctx-other', { n: 0 });
+
+      service.registerConfig(config, 'page-root');
+      expect(contextHub.holdCount('ctx-page')).toBeGreaterThan(0);
+
+      postman.incomingMessage$.next(new ContextDestroyMessage('ctx-page'));
+
+      expect(contextHub.loaded('ctx-page')).toBe(true);
+      expect(contextHub.isPendingDestroy('ctx-page')).toBe(true);
+
+      contextHub.setValues('ctx-other', [{ key: 'n', value: 1 }]);
+      expect(contextHub.value('ctx-page.title')).toBe('hello');
+
+      service.deleteConfig(config);
+      expect(contextHub.loaded('ctx-page')).toBe(false);
     });
   });
 });

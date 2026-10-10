@@ -21,6 +21,8 @@ export type ComponentConfigStoreHooks = {
   updateResolvedConfig: (entry: ConfigEntry, force?: boolean) => boolean;
   onDeleteRootEntry: (entry: ConfigEntry) => void;
   releaseFrozenState: (configId: string) => void;
+  /** useCount → 0: release holds до удаления записи из map. */
+  onEntryRemoved?: (entry: ConfigEntry) => void;
 };
 
 /**
@@ -75,6 +77,7 @@ export class ComponentConfigStore {
         subscriptions,
         requestRerender$: new Subject<void>(),
         contextDependencies: new Map(),
+        heldContextIds: new Set<string>(),
         readyReload$,
       } as ConfigEntry;
 
@@ -102,6 +105,7 @@ export class ComponentConfigStore {
 
     entry.useCount -= 1;
     if (entry.useCount === 0) {
+      this.hooks.onEntryRemoved?.(entry);
       if (entry.entryId === config.id) {
         this.hooks.onDeleteRootEntry(entry);
       }

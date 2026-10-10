@@ -57,6 +57,8 @@ export type ConfigEntry = {
   instances: ServerComponent<any>[];
   /** Карта «путь в конфиге или служебный ключ → список зависимостей от контекста». */
   contextDependencies: Map<string, PathContextDependency[]>;
+  /** contextId, по которым entry уже вызвал retain в ContextHub (для diff при rules). */
+  heldContextIds: Set<string>;
 };
 
 /** Событие из ContextHubService: изменились поля одного контекста. */

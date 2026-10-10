@@ -337,5 +337,7 @@ this.context.emitAfterInPlaceMutation();
 **Следующий обязательный шаг:** [Conditions](conditions.md) — как данные
 `Context` влияют на видимость компонентов и выполнение действий.
 
-Дополнительно: [Протокол](../architecture/protocol.md) — транспортный уровень
-`context-init` и `context-values`.
+Дополнительно:
+
+- [Протокол](../architecture/protocol.md) — `context-init`, `context-values`, `context-destroy`;
+- [Жизненный цикл Context](../architecture/context-lifecycle.md) — destroy на BFF, holds и `pendingDestroy` на клиенте.

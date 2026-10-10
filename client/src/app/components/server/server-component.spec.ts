@@ -314,9 +314,8 @@ describe('ServerComponent (abstract базовый компонент)', () => {
         ],
       };
 
-      component.interact(
-        'click',
-        (handlers) => new ComponentClickMessage(component.id()).setHandlers(handlers),
+      component.interact('click', (handlers) =>
+        new ComponentClickMessage(component.id()).setHandlers(handlers),
       );
 
       expect(sentMessages).toHaveLength(1);

@@ -7,12 +7,17 @@ import { ServerComponentConfig } from '../components/server/server-component-con
 import { SERVER_COMPONENTS } from '../components/server/server-components-injection-token';
 import { animateSubtree } from './component-hub/component-animate-subtree';
 import { calculateConfigContextDependencies } from './component-hub/component-config-dependencies';
+import type { ConfigEntry } from './component-hub/component-config-entry.types';
 import { ComponentConfigFreeze } from './component-hub/component-config-freeze';
 import { ComponentConfigRules } from './component-hub/component-config-rules';
 import { ComponentConfigStore } from './component-hub/component-config-store';
 import { ComponentContextReaction } from './component-hub/component-context-reaction';
 import { ComponentEntryLifecycle } from './component-hub/component-entry-lifecycle';
 import { ComponentReadyLoader } from './component-hub/component-ready.loader';
+import {
+  extractContextIds,
+  syncContextHolds,
+} from './component-hub/context-dependency-holds';
 import { ContextHubService } from './context-hub.service';
 
 /**
@@ -56,14 +61,24 @@ export class ComponentHubService {
         ),
     );
 
-    this.readyLoader = new ComponentReadyLoader(this.contextHub, this.rules);
+    const updateEntryResolvedConfig = (entry: ConfigEntry, force = false) =>
+      this.updateEntryResolvedConfigWithHolds(entry, force);
+
+    this.readyLoader = new ComponentReadyLoader(
+      this.contextHub,
+      updateEntryResolvedConfig,
+    );
 
     const freezeRef: { current?: ComponentConfigFreeze } = {};
 
     this.store = new ComponentConfigStore(this.serverComponents, {
       createReady$: (entry) => this.readyLoader.createReady$(entry),
       updateResolvedConfig: (entry, force) =>
-        this.rules.updateResolvedConfig(entry, force),
+        updateEntryResolvedConfig(entry, force),
+      onEntryRemoved: (entry) => {
+        syncContextHolds(this.contextHub, entry.heldContextIds, new Set());
+        entry.heldContextIds = new Set();
+      },
       onDeleteRootEntry: (entry) =>
         this.entryLifecycle.clearRootEntryDestroyState(entry.entryId),
       releaseFrozenState: (configId) =>
@@ -242,8 +257,31 @@ export class ComponentHubService {
     if (!entry || this.entryLifecycle.isEntryDestroyed(entry.entryId)) {
       return;
     }
-    if (this.rules.updateResolvedConfig(entry, true)) {
+    if (this.updateEntryResolvedConfigWithHolds(entry, true)) {
       entry.configSubject.next(structuredClone(entry.config));
     }
+  }
+
+  /** rules + diff holds (register, ready$, смена active rules). */
+  private updateEntryResolvedConfigWithHolds(
+    entry: ConfigEntry,
+    force = false,
+  ): boolean {
+    const prevHeld = new Set(entry.heldContextIds);
+    const changed = this.rules.updateResolvedConfig(entry, force);
+    if (changed) {
+      this.syncEntryContextHolds(entry, prevHeld);
+    }
+    return changed;
+  }
+
+  /** retain/release в ContextHub по diff contextId после register или смены rules. */
+  private syncEntryContextHolds(
+    entry: ConfigEntry,
+    previousHeld: Set<string>,
+  ): void {
+    const nextHeld = extractContextIds(entry.contextDependencies);
+    syncContextHolds(this.contextHub, previousHeld, nextHeld);
+    entry.heldContextIds = nextHeld;
   }
 }

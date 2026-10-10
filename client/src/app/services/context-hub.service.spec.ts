@@ -459,4 +459,106 @@ describe('Контекст', () => {
 
     expect(service.loaded(contextId)).toBe(false);
   });
+
+  describe('отложенное уничтожение (holds)', () => {
+    it('context-destroy при holdCount > 0 оставляет snapshot', () => {
+      const contextId = 'ctx-pending';
+
+      service.init$(contextId);
+      postman.incomingMessage$.next(
+        new BffContextInitMessage(contextId, { field: 'x' }),
+      );
+      service.retain(contextId);
+
+      postman.incomingMessage$.next(new ContextDestroyMessage(contextId));
+
+      expect(service.loaded(contextId)).toBe(true);
+      expect(service.isPendingDestroy(contextId)).toBe(true);
+      expect(service.value(`${contextId}.field`)).toBe('x');
+    });
+
+    it('release после pending evict контекст', () => {
+      const contextId = 'ctx-pending-release';
+
+      service.init$(contextId);
+      postman.incomingMessage$.next(
+        new BffContextInitMessage(contextId, { n: 1 }),
+      );
+      service.retain(contextId);
+      postman.incomingMessage$.next(new ContextDestroyMessage(contextId));
+
+      service.release(contextId);
+
+      expect(service.loaded(contextId)).toBe(false);
+    });
+
+    it('setValues на pending не шлёт context-values на BFF', () => {
+      const contextId = 'ctx-pending-sync';
+      const sentMessages: ClientToBffMessage[] = [];
+      const sub = postman.outcomingMessage$.subscribe((msg) =>
+        sentMessages.push(msg),
+      );
+
+      service.init$(contextId);
+      postman.incomingMessage$.next(
+        new BffContextInitMessage(contextId, { field: 0 }),
+      );
+      service.retain(contextId);
+      postman.incomingMessage$.next(new ContextDestroyMessage(contextId));
+
+      const before = sentMessages.length;
+      service.setValues(contextId, [{ key: 'field', value: 1 }]);
+
+      const outValues = sentMessages
+        .slice(before)
+        .filter((m) => m instanceof ClientToBffContextValuesMessage);
+      expect(outValues).toHaveLength(0);
+      expect(service.value(`${contextId}.field`)).toBe(1);
+
+      sub.unsubscribe();
+    });
+
+    it('context-init снимает pending и заменяет values', () => {
+      const contextId = 'ctx-reinit';
+
+      service.init$(contextId);
+      postman.incomingMessage$.next(
+        new BffContextInitMessage(contextId, { field: 'old' }),
+      );
+      service.retain(contextId);
+      postman.incomingMessage$.next(new ContextDestroyMessage(contextId));
+
+      postman.incomingMessage$.next(
+        new BffContextInitMessage(contextId, { field: 'new' }),
+      );
+
+      expect(service.isPendingDestroy(contextId)).toBe(false);
+      expect(service.value(`${contextId}.field`)).toBe('new');
+    });
+
+    it('init$ для pending не шлёт ContextInitMessage на BFF', () => {
+      const contextId = 'ctx-pending-init';
+      const sentMessages: ClientToBffMessage[] = [];
+      const sub = postman.outcomingMessage$.subscribe((msg) =>
+        sentMessages.push(msg),
+      );
+
+      service.init$(contextId);
+      postman.incomingMessage$.next(
+        new BffContextInitMessage(contextId, { ok: true }),
+      );
+      service.retain(contextId);
+      postman.incomingMessage$.next(new ContextDestroyMessage(contextId));
+
+      const before = sentMessages.length;
+      service.init$(contextId).subscribe();
+
+      const initRequests = sentMessages
+        .slice(before)
+        .filter((m) => m instanceof ClientToBffContextInitMessage);
+      expect(initRequests).toHaveLength(0);
+
+      sub.unsubscribe();
+    });
+  });
 });
