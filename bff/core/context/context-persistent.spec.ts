@@ -1,7 +1,4 @@
-import {
-  ContextDestroyMessage,
-  ContextInitMessage,
-} from "@matreshka/shared/messages/bff-to-client/context/index";
+import { ContextInitMessage } from "@matreshka/shared/messages/bff-to-client/context/index";
 import { Subject } from "rxjs";
 import { describe, expect, it } from "vitest";
 import { Context } from "./context";
@@ -33,9 +30,6 @@ describe("Context persistent", () => {
 
   it("persistent: остаётся жив после ухода последнего клиента", async () => {
     const client = createMockClient();
-    const outMessages: unknown[] = [];
-    client.outcomingMessage$.subscribe((message) => outMessages.push(message));
-
     const context = new Context<TestData>({
       persistent: true,
       data: async () => ({ name: "cached" }),
@@ -49,9 +43,6 @@ describe("Context persistent", () => {
     expect(context.isDestroyed()).toBe(false);
     expect(context.persistent).toBe(true);
     expect(context.value("name")).toBe("cached");
-    expect(outMessages.some((m) => m instanceof ContextDestroyMessage)).toBe(
-      true,
-    );
   });
 
   it("persistent: новый клиент получает context-init после ухода предыдущего", async () => {

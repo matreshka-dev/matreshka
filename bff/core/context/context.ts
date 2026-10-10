@@ -233,7 +233,6 @@ export class Context<T extends JsonObject> {
         if (this.destroyed) {
           return;
         }
-        client.outcomingMessage$.next(new ContextDestroyMessage(this.id));
         this.releaseClientBinding(client);
         const lastClientUnbound = unbindClient(this.id, client);
         if (lastClientUnbound && !this.persistent) {
