@@ -16,7 +16,7 @@
 1. **Создание** — `new Context({ data, schema, … })`, регистрация id в registry.
 2. **Привязка клиента** — `authorizeClient` / сериализация ref в дереве компонентов; при необходимости `init()` и **`context-init`** (полный snapshot).
 3. **Работа** — изменения через `setValue` / `data$`, исходящие **`context-values`** (diff) всем привязанным клиентам; входящие **`context-values`** от клиента (с валидацией schema).
-4. **Использование entry** — page/dialog держит instances; `stopUsing$` entry часто совпадает с моментом, когда контекст больше не нужен серверу (см. `destroyContextWithEntry` в приложении).
+4. **Использование entry** — page/dialog держит instances; `stopUsing$` entry часто совпадает с моментом, когда контекст больше не нужен серверу (см. [сценарии destroy](../advanced/context-destroy-scenarios.md)).
 5. **Уничтожение на сервере** — `context.destroy()`:
    - контекст помечается destroyed, **недоступен** для `value()`, `setValue`, новых ref в сериализации;
    - отписываются подписки, завершается `data$`;
@@ -24,6 +24,8 @@
    - запись снимается с registry (освобождение памяти на BFF).
 
 Повторное обращение к уничтоженному контексту на BFF — ошибка (`Context … has been destroyed`). Это намеренно: id больше не представляет живое состояние.
+
+Когда в прикладном коде вызывать `destroy()` (entry, client-scoped, свой компонент) — [Сценарии уничтожения Context](../advanced/context-destroy-scenarios.md).
 
 ## Сообщение `context-destroy`: уведомление, а не «удалить UI сейчас»
 
@@ -101,4 +103,5 @@ Entry-scoped контексты нужно завершать на сервер�
 
 - [protocol.md](protocol.md) — `context-init`, `context-values`; добавьте в mindmap **`context-destroy`** как targeted-сообщение с `target = context-id`.
 - [client-rendering.md](client-rendering.md) — `ContextHub`, `ComponentHub`, `ready$`, граф `contextDependencies`.
-- [guides/context.md](../guides/context.md) — создание контекста, `ref`, preload/lazy, destroy в приложении.
+- [guides/context.md](../guides/context.md) — создание контекста, `ref`, preload/lazy;
+- [context-destroy-scenarios.md](../advanced/context-destroy-scenarios.md) — сценарии и `destroy()` в приложении.

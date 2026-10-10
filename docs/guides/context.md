@@ -332,6 +332,12 @@ this.context.emitAfterInPlaceMutation();
 
 Подробный протокол этих сообщений описан в [`../architecture/protocol.md`](../architecture/protocol.md).
 
+## Уничтожение контекста
+
+Состояние на BFF нужно **освобождать**, когда сценарий завершён: `context.destroy()` снимает запись из registry и шлёт клиентам `context-destroy`. **Уход со страницы при живой сессии сам контексты не удаляет** — для `Page` / `Dialog` обычно привязывают destroy к `stopUsing$`.
+
+Сценарии (entry, client-scoped, свой компонент), шаблоны кода и async после destroy — в [Сценарии уничтожения Context](../advanced/context-destroy-scenarios.md). Протокол и клиентские holds — [Жизненный цикл Context](../architecture/context-lifecycle.md).
+
 ## Что читать дальше
 
 **Следующий обязательный шаг:** [Conditions](conditions.md) — как данные
@@ -339,5 +345,6 @@ this.context.emitAfterInPlaceMutation();
 
 Дополнительно:
 
+- [Сценарии уничтожения Context](../advanced/context-destroy-scenarios.md) — entry / client / component, шаблоны `destroy()`;
 - [Протокол](../architecture/protocol.md) — `context-init`, `context-values`, `context-destroy`;
 - [Жизненный цикл Context](../architecture/context-lifecycle.md) — destroy на BFF, holds и `pendingDestroy` на клиенте.

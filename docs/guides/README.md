@@ -26,6 +26,7 @@
 ## Дополнительно
 
 - [Advanced: component instances](../advanced/component-instance.md)
+- [Advanced: сценарии уничтожения Context](../advanced/context-destroy-scenarios.md)
 
 ## Архитектура
 
