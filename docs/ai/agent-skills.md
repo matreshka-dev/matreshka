@@ -42,11 +42,13 @@ npx skills add matreshka-dev/agents--skill --skill context-init-in-boot prefer-c
 
 | Задача                                         | Скилл                                                            |
 | ---------------------------------------------- | ---------------------------------------------------------------- |
+| Новый `Context` — destroy / `persistent`       | `context-plan-destroy-on-create`                                 |
+| Process-wide кэш (`persistent: true`)          | `context-plan-destroy-on-create`                                 |
 | `context.value()` в `content()` / `overlays()` | `context-init-in-boot`                                           |
 | Реактивный UI без лишнего `init()`             | `prefer-context-ref-in-ui`, `context-init-in-boot` (lazy + refs) |
 | Плейсхолдеры в строках и `link`                | `context-ref-in-strings`                                         |
 | Уничтожение Context с Page/Dialog              | `context-destroy-with-entry`                                     |
-| Badge/корзина в chrome приложения              | `client-scoped-context-for-shared-ui`                            |
+| Badge/корзина в shell приложения               | `client-scoped-context-for-shared-ui`                            |
 | JWT, tenant до построения страницы             | `storage-vs-context`, `route-guard-return-undefined`             |
 | Подписка на `data$`                            | `context-subscribe-take-until-destroy`                           |
 | Zod на полях ввода                             | `context-zod-draft-not-live-strict`                              |
@@ -88,7 +90,7 @@ npx skills add matreshka-dev/agents--skill --skill context-init-in-boot prefer-c
 
 Рекомендуемый порядок guides для человека совпадает с тем, что покрывают скиллы:
 
-1. [Context](../guides/context.md) — скиллы `context-*`, `storage-vs-context`
+1. [Context](../guides/context.md) — скиллы `context-*`, `storage-vs-context`; advanced — [context-destroy-scenarios](../advanced/context-destroy-scenarios.md)
 2. [Conditions](../guides/conditions.md) — `when-oneof-vs-when-any`, `rules-not-conditions-for-loading-ui`
 3. [События и действия](../guides/events-and-actions.md) — формы, `instant-ui-set-context-value`, `return-server-action-promise`
 4. [Layout](../guides/layout.md) и [Overlays](../guides/overlays.md) — layout/safe area/overlays скиллы

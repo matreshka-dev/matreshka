@@ -99,6 +99,11 @@ export class Context<T extends JsonObject> {
   readonly schema?: ZodObject;
   /** Флаг, указывающий, что контекст должен быть инициализирован при авторизации клиента */
   readonly preload: boolean;
+  /**
+   * Не вызывать {@link destroy} автоматически при отвязке последнего клиента.
+   * Явный {@link destroy} по-прежнему обязателен, если данные не нужны весь runtime.
+   */
+  readonly persistent: boolean;
   /** Реактивное хранилище инициализации контекста */
   private _init$ = new ReplaySubject<void>(1);
   readonly init$ = this._init$.asObservable();
@@ -114,6 +119,7 @@ export class Context<T extends JsonObject> {
   private destroyed = false;
   private subscriptions = new Subscription();
   private dataSubscription?: Subscription;
+  private clientSubscriptions = new Map<Client, Subscription>();
 
   private assertNotDestroyed() {
     if (this.destroyed) {
@@ -138,11 +144,13 @@ export class Context<T extends JsonObject> {
     data: () => Promise<T>;
     schema?: ZodObject;
     preload?: boolean;
+    persistent?: boolean;
   }) {
     this.schema = config.schema;
     registerContext(this);
     this.initDataCallback = config.data;
     this.preload = config.preload ?? false;
+    this.persistent = config.persistent ?? false;
   }
 
   /** `data$` создан (init мог ещё выполняться — см. {@link init}). */
@@ -170,6 +178,11 @@ export class Context<T extends JsonObject> {
       client.outcomingMessage$.next(new ContextDestroyMessage(this.id));
     });
 
+    for (const subscription of this.clientSubscriptions.values()) {
+      subscription.unsubscribe();
+    }
+    this.clientSubscriptions.clear();
+
     this.subscriptions.unsubscribe();
     this.dataSubscription?.unsubscribe();
     this.dataSubscription = undefined;
@@ -194,6 +207,11 @@ export class Context<T extends JsonObject> {
     );
   }
 
+  private releaseClientBinding(client: Client) {
+    this.clientSubscriptions.get(client)?.unsubscribe();
+    this.clientSubscriptions.delete(client);
+  }
+
   authorizeClient(client: Client) {
     this.assertNotDestroyed();
     if (!bindClient(this, client)) {
@@ -208,18 +226,22 @@ export class Context<T extends JsonObject> {
         markInitSent(this.id, client);
       });
     }
-    this.subscriptions.add(
+    const clientSubscription = new Subscription();
+    this.clientSubscriptions.set(client, clientSubscription);
+    clientSubscription.add(
       client.destroy$.subscribe(() => {
         if (this.destroyed) {
           return;
         }
         client.outcomingMessage$.next(new ContextDestroyMessage(this.id));
-        if (unbindClient(this.id, client)) {
+        this.releaseClientBinding(client);
+        const lastClientUnbound = unbindClient(this.id, client);
+        if (lastClientUnbound && !this.persistent) {
           this.destroy();
         }
       }),
     );
-    this.subscriptions.add(
+    clientSubscription.add(
       client.incomingMessage$
         .pipe(
           filter(

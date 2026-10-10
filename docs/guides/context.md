@@ -334,9 +334,11 @@ this.context.emitAfterInPlaceMutation();
 
 ## Уничтожение контекста
 
-Состояние на BFF нужно **освобождать**, когда сценарий завершён: `context.destroy()` снимает запись из registry и шлёт клиентам `context-destroy`. **Уход со страницы при живой сессии сам контексты не удаляет** — для `Page` / `Dialog` обычно привязывают destroy к `stopUsing$`.
+Состояние на BFF нужно **освобождать**, когда сценарий завершён: `context.destroy()` снимает запись из registry. **Уход со страницы при живой сессии сам контексты не удаляет** — для `Page` / `Dialog` обычно привязывают destroy к `stopUsing$`.
 
-Сценарии (entry, client-scoped, свой компонент), шаблоны кода и async после destroy — в [Сценарии уничтожения Context](../advanced/context-destroy-scenarios.md). Протокол и клиентские holds — [Жизненный цикл Context](../architecture/context-lifecycle.md).
+У **обычного** контекста (`persistent: false`) BFF **автоматически** вызывает `destroy()`, когда отвязан **последний** клиент. Ручной destroy раньше — **оптимизация по времени**, не «вечное» хранение: без клиентов контекст на сервере не остаётся. Флаг **`persistent: true`** отключает auto-destroy при нуле клиентов; тогда **критично** вызывать `destroy()` вручную, если данные не нужны весь runtime.
+
+Сценарии (entry, client-scoped, `persistent`, свой компонент) — [Сценарии уничтожения Context](../advanced/context-destroy-scenarios.md). Протокол и holds — [Жизненный цикл Context](../architecture/context-lifecycle.md).
 
 ## Что читать дальше
 

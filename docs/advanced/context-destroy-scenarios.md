@@ -24,7 +24,38 @@
 | Контекст **страницы или диалога** | Пока открыт entry (маршрут / модалка) | **Да** — при `stopUsing$` entry |
 | **Сессионный** контекст на `Client` | Пока жив WebSocket-клиент (корзина, шапка, профиль) | **Нет** при каждом уходе со страницы; **да** при выходе из приложения / смене учётки |
 | **Вспомогательный** контекст **своего** BFF-компонента | Пока компонент на BFF в использовании (`stopUsing$`) | **Да** — `destroy()` вместе с компонентом |
-| Отключение последнего клиента от контекста | До disconnect сессии | **Автоматически** — registry вызывает `destroy()`, если не осталось привязок |
+| Отключение последнего клиента (default) | Нет привязок к id | **Автоматически** — registry вызывает `destroy()` |
+| **Process-wide** кэш на BFF (`persistent: true`) | Весь runtime или до явной инвалидации | **Критично** — ручной `destroy()`, если не нужен весь runtime; auto при last client **выключен** |
+
+## Default vs `persistent`
+
+**Default (`persistent: false`):**
+
+- После отвязки **последнего** клиента BFF **всегда** уничтожает контекст. «Вечного» хранения без клиентов не будет.
+- Ручной `destroy()` по entry / logout / component lifecycle — **оптимизация по времени**: освободить память **раньше**, пока другой клиент ещё мог бы держать тот же id (редко для page-scoped).
+
+**Persistent (`persistent: true`):**
+
+- Контекст **переживает** период без привязанных клиентов; данные остаются в registry до **`context.destroy()`**.
+- Если бизнес **не** требует жить весь runtime — **обязательно** спланируйте явный destroy (reload, версия, shutdown). Без этого — утечка на BFF.
+- Не путать с **client-scoped** (`WeakMap<Client, Context>`): там память растёт с числом клиентов; persistent — **один** id на процесс, общий для всех одновременных потребителей.
+
+```ts
+let catalogContext = new Context({
+  persistent: true,
+  preload: true,
+  data: async () => loadCatalogOnce(),
+});
+
+export function invalidateCatalogContext() {
+  catalogContext.destroy();
+  catalogContext = new Context({
+    persistent: true,
+    preload: true,
+    data: async () => loadCatalogOnce(),
+  });
+}
+```
 
 Важно: **навигация внутри одной сессии не уничтожает контексты сами по себе**. Пользователь ушёл со страницы, но `Client` на BFF жив — entry-scoped контекст без `destroy()` продолжит висеть в памяти и держать подписки.
 
