@@ -6,10 +6,15 @@ import { ServerComponent } from '../components/server/server-component';
 import { ServerComponentConfig } from '../components/server/server-component-config';
 import { SERVER_COMPONENTS } from '../components/server/server-components-injection-token';
 import { animateSubtree } from './component-hub/component-animate-subtree';
-import { calculateConfigContextDependencies } from './component-hub/component-config-dependencies';
+import {
+  calculateConfigContextDependencies,
+  calculateEntryHoldContextIds,
+} from './component-hub/component-config-dependencies';
+import type { ConfigEntry } from './component-hub/component-config-entry.types';
 import { ComponentConfigFreeze } from './component-hub/component-config-freeze';
 import { ComponentConfigRules } from './component-hub/component-config-rules';
 import { ComponentConfigStore } from './component-hub/component-config-store';
+import { ComponentContextDependencyHolds } from './component-hub/component-context-dependency-holds';
 import { ComponentContextReaction } from './component-hub/component-context-reaction';
 import { ComponentEntryLifecycle } from './component-hub/component-entry-lifecycle';
 import { ComponentReadyLoader } from './component-hub/component-ready.loader';
@@ -31,6 +36,9 @@ export class ComponentHubService {
   private readonly document = inject(DOCUMENT);
   private readonly serverComponents = inject(SERVER_COMPONENTS);
   private readonly contextHub = inject(ContextHubService);
+  private readonly contextDependencyHolds = inject(
+    ComponentContextDependencyHolds,
+  );
 
   private readonly rules: ComponentConfigRules;
   private readonly readyLoader: ComponentReadyLoader;
@@ -56,14 +64,18 @@ export class ComponentHubService {
         ),
     );
 
-    this.readyLoader = new ComponentReadyLoader(this.contextHub, this.rules);
+    this.readyLoader = new ComponentReadyLoader(
+      this.contextHub,
+      (entry, force) => this.updateEntryResolvedConfig(entry, force),
+    );
 
     const freezeRef: { current?: ComponentConfigFreeze } = {};
 
     this.store = new ComponentConfigStore(this.serverComponents, {
       createReady$: (entry) => this.readyLoader.createReady$(entry),
       updateResolvedConfig: (entry, force) =>
-        this.rules.updateResolvedConfig(entry, force),
+        this.updateEntryResolvedConfig(entry, force),
+      onEntryRemoved: (entry) => this.contextDependencyHolds.releaseAll(entry),
       onDeleteRootEntry: (entry) =>
         this.entryLifecycle.clearRootEntryDestroyState(entry.entryId),
       releaseFrozenState: (configId) =>
@@ -242,8 +254,22 @@ export class ComponentHubService {
     if (!entry || this.entryLifecycle.isEntryDestroyed(entry.entryId)) {
       return;
     }
-    if (this.rules.updateResolvedConfig(entry, true)) {
+    if (this.updateEntryResolvedConfig(entry, true)) {
       entry.configSubject.next(structuredClone(entry.config));
     }
+  }
+
+  /** rules + синхронизация retain/release контекстов для entry. */
+  private updateEntryResolvedConfig(
+    entry: ConfigEntry,
+    force = false,
+  ): boolean {
+    return this.contextDependencyHolds.updateResolvedConfigWithHolds(
+      entry,
+      force,
+      (e, f) => this.rules.updateResolvedConfig(e, f),
+      (e) =>
+        calculateEntryHoldContextIds(e, this.contextHub, this.serverComponents),
+    );
   }
 }

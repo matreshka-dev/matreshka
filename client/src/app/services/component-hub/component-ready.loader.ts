@@ -12,7 +12,12 @@ import {
 import { ServerComponentConfig } from '../../components/server/server-component-config';
 import type { ContextHubService } from '../context-hub.service';
 import type { ConfigEntry } from './component-config-entry.types';
-import type { ComponentConfigRules } from './component-config-rules';
+
+/** Пересчёт rules/deps entry; в hub обёрнут sync holds. */
+export type UpdateEntryResolvedConfig = (
+  entry: ConfigEntry,
+  force?: boolean,
+) => boolean;
 
 /**
  * Загрузка контекстов, от которых зависит конфиг, и поток ready$.
@@ -21,7 +26,7 @@ import type { ComponentConfigRules } from './component-config-rules';
 export class ComponentReadyLoader {
   constructor(
     private readonly contextHub: ContextHubService,
-    private readonly rules: ComponentConfigRules,
+    private readonly updateResolvedConfig: UpdateEntryResolvedConfig,
   ) {}
 
   /**
@@ -74,7 +79,7 @@ export class ComponentReadyLoader {
 
     const loadAll = async () => {
       for (;;) {
-        this.rules.updateResolvedConfig(entry);
+        this.updateResolvedConfig(entry);
         const requiredContexts = this.getEntryRequiredContexts(entry).filter(
           (contextId) => !this.contextHub.loaded(contextId),
         );
@@ -87,7 +92,7 @@ export class ComponentReadyLoader {
 
         try {
           await firstValueFrom(loadBatch(requiredContexts));
-          this.rules.updateResolvedConfig(entry, true);
+          this.updateResolvedConfig(entry, true);
           entry.configSubject.next(structuredClone(entry.config));
         } catch (error) {
           console.error(

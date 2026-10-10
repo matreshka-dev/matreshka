@@ -16,6 +16,7 @@ import {
   takeUntil,
   timer,
 } from 'rxjs';
+import { contextChangeAffectsRef } from '../../../utils/collect-context-ref-dependencies';
 import { parseContextPath } from '../../../utils/parse-context-path';
 import { ServerComponent } from '../server-component';
 
@@ -61,9 +62,15 @@ export abstract class ServerInputComponent<
     this.updatingFromContext.set(false);
 
     const entryId = this.componentHub.getEntryId(this.id())!;
-    // Подписка на изменения значений в контексте
-    this.contextHub.change$ // Срабатывает сразу потому что при загрузке компонента контекст уже загружен
+    const ref = this.config.properties.ref;
+    // Holds на hub не заменяют фильтр: не реагируем на change$ чужих contextId.
+    this.contextHub.change$
       .pipe(
+        filter((payload) =>
+          contextChangeAffectsRef(payload, ref, (path) =>
+            this.contextHub.replacePlaceholders(path),
+          ),
+        ),
         takeUntil(this.componentHub.entryDestroy$(entryId)),
         takeUntilDestroyed(this.destroyRef),
       )

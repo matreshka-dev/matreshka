@@ -6,7 +6,8 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { OutputConfig } from '@shared/types/output-config';
-import { takeUntil } from 'rxjs';
+import { filter, takeUntil } from 'rxjs';
+import { contextChangeAffectsRef } from '../../../utils/collect-context-ref-dependencies';
 import { ServerComponent } from '../server-component';
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -36,9 +37,14 @@ export abstract class ServerOutputComponent<
       }
       this.value.set(defaultValue as ValueType);
       const entryId = this.componentHub.getEntryId(this.id())!;
-      // Подписка на изменения значений в контексте
+      // Holds на hub не заменяют фильтр: не реагируем на change$ чужих contextId.
       this.contextHub.change$
         .pipe(
+          filter((payload) =>
+            contextChangeAffectsRef(payload, key, (path) =>
+              this.contextHub.replacePlaceholders(path),
+            ),
+          ),
           takeUntil(this.componentHub.entryDestroy$(entryId)),
           takeUntilDestroyed(this.destroyRef),
         )
@@ -47,7 +53,6 @@ export abstract class ServerOutputComponent<
           if (this.contextFrozen()) {
             return;
           }
-          // TODO Наверное можно отслеживать конкретные ключи, а в хабе рекурсивно оповещать об изменении ключа и всех мест где он
           const currentValue: any = this.value();
           let newValue: ValueType | undefined = this.contextHub.value(key) as
             | ValueType

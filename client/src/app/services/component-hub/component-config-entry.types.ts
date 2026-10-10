@@ -57,6 +57,11 @@ export type ConfigEntry = {
   instances: ServerComponent<any>[];
   /** Карта «путь в конфиге или служебный ключ → список зависимостей от контекста». */
   contextDependencies: Map<string, PathContextDependency[]>;
+  /**
+   * contextId, учтённые в ContextHub для этого entry.
+   * Пишет только {@link ComponentContextDependencyHolds}.
+   */
+  heldContextIds: Set<string>;
 };
 
 /** Событие из ContextHubService: изменились поля одного контекста. */

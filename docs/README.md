@@ -30,7 +30,7 @@ layout и overlays. Только после этого маршрут ведёт
 | Guides | Пошаговые темы после onboarding | [guides/README.md](guides/README.md) |
 | Recipes | Одна задача — один рецепт | [recipes/cookbook.md](recipes/cookbook.md) |
 | Reference | Полные каталоги API | [reference/README.md](reference/README.md) |
-| Advanced | Сложные сценарии | [advanced/component-instance.md](advanced/component-instance.md) |
+| Advanced | Сложные сценарии | [advanced/README.md](advanced/README.md) |
 | Architecture | Протокол, доставка, reconnect | [architecture/README.md](architecture/README.md) |
 | Gateway | Несколько BFF / единая точка входа | [gateway/README.md](gateway/README.md) |
 | AI | Agent skills для Cursor | [ai/agent-skills.md](ai/agent-skills.md) |
