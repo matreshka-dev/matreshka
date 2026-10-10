@@ -290,9 +290,7 @@ BFF → Client: программная прокрутка `stack` (команд�
 {
   "type": "context-values",
   "target": "context-id",
-  "payload": [
-    { "key": "draft", "value": "Новый текст" }
-  ]
+  "payload": [{ "key": "draft", "value": "Новый текст" }]
 }
 ```
 
@@ -311,13 +309,9 @@ BFF → Client: программная прокрутка `stack` (команд�
 }
 ```
 
-BFF отправляет его клиенту при отвязке (в т.ч. `Client.destroy()`) и **всем ещё привязанным** при явном `Context.destroy()`.
-
-Это **уведомление** для сессии получателя: синхронизация по `target` для него прекращена. Для **default**-контекста при last unbind на BFF id тоже уничтожается; для **`persistent: true`** контекст на BFF может остаться — уходящий клиент всё равно получает `context-destroy`. Подробнее — [context-lifecycle.md](context-lifecycle.md).
-
 Это **не** команда мгновенно снять UI — порядок teardown entry и смены page может идти отдельными сообщениями.
 
-На клиенте локальная копия может ещё некоторое время оставаться в hub (snapshot для компонентов, которые ещё не сняты с дерева); детали — [context-lifecycle.md](context-lifecycle.md).
+На клиенте локальная копия может ещё некоторое время оставаться на клиенте; детали — [context-lifecycle.md](context-lifecycle.md).
 
 ## Как это выглядит в transport-коде
 
