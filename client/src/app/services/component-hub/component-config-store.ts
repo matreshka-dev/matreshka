@@ -21,7 +21,7 @@ export type ComponentConfigStoreHooks = {
   updateResolvedConfig: (entry: ConfigEntry, force?: boolean) => boolean;
   onDeleteRootEntry: (entry: ConfigEntry) => void;
   releaseFrozenState: (configId: string) => void;
-  /** useCount → 0: release holds до удаления записи из map. */
+  /** useCount → 0: снять retain контекстов (ComponentContextDependencyHolds) до delete из map. */
   onEntryRemoved?: (entry: ConfigEntry) => void;
 };
 

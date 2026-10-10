@@ -19,7 +19,7 @@ import { ContextChangeEvent } from '../types/context-change-event';
 import { findContextKeys } from '../utils/find-context-keys';
 import { objectSetValue } from '../utils/object-set-value';
 import { parseContextPath } from '../utils/parse-context-path';
-import { ContextHoldRegistry } from './context-hold-registry';
+import { ComponentContextDependencyHolds } from './component-hub/component-context-dependency-holds';
 import { PostmanService } from './postman.service';
 import { SsrService } from './ssr.service';
 
@@ -126,7 +126,7 @@ class Context {
 })
 export class ContextHubService {
   private contextMap: Map<string, Context> = new Map();
-  private readonly holdRegistry = new ContextHoldRegistry();
+  private readonly contextConsumers = inject(ComponentContextDependencyHolds);
   private postman = inject(PostmanService);
   private readonly changeSubject = new Subject<ContextChangeEvent>();
   readonly change$ = this.changeSubject.asObservable();
@@ -134,6 +134,10 @@ export class ContextHubService {
   ssr = inject(SsrService);
 
   constructor() {
+    this.contextConsumers.bindEvictHandler((contextId) =>
+      this.tryEvictAfterRelease(contextId),
+    );
+
     this.postman.incomingMessage$
       .pipe(
         filter(
@@ -186,7 +190,7 @@ export class ContextHubService {
     if (!context) {
       return;
     }
-    if (this.holdRegistry.holdCount(contextId) > 0) {
+    if (this.contextConsumers.holdCount(contextId) > 0) {
       context.markPendingDestroyFromServer();
       return;
     }
@@ -208,28 +212,9 @@ export class ContextHubService {
     }
   }
 
-  /**
-   * Удержание contextId узлом config store (ref / rules / плейсхолдеры).
-   * @internal вызывается из ComponentHubService.
-   */
-  retain(contextId: string): void {
-    this.holdRegistry.retain(contextId);
-  }
-
-  /**
-   * Снятие удержания; при holdCount → 0 и pendingDestroy — evict snapshot.
-   * @internal вызывается из ComponentHubService.
-   */
-  release(contextId: string): void {
-    const remaining = this.holdRegistry.release(contextId);
-    if (remaining === 0) {
-      this.tryEvictAfterRelease(contextId);
-    }
-  }
-
-  /** @internal для тестов */
+  /** @internal для тестов и отладки. */
   holdCount(contextId: string): number {
-    return this.holdRegistry.holdCount(contextId);
+    return this.contextConsumers.holdCount(contextId);
   }
 
   /** Сервер уничтожил контекст, на клиенте ещё жив snapshot (есть holds). */

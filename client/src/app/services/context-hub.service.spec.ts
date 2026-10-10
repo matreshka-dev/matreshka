@@ -1,6 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it } from 'vitest';
 
+import { ComponentContextDependencyHolds } from './component-hub/component-context-dependency-holds';
 import { ContextHubService } from './context-hub.service';
 import { PostmanService } from './postman.service';
 import { SsrService } from './ssr.service';
@@ -19,8 +20,17 @@ import { ContextChangeEvent } from '../types/context-change-event';
 
 describe('Контекст', () => {
   let service: ContextHubService;
+  let contextConsumers: ComponentContextDependencyHolds;
   let postman: TestPostmanService;
   let ssr: TestSsrService;
+
+  function retainContext(contextId: string) {
+    contextConsumers.addConsumer(contextId);
+  }
+  function releaseContext(contextId: string) {
+    contextConsumers.removeConsumer(contextId);
+  }
+
   beforeEach(() => {
     TestBed.configureTestingModule({
       providers: [
@@ -34,6 +44,7 @@ describe('Контекст', () => {
     });
 
     service = TestBed.inject(ContextHubService);
+    contextConsumers = TestBed.inject(ComponentContextDependencyHolds);
     postman = TestBed.inject(PostmanService) as unknown as TestPostmanService;
     ssr = TestBed.inject(SsrService) as unknown as TestSsrService;
   });
@@ -468,7 +479,7 @@ describe('Контекст', () => {
       postman.incomingMessage$.next(
         new BffContextInitMessage(contextId, { field: 'x' }),
       );
-      service.retain(contextId);
+      retainContext(contextId);
 
       postman.incomingMessage$.next(new ContextDestroyMessage(contextId));
 
@@ -484,10 +495,10 @@ describe('Контекст', () => {
       postman.incomingMessage$.next(
         new BffContextInitMessage(contextId, { n: 1 }),
       );
-      service.retain(contextId);
+      retainContext(contextId);
       postman.incomingMessage$.next(new ContextDestroyMessage(contextId));
 
-      service.release(contextId);
+      releaseContext(contextId);
 
       expect(service.loaded(contextId)).toBe(false);
     });
@@ -503,7 +514,7 @@ describe('Контекст', () => {
       postman.incomingMessage$.next(
         new BffContextInitMessage(contextId, { field: 0 }),
       );
-      service.retain(contextId);
+      retainContext(contextId);
       postman.incomingMessage$.next(new ContextDestroyMessage(contextId));
 
       const before = sentMessages.length;
@@ -525,7 +536,7 @@ describe('Контекст', () => {
       postman.incomingMessage$.next(
         new BffContextInitMessage(contextId, { field: 'old' }),
       );
-      service.retain(contextId);
+      retainContext(contextId);
       postman.incomingMessage$.next(new ContextDestroyMessage(contextId));
 
       postman.incomingMessage$.next(
@@ -547,7 +558,7 @@ describe('Контекст', () => {
       postman.incomingMessage$.next(
         new BffContextInitMessage(contextId, { ok: true }),
       );
-      service.retain(contextId);
+      retainContext(contextId);
       postman.incomingMessage$.next(new ContextDestroyMessage(contextId));
 
       const before = sentMessages.length;

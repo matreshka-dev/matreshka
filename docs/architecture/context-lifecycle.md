@@ -44,11 +44,11 @@
 
 ## Жизненный цикл на клиенте (holds)
 
-Клиент учитывает, **какие узлы дерева конфигов** (ComponentHub / `ConfigEntry`) зависят от каждого `contextId` — ref, rules, conditions, плейсхолдеры `@{…}`.
+Клиент учитывает, **какие узлы дерева конфигов** (ComponentHub / `ConfigEntry`) зависят от каждого `contextId`. Для **hold** это объединение: базовый `sourceConfig`, **все** `rules` (conditions и overrides каждого правила, в том числе неактивного), conditions/actions компонента, ref и плейсхолдеры `@{…}` — см. `calculateEntryHoldContextIds`. Runtime-граф `contextDependencies` (ready$, rerender) по-прежнему строится от **resolved** конфига (только активные overrides). Счётчик потребителей и diff по entry — в `ComponentContextDependencyHolds`; `ContextHub` читает `holdCount` при `context-destroy`, evict при последнем `removeConsumer` — через `bindEvictHandler`.
 
 **Общие правила:**
 
-1. При регистрации конфига и при смене active **rules** hub увеличивает **hold** на каждый нужный `contextId`.
+1. При регистрации конфига и при пересчёте resolved hub синхронизирует **hold** по полному набору id из `calculateEntryHoldContextIds` (смена active rules **не** снимает hold с контекстов из неактивных overrides).
 2. При `deleteConfig` (снятие узла с `useCount → 0`) — **release** hold.
 3. При **`context-destroy`**:
    - если **holdCount === 0** — контекст сразу удаляется из `ContextHub` (как раньше);

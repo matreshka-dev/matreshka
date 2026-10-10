@@ -7,11 +7,13 @@ import {
 } from '../../components/server/server-component-config';
 import { collectContextRefDependencies } from '../../utils/collect-context-ref-dependencies';
 import { findContextKeys } from '../../utils/find-context-keys';
+import { mergeOverride } from '../../utils/merge-override';
 import { parseContextPath } from '../../utils/parse-context-path';
 import type { ContextHubService } from '../context-hub.service';
 import {
   ACTIONS_DEPENDENCIES_KEY,
   CONDITIONS_DEPENDENCIES_KEY,
+  type ConfigEntry,
   PathContextDependency,
   RULES_DEPENDENCIES_KEY,
 } from './component-config-entry.types';
@@ -214,4 +216,57 @@ export function calculateConfigContextDependencies(
   });
 
   return contextDependencies;
+}
+
+function collectContextIdsFromDependencies(
+  contextDependencies: Map<string, PathContextDependency[]>,
+): Set<string> {
+  const ids = new Set<string>();
+  contextDependencies.forEach((deps) => {
+    deps.forEach((dep) => {
+      ids.add(dep.contextId);
+    });
+  });
+  return ids;
+}
+
+/**
+ * Все contextId, которые нужно удерживать на клиенте, пока ConfigEntry в store.
+ *
+ * Объединяет зависимости базового sourceConfig и каждого rule (conditions + overrides),
+ * в том числе из **неактивных** rules — чтобы context-destroy не evict snapshot,
+ * пока компонент с таким конфигом зарегистрирован.
+ *
+ * Для ready$ / rerender по-прежнему используется {@link calculateConfigContextDependencies}
+ * от resolved config (только активные overrides).
+ */
+export function calculateEntryHoldContextIds(
+  entry: ConfigEntry,
+  contextHub: ContextHubService,
+  serverComponents: ServerComponentSettings,
+): Set<string> {
+  const ids = new Set<string>();
+
+  const addFromConfig = (config: ServerComponentConfig) => {
+    collectContextIdsFromDependencies(
+      calculateConfigContextDependencies(config, contextHub, serverComponents),
+    ).forEach((id) => ids.add(id));
+  };
+
+  addFromConfig(entry.sourceConfig);
+
+  for (const rule of entry.sourceConfig.rules ?? []) {
+    if (!rule.overrides || Object.keys(rule.overrides).length === 0) {
+      continue;
+    }
+    const withRuleOverride: ServerComponentConfig = structuredClone(
+      entry.sourceConfig,
+    );
+    const properties = structuredClone(entry.sourceConfig.properties ?? {});
+    mergeOverride(properties, rule.overrides);
+    withRuleOverride.properties = properties;
+    addFromConfig(withRuleOverride);
+  }
+
+  return ids;
 }

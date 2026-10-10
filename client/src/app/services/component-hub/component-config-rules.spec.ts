@@ -1,8 +1,9 @@
 import { ConditionType } from '@shared/enums/condition-type';
 import { ServerComponentClass } from '@shared/enums/server-component-class';
+import { ContextDestroyMessage } from '@shared/messages/bff-to-client/context';
 import { ContextInitMessage as BffToClientContextInitMessage } from '@shared/messages/bff-to-client/context/context-init-message';
 import { firstValueFrom } from 'rxjs';
-import { describe, expect, it, vi } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ServerComponent } from '../../components/server/server-component';
 import { ServerComponentConfig } from '../../components/server/server-component-config';
 import { hubConfigEntry, useComponentHubTestEnv } from './hub-test-harness';
@@ -287,7 +288,7 @@ describe('ComponentConfigRules (через ComponentHubService)', () => {
     );
   });
 
-  it('должен добавлять holds для contextId из override после активации rule', async () => {
+  it('должен держать hold для contextId из override rule с момента register', async () => {
     env.mockServerComponents[
       ServerComponentClass.UnitTest
     ].dependencies.pathsWithPlaceholdersInTemplate = ['title'];
@@ -320,18 +321,18 @@ describe('ComponentConfigRules (через ComponentHubService)', () => {
     env.service.registerConfig(config);
     await firstValueFrom(env.service.ready$(config));
 
-    expect(env.contextHub.holdCount('ctx-user')).toBe(0);
+    expect(env.contextHub.holdCount('ctx-user')).toBe(1);
+    expect(
+      hubConfigEntry(env.service, config.id).heldContextIds.has('ctx-user'),
+    ).toBe(true);
 
     env.contextHub.setValues('ctx-mode', [{ key: 'mode', value: 'alt' }]);
     await new Promise((resolve) => setTimeout(resolve, 100));
 
     expect(env.contextHub.holdCount('ctx-user')).toBe(1);
-    expect(
-      hubConfigEntry(env.service, config.id).heldContextIds.has('ctx-user'),
-    ).toBe(true);
   });
 
-  it('должен переключать holds при смене активного rule с разными contextId в override', async () => {
+  it('не снимает holds при смене активного rule с разными contextId в override', async () => {
     env.mockServerComponents[
       ServerComponentClass.UnitTest
     ].dependencies.pathsWithPlaceholdersInTemplate = ['title'];
@@ -380,12 +381,12 @@ describe('ComponentConfigRules (через ComponentHubService)', () => {
     await firstValueFrom(env.service.ready$(config));
 
     expect(env.contextHub.holdCount('ctx-a')).toBe(1);
-    expect(env.contextHub.holdCount('ctx-b')).toBe(0);
+    expect(env.contextHub.holdCount('ctx-b')).toBe(1);
 
     env.contextHub.setValues('ctx-mode', [{ key: 'mode', value: 'other' }]);
     await new Promise((resolve) => setTimeout(resolve, 100));
 
-    expect(env.contextHub.holdCount('ctx-a')).toBe(0);
+    expect(env.contextHub.holdCount('ctx-a')).toBe(1);
     expect(env.contextHub.holdCount('ctx-b')).toBe(1);
   });
 
@@ -436,5 +437,134 @@ describe('ComponentConfigRules (через ComponentHubService)', () => {
     expect(env.contextHub.replacePlaceholders(config.properties.title)).toBe(
       'final',
     );
+  });
+
+  describe('holds и context-destroy при зависимостях в rules override', () => {
+    const baseTitleRuleConfig = (
+      id: string,
+    ): { properties: { title: string } } & ServerComponentConfig => ({
+      id,
+      class: ServerComponentClass.UnitTest,
+      properties: {
+        title: '@{ctx-a.label}',
+      },
+      rules: [
+        {
+          conditions: [
+            {
+              type: ConditionType.ContextValueEqual,
+              payload: {
+                ref: 'ctx-mode.mode',
+                value: { kind: 'literal', value: 'alt' },
+              },
+            },
+          ],
+          overrides: {
+            title: '@{ctx-b.label}',
+          },
+        },
+      ],
+    });
+
+    beforeEach(() => {
+      env.mockServerComponents[
+        ServerComponentClass.UnitTest
+      ].dependencies.pathsWithPlaceholdersInTemplate = ['title'];
+    });
+
+    it('держит ctx-b из неактивного rule после context-destroy (pendingDestroy)', async () => {
+      await env.initContext('ctx-mode', { mode: 'default' });
+      await env.initContext('ctx-a', { label: 'A' });
+      await env.initContext('ctx-b', { label: 'KeptSnapshot' });
+
+      const config = baseTitleRuleConfig('config-rules-destroy-then-activate');
+      env.service.registerConfig(config);
+      await firstValueFrom(env.service.ready$(config));
+
+      expect(env.contextHub.holdCount('ctx-a')).toBe(1);
+      expect(env.contextHub.holdCount('ctx-b')).toBe(1);
+
+      env.postman.incomingMessage$.next(new ContextDestroyMessage('ctx-b'));
+
+      expect(env.contextHub.loaded('ctx-b')).toBe(true);
+      expect(env.contextHub.isPendingDestroy('ctx-b')).toBe(true);
+      expect(env.contextHub.value('ctx-b.label')).toBe('KeptSnapshot');
+
+      env.contextHub.setValues('ctx-mode', [{ key: 'mode', value: 'alt' }]);
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      expect(config.properties.title).toBe('@{ctx-b.label}');
+      expect(() =>
+        env.contextHub.replacePlaceholders(config.properties.title),
+      ).not.toThrow();
+      expect(env.contextHub.replacePlaceholders(config.properties.title)).toBe(
+        'KeptSnapshot',
+      );
+    });
+
+    it('при активном rule с ctx-b в override держит snapshot после context-destroy', async () => {
+      await env.initContext('ctx-mode', { mode: 'alt' });
+      await env.initContext('ctx-a', { label: 'A' });
+      await env.initContext('ctx-b', { label: 'Held' });
+
+      const config = baseTitleRuleConfig('config-rules-pending-destroy-active');
+      env.service.registerConfig(config);
+      await firstValueFrom(env.service.ready$(config));
+
+      expect(env.contextHub.holdCount('ctx-b')).toBe(1);
+
+      env.postman.incomingMessage$.next(new ContextDestroyMessage('ctx-b'));
+
+      expect(env.contextHub.loaded('ctx-b')).toBe(true);
+      expect(env.contextHub.isPendingDestroy('ctx-b')).toBe(true);
+      expect(() =>
+        env.contextHub.replacePlaceholders(config.properties.title),
+      ).not.toThrow();
+      expect(env.contextHub.replacePlaceholders(config.properties.title)).toBe(
+        'Held',
+      );
+    });
+
+    it('не evict pending ctx-b при деактивации rule, пока конфиг в hub', async () => {
+      await env.initContext('ctx-mode', { mode: 'alt' });
+      await env.initContext('ctx-a', { label: 'A' });
+      await env.initContext('ctx-b', { label: 'Held' });
+
+      const config = baseTitleRuleConfig('config-rules-release-on-deactivate');
+      env.service.registerConfig(config);
+      await firstValueFrom(env.service.ready$(config));
+
+      env.postman.incomingMessage$.next(new ContextDestroyMessage('ctx-b'));
+      expect(env.contextHub.isPendingDestroy('ctx-b')).toBe(true);
+
+      env.contextHub.setValues('ctx-mode', [{ key: 'mode', value: 'default' }]);
+      await new Promise((resolve) => setTimeout(resolve, 100));
+
+      expect(env.contextHub.holdCount('ctx-b')).toBe(1);
+      expect(env.contextHub.loaded('ctx-b')).toBe(true);
+      expect(env.contextHub.isPendingDestroy('ctx-b')).toBe(true);
+      expect(config.properties.title).toBe('@{ctx-a.label}');
+      expect(env.contextHub.replacePlaceholders(config.properties.title)).toBe(
+        'A',
+      );
+    });
+
+    it('evict pending ctx-b после deleteConfig', async () => {
+      await env.initContext('ctx-mode', { mode: 'default' });
+      await env.initContext('ctx-a', { label: 'A' });
+      await env.initContext('ctx-b', { label: 'Held' });
+
+      const config = baseTitleRuleConfig('config-rules-evict-on-delete');
+      env.service.registerConfig(config);
+      await firstValueFrom(env.service.ready$(config));
+
+      env.postman.incomingMessage$.next(new ContextDestroyMessage('ctx-b'));
+      expect(env.contextHub.isPendingDestroy('ctx-b')).toBe(true);
+
+      env.service.deleteConfig(config);
+
+      expect(env.contextHub.holdCount('ctx-b')).toBe(0);
+      expect(env.contextHub.loaded('ctx-b')).toBe(false);
+    });
   });
 });
