@@ -107,7 +107,11 @@ export class DialogComponent
 
     // Escape: без preventDefault браузер закрывает <dialog> сразу и backdrop исчезает
     // до окончания hide-анимации (в отличие от клика по backdrop).
+    // cancel от вложенного <input type="file"> всплывает с тем же типом — игнорируем.
     el.addEventListener('cancel', (event) => {
+      if (event.target !== el) {
+        return;
+      }
       event.preventDefault();
       this.popupService.close$.next(this.id());
     });
