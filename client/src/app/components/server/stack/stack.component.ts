@@ -215,11 +215,15 @@ export class StackComponent extends ServerComponent<StackConfig> {
   }
 
   /**
-   * Клавиатурные interaction требуют фокуса на host; link остаётся в fallback-режиме.
+   * Tab-фокус на host, когда нативная <button> не используется. При link обёртка <a>
+   * с tabindex="-1" (см. server-component-wrapper) — в tab order попадает stack.
    */
   get hostClickFallbackTabIndex(): number | null {
     if (this.isStackDisabled) {
       return null;
+    }
+    if (this.config.properties.link) {
+      return 0;
     }
     if (this.hasServerKeyDownInteraction) {
       return 0;
@@ -282,19 +286,31 @@ export class StackComponent extends ServerComponent<StackConfig> {
   }
 
   onKeyDown(event: KeyboardEvent): void {
+    if (event.target !== this.elementRef.nativeElement) {
+      return;
+    }
+
+    if (this.hasServerKeyDownInteraction) {
+      event.stopPropagation();
+      this.interact(
+        'keydown',
+        this.componentInteractionMessage(
+          (target) => new ComponentKeyDownMessage(target, { key: event.key }),
+        ),
+      );
+      return;
+    }
+
     if (
-      event.target !== this.elementRef.nativeElement ||
-      !this.hasServerKeyDownInteraction
+      !this.config.properties.link ||
+      this.isStackDisabled ||
+      (event.key !== 'Enter' && event.key !== ' ')
     ) {
       return;
     }
 
+    event.preventDefault();
     event.stopPropagation();
-    this.interact(
-      'keydown',
-      this.componentInteractionMessage(
-        (target) => new ComponentKeyDownMessage(target, { key: event.key }),
-      ),
-    );
+    this.elementRef.nativeElement.closest('a')?.click();
   }
 }

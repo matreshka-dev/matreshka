@@ -24,7 +24,7 @@
 }
 
 /* У <button> с display:contents визуал :focus-visible не везде предсказуем */
-:host.stack--native-action:focus-within {
+.stack--native-action:focus-within {
   --background-color: var(--background-color_active) !important;
   --text-color: var(--text-color_active) !important;
   --link-color: var(--link-color_active) !important;
