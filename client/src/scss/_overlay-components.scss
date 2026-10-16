@@ -2,7 +2,7 @@
 .component-overlay {
   --overlay-tx: 0;
   --overlay-ty: 0;
-  // Якорное центрирование; не анимировать translateX/Y на этом же узле — см. dialog__animation-surface.
+  // Якорное центрирование; не анимировать translateX/Y на этом же узле — см. dialog__render-root.
   transform: translate(var(--overlay-tx), var(--overlay-ty));
   & > * {
     pointer-events: auto; // Переписываем поведение app-platform-overlays-layer чтобы начать ловить клики внутри оверлея. Не на сам component-overlay, чтобы корректно пропускал клики на padding'и оверлея.

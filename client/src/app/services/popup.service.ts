@@ -26,8 +26,8 @@ export class PopupService {
   private router = inject(Router);
   private dialogStack: string[] = [];
   private popoverStack: string[] = [];
-  /** Элемент-якорь для `popovertarget` (снимается в `teardownPopoverRoot`). */
-  private popoverAnchors = new Map<string, HTMLElement>();
+  /** BFF-экземпляр якоря; DOM — {@link ServerComponent.renderRoot}. */
+  private popoverAnchorInstances = new Map<string, ServerComponent<any>>();
   private platformId = inject(PLATFORM_ID);
   private componentHub = inject(ComponentHubService);
   private postman = inject(PostmanService);
@@ -61,9 +61,9 @@ export class PopupService {
     });
   }
 
-  /** Якорь для выставления `popovertarget` в `PopoverComponent` (до `teardownPopoverRoot`). */
+  /** {@link ServerComponent.renderRoot} якоря (source, clamp, light dismiss). */
   getPopoverAnchor(popoverConfigId: string): HTMLElement | undefined {
-    return this.popoverAnchors.get(popoverConfigId);
+    return this.popoverAnchorInstances.get(popoverConfigId)?.renderRoot();
   }
 
   isTopPopover(id: string): boolean {
@@ -158,22 +158,16 @@ export class PopupService {
     config: PopoverConfig;
   }) {
     const { anchor, config } = properties;
-    let anchorElement: HTMLElement = anchor.elementRef.nativeElement;
-    if (
-      getComputedStyle(anchorElement).getPropertyValue('display') === 'contents'
-    ) {
-      anchorElement = anchorElement.children[0] as HTMLElement;
-    }
 
     const showPopover = () => {
-      this.popoverAnchors.set(config.id, anchorElement);
+      this.popoverAnchorInstances.set(config.id, anchor);
       this.componentHub.registerConfig(config);
       this.componentHub
         .ready$(config)
         .pipe(take(1))
         .subscribe(() => {
           if (isPlatformServer(this.platformId)) {
-            this.popoverAnchors.delete(config.id);
+            this.popoverAnchorInstances.delete(config.id);
             return;
           }
           const ref = createComponent(ServerComponentWrapperComponent, {
@@ -187,13 +181,7 @@ export class PopupService {
           this.readyForDestroy$.subscribe((id) => {
             if (id === config.id) {
               this.destroyEntryRef(config.id, ref, () => {
-                const anchor = this.popoverAnchors.get(config.id);
-                if (anchor) {
-                  anchor.removeAttribute('popovertarget');
-                  anchor.removeAttribute('popovertargetaction');
-                  anchor.style.removeProperty('anchor-name');
-                }
-                this.popoverAnchors.delete(config.id);
+                this.popoverAnchorInstances.delete(config.id);
                 this.popoverStack = this.popoverStack.filter(
                   (x) => x !== config.id,
                 );
@@ -204,7 +192,7 @@ export class PopupService {
         });
     };
 
-    const activePopoverId = anchorElement.getAttribute('popovertarget');
+    const activePopoverId = this.findOpenPopoverIdForAnchor(anchor);
     if (activePopoverId) {
       // Есть активный popover, нужно его закрыть с анимацией, а уже после отобразить новый (иначе потеряется якорь и сломается анимация)
       this.close$.next(activePopoverId);
@@ -216,6 +204,18 @@ export class PopupService {
     } else {
       showPopover();
     }
+  }
+
+  private findOpenPopoverIdForAnchor(
+    anchor: ServerComponent<any>,
+  ): string | undefined {
+    for (let i = this.popoverStack.length - 1; i >= 0; i--) {
+      const id = this.popoverStack[i];
+      if (this.popoverAnchorInstances.get(id) === anchor) {
+        return id;
+      }
+    }
+    return undefined;
   }
 
   closeActivePopup() {

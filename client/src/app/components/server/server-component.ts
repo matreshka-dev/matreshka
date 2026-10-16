@@ -98,10 +98,11 @@ export abstract class ServerComponent<T extends ServerComponentConfig>
   }
 
   /**
-   * Узел для {@link runComponentAnimations}, когда в payload не задан `componentId`.
-   * Переопределяется там, где хост Angular не совпадает с видимым корнем (например `<dialog>`).
+   * DOM-корень отображения экземпляра: узел, который генерирует box на странице (не `display: contents`).
+   * На нём выполняются анимации, show/hide и прочие операции над видимым представлением.
+   * Обычно это хост Angular; переопределяется, если хост не совпадает с видимым корнем (dialog, popover).
    */
-  animationElement(): HTMLElement {
+  renderRoot(): HTMLElement {
     return this.elementRef.nativeElement as HTMLElement;
   }
 
@@ -380,7 +381,7 @@ export abstract class ServerComponent<T extends ServerComponentConfig>
         targets = [this];
       }
       for (const target of targets) {
-        const el = target.animationElement();
+        const el = target.renderRoot();
         runs.push(
           runComponentAnimations(
             el,

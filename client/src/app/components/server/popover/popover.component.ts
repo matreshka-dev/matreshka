@@ -79,17 +79,11 @@ export class PopoverComponent
     this.isViewInitialized = true;
     const el = this.popoverRef().nativeElement;
     this.applyPopoverWidth();
-    const popoverId = this.id();
-    const anchor = this.popupService.getPopoverAnchor(this.id());
+    const source = this.popupService.getPopoverAnchor(this.id());
     const positionArea = this.config.properties.positionArea;
-    if (anchor) {
-      anchor.setAttribute('popovertarget', popoverId);
-      anchor.setAttribute('popovertargetaction', 'show');
+    if (source) {
       if (positionArea) {
-        const anchorCssName = `--popover-${this.id()}`;
-        anchor.style.setProperty('anchor-name', anchorCssName);
-        el.style.setProperty('position', 'fixed');
-        el.style.setProperty('position-anchor', anchorCssName);
+        // Implicit anchor от showPopover({ source: renderRoot }); без anchor-name / position-anchor.
         el.style.setProperty('position-area', positionArea);
         el.classList.add('native-popover--anchor-positioned');
         this.viewportClampEnabled = true;
@@ -98,7 +92,7 @@ export class PopoverComponent
         el.classList.add('native-popover--not-positioned');
       }
     }
-    el.showPopover();
+    el.showPopover(source ? { source } : undefined);
     if (this.viewportClampEnabled) {
       this.scheduleInitialViewportClamps(el);
     }
@@ -128,7 +122,7 @@ export class PopoverComponent
     super.ngAfterViewInit();
   }
 
-  override animationElement(): HTMLElement {
+  override renderRoot(): HTMLElement {
     return this.popoverRef().nativeElement;
   }
 

@@ -1,5 +1,5 @@
 // Дублирует flex-колонку dialog: animate-component крутит transform здесь, не на якорном <dialog>.
-.dialog__animation-surface {
+.dialog__render-root {
   display: flex;
   flex-direction: column;
   min-width: 0;

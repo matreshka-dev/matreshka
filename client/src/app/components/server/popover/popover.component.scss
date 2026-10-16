@@ -6,7 +6,7 @@
   overflow: hidden;
 }
 
-/* CSS Anchor Positioning: position-anchor + position-area задаются из компонента при `positionArea` в конфиге */
+/* CSS Anchor Positioning: implicit anchor от showPopover({ source }), position-area из конфига */
 .native-popover--anchor-positioned {
   margin: 0;
   box-sizing: border-box;

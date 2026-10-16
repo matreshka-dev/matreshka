@@ -133,7 +133,7 @@ export class ServerComponentsListComponent implements OnChanges {
     instance: ServerComponent<ServerComponentConfig>,
     config: ServerComponentConfig,
   ): Observable<boolean> {
-    const element = instance.animationElement();
+    const element = instance.renderRoot();
     const toReverse = selectAnimationsToReverse(element, wantVisible);
     if (toReverse.length > 0) {
       return concat(

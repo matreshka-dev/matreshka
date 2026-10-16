@@ -15,7 +15,7 @@
     на dialog висит overlay-transform (translate через --overlay-tx/ty для якорей),
     WAAPI transform перетирает stylesheet transform целиком.
   -->
-  <div #animationSurface class="dialog__animation-surface">
+  <div #renderRoot class="dialog__render-root">
     @if (overlays().length > 0) {
       <app-overlays [parent]="_configSignal()" [overlays]="overlays()">
         <app-server-components-list

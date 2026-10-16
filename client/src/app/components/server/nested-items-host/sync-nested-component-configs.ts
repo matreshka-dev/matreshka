@@ -106,7 +106,7 @@ function reverseInFlightHideIfRestored(
   if (instances.length === 0) {
     return;
   }
-  const element = instances[0].animationElement();
+  const element = instances[0].renderRoot();
   const toReverse = selectAnimationsToReverse(element, true);
   if (toReverse.length > 0) {
     void reverseComponentAnimations(toReverse);

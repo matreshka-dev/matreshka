@@ -71,6 +71,8 @@ import {
 })
 export class StackComponent extends ServerComponent<StackConfig> {
   pixelElementRef = viewChild<ElementRef<HTMLDivElement>>('pixel', {});
+  private readonly stackActionRef =
+    viewChild<ElementRef<HTMLButtonElement>>('stackAction');
   window = inject(WINDOW);
   protected readonly rem = rem;
   protected readonly SafeAreaSide = SafeAreaSide;
@@ -312,5 +314,16 @@ export class StackComponent extends ServerComponent<StackConfig> {
     event.preventDefault();
     event.stopPropagation();
     this.elementRef.nativeElement.closest('a')?.click();
+  }
+
+  override renderRoot(): HTMLElement {
+    // Не совсем корректно, нужно чтобы в случае popover на кнопку якорем была кнопка а не ее обертка, иначе табуляция будет неправильной и следующий таб придется опять на кнопку вместо popover.
+    if (this.useNativeClickButton) {
+      return (
+        this.stackActionRef()?.nativeElement ??
+        (this.elementRef.nativeElement as HTMLElement)
+      );
+    }
+    return this.elementRef.nativeElement as HTMLElement;
   }
 }

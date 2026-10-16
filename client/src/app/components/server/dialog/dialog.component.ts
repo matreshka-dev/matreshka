@@ -46,9 +46,9 @@ export class DialogComponent
   private readonly nativeDialogRef =
     viewChild.required<ElementRef<HTMLDialogElement>>('nativeDialog');
 
-  /** Цель onEnter/onLeave с translateX/translateY — см. dialog.component.html. */
-  private readonly animationSurfaceRef =
-    viewChild.required<ElementRef<HTMLElement>>('animationSurface');
+  /** {@link renderRoot} для dialog — см. dialog.component.html. */
+  private readonly renderRootRef =
+    viewChild.required<ElementRef<HTMLElement>>('renderRoot');
 
   private readonly defaultAnchors: readonly OverlayAnchor[] = [
     OverlayAnchor.Center,
@@ -136,12 +136,12 @@ export class DialogComponent
         });
       });
 
-    // showModal/show поднимает <dialog> в top layer; enter/leave — на animationSurface, не на хосте app-dialog.
+    // showModal/show поднимает <dialog> в top layer; enter/leave — на renderRoot, не на хосте app-dialog.
     super.ngAfterViewInit();
   }
 
-  override animationElement(): HTMLElement {
-    return this.animationSurfaceRef().nativeElement;
+  override renderRoot(): HTMLElement {
+    return this.renderRootRef().nativeElement;
   }
 
   override triggerLifecycle(
@@ -181,7 +181,7 @@ export class DialogComponent
       return Promise.resolve([]);
     }
 
-    // ::backdrop — псевдоэлемент <dialog>, не animationSurface.
+    // ::backdrop — псевдоэлемент <dialog>, не renderRoot.
     return runComponentAnimations(
       this.nativeDialogRef().nativeElement,
       payloads,
