@@ -69,6 +69,29 @@ button {
   --border-color: var(--border-color_active);
   --shadow-color: var(--shadow-color_active);
 }
+// Обёртки полей ввода (surface + focusWithinStyle): при наведении те же hover-цвета,
+// что у кликабельных stack (.interactive)
+.focused-container.surface {
+  &,
+  & * {
+    @include color-transitions.role-color-transitions($state: default);
+  }
+  @include mouse.mouse {
+    &:hover:not(:focus-within) {
+      --background-color: var(--background-color_hover);
+      --text-color: var(--text-color_hover);
+      --link-color: var(--link-color_hover);
+      --icon-color: var(--icon-color_hover);
+      --placeholder-color: var(--placeholder-color_hover);
+      --border-color: var(--border-color_hover);
+      --shadow-color: var(--shadow-color_hover);
+      &,
+      & * {
+        @include color-transitions.role-color-transitions($state: hover);
+      }
+    }
+  }
+}
 // Overlays: клики проходят сквозь неинтерактивные обёртки (row/column/surface)
 // на страницу под ними. pointer-events не наследуется — без правила на *
 // потомки с дефолтным auto всё равно перехватывают hit.
