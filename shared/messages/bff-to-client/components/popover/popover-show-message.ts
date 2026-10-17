@@ -2,8 +2,10 @@ import type { PopoverConfig } from "../../../../types/popover-config";
 import { PingableBffToClientMessage } from "../../pingable-bff-to-client-message";
 
 export type PopoverShowPayload = {
-  /** Instance id якорного компонента на клиенте (`uuid-0`, …). */
-  component_id: string;
+  /** Id инстанса source (инициатор открытия) на клиенте (`uuid-0`, …). */
+  source: string;
+  /** Id визуального якоря; если не задан на wire, source одновременно якорь. */
+  anchor?: string;
   popover: PopoverConfig;
 };
 

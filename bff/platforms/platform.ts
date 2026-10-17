@@ -33,6 +33,11 @@ import {
   serializeOverlays,
 } from "../core";
 import { incomingMessageObserver } from "../core/utils/incoming-message-observer";
+import {
+  isPopoverShowPlacement,
+  type PopoverShowComponent,
+  type PopoverShowPlacement,
+} from "./popover-show";
 
 /**
  * Абстрактный класс платформы, управляющий клиентом и его состоянием.
@@ -120,19 +125,32 @@ export abstract class Platform {
   }
 
   /**
-   * Отображает всплывающее окно (popover) относительно заданного якоря.
+   * Отображает popover.
    *
-   * @param anchor Использование компонента-якоря на клиенте ({@link ComponentInstance.id}).
+   * **source** — элемент, инициировавший открытие (Tab-order, `showPopover({ source })` на клиенте).
+   * **anchor** — визуальный якорь (`anchor-name` / `position-anchor`), если отличается от source.
+   *
+   * @param sourceOrPlacement Один инстанс (source = anchor) или `{ anchor, source }`.
    * @param popover Компонент всплывающего окна.
    */
-  showPopover(anchor: ComponentInstance | Componentable, popover: Popover) {
+  showPopover(source: PopoverShowComponent, popover: Popover): void;
+  showPopover(placement: PopoverShowPlacement, popover: Popover): void;
+  showPopover(
+    sourceOrPlacement: PopoverShowComponent | PopoverShowPlacement,
+    popover: Popover,
+  ): void {
     const serializedPopover = popover.serialize();
-    this.client.outcomingMessage$.next(
-      new PopoverShowMessage({
-        component_id: anchor.id,
-        popover: serializedPopover,
-      }),
-    );
+    const payload = isPopoverShowPlacement(sourceOrPlacement)
+      ? {
+          source: sourceOrPlacement.source.id,
+          anchor: sourceOrPlacement.anchor.id,
+          popover: serializedPopover,
+        }
+      : {
+          source: sourceOrPlacement.id,
+          popover: serializedPopover,
+        };
+    this.client.outcomingMessage$.next(new PopoverShowMessage(payload));
   }
 
   showDatePicker(

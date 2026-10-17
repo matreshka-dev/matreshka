@@ -79,11 +79,29 @@ export class PopoverComponent
     this.isViewInitialized = true;
     const el = this.popoverRef().nativeElement;
     this.applyPopoverWidth();
-    const source = this.popupService.getPopoverAnchor(this.id());
+    const popoverId = this.id();
+    const sourceEl = this.popupService.popoverSourceInstances
+      .get(popoverId)
+      ?.renderRoot();
+    const anchorEl = this.popupService.popoverAnchorInstances
+      .get(popoverId)
+      ?.renderRoot();
+    const explicitPositionAnchor =
+      this.popupService.popoverExplicitPositionAnchor.has(popoverId);
     const positionArea = this.config.properties.positionArea;
-    if (source) {
+
+    if (explicitPositionAnchor && anchorEl) {
+      const anchorName = `--popover-${this.id()}`;
+      anchorEl.style.setProperty('anchor-name', anchorName);
+      el.style.setProperty('position-anchor', anchorName);
+      this.destroyRef.onDestroy(() => {
+        anchorEl.style.removeProperty('anchor-name');
+        el.style.removeProperty('position-anchor');
+      });
+    }
+
+    if (sourceEl || anchorEl) {
       if (positionArea) {
-        // Implicit anchor от showPopover({ source: renderRoot }); без anchor-name / position-anchor.
         el.style.setProperty('position-area', positionArea);
         el.classList.add('native-popover--anchor-positioned');
         this.viewportClampEnabled = true;
@@ -92,7 +110,7 @@ export class PopoverComponent
         el.classList.add('native-popover--not-positioned');
       }
     }
-    el.showPopover(source ? { source } : undefined);
+    el.showPopover(sourceEl ? { source: sourceEl } : undefined);
     if (this.viewportClampEnabled) {
       this.scheduleInitialViewportClamps(el);
     }
@@ -151,8 +169,17 @@ export class PopoverComponent
       if (path.includes(el)) {
         return;
       }
-      const anchorEl = this.popupService.getPopoverAnchor(this.id());
+      const popoverId = this.id();
+      const anchorEl = this.popupService.popoverAnchorInstances
+        .get(popoverId)
+        ?.renderRoot();
+      const sourceEl = this.popupService.popoverSourceInstances
+        .get(popoverId)
+        ?.renderRoot();
       if (anchorEl && path.includes(anchorEl)) {
+        return;
+      }
+      if (sourceEl && path.includes(sourceEl)) {
         return;
       }
       this.popupService.close$.next(this.id());
@@ -243,7 +270,7 @@ export class PopoverComponent
     const clamp = computePopoverViewportMaxAvailable(
       el,
       getVisualViewportBounds(),
-      this.popupService.getPopoverAnchor(this.id()),
+      this.popupService.popoverAnchorInstances.get(this.id())?.renderRoot(),
     );
     const key = popoverViewportClampKey(clamp);
     if (key === this.lastViewportClampKey) {

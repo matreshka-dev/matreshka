@@ -7,7 +7,10 @@ export type PopoverConfig = {
   class: ServerComponentClass.Popover;
   properties: {
     content: ServerComponentConfig[];
-    /** CSS `position-area` относительно якоря (`anchor-name` на триггере). */
+    /**
+     * CSS `position-area` относительно якоря.
+     * Если в show-popover передан `anchor` — якорь с `anchor-name`; иначе implicit anchor от source.
+     */
     positionArea?: PopoverPositionArea;
     /**
      * Для popover `size` трактуется как ширина.

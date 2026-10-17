@@ -174,15 +174,31 @@ currentClientPlatform().showDialog(dialog);
 
 Использовать, когда нужен самостоятельный entry-слой поверх страницы без привязки к якорному компоненту.
 
-### `showPopover(anchor: ComponentInstance, popover: Popover)`
+### `showPopover(source, popover)` / `showPopover({ anchor, source }, popover)`
 
-Показывает `Popover` относительно якорного инстанса компонента на клиенте.
+Показывает `Popover` на клиенте.
 
 ```ts
+// source и визуальный anchor — один инстанс (типичный onClick)
 currentClientPlatform().showPopover(instance, popover);
+
+// source — кнопка, визуальный anchor — другой элемент (например шапка)
+currentClientPlatform().showPopover(
+  { source: buttonInstance, anchor: headerInstance },
+  popover,
+);
 ```
 
-Использовать, когда нужен локальный всплывающий UI рядом с конкретным элементом. В `onClick` и других server-обработчиках якорь берётся из `instance` (см. `component-instance.md`).
+Типы BFF: `PopoverShowComponent` — инстанс или компонент; `PopoverShowPlacement` — `{ anchor, source }`.
+
+| Поле       | Зачем                                                                                                                                                                                        |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **source** | Откуда открыли popover (часто кнопка в `onClick`). Браузер связывает popover с этим элементом при навигации с клавиатуры.                                                                    |
+| **anchor** | Где на экране «держать» popover. Если передали один инстанс — якорь совпадает с source. Отдельный якорь нужен, когда клик на одном элементе, а показывать рядом с другим (например у шапки). |
+
+В сообщении `show-popover` на клиент всегда уходит `source` и `popover`. Поле `anchor` — только при вызове с `{ anchor, source }`.
+
+Куда именно смещать popover относительно якоря, задаётся свойством `positionArea` у `Popover`.
 
 ### `showDatePicker(anchor, ref: ContextValueRef<string | undefined>)`
 
@@ -372,11 +388,11 @@ WebAuthn (passkeys) только на **Browser** и **PWA** (`BrowserPlatform` 
 
 **Требования среды:**
 
-| Условие | Зачем |
-| -------- | ----- |
-| HTTPS (secure context) | Без этого браузер/WebView не вызывает WebAuthn |
+| Условие                     | Зачем                                                                                               |
+| --------------------------- | --------------------------------------------------------------------------------------------------- |
+| HTTPS (secure context)      | Без этого браузер/WebView не вызывает WebAuthn                                                      |
 | `rpID` = registrable domain | Должен совпадать с доменом страницы (без порта): для `https://app.example.com` обычно `example.com` |
-| `expectedOrigin` при verify | Полный origin клиента, например `https://app.example.com` — **не** путать с `rpID` |
+| `expectedOrigin` при verify | Полный origin клиента, например `https://app.example.com` — **не** путать с `rpID`                  |
 
 #### Как выбрать `rpID` (что именно вводить)
 
@@ -384,13 +400,13 @@ WebAuthn (passkeys) только на **Browser** и **PWA** (`BrowserPlatform` 
 
 **Правило:** возьмите адресную строку, где открыт клиент Matreshka, и оставьте только host. Если host — поддомен публичного домена, для WebAuthn часто используют **effective domain** (registrable domain): один `rpID` на `app.example.com` и `www.example.com` → `example.com`. Если приложение живёт только на одном host и вы хотите изолировать passkeys — можно указать **точный** host как `rpID` (см. таблицу ниже).
 
-| Открыт клиент по адресу | Что писать в `rpID` | `expectedOrigin` при verify |
-| ----------------------- | ------------------- | --------------------------- |
-| `https://localhost:4200` (локальная разработка) | `localhost` | `https://localhost:4200` |
-| `https://127.0.0.1:4200` | `127.0.0.1` (не смешивать с `localhost` — для WebAuthn это разные rpID) | `https://127.0.0.1:4200` |
-| `https://app.example.com` | `example.com` или `app.example.com` | `https://app.example.com` |
-| `https://example.com` | `example.com` | `https://example.com` |
-| `https://my-app.vercel.app` | `my-app.vercel.app` (полный host; общий `vercel.app` для всех нельзя) | `https://my-app.vercel.app` |
+| Открыт клиент по адресу                         | Что писать в `rpID`                                                     | `expectedOrigin` при verify |
+| ----------------------------------------------- | ----------------------------------------------------------------------- | --------------------------- |
+| `https://localhost:4200` (локальная разработка) | `localhost`                                                             | `https://localhost:4200`    |
+| `https://127.0.0.1:4200`                        | `127.0.0.1` (не смешивать с `localhost` — для WebAuthn это разные rpID) | `https://127.0.0.1:4200`    |
+| `https://app.example.com`                       | `example.com` или `app.example.com`                                     | `https://app.example.com`   |
+| `https://example.com`                           | `example.com`                                                           | `https://example.com`       |
+| `https://my-app.vercel.app`                     | `my-app.vercel.app` (полный host; общий `vercel.app` для всех нельзя)   | `https://my-app.vercel.app` |
 
 **На практике:**
 
@@ -410,11 +426,11 @@ WebAuthn (passkeys) только на **Browser** и **PWA** (`BrowserPlatform` 
 
 #### Параметры `createWebAuthnCredential` / `getWebAuthnCredential`
 
-| Параметр | Назначение |
-| -------- | ---------- |
-| `optionsJSON` | Объект от `generateRegistrationOptions` или `generateAuthenticationOptions`. Передаётся на клиент как есть; внутри есть одноразовый **challenge**. |
-| `onSuccess(credentialJSON)` | JSON-ответ authenticator после успешной церемонии. Его нужно передать в `verifyRegistrationResponse` / `verifyAuthenticationResponse`. |
-| `onError?(message)` | Текст ошибки: отмена пользователем, нет поддержки WebAuthn, неверная среда и т.д. |
+| Параметр                    | Назначение                                                                                                                                         |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `optionsJSON`               | Объект от `generateRegistrationOptions` или `generateAuthenticationOptions`. Передаётся на клиент как есть; внутри есть одноразовый **challenge**. |
+| `onSuccess(credentialJSON)` | JSON-ответ authenticator после успешной церемонии. Его нужно передать в `verifyRegistrationResponse` / `verifyAuthenticationResponse`.             |
+| `onError?(message)`         | Текст ошибки: отмена пользователем, нет поддержки WebAuthn, неверная среда и т.д.                                                                  |
 
 ---
 
@@ -495,45 +511,45 @@ platform.createWebAuthnCredential({
 
 **`generateRegistrationOptions` — что означает каждый параметр:**
 
-| Параметр | Обязательность | Смысл |
-| -------- | -------------- | ----- |
-| `rpName` | да | Человекочитаемое имя сайта/приложения в диалоге authenticator («My App»). |
-| `rpID` | да | Идентификатор relying party — домен без схемы и порта. Credential привязывается к нему; при входе `expectedRPID` должен совпадать. |
-| `userName` | да | Логин для отображения (часто email). Не секрет; не заменяет проверку на сервере после verify. |
-| `userID` | да | Стабильный **байтовый** id пользователя в вашей системе (не email). Должен быть неизменным для одного аккаунта; длина обычно до 64 байт. |
-| `userDisplayName` | нет | Имя в UI authenticator («Иван Иванов»). |
-| `attestationType` | нет | `"none"` — без attestation (типично для passkeys в вебе). Другие значения — если нужна проверка модели authenticator. |
-| `authenticatorSelection.residentKey` | нет | `"preferred"` / `"required"` — discoverable credential (passkey в менеджере паролей); `"discouraged"` — только security key без привязки к аккаунту на устройстве. |
-| `authenticatorSelection.userVerification` | нет | `"preferred"` / `"required"` — биометрия/PIN на устройстве; `"discouraged"` — без проверки пользователя (редко для passkeys). |
+| Параметр                                  | Обязательность | Смысл                                                                                                                                                              |
+| ----------------------------------------- | -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `rpName`                                  | да             | Человекочитаемое имя сайта/приложения в диалоге authenticator («My App»).                                                                                          |
+| `rpID`                                    | да             | Идентификатор relying party — домен без схемы и порта. Credential привязывается к нему; при входе `expectedRPID` должен совпадать.                                 |
+| `userName`                                | да             | Логин для отображения (часто email). Не секрет; не заменяет проверку на сервере после verify.                                                                      |
+| `userID`                                  | да             | Стабильный **байтовый** id пользователя в вашей системе (не email). Должен быть неизменным для одного аккаунта; длина обычно до 64 байт.                           |
+| `userDisplayName`                         | нет            | Имя в UI authenticator («Иван Иванов»).                                                                                                                            |
+| `attestationType`                         | нет            | `"none"` — без attestation (типично для passkeys в вебе). Другие значения — если нужна проверка модели authenticator.                                              |
+| `authenticatorSelection.residentKey`      | нет            | `"preferred"` / `"required"` — discoverable credential (passkey в менеджере паролей); `"discouraged"` — только security key без привязки к аккаунту на устройстве. |
+| `authenticatorSelection.userVerification` | нет            | `"preferred"` / `"required"` — биометрия/PIN на устройстве; `"discouraged"` — без проверки пользователя (редко для passkeys).                                      |
 
 **Поля в возвращаемом `optionsJSON` (важные для приложения):**
 
-| Поле | Смысл |
-| ---- | ----- |
-| `challenge` | Одноразовая случайная строка (base64url). **Обязательно** сохранить на сервере и передать в `expectedChallenge` при verify. |
-| `rp`, `user`, `pubKeyCredParams`, … | Уходит на клиент внутри `optionsJSON`; менять вручную после генерации не нужно. |
+| Поле                                | Смысл                                                                                                                       |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `challenge`                         | Одноразовая случайная строка (base64url). **Обязательно** сохранить на сервере и передать в `expectedChallenge` при verify. |
+| `rp`, `user`, `pubKeyCredParams`, … | Уходит на клиент внутри `optionsJSON`; менять вручную после генерации не нужно.                                             |
 
 **`verifyRegistrationResponse` — параметры verify:**
 
-| Параметр | Смысл |
-| -------- | ----- |
-| `response` | Тот же `credentialJSON`, что пришёл в `onSuccess` платформы. |
-| `expectedChallenge` | Challenge из шага регистрации (из сохранённого `optionsJSON.challenge`), не из ответа клиента. |
-| `expectedOrigin` | Origin, с которого открыт клиент Matreshka (`https://…`). |
-| `expectedRPID` | Тот же `rpID`, что при генерации options. |
-| `requireUserVerification` | `true` — отклонить ответ без user verification (рекомендуется для passkeys). |
+| Параметр                  | Смысл                                                                                          |
+| ------------------------- | ---------------------------------------------------------------------------------------------- |
+| `response`                | Тот же `credentialJSON`, что пришёл в `onSuccess` платформы.                                   |
+| `expectedChallenge`       | Challenge из шага регистрации (из сохранённого `optionsJSON.challenge`), не из ответа клиента. |
+| `expectedOrigin`          | Origin, с которого открыт клиент Matreshka (`https://…`).                                      |
+| `expectedRPID`            | Тот же `rpID`, что при генерации options.                                                      |
+| `requireUserVerification` | `true` — отклонить ответ без user verification (рекомендуется для passkeys).                   |
 
 **`verification.registrationInfo` → запись в БД (`StoredWebAuthnCredential`):**
 
-| Поле | Смысл |
-| ---- | ----- |
-| `credentialID` | Id credential для последующего входа (`allowCredentials`). |
-| `credentialPublicKey` | Публичный ключ для проверки подписи при authentication. |
-| `counter` | Счётчик использований authenticator; обновлять после каждого успешного входа. |
-| `credentialDeviceType` | `"singleDevice"` или `"multiDevice"` (синхронизируемый passkey). |
-| `credentialBackedUp` | Был ли credential синхронизирован в облако (iCloud/Google и т.д.). |
-| `transports` | Подсказки (`internal`, `hybrid`, …) — опционально для UX. |
-| `webauthnUserID` | Ваш `userID` в формате, который вернул authenticator. |
+| Поле                   | Смысл                                                                         |
+| ---------------------- | ----------------------------------------------------------------------------- |
+| `credentialID`         | Id credential для последующего входа (`allowCredentials`).                    |
+| `credentialPublicKey`  | Публичный ключ для проверки подписи при authentication.                       |
+| `counter`              | Счётчик использований authenticator; обновлять после каждого успешного входа. |
+| `credentialDeviceType` | `"singleDevice"` или `"multiDevice"` (синхронизируемый passkey).              |
+| `credentialBackedUp`   | Был ли credential синхронизирован в облако (iCloud/Google и т.д.).            |
+| `transports`           | Подсказки (`internal`, `hybrid`, …) — опционально для UX.                     |
+| `webauthnUserID`       | Ваш `userID` в формате, который вернул authenticator.                         |
 
 ---
 
@@ -582,7 +598,10 @@ platform.getWebAuthnCredential({
     });
 
     if (verification.verified) {
-      await updateCredentialCounter(userId, verification.authenticationInfo.newCounter);
+      await updateCredentialCounter(
+        userId,
+        verification.authenticationInfo.newCounter,
+      );
       await clearPendingChallenge(userId);
       // создать сессию приложения
     }
@@ -593,22 +612,22 @@ platform.getWebAuthnCredential({
 
 **`generateAuthenticationOptions`:**
 
-| Параметр | Смысл |
-| -------- | ----- |
-| `rpID` | Домен relying party — как при регистрации. |
-| `allowCredentials` | Список известных credential пользователя. Если пустой/не передан — **discoverable** вход (passkey из списка на устройстве). |
-| `allowCredentials[].id` | `credentialID` из БД. |
-| `allowCredentials[].transports` | Опционально ускоряет выбор authenticator. |
-| `userVerification` | Как при регистрации: `"preferred"` или `"required"`. |
+| Параметр                        | Смысл                                                                                                                       |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `rpID`                          | Домен relying party — как при регистрации.                                                                                  |
+| `allowCredentials`              | Список известных credential пользователя. Если пустой/не передан — **discoverable** вход (passkey из списка на устройстве). |
+| `allowCredentials[].id`         | `credentialID` из БД.                                                                                                       |
+| `allowCredentials[].transports` | Опционально ускоряет выбор authenticator.                                                                                   |
+| `userVerification`              | Как при регистрации: `"preferred"` или `"required"`.                                                                        |
 
 **`verifyAuthenticationResponse` → `credential` (из вашей БД):**
 
-| Поле | Смысл |
-| ---- | ----- |
-| `id` | Id credential — тот же, что при регистрации. |
-| `publicKey` | Публичный ключ из `StoredWebAuthnCredential`. |
-| `counter` | Последний известный counter; после verify обновить на `authenticationInfo.newCounter` (защита от replay). |
-| `transports` | Опционально, как при регистрации. |
+| Поле         | Смысл                                                                                                     |
+| ------------ | --------------------------------------------------------------------------------------------------------- |
+| `id`         | Id credential — тот же, что при регистрации.                                                              |
+| `publicKey`  | Публичный ключ из `StoredWebAuthnCredential`.                                                             |
+| `counter`    | Последний известный counter; после verify обновить на `authenticationInfo.newCounter` (защита от replay). |
+| `transports` | Опционально, как при регистрации.                                                                         |
 
 **`expectedChallenge` / `expectedOrigin` / `expectedRPID`** — те же правила, что при регистрации.
 

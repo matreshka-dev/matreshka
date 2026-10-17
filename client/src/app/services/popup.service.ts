@@ -26,8 +26,12 @@ export class PopupService {
   private router = inject(Router);
   private dialogStack: string[] = [];
   private popoverStack: string[] = [];
-  /** BFF-экземпляр якоря; DOM — {@link ServerComponent.renderRoot}. */
-  private popoverAnchorInstances = new Map<string, ServerComponent<any>>();
+  /** BFF-экземпляр визуального якоря; DOM — {@link ServerComponent.renderRoot}. */
+  readonly popoverAnchorInstances = new Map<string, ServerComponent<any>>();
+  /** BFF-экземпляр source (инициатор открытия). */
+  readonly popoverSourceInstances = new Map<string, ServerComponent<any>>();
+  /** Явный CSS anchor-name / position-anchor (в payload был `anchor`). */
+  readonly popoverExplicitPositionAnchor = new Set<string>();
   private platformId = inject(PLATFORM_ID);
   private componentHub = inject(ComponentHubService);
   private postman = inject(PostmanService);
@@ -40,13 +44,20 @@ export class PopupService {
   constructor() {
     this.postman.incomingMessage$.subscribe((message) => {
       if (message instanceof PopoverShowMessage) {
-        const instances = this.componentHub.getInstancesByComponentId(
-          message.payload.component_id,
-        );
-        for (const instance of instances) {
+        const { source, anchor, popover } = message.payload;
+        const sourceInstances =
+          this.componentHub.getInstancesByComponentId(source);
+        const anchorInstances = anchor
+          ? this.componentHub.getInstancesByComponentId(anchor)
+          : undefined;
+        const explicitPositionAnchor = anchor !== undefined;
+        for (const sourceInstance of sourceInstances) {
+          const anchorInstance = anchorInstances?.[0] ?? sourceInstance;
           this.showPopover({
-            anchor: instance,
-            config: message.payload.popover,
+            source: sourceInstance,
+            anchor: anchorInstance,
+            explicitPositionAnchor,
+            config: popover,
           });
         }
       } else if (message instanceof DialogShowMessage) {
@@ -59,11 +70,6 @@ export class PopupService {
         this.closeAllDialogs();
       }
     });
-  }
-
-  /** {@link ServerComponent.renderRoot} якоря (source, clamp, light dismiss). */
-  getPopoverAnchor(popoverConfigId: string): HTMLElement | undefined {
-    return this.popoverAnchorInstances.get(popoverConfigId)?.renderRoot();
   }
 
   isTopPopover(id: string): boolean {
@@ -154,13 +160,19 @@ export class PopupService {
   }
 
   showPopover(properties: {
+    source: ServerComponent<any>;
     anchor: ServerComponent<any>;
+    explicitPositionAnchor: boolean;
     config: PopoverConfig;
   }) {
-    const { anchor, config } = properties;
+    const { source, anchor, explicitPositionAnchor, config } = properties;
 
     const showPopover = () => {
       this.popoverAnchorInstances.set(config.id, anchor);
+      this.popoverSourceInstances.set(config.id, source);
+      if (explicitPositionAnchor) {
+        this.popoverExplicitPositionAnchor.add(config.id);
+      }
       this.componentHub.registerConfig(config);
       this.componentHub
         .ready$(config)
@@ -168,6 +180,8 @@ export class PopupService {
         .subscribe(() => {
           if (isPlatformServer(this.platformId)) {
             this.popoverAnchorInstances.delete(config.id);
+            this.popoverSourceInstances.delete(config.id);
+            this.popoverExplicitPositionAnchor.delete(config.id);
             return;
           }
           const ref = createComponent(ServerComponentWrapperComponent, {
@@ -182,6 +196,8 @@ export class PopupService {
             if (id === config.id) {
               this.destroyEntryRef(config.id, ref, () => {
                 this.popoverAnchorInstances.delete(config.id);
+                this.popoverSourceInstances.delete(config.id);
+                this.popoverExplicitPositionAnchor.delete(config.id);
                 this.popoverStack = this.popoverStack.filter(
                   (x) => x !== config.id,
                 );
@@ -192,7 +208,7 @@ export class PopupService {
         });
     };
 
-    const activePopoverId = this.findOpenPopoverIdForAnchor(anchor);
+    const activePopoverId = this.findOpenPopoverIdForSource(source);
     if (activePopoverId) {
       // Есть активный popover, нужно его закрыть с анимацией, а уже после отобразить новый (иначе потеряется якорь и сломается анимация)
       this.close$.next(activePopoverId);
@@ -206,12 +222,12 @@ export class PopupService {
     }
   }
 
-  private findOpenPopoverIdForAnchor(
-    anchor: ServerComponent<any>,
+  private findOpenPopoverIdForSource(
+    source: ServerComponent<any>,
   ): string | undefined {
     for (let i = this.popoverStack.length - 1; i >= 0; i--) {
       const id = this.popoverStack[i];
-      if (this.popoverAnchorInstances.get(id) === anchor) {
+      if (this.popoverSourceInstances.get(id) === source) {
         return id;
       }
     }

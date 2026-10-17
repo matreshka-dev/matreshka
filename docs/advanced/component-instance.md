@@ -141,7 +141,7 @@ stack({ content: [demoButton, demoButton] });
 | --------------------------------- | -------------------------------------------------------------- |
 | Повторный `instance.serialize()`  | Ошибка на BFF                                                  |
 | Один инстанс в двух местах дерева | Один id на клиенте — нельзя отличить DOM-узлы                  |
-| Popover / native picker           | `component_id: instance.id` может затронуть все узлы с этим id |
+| Popover / native picker           | Popover: `source` / `anchor` в show-popover; picker: `component_id: instance.id` — может затронуть все узлы с этим id |
 | Команды BFF→client                | `target: instance.id` попадёт во все инстансы с этим id         |
 
 **Итог:** `createInstance()` — для **явной ссылки** на инстанс, не для «создания копии UI». Три одинаковые кнопки без сравнения в обработчике — три вхождения `Component`.
@@ -252,7 +252,7 @@ stack({
 | «⋯» у карточки A | `abc-123-0`            |
 | «⋯» у карточки B | `abc-123-1`            |
 
-Пользователь нажимает «⋯» у **карточки B** → в BFF приходит `target: "abc-123-1"` → в обработчике `instance.id === "abc-123-1"` → `showPopover(instance, …)` отправляет клиенту `component_id: "abc-123-1"` → popover открывается **рядом с второй кнопкой**.
+Пользователь нажимает «⋯» у **карточки B** → в BFF приходит `target: "abc-123-1"` → в обработчике `instance.id === "abc-123-1"` → `showPopover(instance, …)` отправляет клиенту `source: "abc-123-1"` → popover открывается **рядом со второй кнопкой**.
 
 Если бы якорь передавался через базовый id (`actionsButton.id` = `abc-123`), клиент мог бы взять **первый** попавшийся DOM-инстанс (`abc-123-0`) — меню открылось бы у карточки A, хотя клик был у B. Поэтому Platform API принимает именно `ComponentInstance`.
 
@@ -401,13 +401,13 @@ sequenceDiagram
   UserA->>ClientA: клик по abc-123-0
   ClientA->>BFF: component-click target=abc-123-0
   BFF->>BFF: handler instance.id = abc-123-0
-  BFF->>ClientA: show-popover component_id=abc-123-0
+  BFF->>ClientA: show-popover source=abc-123-0
   Note over ClientB,UserB: Client B сообщение не получает
 ```
 
 Суффикс `-N` в instance id растёт на BFF-объекте `Component` при каждом `createInstance()` — **глобально для этого компонента**, а не отдельно на каждого клиента. Поэтому у пользователя A и пользователя B будут **разные** instance id (например, `abc-123-0` и `abc-123-1`), даже если на экране одна и та же кнопка. Изоляция сессий обеспечивается привязкой `instance.client` и маршрутизацией сообщений в `outcomingMessage$` нужного `Client`, а не тем, что у разных клиентов совпадает id.
 
-Сообщения BFF→client всегда уходят в **`outcomingMessage$` конкретного `Client`**, с которым идёт обработка (через `currentClient()` при разборе входящего interaction). Команда с `target` / `component_id`, рассчитанная на инстанс пользователя A, **не попадает** в сессию пользователя B.
+Сообщения BFF→client всегда уходят в **`outcomingMessage$` конкретного `Client`**, с которым идёт обработка (через `currentClient()` при разборе входящего interaction). Команда с `target` или id инстанса в payload (например `source` у show-popover), рассчитанная на пользователя A, **не попадает** в сессию пользователя B.
 
 ```ts
 onClick: ({ instance }) => {
@@ -515,7 +515,7 @@ onClick: ({ instance }) => {
 };
 ```
 
-В сообщениях клиенту уходит `component_id: instance.id`, чтобы popover или native picker открылся у **правильного** элемента.
+Для popover в сообщении уходит `source: instance.id` (и опционально `anchor`); для native picker — `component_id: instance.id`, чтобы UI открылся у **правильного** элемента.
 
 ### На клиенте (runtime)
 

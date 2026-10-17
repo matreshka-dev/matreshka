@@ -5,6 +5,7 @@ export * from "./ios-platform";
 export * from "./max-mini-app-platform";
 export * from "./mobile-platform";
 export * from "./platform";
+export * from "./popover-show";
 export * from "./pwa-platform";
 export * from "./server-platform";
 export * from "./telegram-mini-app-platform";
