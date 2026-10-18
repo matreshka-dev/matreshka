@@ -10,6 +10,7 @@ export type PaddingPxResult = {
 /**
  * Разворачивает padding из конфига в значения по сторонам (логические px).
  * Если вход `undefined`, все стороны — 0; отсутствующие ключи в объектах тоже считаются 0.
+ * `vertical` и `horizontal` задают fallback для пар сторон; явные `top` / `bottom` / `start` / `end` их перекрывают.
  */
 export function normalizePaddingPx(value: PaddingPx): PaddingPxResult {
   const d = 0;
@@ -27,26 +28,13 @@ export function normalizePaddingPx(value: PaddingPx): PaddingPxResult {
     return { top: value, bottom: value, start: value, end: value };
   }
 
-  const hasSides =
-    'top' in value || 'bottom' in value || 'start' in value || 'end' in value;
-  const hasAxis = 'vertical' in value || 'horizontal' in value;
+  const vv = value.vertical !== undefined ? value.vertical : d;
+  const hv = value.horizontal !== undefined ? value.horizontal : d;
 
-  if (hasAxis && !hasSides) {
-    const o = value;
-    const vv = o.vertical !== undefined ? o.vertical : d;
-    const hv = o.horizontal !== undefined ? o.horizontal : d;
-    return { top: vv, bottom: vv, start: hv, end: hv };
-  }
-
-  if (hasSides) {
-    const o = value;
-    return {
-      top: o.top !== undefined ? o.top : d,
-      bottom: o.bottom !== undefined ? o.bottom : d,
-      start: o.start !== undefined ? o.start : d,
-      end: o.end !== undefined ? o.end : d,
-    };
-  }
-
-  return { top: d, bottom: d, start: d, end: d };
+  return {
+    top: value.top !== undefined ? value.top : vv,
+    bottom: value.bottom !== undefined ? value.bottom : vv,
+    start: value.start !== undefined ? value.start : hv,
+    end: value.end !== undefined ? value.end : hv,
+  };
 }

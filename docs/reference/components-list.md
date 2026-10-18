@@ -340,7 +340,7 @@ popover(
 | `wrap`             | `FlexWrap?`                                                   | CSS `flex-wrap`: `nowrap`, `wrap`, `wrap-reverse`, `balance` и комбинации с `balance`. |
 | `flexItem`         | `FlexItemSpec?`                                               | Поведение внутри родительского `stack`.                                                |
 | `radius`           | `RadiusPx?`                                                   | Скругление углов контейнера.                                                           |
-| `padding`          | `PaddingPx?`                                                  | Внутренние отступы.                                                                    |
+| `padding`          | `PaddingPx?`                                                  | Внутренние отступы: число, `{ vertical, horizontal }`, отдельные стороны; оси и стороны можно комбинировать (например `{ horizontal: 16, bottom: 8 }`). |
 | `safeArea`         | `SafeAreaSide[]?`                                             | Стороны, на которых к padding добавляется safe area.                                   |
 | `overlays`         | `Overlay[]?`                                                  | Оверлеи поверх контейнера.                                                             |
 | `surface`          | `boolean?`                                                    | Включает фон поверхности.                                                              |
