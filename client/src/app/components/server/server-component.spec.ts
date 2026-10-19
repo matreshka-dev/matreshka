@@ -17,6 +17,7 @@ import { PostmanService } from '../../services/postman.service';
 import { SsrService } from '../../services/ssr.service';
 import { TestPostmanService } from '../../services/tests/test-postman.service';
 import { TestSsrService } from '../../services/tests/test-ssr.service';
+import { OverlayAnchor } from '@shared/types/container-overlay';
 import { ServerComponent } from './server-component';
 import {
   ComponentDependencies,
@@ -125,6 +126,28 @@ describe('ServerComponent (abstract базовый компонент)', () => {
 
       expect(component.componentStyles).toEqual({
         'flex-grow': 0.5,
+        'text-align': undefined,
+      });
+    });
+
+    it('не дублирует flexItem на хосте, если overlays рендерятся в wrapper', () => {
+      config.class = ServerComponentClass.Stack;
+      config.properties = {
+        flexItem: { basis: { value: 200, unit: DimensionalUnit.Px } },
+        overlays: [
+          {
+            anchors: [OverlayAnchor.Top],
+            component: {
+              id: 'overlay-child',
+              class: ServerComponentClass.Stack,
+            },
+          },
+        ],
+      };
+
+      component.calculateStyles();
+
+      expect(component.componentStyles).toEqual({
         'text-align': undefined,
       });
     });
