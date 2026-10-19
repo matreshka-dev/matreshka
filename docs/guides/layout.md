@@ -165,6 +165,7 @@ stack(
 - `safeArea` — стороны, на которых к padding добавляется системный отступ;
 - `flexItem` — поведение компонента как flex-item внутри родительского `stack`;
 - `overflow` — поведение при переполнении (`auto`, `hidden`, `scroll` и др.);
+- `scroll.padding` — отступ scrollport (CSS `scroll-padding`, схема как у `padding`);
 - `wrap` — перенос элементов на новые строки (`nowrap`, `wrap`, `wrap-reverse`, `balance` и комбинации с `balance`);
 - `surface` — фон поверхности;
 - `outline` — внешний контур;
@@ -298,6 +299,18 @@ stack(
 ```
 
 Именно поэтому `stack` часто становится основой для лент, списков и бесконечной прокрутки.
+
+`scroll.padding` задаёт scroll-padding контейнера (snap, `scrollIntoView`). Значения — как у `padding`:
+
+```ts
+stack(
+  {
+    overflow: Overflow.Auto,
+    scroll: { padding: { bottom: 24, horizontal: 16 } },
+  },
+  [text("Длинный список")],
+);
+```
 
 ## `wrap`
 

@@ -9,6 +9,7 @@ import type { Overlay } from "./container-overlay";
 import type { FlexItemSpec } from "./flex-item";
 import type { PaddingPx } from "./padding-px";
 import type { RadiusPx } from "./radius-px";
+import type { StackScroll } from "./stack-scroll";
 import type { ServerComponentConfig } from "./server-component-config";
 
 export type StackConfig = {
@@ -26,6 +27,7 @@ export type StackConfig = {
     flexItem?: FlexItemSpec;
     content: ServerComponentConfig[];
     padding?: PaddingPx;
+    scroll?: StackScroll;
     safeArea?: SafeAreaSide[];
     radius?: RadiusPx;
     surface?: boolean;

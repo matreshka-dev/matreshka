@@ -17,6 +17,7 @@ import {
 } from "@matreshka/shared/types/flex-item";
 import type { PaddingPx } from "@matreshka/shared/types/padding-px";
 import type { RadiusPx } from "@matreshka/shared/types/radius-px";
+import type { StackScroll } from "@matreshka/shared/types/stack-scroll";
 import type { StackConfig } from "@matreshka/shared/types/stack-config";
 import {
   calculateComponents,
@@ -49,6 +50,7 @@ export { StackDirection } from "@matreshka/shared/enums/stack-direction";
 export type { ComponentScrollPayload } from "@matreshka/shared/messages/client-to-bff/components/component-scroll-message";
 export type { DimensionalValue } from "@matreshka/shared/types/dimensional-value";
 export type { FlexItemSpec } from "@matreshka/shared/types/flex-item";
+export type { StackScroll } from "@matreshka/shared/types/stack-scroll";
 
 export type StackProperties = {
   content: ComponentTreeNode[];
@@ -77,6 +79,10 @@ export type StackProperties = {
    */
   radius?: RadiusPx;
   padding?: PaddingPx;
+  /**
+   * Параметры прокрутки: `padding` → CSS `scroll-padding` на клиенте.
+   */
+  scroll?: StackScroll;
   safeArea?: SafeAreaSide[];
   overlays?: Overlay[];
   surface?: boolean;
@@ -100,6 +106,7 @@ export type StackProperties = {
  * @property content Список вложенных компонентов.
  * @property radius Скругление углов (логические px).
  * @property padding Внутренние отступы (логические px).
+ * @property scroll Прокрутка: `padding` — scroll-padding (логические px, схема как у `padding`).
  * @property safeArea Стороны, для которых клиент добавляет системный safe area к padding.
  * @property onClick Обработчики клика по контейнеру.
  * @property onKeyDown Обработчики нажатия клавиши, когда фокус находится на элементе.
@@ -146,6 +153,7 @@ export type StackInitConfig<
   radius?: RadiusPx;
   content: MixedWithCallbacksArray<ComponentTreeNode>;
   padding?: PaddingPx;
+  scroll?: StackScroll;
   safeArea?: SafeAreaSide[];
   overlays?: Overlay[];
   surface?: boolean;
@@ -242,6 +250,7 @@ export class Stack<
       radius: initValues.radius,
       content: calculateComponents(initValues.content),
       padding: initValues.padding,
+      scroll: initValues.scroll,
       safeArea: initValues.safeArea,
       overlays: initValues.overlays,
       surface: initValues.surface,

@@ -17,7 +17,10 @@ import { ComponentKeyDownMessage } from '@shared/messages/client-to-bff/componen
 import type { StackConfig } from '@shared/types/stack-config';
 import { resolveScrollToOffset } from '@shared/utils/resolve-scroll-to-offset';
 import { WINDOW } from '../../../tokens/window';
-import { normalizePaddingPx } from '../../../utils/normalize-padding-px';
+import {
+  normalizePaddingPx,
+  type PaddingPxResult,
+} from '../../../utils/normalize-padding-px';
 import { normalizeRadiusPx } from '../../../utils/normalize-radius-px';
 import { rem } from '../../../utils/rem';
 import { ServerComponent } from '../server-component';
@@ -45,6 +48,10 @@ import {
     '[style.--padding-bottom]': 'rem(paddingPx.bottom)',
     '[style.--padding-start]': 'rem(paddingPx.start)',
     '[style.--padding-end]': 'rem(paddingPx.end)',
+    '[style.scroll-padding-block-start]': 'scrollPaddingBlockStart',
+    '[style.scroll-padding-block-end]': 'scrollPaddingBlockEnd',
+    '[style.scroll-padding-inline-start]': 'scrollPaddingInlineStart',
+    '[style.scroll-padding-inline-end]': 'scrollPaddingInlineEnd',
     '[style.align-items]': 'config.properties.align?.main',
     '[style.justify-content]': 'config.properties.align?.cross',
     '[style.gap]': 'rem(config.properties.gap)',
@@ -145,6 +152,34 @@ export class StackComponent extends ServerComponent<StackConfig> {
 
   get paddingPx() {
     return normalizePaddingPx(this.config.properties.padding);
+  }
+
+  private get scrollPaddingPx(): PaddingPxResult | null {
+    const padding = this.config.properties.scroll?.padding;
+    if (padding === undefined) {
+      return null;
+    }
+    return normalizePaddingPx(padding);
+  }
+
+  get scrollPaddingBlockStart(): string | null {
+    const px = this.scrollPaddingPx;
+    return px ? (rem(px.top) ?? null) : null;
+  }
+
+  get scrollPaddingBlockEnd(): string | null {
+    const px = this.scrollPaddingPx;
+    return px ? (rem(px.bottom) ?? null) : null;
+  }
+
+  get scrollPaddingInlineStart(): string | null {
+    const px = this.scrollPaddingPx;
+    return px ? (rem(px.start) ?? null) : null;
+  }
+
+  get scrollPaddingInlineEnd(): string | null {
+    const px = this.scrollPaddingPx;
+    return px ? (rem(px.end) ?? null) : null;
   }
 
   protected hasSafeArea(side: SafeAreaSide): boolean {
