@@ -52,6 +52,13 @@ export class IframeComponent extends ServerOutputComponent<
     return '';
   }
 
+  override renderRoot(): HTMLElement {
+    return (
+      this.iframeRef()?.nativeElement ??
+      (this.elementRef.nativeElement as HTMLElement)
+    );
+  }
+
   private syncAllowAttribute() {
     const iframe = this.iframeRef()?.nativeElement;
     if (!iframe) {

@@ -146,4 +146,12 @@ export abstract class ServerInputComponent<
     // Обратное действие
     return value;
   }
+
+  override renderRoot(): HTMLElement {
+    const host = this.elementRef.nativeElement as HTMLElement;
+    const nativeField = host.querySelector(
+      'input.native-input, textarea.textarea__input',
+    );
+    return (nativeField as HTMLElement | null) ?? host;
+  }
 }

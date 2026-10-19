@@ -9,6 +9,7 @@ import { FormSubmitMessage } from '@shared/messages/client-to-bff/components/for
 import type { FormConfig } from '@shared/types/form-config';
 import { ServerComponent } from '../server-component';
 import { ServerComponentsListComponent } from '../server-components-list/server-components-list.component';
+import { renderRootFromFirstNestedInstance } from '../utils/render-root-from-nested-content';
 
 @Component({
   selector: 'app-form',
@@ -25,6 +26,14 @@ export class FormComponent extends ServerComponent<FormConfig> {
       this.componentInteractionMessage(
         (target) => new FormSubmitMessage(target),
       ),
+    );
+  }
+
+  override renderRoot(): HTMLElement {
+    return renderRootFromFirstNestedInstance(
+      this.componentHub,
+      this.config.properties.content,
+      this.elementRef.nativeElement as HTMLElement,
     );
   }
 }

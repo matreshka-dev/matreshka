@@ -7,6 +7,7 @@ import {
 import type { ContainerConfig } from '@shared/types/container-config';
 import { ServerComponent } from '../server-component';
 import { ServerComponentsListComponent } from '../server-components-list/server-components-list.component';
+import { renderRootFromFirstNestedInstance } from '../utils/render-root-from-nested-content';
 
 @Component({
   selector: 'app-container',
@@ -16,4 +17,12 @@ import { ServerComponentsListComponent } from '../server-components-list/server-
   encapsulation: ViewEncapsulation.None,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ContainerComponent extends ServerComponent<ContainerConfig> {}
+export class ContainerComponent extends ServerComponent<ContainerConfig> {
+  override renderRoot(): HTMLElement {
+    return renderRootFromFirstNestedInstance(
+      this.componentHub,
+      this.config.properties.content,
+      this.elementRef.nativeElement as HTMLElement,
+    );
+  }
+}

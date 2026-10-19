@@ -68,4 +68,10 @@ export class TextOutputComponent extends ServerOutputComponent<
   override default(): string {
     return '';
   }
+
+  override renderRoot(): HTMLElement {
+    const host = this.elementRef.nativeElement as HTMLElement;
+    const output = host.querySelector('.text-output');
+    return (output as HTMLElement | null) ?? host;
+  }
 }

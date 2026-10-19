@@ -25,4 +25,10 @@ export class ProgressSpinnerComponent extends ServerOutputComponent<
   override default(): number | undefined {
     return undefined;
   }
+
+  override renderRoot(): HTMLElement {
+    const host = this.elementRef.nativeElement as HTMLElement;
+    const spinner = host.querySelector('app-local-progress-spinner');
+    return (spinner as HTMLElement | null) ?? host;
+  }
 }

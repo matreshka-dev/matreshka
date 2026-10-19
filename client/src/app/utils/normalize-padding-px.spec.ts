@@ -36,7 +36,7 @@ describe('normalizePaddingPx', () => {
     });
   });
 
-  it('lets explicit sides override axis values', () => {
+  it('still normalizes legacy mixed axis and side keys from wire', () => {
     expect(
       normalizePaddingPx({
         vertical: 16,

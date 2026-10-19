@@ -17,6 +17,7 @@ import { parseContextPath } from '../../../utils/parse-context-path';
 import { ServerComponent } from '../server-component';
 import { ServerComponentConfig } from '../server-component-config';
 import { ServerComponentsListComponent } from '../server-components-list/server-components-list.component';
+import { renderRootFromFirstNestedInstance } from '../utils/render-root-from-nested-content';
 import {
   reverseComponentAnimations,
   selectAnimationsToReverse,
@@ -40,6 +41,15 @@ export class ForEachComponent
   ssr = inject(SsrService);
   componentsInitTask = this.ssr.addTask();
   elementsComponents = signal<ServerComponentConfig[][]>([]);
+
+  override renderRoot(): HTMLElement {
+    const firstRow = this.elementsComponents()[0];
+    return renderRootFromFirstNestedInstance(
+      this.componentHub,
+      firstRow,
+      this.elementRef.nativeElement as HTMLElement,
+    );
+  }
   /** Отсекает устаревший deferred hide при быстром ListSync. */
   private listSyncGeneration = 0;
   /** Скелет списка (длина и порядок track-ключей) для отличия структуры от полей элементов. */

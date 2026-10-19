@@ -1,4 +1,4 @@
-import type { PaddingPx } from '@shared/types/padding-px';
+import type { PaddingPxWire } from '@shared/types/padding-px';
 
 export type PaddingPxResult = {
   top: number;
@@ -10,9 +10,10 @@ export type PaddingPxResult = {
 /**
  * Разворачивает padding из конфига в значения по сторонам (логические px).
  * Если вход `undefined`, все стороны — 0; отсутствующие ключи в объектах тоже считаются 0.
- * `vertical` и `horizontal` задают fallback для пар сторон; явные `top` / `bottom` / `start` / `end` их перекрывают.
+ * `vertical` и `horizontal` задают fallback для пар сторон (top/bottom и start/end).
+ * BFF задаёт `PaddingPx`; с wire возможны и другие комбинации (`PaddingPxWire`).
  */
-export function normalizePaddingPx(value: PaddingPx): PaddingPxResult {
+export function normalizePaddingPx(value: PaddingPxWire): PaddingPxResult {
   const d = 0;
 
   if (value === undefined) {
