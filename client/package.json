@@ -1,6 +1,6 @@
 {
   "name": "@matreshka/client",
-  "version": "0.15.2",
+  "version": "0.15.3",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",

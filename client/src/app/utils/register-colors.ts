@@ -64,11 +64,9 @@ export function registerColorRole(
       vars[`--${role}-color-transition-timing-function${suffix}`] =
         resolved.timingFunction;
     }
-    if (colorToken.mask) {
-      vars[`--${role}-color-mask-image`] = serializeColorTokenMask(
-        colorToken.mask,
-      );
-    }
+    vars[`--${role}-color-mask-image`] = colorToken.mask
+      ? serializeColorTokenMask(colorToken.mask)
+      : 'none';
     return Object.entries(vars)
       .filter(([, value]) => value !== undefined)
       .map(([key, value]) => `  ${key}: ${value};`)

@@ -95,6 +95,22 @@ describe('registerColorRole', () => {
     expect(css).not.toContain('--background-color-transition-duration_active');
   });
 
+  it('сбрасывает --background-color-mask-image в none для токена без mask', () => {
+    registerColors({
+      'mask-scheme-plain': {
+        default: '#ffffff',
+      },
+    });
+
+    registerColorRole(document, 'mask-scheme-plain', ColorRole.Background);
+
+    const css = Array.from(document.head.querySelectorAll('style'))
+      .map((style) => style.innerHTML)
+      .join('\n');
+
+    expect(css).toContain('--background-color-mask-image: none');
+  });
+
   it('генерирует --background-color-mask-image для токена с mask', () => {
     registerColors({
       'mask-scheme-1': {

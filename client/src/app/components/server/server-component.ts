@@ -43,10 +43,7 @@ import { FontRegistryService } from '../../services/font-registry.service';
 import { PostmanService } from '../../services/postman.service';
 import type { Overlay } from './server-component-config';
 import { ServerComponentConfig } from './server-component-config';
-import {
-  getOverlaysFromConfig,
-  shouldRenderOverlaysInWrapper,
-} from './server-component-overlays';
+import { getOverlaysFromConfig } from './server-component-overlays';
 import { applyContextValueUpdates } from './utils/apply-context-value-updates';
 import {
   calculateGridItemStyles,
@@ -216,9 +213,7 @@ export abstract class ServerComponent<T extends ServerComponentConfig>
     // Внутренний stack без flexItem на хосте: ширина/высота внутри overlay-host — cross-axis stretch column
     // и вложенная вёрстка; внешний размер по-прежнему задаёт overlay-host. Dialog/Popover с overlays
     // в wrapper не попадают (shouldRenderOverlaysInWrapper) — у них свой корень и app-overlays на entry.
-    const flexItem = shouldRenderOverlaysInWrapper(this.config)
-      ? undefined
-      : this.config.properties?.flexItem;
+    const flexItem = this.config.properties?.flexItem;
     const sizeStyles = calculateSizeStyles({ flexItem });
     const scaleStyles = calculateScaleStyles({
       scale: this.config.properties?.scale,
