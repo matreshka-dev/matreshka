@@ -125,15 +125,7 @@ export class PopoverComponent
         if (!isPlatformBrowser(this.platformId)) {
           return;
         }
-        this.componentHub.destroyEntry(this.id());
-        Promise.all([
-          this.triggerLifecycle('leave'),
-          this.componentHub.animateSubtree(this.id(), 'hide', {
-            skipRoot: true,
-          }),
-        ]).then(() => {
-          this.popupService.readyForDestroy$.next(this.id());
-        });
+        this.closeEntryAfterPopoverDismissed();
       });
 
     // Хост с display:contents не подходит для animate-component; после showPopover — в top layer.
@@ -157,6 +149,36 @@ export class PopoverComponent
     if (this.isViewInitialized) {
       this.applyPopoverWidth();
     }
+  }
+
+  /**
+   * hidePopover() + destroyEntry в одном turn: после клика по пункту фокус на кнопке внутри
+   * popover. Ожидание toggle (closed) не возвращает фокус на source (popover="manual").
+   * Явный focus() на source до destroyEntry — иначе Tab в modal снова с «Номер».
+   */
+  private closeEntryAfterPopoverDismissed(): void {
+    const el = this.popoverRef().nativeElement;
+    const sourceEl = this.popupService.popoverSourceInstances
+      .get(this.id())
+      ?.renderRoot();
+
+    // На всякий случай убрал, скорее всего сломает анимацию исчезновения
+    // el.hidePopover();
+
+    // TODO - Без этого теряется очередность фокуса, хотя в теории должна сохраняться
+    if (sourceEl instanceof HTMLElement) {
+      sourceEl.focus({ preventScroll: true });
+    }
+
+    this.componentHub.destroyEntry(this.id());
+    void Promise.all([
+      this.triggerLifecycle('leave'),
+      this.componentHub.animateSubtree(this.id(), 'hide', {
+        skipRoot: true,
+      }),
+    ]).then(() => {
+      this.popupService.readyForDestroy$.next(this.id());
+    });
   }
 
   /** Закрытие по клику снаружи и Escape — при `popover="manual"` UA light dismiss отключён. */
