@@ -15,6 +15,7 @@
 - [`protocol.md`](protocol.md) — базовая форма сообщения, `target`, основные типы обмена между BFF и клиентом.
 - [`context-lifecycle.md`](context-lifecycle.md) — создание, sync, destroy на BFF; holds и `pendingDestroy` на клиенте.
 - [`client-rendering.md`](client-rendering.md) — `ContextHub`, `ComponentHub`, `ready$`, `display$`, conditions, rules и реакция на `change$`.
+- [`overlay-dom-order.md`](overlay-dom-order.md) — порядок overlays в DOM вокруг основного контента для корректной tab order без настроек на BFF.
 - [`message-delivery.md`](message-delivery.md) — детальная схема механизма надёжной отправки и обработки сообщений.
 - [`operations.md`](operations.md) — как ведёт себя runtime при disconnect, reconnect, рестарте процесса и multi-instance deployment.
 - [`notes.md`](notes.md) — **черновик**, не часть onboarding.

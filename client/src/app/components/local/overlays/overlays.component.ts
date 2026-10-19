@@ -1,4 +1,4 @@
-import { NgComponentOutlet } from '@angular/common';
+import { NgComponentOutlet, NgTemplateOutlet } from '@angular/common';
 import {
   ChangeDetectionStrategy,
   Component,
@@ -7,17 +7,20 @@ import {
   input,
   ViewEncapsulation,
 } from '@angular/core';
-import { OverlayAnchor } from '@shared/types/container-overlay';
 import { SERVER_COMPONENTS_LIST_COMPONENT } from '../../../tokens/server-components-list-component';
 import {
   ServerComponentConfig,
   type Overlay,
 } from '../../server/server-component-config';
 import { calculateSizeStyles } from '../../server/utils/calculate-styles';
+import {
+  overlayAnchorFlags,
+  sortOverlaysForDom,
+} from './overlay-dom-order';
 
 @Component({
   selector: 'app-overlays',
-  imports: [NgComponentOutlet],
+  imports: [NgComponentOutlet, NgTemplateOutlet],
   templateUrl: './overlays.component.html',
   styleUrl: './overlays.component.scss',
   encapsulation: ViewEncapsulation.None,
@@ -35,27 +38,15 @@ export class OverlaysComponent {
     calculateSizeStyles({ flexItem: this.parent()?.properties?.flexItem }),
   );
 
+  overlaysBeforeContent = computed(() =>
+    sortOverlaysForDom(this.overlays(), 'before'),
+  );
+
+  overlaysAfterContent = computed(() =>
+    sortOverlaysForDom(this.overlays(), 'after'),
+  );
+
   listComponent = inject(SERVER_COMPONENTS_LIST_COMPONENT);
 
-  overlayAnchorFlags(overlay: Overlay): {
-    top: boolean;
-    bottom: boolean;
-    middle: boolean;
-    start: boolean;
-    end: boolean;
-    center: boolean;
-  } {
-    const anchors = overlay.anchors ?? [];
-    const has = (a: OverlayAnchor) => anchors.includes(a);
-
-    const top = has(OverlayAnchor.Top);
-    const bottom = has(OverlayAnchor.Bottom);
-    const start = has(OverlayAnchor.Start);
-    const end = has(OverlayAnchor.End);
-
-    const middle = !(top && bottom) && has(OverlayAnchor.Middle);
-    const center = !(start && end) && has(OverlayAnchor.Center);
-
-    return { top, bottom, middle, start, end, center };
-  }
+  overlayAnchorFlags = overlayAnchorFlags;
 }
