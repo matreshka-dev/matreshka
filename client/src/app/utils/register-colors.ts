@@ -14,6 +14,7 @@ const STATE_VAR_SUFFIX: Record<ColorTokenState, string> = {
   default: '',
   hover: '_hover',
   active: '_active',
+  focus: '_focus',
 };
 
 export function registerColorRole(
@@ -52,6 +53,8 @@ export function registerColorRole(
         normalizedToken[mode].hover ?? normalizedToken[mode].default,
       [`--${role}-color_active`]:
         normalizedToken[mode].active ?? normalizedToken[mode].default,
+      [`--${role}-color_focus`]:
+        normalizedToken[mode].focus ?? normalizedToken[mode].default,
     };
     for (const state of COLOR_TOKEN_STATES) {
       const resolved = resolvedTransitions[state];

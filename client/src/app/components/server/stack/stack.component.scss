@@ -25,13 +25,13 @@
 
 /* У <button> с display:contents визуал :focus-visible не везде предсказуем */
 .stack--native-action:focus-within {
-  --background-color: var(--background-color_active) !important;
-  --text-color: var(--text-color_active) !important;
-  --link-color: var(--link-color_active) !important;
-  --icon-color: var(--icon-color_active) !important;
-  --placeholder-color: var(--placeholder-color_active) !important;
-  --border-color: var(--border-color_active) !important;
-  --shadow-color: var(--shadow-color_active) !important;
+  --background-color: var(--background-color_focus) !important;
+  --text-color: var(--text-color_focus) !important;
+  --link-color: var(--link-color_focus) !important;
+  --icon-color: var(--icon-color_focus) !important;
+  --placeholder-color: var(--placeholder-color_focus) !important;
+  --border-color: var(--border-color_focus) !important;
+  --shadow-color: var(--shadow-color_focus) !important;
 }
 
 :host.stack--disabled {

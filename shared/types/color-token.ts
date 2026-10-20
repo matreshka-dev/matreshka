@@ -2,9 +2,14 @@ import { ColorTokenMaskType } from "../enums/color-token-mask-type";
 import { TimingFunction } from "../enums/timing-function";
 
 export type ColorTokenPalette = {
+  /** Базовый цвет роли без интерактивного состояния. */
   default: string;
+  /** Наведение */
   hover?: string;
+  /** Нажатие */
   active?: string;
+  /** Клавиатурный/видимый фокус */
+  focus?: string;
 };
 
 /** Параметры transition для одного состояния. duration обязателен — без него transition бессмысленен. */
@@ -18,10 +23,10 @@ export type ColorTokenTransition = {
  * Shorthand + overrides:
  * - `{ duration: 300 }` → все состояния
  * - `{ hover: { duration: 200 } }` → только hover
- * - `{ duration: 300, hover: { duration: 150 } }` → default/active 300ms, hover 150ms
+ * - `{ duration: 300, hover: { duration: 150 } }` → default/active/focus 300ms, hover 150ms
  *
  * Top-level `duration`/`timingFunction` — опциональный fallback.
- * Per-state overrides (`default`/`hover`/`active`) — `ColorTokenTransition` с обязательным `duration`.
+ * Per-state overrides (`default`/`hover`/`active`/`focus`) — `ColorTokenTransition` с обязательным `duration`.
  */
 export type ColorTokenTransitions = {
   duration?: number;
@@ -29,6 +34,7 @@ export type ColorTokenTransitions = {
   default?: ColorTokenTransition;
   hover?: ColorTokenTransition;
   active?: ColorTokenTransition;
+  focus?: ColorTokenTransition;
 };
 
 export type LinearGradientMaskStop = {

@@ -35,6 +35,10 @@ describe('resolveColorTokenTransitions', () => {
         duration: 300,
         timingFunction: TimingFunction.EaseInOut,
       },
+      focus: {
+        duration: 300,
+        timingFunction: TimingFunction.EaseInOut,
+      },
     });
   });
 
@@ -43,6 +47,7 @@ describe('resolveColorTokenTransitions', () => {
       default: { duration: 200, timingFunction: TimingFunction.Ease },
       hover: { duration: 200, timingFunction: TimingFunction.Ease },
       active: { duration: 200, timingFunction: TimingFunction.Ease },
+      focus: { duration: 200, timingFunction: TimingFunction.Ease },
     });
   });
 
@@ -85,6 +90,10 @@ describe('resolveColorTokenTransitions', () => {
       active: {
         duration: 100,
         timingFunction: TimingFunction.EaseIn,
+      },
+      focus: {
+        duration: 300,
+        timingFunction: TimingFunction.EaseInOut,
       },
     });
   });

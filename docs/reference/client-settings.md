@@ -434,6 +434,7 @@ const selectBackgroundColorToken: ColorToken = {
   default: "#f5f7ff",
   hover: "#e8edff",
   active: "#d9e2ff",
+  focus: "#d9e2ff",
 };
 ```
 
@@ -447,18 +448,20 @@ const accentColorToken: ColorToken = {
     default: "#2563eb",
     hover: "#1d4ed8",
     active: "#1e40af",
+    focus: "#1e40af",
   },
   dark: {
     default: "#60a5fa",
     hover: "#3b82f6",
     active: "#2563eb",
+    focus: "#2563eb",
   },
 };
 ```
 
 Такой токен позволяет явно задавать разные значения для светлой и темной схемы.
 
-### Переходы между default / hover / active
+### Переходы между default / hover / active / focus
 
 У токена можно опционально задать `transition`: длительность (мс) и `TimingFunction`. Без этого блока цвета переключаются мгновенно.
 
@@ -473,7 +476,7 @@ transition: { duration: 300, timingFunction: TimingFunction.EaseInOut }
 // только hover
 transition: { hover: { duration: 200, timingFunction: TimingFunction.EaseOut } }
 
-// базовый + override: default/active 300ms, hover 150ms
+// базовый + override: default/active/focus 300ms, hover 150ms
 transition: { duration: 300, active: { duration: 100 }, hover: { duration: 150 } }
 ```
 
@@ -634,7 +637,7 @@ stack(
 - приводится к `light`/`dark` виду, если он был задан в короткой форме;
 - регистрируется как CSS variables для нужной роли;
 - учитывает и `prefers-color-scheme`, и принудительно установленную тему через `data-color-scheme`;
-- если задан `transition`, пишет CSS variables длительности и timing function для default / hover / active.
+- если задан `transition`, пишет CSS variables длительности и timing function для default / hover / active / focus.
 
 То есть один и тот же токен потом может корректно работать и в системной теме, и в явно выбранной светлой/темной схеме.
 

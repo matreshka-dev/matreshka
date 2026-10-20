@@ -46,6 +46,27 @@ describe('registerColorRole', () => {
     expect(css).toContain(
       '--background-color-transition-duration_active: 300ms',
     );
+    expect(css).toContain('--background-color_focus: #f5f7ff');
+    expect(css).toContain(
+      '--background-color-transition-duration_focus: 300ms',
+    );
+  });
+
+  it('fallback focus к default, если focus не задан', () => {
+    registerColors({
+      'focus-fallback-scheme': {
+        default: '#111111',
+        hover: '#222222',
+      },
+    });
+
+    registerColorRole(document, 'focus-fallback-scheme', ColorRole.Text);
+
+    const css = Array.from(document.head.querySelectorAll('style'))
+      .map((style) => style.innerHTML)
+      .join('\n');
+
+    expect(css).toContain('--text-color_focus: #111111');
   });
 
   it('не генерирует transition vars, если transition не задан', () => {

@@ -24,6 +24,8 @@
     $suffix: "_hover";
   } @else if $state == active {
     $suffix: "_active";
+  } @else if $state == focus {
+    $suffix: "_focus";
   }
 
   transition:

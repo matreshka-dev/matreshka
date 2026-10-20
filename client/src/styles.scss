@@ -1,6 +1,6 @@
 @use "scss/normalize";
 @use "scss/typography";
-@use "scss/checkbox-label";
+// @use "scss/checkbox-label";
 @use "scss/view-transition";
 @use "scss/safe-padding";
 @use "scss/overlay-components";
@@ -61,13 +61,17 @@ button {
   text-decoration: none;
 }
 .focused-container:focus-within {
-  --background-color: var(--background-color_active);
-  --text-color: var(--text-color_active);
-  --link-color: var(--link-color_active);
-  --icon-color: var(--icon-color_active);
-  --placeholder-color: var(--placeholder-color_active);
-  --border-color: var(--border-color_active);
-  --shadow-color: var(--shadow-color_active);
+  --background-color: var(--background-color_focus);
+  --text-color: var(--text-color_focus);
+  --link-color: var(--link-color_focus);
+  --icon-color: var(--icon-color_focus);
+  --placeholder-color: var(--placeholder-color_focus);
+  --border-color: var(--border-color_focus);
+  --shadow-color: var(--shadow-color_focus);
+  &,
+  & * {
+    @include color-transitions.role-color-transitions($state: focus);
+  }
 }
 // Обёртки полей ввода (surface + focusWithinStyle): при наведении те же hover-цвета,
 // что у кликабельных stack (.interactive)
@@ -128,8 +132,20 @@ button {
       }
     }
   }
-  &:not([disabled]):active,
   &:not([disabled]):focus-visible {
+    --background-color: var(--background-color_focus) !important;
+    --text-color: var(--text-color_focus) !important;
+    --link-color: var(--link-color_focus) !important;
+    --icon-color: var(--icon-color_focus) !important;
+    --placeholder-color: var(--placeholder-color_focus) !important;
+    --border-color: var(--border-color_focus) !important;
+    --shadow-color: var(--shadow-color_focus) !important;
+    &,
+    & * {
+      @include color-transitions.role-color-transitions($state: focus);
+    }
+  }
+  &:not([disabled]):active {
     --background-color: var(--background-color_active) !important;
     --text-color: var(--text-color_active) !important;
     --link-color: var(--link-color_active) !important;

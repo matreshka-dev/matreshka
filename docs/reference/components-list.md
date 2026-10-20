@@ -346,7 +346,7 @@ popover(
 | `overlays`         | `Overlay[]?`                                                  | Оверлеи поверх контейнера.                                                                                                                              |
 | `surface`          | `boolean?`                                                    | Включает фон поверхности.                                                                                                                               |
 | `outline`          | `ComponentOutline[]?`                                         | Рамка, тень или другой outline-эффект.                                                                                                                  |
-| `focusWithinStyle` | `boolean?`                                                    | Применяет focus-стиль, если фокус внутри потомков.                                                                                                      |
+| `focusWithinStyle` | `boolean?`                                                    | Применяет `focus`-цвета палитры при `:focus-within` (фокус на потомках).                                                                                |
 | `disabled`         | `boolean?`                                                    | Делает контейнер неинтерактивным.                                                                                                                       |
 
 События:

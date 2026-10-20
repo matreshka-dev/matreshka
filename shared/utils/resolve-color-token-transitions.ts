@@ -4,7 +4,12 @@ import type {
   ColorTokenTransitions,
 } from "../types/color-token";
 
-export const COLOR_TOKEN_STATES = ["default", "hover", "active"] as const;
+export const COLOR_TOKEN_STATES = [
+  "default",
+  "hover",
+  "active",
+  "focus",
+] as const;
 export type ColorTokenState = (typeof COLOR_TOKEN_STATES)[number];
 
 export type ResolvedColorTokenTransition = ColorTokenTransition & {

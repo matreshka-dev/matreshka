@@ -114,7 +114,7 @@ export type StackProperties = {
  * @property overlays Наложения поверх контейнера.
  * @property surface Фон контейнера (`--background-color`).
  * @property outline Стиль внешней границы контейнера.
- * @property focusWithinStyle Использовать active-цвета, когда фокус находится на потомках.
+ * @property focusWithinStyle Использовать focus-цвета палитры, когда фокус находится на потомках.
  * @property disabled Неинтерактивное состояние (как у HTML button disabled). Без поля — значение по умолчанию задаётся на клиенте.
  */
 export type StackInitConfig<
