@@ -18,9 +18,9 @@ import {
   filter,
   from,
   map,
+  merge,
   Observable,
   of,
-  startWith,
   switchMap,
   takeUntil,
 } from 'rxjs';
@@ -81,11 +81,14 @@ export class ServerComponentsListComponent implements OnChanges {
       return of(true);
     }
 
+    const conditions = config.conditions;
+    const evaluate = (): boolean => this.componentHub.conditionsMet(conditions);
+
     const entryId = this.componentHub.getEntryId(config.id)!;
     const contextValues$ = this.contextHub.change$.pipe(
       takeUntil(this.componentHub.entryDestroy$(entryId)),
       filter((payload) =>
-        (config.conditions || []).some((condition) => {
+        conditions.some((condition) => {
           if (!('payload' in condition) || !condition.payload) {
             return false;
           }
@@ -97,10 +100,33 @@ export class ServerComponentsListComponent implements OnChanges {
           );
         }),
       ),
-      startWith(null as any),
     );
-    return contextValues$.pipe(
-      map(() => this.componentHub.conditionsMet(config.conditions || [])),
+
+    let lastMet = evaluate();
+
+    /**
+     * forEach замораживает subtree до ListSync; change$ контекста при этом
+     * всё ещё приходит — не пересчитываем visibility, пока config frozen.
+     */
+    return merge(
+      of('initial' as const),
+      contextValues$.pipe(map(() => 'context' as const)),
+      this.componentHub.unfreezeConfig$.pipe(
+        filter((id) => id === config.id),
+        map(() => 'unfreeze' as const),
+      ),
+    ).pipe(
+      map((source) => {
+        if (
+          source === 'context' &&
+          this.componentHub.isConfigFrozen(config.id)
+        ) {
+          return lastMet;
+        }
+        lastMet = evaluate();
+        return lastMet;
+      }),
+      distinctUntilChanged(),
     );
   }
 
