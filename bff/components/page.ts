@@ -9,10 +9,7 @@ import {
   Pageable,
 } from "../core";
 import StatusCode from "../core/types/status-code";
-import {
-  serializeComponentList,
-  serializeOverlays,
-} from "../core/utils/serialize-component-tree";
+import { serializeComponentList } from "../core/utils/serialize-component-tree";
 import { ServerComponentAction } from "./component";
 import {
   EntryComponent,
@@ -31,7 +28,6 @@ import { Overlay } from "./types/container-overlay";
 export type PageProperties = {
   content: ComponentTreeNode[];
   title: string;
-  overlays?: Overlay[];
   statusCode: StatusCode;
 } & EntryComponentProperties;
 
@@ -201,12 +197,9 @@ export abstract class Page<
   protected serializeRuleOverrides(
     overrides: Partial<PropertiesType>,
   ): Record<string, unknown> {
-    const out: Record<string, unknown> = { ...overrides };
+    const out = super.serializeRuleOverrides(overrides);
     if (overrides.content !== undefined) {
       out.content = serializeComponentList(overrides.content);
-    }
-    if (overrides.overlays !== undefined) {
-      out.overlays = serializeOverlays(overrides.overlays);
     }
     return out;
   }
@@ -215,15 +208,12 @@ export abstract class Page<
     instance: ComponentInstance<this>,
   ): PageConfig {
     const result = super.serializeEntry(instance);
-    const p = this.properties;
     return {
       ...result,
       class: ServerComponentClass.Page,
-      properties: {
-        ...p,
-        content: serializeComponentList(p.content),
-        overlays: p.overlays ? serializeOverlays(p.overlays) : [],
-      },
+      properties: this.buildPropertiesForClient({
+        content: serializeComponentList(this.properties.content),
+      }),
     };
   }
 

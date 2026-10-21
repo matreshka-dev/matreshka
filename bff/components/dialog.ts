@@ -11,7 +11,6 @@ import {
   ComponentTreeNode,
   MixedWithCallbacksArray,
   serializeComponentList,
-  serializeOverlays,
 } from "../core";
 import type { AnimateComponent } from "../core/actions/animate-component";
 import {
@@ -19,8 +18,6 @@ import {
   EntryComponentInitConfig,
   EntryComponentProperties,
 } from "./entry-component";
-import { Overlay } from "./types/container-overlay";
-
 function serializeLocalActions(
   actions: AnimateComponent | AnimateComponent[] | undefined,
 ): ServerComponentInteraction[] | undefined {
@@ -70,7 +67,6 @@ export type DialogProperties = {
    * См. {@link DialogInitConfig.modal}.
    */
   modal?: boolean;
-  overlays?: Overlay[];
   /** Анимации нативной подложки (`::backdrop`) модального диалога. */
   backdrop?: DialogBackdropConfig;
 } & EntryComponentProperties;
@@ -94,7 +90,6 @@ export type DialogInitConfig<
    * `false` — немодальное (`show()`): остальная страница остаётся доступной
    */
   modal?: boolean;
-  overlays?: Overlay[];
   /** Анимации нативной подложки (`::backdrop`) модального диалога. */
   backdrop?: DialogBackdropInitConfig;
 } & EntryComponentInitConfig<ComponentType, PropertiesType>;
@@ -160,7 +155,6 @@ export class Dialog<
       content: calculateComponents(initValues.content),
       anchors: initValues.anchors,
       modal: initValues.modal,
-      overlays: initValues.overlays,
       backdrop: serializeDialogBackdrop(initValues.backdrop),
     };
   }
@@ -185,12 +179,9 @@ export class Dialog<
   protected serializeRuleOverrides(
     overrides: Partial<PropertiesType>,
   ): Record<string, unknown> {
-    const out: Record<string, unknown> = { ...overrides };
+    const out = super.serializeRuleOverrides(overrides);
     if (overrides.content !== undefined) {
       out.content = serializeComponentList(overrides.content);
-    }
-    if (overrides.overlays !== undefined) {
-      out.overlays = serializeOverlays(overrides.overlays);
     }
     return out;
   }
@@ -199,15 +190,12 @@ export class Dialog<
     instance: ComponentInstance<this>,
   ): DialogConfig {
     const result = super.serializeEntry(instance);
-    const p = this.properties;
     return {
       ...result,
       class: ServerComponentClass.Dialog,
-      properties: {
-        ...p,
-        content: serializeComponentList(p.content),
-        overlays: p.overlays ? serializeOverlays(p.overlays) : [],
-      },
+      properties: this.buildPropertiesForClient({
+        content: serializeComponentList(this.properties.content),
+      }),
     };
   }
 

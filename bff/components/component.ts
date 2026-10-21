@@ -6,6 +6,7 @@ import { TextDecoration } from "@matreshka/shared/enums/text-decoration";
 import { ComponentCommandMessage } from "@matreshka/shared/messages/bff-to-client/component-command-message";
 import { ComponentInteractionMessage } from "@matreshka/shared/messages/client-to-bff/components/component-interaction-message";
 import { ColorToken } from "@matreshka/shared/types/color-token";
+import type { Overlay as ClientOverlayShape } from "@matreshka/shared/types/container-overlay";
 import type { FontStackToken } from "@matreshka/shared/types/fonts";
 import type { GridItem } from "@matreshka/shared/types/grid-item";
 import type { ServerComponentConfig } from "@matreshka/shared/types/server-component-config";
@@ -26,9 +27,11 @@ import {
 } from "../core";
 import { Condition } from "../core/conditions";
 import { incomingMessageObserver } from "../core/utils/incoming-message-observer";
+import { assignSerializedOverlays } from "../core/utils/serialize-component-tree";
 import { trackCreatedInstance } from "../core/utils/track-created-instances";
 import { ServerAction, ServerActionHandler } from "./actions/server-action";
 import type { EntryComponent } from "./entry-component";
+import type { Overlay } from "./types/container-overlay";
 /**
  * @prop colors - Цветовые схемы для раскраски
  * @prop font - Stack token для сборки CSS-свойств шрифта
@@ -50,6 +53,19 @@ export type ComponentProperties = {
   link?: {
     value: string;
   };
+  /** Наложения поверх компонента (якоря + вложенный component). */
+  overlays?: Overlay[];
+};
+
+/** Оверлей в wire-конфиге (вложенный component уже сериализован). */
+export type ClientSerializedOverlay = ClientOverlayShape<ServerComponentConfig>;
+
+/** BFF-свойства компонента, подготовленные для клиента (overlays сериализованы). */
+export type ClientSerializedProperties<P extends ComponentProperties> = Omit<
+  P,
+  "overlays"
+> & {
+  overlays?: ClientSerializedOverlay[];
 };
 
 /**
@@ -103,6 +119,8 @@ export type ComponentInitConfig<
   textDecoration?: TextDecoration;
   /** Настройки размещения элемента, когда он находится внутри grid. */
   gridItem?: GridItem;
+  /** Наложения поверх компонента. */
+  overlays?: Overlay[];
   conditions?: Condition[] | (() => Condition[]);
   rules?: {
     conditions: [Condition, ...Condition[]];
@@ -213,6 +231,7 @@ export abstract class Component<
       textDecoration: initValues.textDecoration,
       gridItem: initValues.gridItem,
       link: initValues.link,
+      overlays: initValues.overlays,
       colors,
     };
   }
@@ -329,9 +348,30 @@ export abstract class Component<
   }
 
   protected serializeRuleOverrides(
-    overrides: Record<string, unknown>,
+    overrides: Partial<PropertiesType>,
   ): Record<string, unknown> {
-    return overrides;
+    const out: Record<string, unknown> = { ...overrides };
+    assignSerializedOverlays(out, overrides.overlays);
+    return out;
+  }
+
+  /** Свойства для клиента: сериализует overlays и убирает сырые деревья component. */
+  protected serializePropertiesForClient(
+    properties: PropertiesType,
+  ): ClientSerializedProperties<PropertiesType> {
+    const out: Record<string, unknown> = { ...properties };
+    assignSerializedOverlays(out, properties.overlays);
+    return out as ClientSerializedProperties<PropertiesType>;
+  }
+
+  /** {@link serializePropertiesForClient} + поля, которые сериализуются только в override (content, markers, …). */
+  protected buildPropertiesForClient<T extends Record<string, unknown>>(
+    extra: T = {} as T,
+  ): ClientSerializedProperties<PropertiesType> & T {
+    return {
+      ...this.serializePropertiesForClient(this.properties),
+      ...extra,
+    };
   }
 
   protected resolveRuleOverridesForClient(
@@ -468,7 +508,7 @@ export abstract class Component<
       result.interactions = interactions;
     }
     if (hasProperties) {
-      result.properties = properties;
+      result.properties = this.serializePropertiesForClient(properties);
     }
     if (hasRules) {
       result.rules = rules.map((rule) => ({
@@ -537,7 +577,7 @@ export abstract class Component<
     action: ServerComponentAction<Componentable, PayloadType>,
   ): ParsedServerComponentAction<Componentable, PayloadType> {
     if (action instanceof Action) {
-      return action as ParsedServerComponentAction<Componentable, PayloadType>;
+      return action;
     }
 
     return new ServerAction<Componentable, PayloadType>(action);

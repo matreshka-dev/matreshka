@@ -122,24 +122,21 @@ export class Form<
   protected serializeRuleOverrides(
     overrides: Partial<PropertiesType>,
   ): Record<string, unknown> {
-    return {
-      ...overrides,
-      content: overrides.content
-        ? serializeComponentList(overrides.content)
-        : undefined,
-    };
+    const out = super.serializeRuleOverrides(overrides);
+    if (overrides.content !== undefined) {
+      out.content = serializeComponentList(overrides.content);
+    }
+    return out;
   }
 
   serialize(): FormConfig {
     const result = super.serialize();
-    const p = this.properties;
     return {
       ...result,
       class: ServerComponentClass.Form,
-      properties: {
-        ...p,
-        content: serializeComponentList(p.content),
-      },
+      properties: this.buildPropertiesForClient({
+        content: serializeComponentList(this.properties.content),
+      }),
     };
   }
 }

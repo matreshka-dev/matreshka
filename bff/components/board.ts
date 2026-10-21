@@ -16,7 +16,6 @@ import {
   Componentable,
   ComponentInstance,
   ComponentTreeNode,
-  serializeOverlays,
   StandaloneComponent,
 } from "../core";
 import {
@@ -35,8 +34,6 @@ import {
 import { flattenNestedItems } from "./item-list/flatten-nested-items";
 import type { ItemList } from "./item-list/item-list";
 import type { ItemListHost } from "./item-list/item-list-host";
-import { Overlay } from "./types/container-overlay";
-
 const DEFAULT_ZOOM = 1;
 const DEFAULT_MIN_ZOOM = 0.25;
 const DEFAULT_MAX_ZOOM = 4;
@@ -58,7 +55,6 @@ export type BoardProperties = {
   minZoom: number;
   maxZoom: number;
   zoomStep: number;
-  overlays?: Overlay[];
   flexItem?: FlexItemSpec;
 } & ComponentProperties;
 
@@ -67,7 +63,6 @@ export type BoardInitConfig<
   PropertiesType extends BoardProperties = BoardProperties,
 > = {
   center?: BoardPoint;
-  overlays?: Overlay[];
   zoom?: number;
   minZoom?: number;
   maxZoom?: number;
@@ -208,7 +203,6 @@ export class Board<
       minZoom: initValues.minZoom ?? DEFAULT_MIN_ZOOM,
       maxZoom: initValues.maxZoom ?? DEFAULT_MAX_ZOOM,
       zoomStep: initValues.zoomStep ?? DEFAULT_ZOOM_STEP,
-      overlays: initValues.overlays,
       flexItem: normalizeFlexItem(initValues.flexItem),
     };
   }
@@ -216,10 +210,7 @@ export class Board<
   protected serializeRuleOverrides(
     overrides: Partial<PropertiesType & { items?: BoardItemEntry[] }>,
   ): Record<string, unknown> {
-    const out: Record<string, unknown> = { ...overrides };
-    if (overrides.overlays !== undefined) {
-      out.overlays = serializeOverlays(overrides.overlays);
-    }
+    const out = super.serializeRuleOverrides(overrides);
     if (overrides.items !== undefined) {
       const instance = this.createInstance();
       out.items = flattenNestedItems(overrides.items, instance);
@@ -235,16 +226,13 @@ export class Board<
       instance = this.createInstance();
     }
     const result = super.serialize(instance);
-    const p = this.properties;
     const items = flattenNestedItemsForSerialize(this.itemsSlot, instance);
     return {
       ...result,
       class: ServerComponentClass.Board,
-      properties: {
-        ...p,
-        overlays: p.overlays ? serializeOverlays(p.overlays) : [],
+      properties: this.buildPropertiesForClient({
         items: items ?? [],
-      },
+      }),
     };
   }
 }

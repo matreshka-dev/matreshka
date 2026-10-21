@@ -15,7 +15,6 @@ import {
   Componentable,
   ComponentInstance,
   ComponentTreeNode,
-  serializeOverlays,
   StandaloneComponent,
 } from "../core";
 import {
@@ -34,8 +33,6 @@ import {
 import { flattenNestedItems } from "./item-list/flatten-nested-items";
 import type { ItemList } from "./item-list/item-list";
 import type { ItemListHost } from "./item-list/item-list-host";
-import { Overlay } from "./types/container-overlay";
-
 export const map = (config: MapInitConfig<Map>): Map => new Map(config);
 
 export type MapMarker = {
@@ -61,7 +58,6 @@ export type MapProperties = {
     altitude?: number;
   };
   zoom: number;
-  overlays?: Overlay[];
   flexItem?: FlexItemSpec;
 } & ComponentProperties;
 
@@ -74,7 +70,6 @@ export type MapInitConfig<
     longitude: number;
     altitude?: number;
   };
-  overlays?: Overlay[];
   apiKey: string;
   zoom?: number;
   flexItem?: FlexItemSpec;
@@ -223,7 +218,6 @@ export class Map<
       apiKey: initValues.apiKey,
       center: initValues.center,
       zoom: initValues.zoom ?? 17,
-      overlays: initValues.overlays,
       flexItem: normalizeFlexItem(initValues.flexItem),
     };
   }
@@ -231,10 +225,7 @@ export class Map<
   protected serializeRuleOverrides(
     overrides: Partial<PropertiesType & { markers?: MapMarkerEntry[] }>,
   ): Record<string, unknown> {
-    const out: Record<string, unknown> = { ...overrides };
-    if (overrides.overlays !== undefined) {
-      out.overlays = serializeOverlays(overrides.overlays);
-    }
+    const out = super.serializeRuleOverrides(overrides);
     if (overrides.markers !== undefined) {
       const instance = this.createInstance();
       out.markers = flattenNestedItems(overrides.markers, instance);
@@ -250,16 +241,11 @@ export class Map<
       instance = this.createInstance();
     }
     const result = super.serialize(instance);
-    const p = this.properties;
     const markers = flattenNestedItemsForSerialize(this.markersSlot, instance);
     return {
       ...result,
       class: ServerComponentClass.Map,
-      properties: {
-        ...p,
-        overlays: p.overlays ? serializeOverlays(p.overlays) : [],
-        markers,
-      },
+      properties: this.buildPropertiesForClient({ markers }),
     };
   }
 }

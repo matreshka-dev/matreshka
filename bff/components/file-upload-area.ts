@@ -207,24 +207,21 @@ export class FileUploadArea<
   protected serializeRuleOverrides(
     overrides: Partial<PropertiesType>,
   ): Record<string, unknown> {
-    return {
-      ...overrides,
-      content: overrides.content
-        ? serializeComponentList(overrides.content)
-        : undefined,
-    };
+    const out = super.serializeRuleOverrides(overrides);
+    if (overrides.content !== undefined) {
+      out.content = serializeComponentList(overrides.content);
+    }
+    return out;
   }
 
   serialize(): FileUploadAreaConfig {
     const result = super.serialize();
-    const p = this.properties;
     return {
       ...result,
       class: ServerComponentClass.FileUploadArea,
-      properties: {
-        ...p,
-        content: serializeComponentList(p.content),
-      },
+      properties: this.buildPropertiesForClient({
+        content: serializeComponentList(this.properties.content),
+      }),
     };
   }
 }

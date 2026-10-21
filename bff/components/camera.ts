@@ -10,7 +10,6 @@ import {
   ComponentTreeNode,
   MixedWithCallbacksArray,
   serializeComponentList,
-  serializeOverlays,
   StandaloneComponent,
 } from "../core";
 import { VideoInputDevice } from "../platforms/platform";
@@ -20,13 +19,10 @@ import {
   ComponentProperties,
   ServerComponentAction,
 } from "./component";
-import { Overlay } from "./types/container-overlay";
-
 export { VideoFacingMode } from "@matreshka/shared/enums/video-facing-mode";
 
 export type CameraProperties = {
   content: ComponentTreeNode[];
-  overlays?: Overlay[];
   facingMode?: VideoFacingMode;
 } & ComponentProperties;
 
@@ -48,7 +44,6 @@ export type CameraInitConfig<
    * Полезно для кейсов вроде сканирования QR (обычно нужна задняя камера: `"environment"`).
    */
   facingMode?: VideoFacingMode;
-  overlays?: Overlay[];
   content: MixedWithCallbacksArray<ContentType>;
   /**
    * Обработчики события распознавания QR-кода на клиенте.
@@ -176,7 +171,6 @@ export class Camera<
     return {
       ...super.initProperties(initValues),
       content: calculateComponents(initValues.content),
-      overlays: initValues.overlays,
       facingMode: initValues.facingMode,
     };
   }
@@ -208,27 +202,21 @@ export class Camera<
   protected serializeRuleOverrides(
     overrides: Partial<PropertiesType>,
   ): Record<string, unknown> {
-    const out: Record<string, unknown> = { ...overrides };
+    const out = super.serializeRuleOverrides(overrides);
     if (overrides.content !== undefined) {
       out.content = serializeComponentList(overrides.content);
-    }
-    if (overrides.overlays !== undefined) {
-      out.overlays = serializeOverlays(overrides.overlays);
     }
     return out;
   }
 
   serialize(): CameraConfig {
     const result = super.serialize();
-    const p = this.properties;
     return {
       ...result,
       class: ServerComponentClass.Camera,
-      properties: {
-        ...p,
-        content: serializeComponentList(p.content),
-        overlays: p.overlays ? serializeOverlays(p.overlays) : undefined,
-      },
+      properties: this.buildPropertiesForClient({
+        content: serializeComponentList(this.properties.content),
+      }),
     };
   }
 }

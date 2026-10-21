@@ -20,6 +20,31 @@ export function serializeOverlays(
   }));
 }
 
+/** Сериализует overlays для клиента; при отсутствии или пустом массиве — `undefined` (ключ не попадает в JSON). */
+export function serializeOverlaysProperty(
+  overlays: readonly Overlay[] | undefined,
+): SharedOverlay<ServerComponentConfig>[] | undefined {
+  if (!overlays?.length) {
+    return undefined;
+  }
+  return serializeOverlays(overlays);
+}
+
+export function assignSerializedOverlays(
+  out: Record<string, unknown>,
+  overlays: readonly Overlay[] | undefined,
+): void {
+  if (overlays === undefined) {
+    return;
+  }
+  const serialized = serializeOverlaysProperty(overlays);
+  if (serialized !== undefined) {
+    out.overlays = serialized;
+  } else {
+    delete out.overlays;
+  }
+}
+
 export function serializeForEachSlot(
   slot: ComponentTreeNode | ComponentTreeNode[],
 ): SerializedComponentPayload | SerializedComponentPayload[] {

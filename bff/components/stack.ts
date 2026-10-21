@@ -17,8 +17,8 @@ import {
 } from "@matreshka/shared/types/flex-item";
 import type { PaddingPx } from "@matreshka/shared/types/padding-px";
 import type { RadiusPx } from "@matreshka/shared/types/radius-px";
-import type { StackScroll } from "@matreshka/shared/types/stack-scroll";
 import type { StackConfig } from "@matreshka/shared/types/stack-config";
+import type { StackScroll } from "@matreshka/shared/types/stack-scroll";
 import {
   calculateComponents,
   Componentable,
@@ -26,7 +26,6 @@ import {
   ComponentTreeNode,
   MixedWithCallbacksArray,
   serializeComponentList,
-  serializeOverlays,
   StandaloneComponent,
 } from "../core";
 import {
@@ -35,7 +34,6 @@ import {
   ComponentProperties,
   ServerComponentAction,
 } from "./component";
-import { Overlay } from "./types/container-overlay";
 
 export { DimensionalUnit } from "@matreshka/shared/enums/dimensional-unit";
 export { FlexWrap } from "@matreshka/shared/enums/flex-wrap";
@@ -84,7 +82,6 @@ export type StackProperties = {
    */
   scroll?: StackScroll;
   safeArea?: SafeAreaSide[];
-  overlays?: Overlay[];
   surface?: boolean;
   outline?: ComponentOutline[];
   focusWithinStyle?: boolean;
@@ -155,7 +152,6 @@ export type StackInitConfig<
   padding?: PaddingPx;
   scroll?: StackScroll;
   safeArea?: SafeAreaSide[];
-  overlays?: Overlay[];
   surface?: boolean;
   outline?: ComponentOutline[];
   focusWithinStyle?: boolean;
@@ -252,7 +248,6 @@ export class Stack<
       padding: initValues.padding,
       scroll: initValues.scroll,
       safeArea: initValues.safeArea,
-      overlays: initValues.overlays,
       surface: initValues.surface,
       outline: initValues.outline,
       focusWithinStyle: initValues.focusWithinStyle,
@@ -307,12 +302,9 @@ export class Stack<
   protected serializeRuleOverrides(
     overrides: Partial<PropertiesType>,
   ): Record<string, unknown> {
-    const out: Record<string, unknown> = { ...overrides };
+    const out = super.serializeRuleOverrides(overrides);
     if (overrides.content !== undefined) {
       out.content = serializeComponentList(overrides.content);
-    }
-    if (overrides.overlays !== undefined) {
-      out.overlays = serializeOverlays(overrides.overlays);
     }
     if (overrides.flexItem !== undefined) {
       out.flexItem = normalizeFlexItem(overrides.flexItem);
@@ -322,15 +314,12 @@ export class Stack<
 
   serialize(instance?: ComponentInstance<this>): StackConfig {
     const result = super.serialize(instance);
-    const p = this.properties;
     return {
       ...result,
       class: ServerComponentClass.Stack,
-      properties: {
-        ...p,
-        content: serializeComponentList(p.content),
-        overlays: p.overlays ? serializeOverlays(p.overlays) : [],
-      },
+      properties: this.buildPropertiesForClient({
+        content: serializeComponentList(this.properties.content),
+      }),
     };
   }
 }

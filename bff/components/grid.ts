@@ -134,12 +134,10 @@ export class Grid<
   protected serializeRuleOverrides(
     overrides: Partial<PropertiesType>,
   ): Record<string, unknown> {
-    const out: Record<string, unknown> = {
-      ...overrides,
-      content: overrides.content
-        ? serializeComponentList(overrides.content as ComponentTreeNode[])
-        : undefined,
-    };
+    const out = super.serializeRuleOverrides(overrides);
+    if (overrides.content !== undefined) {
+      out.content = serializeComponentList(overrides.content);
+    }
     if (overrides.flexItem !== undefined) {
       out.flexItem = normalizeFlexItem(overrides.flexItem);
     }
@@ -148,14 +146,12 @@ export class Grid<
 
   serialize(): GridConfig {
     const result = super.serialize();
-    const p = this.properties;
     return {
       ...result,
       class: ServerComponentClass.Grid,
-      properties: {
-        ...p,
-        content: serializeComponentList(p.content as ComponentTreeNode[]),
-      },
+      properties: this.buildPropertiesForClient({
+        content: serializeComponentList(this.properties.content),
+      }),
     };
   }
 }

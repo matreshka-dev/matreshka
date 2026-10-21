@@ -8,7 +8,6 @@ import {
   ComponentTreeNode,
   MixedWithCallbacksArray,
   serializeComponentList,
-  serializeOverlays,
 } from "../core";
 import {
   EntryComponent,
@@ -16,13 +15,10 @@ import {
   EntryComponentProperties,
 } from "./entry-component";
 import { PopoverPositionArea } from "./enum/popover-position-area";
-import { Overlay } from "./types/container-overlay";
-
 export type PopoverProperties = {
   content: ComponentTreeNode[];
   positionArea?: PopoverPositionArea;
   size?: number;
-  overlays?: Overlay[];
 } & EntryComponentProperties;
 
 /**
@@ -43,7 +39,6 @@ export type PopoverInitConfig<
    * передается клиенту как отношение к ширине якоря.
    */
   size?: number;
-  overlays?: Overlay[];
 } & EntryComponentInitConfig<ComponentType, PropertiesType>;
 
 type DefaultInitConfigType = PopoverInitConfig<Popover>;
@@ -125,19 +120,15 @@ export class Popover<
       content: calculateComponents(initValues.content),
       positionArea: initValues.positionArea,
       size: initValues.size,
-      overlays: initValues.overlays,
     };
   }
 
   protected serializeRuleOverrides(
     overrides: Partial<PropertiesType>,
   ): Record<string, unknown> {
-    const out: Record<string, unknown> = { ...overrides };
+    const out = super.serializeRuleOverrides(overrides);
     if (overrides.content !== undefined) {
       out.content = serializeComponentList(overrides.content);
-    }
-    if (overrides.overlays !== undefined) {
-      out.overlays = serializeOverlays(overrides.overlays);
     }
     return out;
   }
@@ -146,15 +137,12 @@ export class Popover<
     instance: ComponentInstance<this>,
   ): PopoverConfig {
     const result = super.serializeEntry(instance);
-    const p = this.properties;
     return {
       ...result,
       class: ServerComponentClass.Popover,
-      properties: {
-        ...p,
-        content: serializeComponentList(p.content),
-        overlays: p.overlays ? serializeOverlays(p.overlays) : [],
-      },
+      properties: this.buildPropertiesForClient({
+        content: serializeComponentList(this.properties.content),
+      }),
     };
   }
 
