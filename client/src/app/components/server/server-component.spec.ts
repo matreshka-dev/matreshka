@@ -9,6 +9,7 @@ import { ServerComponentClass } from '@shared/enums/server-component-class';
 import { TextDecoration } from '@shared/enums/text-decoration';
 import { ContextInitMessage as BffToClientContextInitMessage } from '@shared/messages/bff-to-client/context/context-init-message';
 import { ComponentClickMessage } from '@shared/messages/client-to-bff/components/component-click-message';
+import { OverlayAnchor } from '@shared/types/container-overlay';
 import { PLATFORM } from '../../platforms/platform';
 import { TestPlatform } from '../../platforms/tests/test-platform';
 import { ComponentHubService } from '../../services/component-hub.service';
@@ -17,7 +18,6 @@ import { PostmanService } from '../../services/postman.service';
 import { SsrService } from '../../services/ssr.service';
 import { TestPostmanService } from '../../services/tests/test-postman.service';
 import { TestSsrService } from '../../services/tests/test-ssr.service';
-import { OverlayAnchor } from '@shared/types/container-overlay';
 import { ServerComponent } from './server-component';
 import {
   ComponentDependencies,

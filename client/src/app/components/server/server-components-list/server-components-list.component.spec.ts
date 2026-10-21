@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { ServerComponentClass } from '@shared/enums/server-component-class';
 import { ConditionType } from '@shared/enums/condition-type';
+import { ServerComponentClass } from '@shared/enums/server-component-class';
 import {
   ContextInitMessage as BffContextInitMessage,
   ContextValuesMessage as BffContextValuesMessage,

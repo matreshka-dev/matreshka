@@ -1,13 +1,16 @@
-import { PingableBffToClientMessage } from "../../pingable-bff-to-client-message";
+import { PingableTargetedBffToClientMessage } from "../../pingable-bff-to-client-message";
 
 export type BrowserDownloadFilePayload = {
   url: string;
   filename: string;
 };
 
-export class BrowserDownloadFileMessage extends PingableBffToClientMessage<BrowserDownloadFilePayload> {
+export class BrowserDownloadFileMessage extends PingableTargetedBffToClientMessage<BrowserDownloadFilePayload> {
   static readonly type = "browser-download-file";
-  constructor(public override readonly payload: BrowserDownloadFilePayload) {
-    super(payload);
+  constructor(
+    public override readonly target: string,
+    public override readonly payload: BrowserDownloadFilePayload,
+  ) {
+    super(target, payload);
   }
 }

@@ -1,4 +1,4 @@
-import { PingableBffToClientMessage } from "../../pingable-bff-to-client-message";
+import { PingableTargetedBffToClientMessage } from "../../pingable-bff-to-client-message";
 
 export type BrowserAddEventToCalendarPayload = {
   start: string | number; // Date string or EpochTimeStamp
@@ -8,11 +8,12 @@ export type BrowserAddEventToCalendarPayload = {
   description?: string;
 };
 
-export class BrowserAddEventToCalendarMessage extends PingableBffToClientMessage<BrowserAddEventToCalendarPayload> {
+export class BrowserAddEventToCalendarMessage extends PingableTargetedBffToClientMessage<BrowserAddEventToCalendarPayload> {
   static readonly type = "browser-add-event-to-calendar";
   constructor(
+    public override readonly target: string,
     public override readonly payload: BrowserAddEventToCalendarPayload,
   ) {
-    super(payload);
+    super(target, payload);
   }
 }

@@ -5,14 +5,16 @@
 ## Что читать в первую очередь
 
 1. [`protocol.md`](protocol.md) — общий wire-format сообщений и основные message groups.
-2. [`context-lifecycle.md`](context-lifecycle.md) — жизненный цикл Context на BFF и клиенте, `context-destroy`, holds.
-3. [`client-rendering.md`](client-rendering.md) — как клиент загружает контексты, проверяет conditions и монтирует компоненты.
-4. [`message-delivery.md`](message-delivery.md) — надёжная доставка, подтверждения получения, retry, дедупликация и RTT/ping.
-5. [`operations.md`](operations.md) — reconnect, lifecycle клиента, эксплуатационные ограничения и best practices.
+2. [`platform-actions.md`](platform-actions.md) — философия platform-action: обязательный ответ клиента (результат или ack).
+3. [`context-lifecycle.md`](context-lifecycle.md) — жизненный цикл Context на BFF и клиенте, `context-destroy`, holds.
+4. [`client-rendering.md`](client-rendering.md) — как клиент загружает контексты, проверяет conditions и монтирует компоненты.
+5. [`message-delivery.md`](message-delivery.md) — надёжная доставка, подтверждения получения, retry, дедупликация и RTT/ping.
+6. [`operations.md`](operations.md) — reconnect, lifecycle клиента, эксплуатационные ограничения и best practices.
 
 ## Карта архитектурных документов
 
 - [`protocol.md`](protocol.md) — базовая форма сообщения, `target`, основные типы обмена между BFF и клиентом.
+- [`platform-actions.md`](platform-actions.md) — request/response платформы, результат или пустой ack, отслеживание и цепочки после завершения.
 - [`context-lifecycle.md`](context-lifecycle.md) — создание, sync, destroy на BFF; holds и `pendingDestroy` на клиенте.
 - [`client-rendering.md`](client-rendering.md) — `ContextHub`, `ComponentHub`, `ready$`, `display$`, conditions, rules и реакция на `change$`.
 - [`overlay-dom-order.md`](overlay-dom-order.md) — порядок overlays в DOM вокруг основного контента для корректной tab order без настроек на BFF.

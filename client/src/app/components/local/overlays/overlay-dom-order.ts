@@ -93,7 +93,9 @@ export function sortOverlaysForDom(
     index,
     flags: overlayAnchorFlags(overlay),
   }));
-  const filtered = indexed.filter((item) => overlayDomBucket(item.flags) === bucket);
+  const filtered = indexed.filter(
+    (item) => overlayDomBucket(item.flags) === bucket,
+  );
   filtered.sort((a, b) =>
     compareOverlayDomOrder(a.flags, b.flags, bucket, a.index, b.index),
   );

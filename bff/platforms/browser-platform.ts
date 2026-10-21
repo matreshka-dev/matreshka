@@ -7,21 +7,19 @@ import { BrowserRequestPushNotificationsMessage } from "@matreshka/shared/messag
 import { BrowserShareMessage } from "@matreshka/shared/messages/bff-to-client/platforms/browser/browser-share-message";
 import { PlatformWebAuthnCreateCredentialMessage } from "@matreshka/shared/messages/bff-to-client/platforms/platform-webauthn-create-credential-message";
 import { PlatformWebAuthnGetCredentialMessage } from "@matreshka/shared/messages/bff-to-client/platforms/platform-webauthn-get-credential-message";
-import { ErrorMessage } from "@matreshka/shared/messages/client-to-bff/error-message";
 import { BrowserGetGeolocationSuccessMessage } from "@matreshka/shared/messages/client-to-bff/platforms/browser/browser-get-geolocation-success-message";
 import { BrowserRequestPushNotificationsActionGrantedMessage } from "@matreshka/shared/messages/client-to-bff/platforms/browser/browser-request-push-notifications-action-granted-message";
 import { PlatformWebAuthnCreateCredentialSuccessMessage } from "@matreshka/shared/messages/client-to-bff/platforms/platform-webauthn-create-credential-success-message";
 import { PlatformWebAuthnGetCredentialSuccessMessage } from "@matreshka/shared/messages/client-to-bff/platforms/platform-webauthn-get-credential-success-message";
-import { isTargetedMessage } from "@matreshka/shared/messages/targeted-message";
 import type {
   AuthenticationResponseJSON,
   PublicKeyCredentialCreationOptionsJSON,
   PublicKeyCredentialRequestOptionsJSON,
   RegistrationResponseJSON,
 } from "@simplewebauthn/types";
-import { filter } from "rxjs";
+import type { Observable } from "rxjs";
 import { z } from "zod/v4";
-import { incomingMessageObserver } from "../core/utils/incoming-message-observer";
+import { targetedClientPlatformAction } from "./utils/targeted-client-platform-action";
 import { WebPlatform } from "./web-platform";
 
 const pushSubscriptionGrantedMessageSchema = z.strictObject({
@@ -35,10 +33,6 @@ const pushSubscriptionGrantedMessageSchema = z.strictObject({
   }),
 });
 
-const errorMessagePayloadSchema = z.strictObject({
-  message: z.string(),
-});
-
 /**
  * Платформа для браузерной версии клиента.
  *
@@ -48,44 +42,21 @@ export class BrowserPlatform extends WebPlatform {
   /**
    * Запрашивает геолокацию пользователя в веб-клиенте.
    *
-   * @param config Объект с обработчиками успешного получения геолокации и отмены.
    */
-  getGeolocation(config: {
-    onSuccess: (position: { latitude: number; longitude: number }) => void;
-    onError?: (error: string) => void;
-  }) {
-    const scope = "platform-action-" + crypto.randomUUID();
-    const subscription = this.client.incomingMessage$
-      .pipe(
-        filter(
-          (unsafeMessage) =>
-            isTargetedMessage(unsafeMessage) && unsafeMessage.target === scope,
-        ),
-      )
-      .subscribe(
-        incomingMessageObserver(this.client, (unsafeMessage) => {
-          subscription.unsubscribe();
-          if (unsafeMessage instanceof BrowserGetGeolocationSuccessMessage) {
-            const messagePayload = z
-              .strictObject({
-                latitude: z.number(),
-                longitude: z.number(),
-              })
-              .parse(unsafeMessage.payload);
-            config.onSuccess(messagePayload);
-            return;
-          }
-          if (unsafeMessage instanceof ErrorMessage) {
-            const messagePayload = errorMessagePayloadSchema.parse(
-              unsafeMessage.payload,
-            );
-            if (typeof config.onError === "function") {
-              config.onError(messagePayload.message);
-            }
-          }
-        }),
-      );
-    this.client.outcomingMessage$.next(new BrowserGetGeolocationMessage(scope));
+  getGeolocation(): Observable<{ latitude: number; longitude: number }> {
+    return targetedClientPlatformAction(this.client, {
+      outgoingMessage: (scope) => new BrowserGetGeolocationMessage(scope),
+      parseSuccess: (unsafeMessage) => {
+        if (unsafeMessage instanceof BrowserGetGeolocationSuccessMessage) {
+          return z
+            .strictObject({
+              latitude: z.number(),
+              longitude: z.number(),
+            })
+            .parse(unsafeMessage.payload);
+        }
+      },
+    });
   }
   /**
    * Добавляет событие в календарь клиента.
@@ -98,10 +69,11 @@ export class BrowserPlatform extends WebPlatform {
     summary: string;
     location?: string;
     description?: string;
-  }) {
-    this.client.outcomingMessage$.next(
-      new BrowserAddEventToCalendarMessage(data),
-    );
+  }): Observable<void> {
+    return targetedClientPlatformAction(this.client, {
+      outgoingMessage: (scope) =>
+        new BrowserAddEventToCalendarMessage(scope, data),
+    });
   }
 
   /**
@@ -110,13 +82,14 @@ export class BrowserPlatform extends WebPlatform {
    * @param filename Имя файла (будет добавлено расширение `.csv`, если не указано).
    * @param content Двумерный массив строк, представляющий содержимое CSV.
    */
-  downloadCsvContent(filename: string, content: string[][]) {
-    this.client.outcomingMessage$.next(
-      new BrowserDownloadCsvContentMessage({
-        filename: filename.endsWith(".csv") ? filename : filename + ".csv",
-        content,
-      }),
-    );
+  downloadCsvContent(filename: string, content: string[][]): Observable<void> {
+    return targetedClientPlatformAction(this.client, {
+      outgoingMessage: (scope) =>
+        new BrowserDownloadCsvContentMessage(scope, {
+          filename: filename.endsWith(".csv") ? filename : filename + ".csv",
+          content,
+        }),
+    });
   }
 
   /**
@@ -125,12 +98,13 @@ export class BrowserPlatform extends WebPlatform {
    * @param url Ссылка на файл.
    * @param filename Имя сохраняемого файла.
    */
-  downloadFile(url: string, filename: string) {
+  downloadFile(url: string, filename: string): Observable<void> {
     // https://developer.mozilla.org/ru/docs/Web/HTML/Element/a#Attributes
     // Принудительная загрузка файлов, которые браузер может открыть, а не скачать (изображения и pdf), будет только для того же домена, иначе будет срабатывать открытие, либо будет игнорировать приоритетный filename
-    this.client.outcomingMessage$.next(
-      new BrowserDownloadFileMessage({ url, filename }),
-    );
+    return targetedClientPlatformAction(this.client, {
+      outgoingMessage: (scope) =>
+        new BrowserDownloadFileMessage(scope, { url, filename }),
+    });
   }
 
   /**
@@ -138,8 +112,10 @@ export class BrowserPlatform extends WebPlatform {
    *
    * @param url Ссылка на файл (blob: или HTTP).
    */
-  openFile(url: string) {
-    this.client.outcomingMessage$.next(new BrowserOpenFileMessage({ url }));
+  openFile(url: string): Observable<void> {
+    return targetedClientPlatformAction(this.client, {
+      outgoingMessage: (scope) => new BrowserOpenFileMessage(scope, { url }),
+    });
   }
 
   /**
@@ -147,60 +123,40 @@ export class BrowserPlatform extends WebPlatform {
    *
    * @param data Объект с текстом, ссылкой и/или заголовком.
    */
-  share(data: { url?: string; title?: string; text?: string }) {
-    this.client.outcomingMessage$.next(new BrowserShareMessage(data));
+  share(data: {
+    url?: string;
+    title?: string;
+    text?: string;
+  }): Observable<void> {
+    return targetedClientPlatformAction(this.client, {
+      outgoingMessage: (scope) => new BrowserShareMessage(scope, data),
+    });
   }
 
   /**
    * Запрашивает разрешение на push-уведомления и обрабатывает результат.
    *
-   * @param config Объект с колбэками: `onGranted` при успехе, `onError` при ошибке.
+   * @param publicKey Публичный VAPID-ключ для подписки в браузере.
    */
-  registerPushNotifications(config: {
-    publicKey: string;
-    onGranted: (subscription: {
-      endpoint: string;
-      expirationTime?: EpochTimeStamp | null;
-      keys: { auth: string; p256dh: string };
-    }) => void;
-    onError?: (text: string) => void;
-  }) {
-    const scope = "platform-action-" + crypto.randomUUID();
-    const subscription = this.client.incomingMessage$
-      .pipe(
-        filter(
-          (unsafeMessage) =>
-            isTargetedMessage(unsafeMessage) && unsafeMessage.target === scope,
-        ),
-      )
-      .subscribe(
-        incomingMessageObserver(this.client, (unsafeMessage) => {
-          subscription.unsubscribe();
-          if (
-            unsafeMessage instanceof
-            BrowserRequestPushNotificationsActionGrantedMessage
-          ) {
-            const messagePayload = pushSubscriptionGrantedMessageSchema.parse(
-              unsafeMessage.payload,
-            );
-            config.onGranted(messagePayload.subscription);
-            return;
-          }
-          if (unsafeMessage instanceof ErrorMessage) {
-            const messagePayload = errorMessagePayloadSchema.parse(
-              unsafeMessage.payload,
-            );
-            if ("onError" in config) {
-              config.onError!(messagePayload.message);
-            }
-          }
-        }),
-      );
-    this.client.outcomingMessage$.next(
-      new BrowserRequestPushNotificationsMessage(scope, {
-        publicKey: config.publicKey,
-      }),
-    );
+  registerPushNotifications(publicKey: string): Observable<{
+    endpoint: string;
+    expirationTime?: EpochTimeStamp | null;
+    keys: { auth: string; p256dh: string };
+  }> {
+    return targetedClientPlatformAction(this.client, {
+      outgoingMessage: (scope) =>
+        new BrowserRequestPushNotificationsMessage(scope, { publicKey }),
+      parseSuccess: (unsafeMessage) => {
+        if (
+          unsafeMessage instanceof
+          BrowserRequestPushNotificationsActionGrantedMessage
+        ) {
+          return pushSubscriptionGrantedMessageSchema.parse(
+            unsafeMessage.payload,
+          ).subscription;
+        }
+      },
+    });
   }
 
   /**
@@ -209,97 +165,46 @@ export class BrowserPlatform extends WebPlatform {
    * @remarks Только `BrowserPlatform` / `PwaPlatform`. Mobile — не поддерживается.
    * @see https://developer.mozilla.org/en-US/docs/Web/API/Web_Authentication_API
    */
-  createWebAuthnCredential(config: {
-    optionsJSON: PublicKeyCredentialCreationOptionsJSON;
-    onSuccess: (credentialJSON: RegistrationResponseJSON) => void;
-    onError?: (text: string) => void;
-  }) {
-    this.runWebAuthnPlatformAction({
-      target: "platform-action-" + crypto.randomUUID(),
-      successMessageType: PlatformWebAuthnCreateCredentialSuccessMessage,
-      outgoingMessage: (target) =>
-        new PlatformWebAuthnCreateCredentialMessage(target, {
-          optionsJSON: config.optionsJSON,
-        }),
-      parseSuccessPayload: (payload) =>
-        webAuthnRegistrationResponseSchema.parse(payload),
-      onSuccess: (payload) =>
-        config.onSuccess(
-          payload.credentialJSON as unknown as RegistrationResponseJSON,
-        ),
-      onError: config.onError,
+  createWebAuthnCredential(
+    optionsJSON: PublicKeyCredentialCreationOptionsJSON,
+  ): Observable<RegistrationResponseJSON> {
+    return targetedClientPlatformAction(this.client, {
+      outgoingMessage: (scope) =>
+        new PlatformWebAuthnCreateCredentialMessage(scope, { optionsJSON }),
+      parseSuccess: (unsafeMessage) => {
+        if (
+          unsafeMessage instanceof
+          PlatformWebAuthnCreateCredentialSuccessMessage
+        ) {
+          const payload = webAuthnRegistrationResponseSchema.parse(
+            unsafeMessage.payload,
+          );
+          return payload.credentialJSON as unknown as RegistrationResponseJSON;
+        }
+      },
     });
   }
 
   /**
    * Аутентификация через WebAuthn credential в браузерном клиенте.
    */
-  getWebAuthnCredential(config: {
-    optionsJSON: PublicKeyCredentialRequestOptionsJSON;
-    onSuccess: (credentialJSON: AuthenticationResponseJSON) => void;
-    onError?: (text: string) => void;
-  }) {
-    this.runWebAuthnPlatformAction({
-      target: "platform-action-" + crypto.randomUUID(),
-      successMessageType: PlatformWebAuthnGetCredentialSuccessMessage,
-      outgoingMessage: (target) =>
-        new PlatformWebAuthnGetCredentialMessage(target, {
-          optionsJSON: config.optionsJSON,
-        }),
-      parseSuccessPayload: (payload) =>
-        webAuthnAuthenticationResponseSchema.parse(payload),
-      onSuccess: (payload) =>
-        config.onSuccess(
-          payload.credentialJSON as unknown as AuthenticationResponseJSON,
-        ),
-      onError: config.onError,
+  getWebAuthnCredential(
+    optionsJSON: PublicKeyCredentialRequestOptionsJSON,
+  ): Observable<AuthenticationResponseJSON> {
+    return targetedClientPlatformAction(this.client, {
+      outgoingMessage: (scope) =>
+        new PlatformWebAuthnGetCredentialMessage(scope, { optionsJSON }),
+      parseSuccess: (unsafeMessage) => {
+        if (
+          unsafeMessage instanceof PlatformWebAuthnGetCredentialSuccessMessage
+        ) {
+          const payload = webAuthnAuthenticationResponseSchema.parse(
+            unsafeMessage.payload,
+          );
+          return payload.credentialJSON as unknown as AuthenticationResponseJSON;
+        }
+      },
     });
-  }
-
-  private runWebAuthnPlatformAction<TPayload>(config: {
-    target: string;
-    successMessageType:
-      | typeof PlatformWebAuthnCreateCredentialSuccessMessage
-      | typeof PlatformWebAuthnGetCredentialSuccessMessage;
-    outgoingMessage: (
-      target: string,
-    ) =>
-      | PlatformWebAuthnCreateCredentialMessage
-      | PlatformWebAuthnGetCredentialMessage;
-    parseSuccessPayload: (payload: unknown) => TPayload;
-    onSuccess: (payload: TPayload) => void;
-    onError?: (text: string) => void;
-  }) {
-    const errorPayloadSchema = z.strictObject({
-      message: z.string(),
-    });
-
-    const subscription = this.client.incomingMessage$
-      .pipe(
-        filter(
-          (unsafeMessage) =>
-            isTargetedMessage(unsafeMessage) &&
-            unsafeMessage.target === config.target,
-        ),
-      )
-      .subscribe(
-        incomingMessageObserver(this.client, (unsafeMessage) => {
-          subscription.unsubscribe();
-          if (unsafeMessage instanceof config.successMessageType) {
-            const payload = config.parseSuccessPayload(unsafeMessage.payload);
-            config.onSuccess(payload);
-            return;
-          }
-          if (unsafeMessage instanceof ErrorMessage) {
-            const payload = errorPayloadSchema.parse(unsafeMessage.payload);
-            if (typeof config.onError === "function") {
-              config.onError(payload.message);
-            }
-          }
-        }),
-      );
-
-    this.client.outcomingMessage$.next(config.outgoingMessage(config.target));
   }
 }
 

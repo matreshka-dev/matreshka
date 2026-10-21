@@ -13,10 +13,7 @@ import {
   type Overlay,
 } from '../../server/server-component-config';
 import { calculateSizeStyles } from '../../server/utils/calculate-styles';
-import {
-  overlayAnchorFlags,
-  sortOverlaysForDom,
-} from './overlay-dom-order';
+import { overlayAnchorFlags, sortOverlaysForDom } from './overlay-dom-order';
 
 @Component({
   selector: 'app-overlays',

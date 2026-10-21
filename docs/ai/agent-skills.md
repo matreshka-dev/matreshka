@@ -55,27 +55,27 @@ npx skills add matreshka-dev/agents--skill --skill context-init-in-boot prefer-c
 
 ### UI, списки, entry
 
-| Задача                                 | Скилл                                                                  |
-| -------------------------------------- | ---------------------------------------------------------------------- |
-| Page/Dialog lifecycle и анимации       | `entry-lifecycle-on-enter-leave`                                       |
-| Loading на кнопке                      | `rules-not-conditions-for-loading-ui`, `prevent-duplicate-form-submit` |
-| Списки `forEach`                       | `foreach-stable-track`, `strict-context-ref`, `context-value-ref-in-api` |
-| Shared-хелпер / метод с ref по типу значения | `context-value-ref-in-api`                                         |
-| Типы ref на странице (контекст + путь) | `strict-context-ref`                                                   |
-| OR/AND в conditions                    | `when-oneof-vs-when-any`                                               |
-| Один Component в двух местах / animate | `create-instance-before-serialize`                                     |
-| Color token «not found»                | `register-color-tokens`                                                |
+| Задача                                       | Скилл                                                                    |
+| -------------------------------------------- | ------------------------------------------------------------------------ |
+| Page/Dialog lifecycle и анимации             | `entry-lifecycle-on-enter-leave`                                         |
+| Loading на кнопке                            | `rules-not-conditions-for-loading-ui`, `prevent-duplicate-form-submit`   |
+| Списки `forEach`                             | `foreach-stable-track`, `strict-context-ref`, `context-value-ref-in-api` |
+| Shared-хелпер / метод с ref по типу значения | `context-value-ref-in-api`                                               |
+| Типы ref на странице (контекст + путь)       | `strict-context-ref`                                                     |
+| OR/AND в conditions                          | `when-oneof-vs-when-any`                                                 |
+| Один Component в двух местах / animate       | `create-instance-before-serialize`                                       |
+| Color token «not found»                      | `register-color-tokens`                                                  |
 
 ### События, формы, навигация
 
-| Задача                               | Скилл                          |
-| ------------------------------------ | ------------------------------ |
-| Форма и Enter                        | `form-submit-shared-handler`   |
-| Async ошибки в UI                    | `return-server-action-promise` |
+| Задача                               | Скилл                               |
+| ------------------------------------ | ----------------------------------- |
+| Форма и Enter                        | `form-submit-shared-handler`        |
+| Async ошибки в UI                    | `return-server-action-promise`      |
 | Auth и инварианты в ServerAction     | `server-action-validate-in-handler` |
-| Мгновенный toggle/loading на клиенте | `instant-ui-set-context-value` |
-| Ссылка vs программный переход        | `link-vs-navigate`             |
-| Диалог vs меню у кнопки              | `dialog-vs-popover-platform`   |
+| Мгновенный toggle/loading на клиенте | `instant-ui-set-context-value`      |
+| Ссылка vs программный переход        | `link-vs-navigate`                  |
+| Диалог vs меню у кнопки              | `dialog-vs-popover-platform`        |
 
 ### Layout
 

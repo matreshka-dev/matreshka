@@ -299,17 +299,18 @@ currentClientPlatform().enumerateDevices({
 
 `BrowserPlatform` — обычный браузерный клиент.
 
-### `getGeolocation(config)`
+### `getGeolocation()`
 
 Запрашивает геолокацию.
 
 ```ts
+import { firstValueFrom } from "rxjs";
+
 if (platform instanceof BrowserPlatform) {
-  platform.getGeolocation({
-    onSuccess: ({ latitude, longitude }) => {
-      console.log(latitude, longitude);
-    },
-  });
+  const { latitude, longitude } = await firstValueFrom(
+    platform.getGeolocation(),
+  );
+  console.log(latitude, longitude);
 }
 ```
 
@@ -318,10 +319,14 @@ if (platform instanceof BrowserPlatform) {
 Создает событие в календаре.
 
 ```ts
-platform.addEventToCalendar({
-  start: Date.now(),
-  summary: "Встреча",
-});
+platform.addEventToCalendar({ start: Date.now(), summary: "Встреча" });
+
+await firstValueFrom(
+  platform.addEventToCalendar({
+    start: Date.now(),
+    summary: "Встреча",
+  }),
+);
 ```
 
 ### `downloadCsvContent(filename, content)`
@@ -329,10 +334,12 @@ platform.addEventToCalendar({
 Скачивает CSV, сформированный на BFF.
 
 ```ts
-platform.downloadCsvContent("report", [
-  ["Name", "Value"],
-  ["Alice", "42"],
-]);
+await firstValueFrom(
+  platform.downloadCsvContent("report", [
+    ["Name", "Value"],
+    ["Alice", "42"],
+  ]),
+);
 ```
 
 ### `TelegramMiniAppPlatform.downloadFile(url, filename)`
@@ -343,12 +350,34 @@ platform.downloadCsvContent("report", [
 platform.downloadFile(fileUrl, "report.pdf");
 ```
 
+### `downloadFile(url, filename)`
+
+Скачивает файл по URL (Browser / PWA).
+
+```ts
+await firstValueFrom(platform.downloadFile(fileUrl, "report.pdf"));
+```
+
 ### `openFile(url)`
 
 Открывает файл внутри браузерного просмотрщика.
 
 ```ts
-platform.openFile(fileUrl);
+await firstValueFrom(platform.openFile(fileUrl));
+```
+
+### `share(data)`
+
+Открывает системный web share dialog (Browser / PWA).
+
+```ts
+await firstValueFrom(
+  platform.share({
+    title: "Delta",
+    text: "Посмотри это",
+    url: "https://example.com",
+  }),
+);
 ```
 
 ### `TelegramMiniAppPlatform.share(data)`
@@ -363,20 +392,20 @@ platform.share({
 });
 ```
 
-### `registerPushNotifications(config)`
+### `registerPushNotifications(publicKey)`
 
 Запрашивает разрешение на push и отдает браузерную subscription.
 
 ```ts
-platform.registerPushNotifications({
-  publicKey: "VAPID_PUBLIC_KEY",
-  onGranted: (subscription) => {
-    console.log(subscription.endpoint);
-  },
-});
+import { firstValueFrom } from "rxjs";
+
+const subscription = await firstValueFrom(
+  platform.registerPushNotifications("VAPID_PUBLIC_KEY"),
+);
+console.log(subscription.endpoint);
 ```
 
-### `createWebAuthnCredential(config)` / `getWebAuthnCredential(config)`
+### `createWebAuthnCredential(optionsJSON)` / `getWebAuthnCredential(optionsJSON)`
 
 WebAuthn (passkeys) только на **Browser** и **PWA** (`BrowserPlatform` / `PwaPlatform`). **Mobile (Capacitor) пока не поддерживается** — методы есть только на BFF-классе `BrowserPlatform`; на клиенте обработчик только в `BrowserPlatform`.
 
@@ -426,11 +455,11 @@ WebAuthn (passkeys) только на **Browser** и **PWA** (`BrowserPlatform` 
 
 #### Параметры `createWebAuthnCredential` / `getWebAuthnCredential`
 
-| Параметр                    | Назначение                                                                                                                                         |
-| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `optionsJSON`               | Объект от `generateRegistrationOptions` или `generateAuthenticationOptions`. Передаётся на клиент как есть; внутри есть одноразовый **challenge**. |
-| `onSuccess(credentialJSON)` | JSON-ответ authenticator после успешной церемонии. Его нужно передать в `verifyRegistrationResponse` / `verifyAuthenticationResponse`.             |
-| `onError?(message)`         | Текст ошибки: отмена пользователем, нет поддержки WebAuthn, неверная среда и т.д.                                                                  |
+| Параметр      | Назначение                                                                                                                                         |
+| ------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `optionsJSON` | Объект от `generateRegistrationOptions` или `generateAuthenticationOptions`. Передаётся на клиент как есть; внутри есть одноразовый **challenge**. |
+
+Методы возвращают `Observable` с `credentialJSON` или ошибкой (`Error` с текстом от клиента). Ceremonия на клиенте стартует при вызове; для результата — `firstValueFrom` или `subscribe`.
 
 ---
 
@@ -444,6 +473,7 @@ import {
 } from "@matreshka/bff/webauthn";
 import { BrowserPlatform } from "@matreshka/bff/platforms";
 import { currentClientPlatform } from "@matreshka/bff/platforms/utils/client-platform";
+import { firstValueFrom } from "rxjs";
 
 const platform = currentClientPlatform();
 const rpID = "example.com";
@@ -470,43 +500,43 @@ const optionsJSON = await generateRegistrationOptions({
 // Сохраните optionsJSON.challenge на сервере до вызова verify (привязка к userId / sessionId).
 await savePendingChallenge(userId, optionsJSON.challenge);
 
-platform.createWebAuthnCredential({
-  optionsJSON,
-  onSuccess: async (credentialJSON) => {
-    const expectedChallenge = await loadPendingChallenge(userId);
-    if (!expectedChallenge) return;
+try {
+  const credentialJSON = await firstValueFrom(
+    platform.createWebAuthnCredential(optionsJSON),
+  );
 
-    const verification = await verifyRegistrationResponse({
-      response: credentialJSON,
-      expectedChallenge,
-      expectedOrigin,
-      expectedRPID: rpID,
-      requireUserVerification: true,
-    });
+  const expectedChallenge = await loadPendingChallenge(userId);
+  if (!expectedChallenge) return;
 
-    if (!verification.verified || !verification.registrationInfo) {
-      return;
-    }
+  const verification = await verifyRegistrationResponse({
+    response: credentialJSON,
+    expectedChallenge,
+    expectedOrigin,
+    expectedRPID: rpID,
+    requireUserVerification: true,
+  });
 
-    const { credential, credentialDeviceType, credentialBackedUp } =
-      verification.registrationInfo;
+  if (!verification.verified || !verification.registrationInfo) {
+    return;
+  }
 
-    const stored: StoredWebAuthnCredential = {
-      credentialID: credential.id,
-      credentialPublicKey: credential.publicKey,
-      counter: credential.counter,
-      credentialDeviceType,
-      credentialBackedUp,
-      transports: credential.transports,
-      webauthnUserID: credential.webauthnUserID,
-    };
-    await saveCredential(userId, stored);
-    await clearPendingChallenge(userId);
-  },
-  onError: (message) => {
-    // показать пользователю или записать в лог
-  },
-});
+  const { credential, credentialDeviceType, credentialBackedUp } =
+    verification.registrationInfo;
+
+  const stored: StoredWebAuthnCredential = {
+    credentialID: credential.id,
+    credentialPublicKey: credential.publicKey,
+    counter: credential.counter,
+    credentialDeviceType,
+    credentialBackedUp,
+    transports: credential.transports,
+    webauthnUserID: credential.webauthnUserID,
+  };
+  await saveCredential(userId, stored);
+  await clearPendingChallenge(userId);
+} catch (error) {
+  // отмена пользователем, нет WebAuthn и т.д.
+}
 ```
 
 **`generateRegistrationOptions` — что означает каждый параметр:**
@@ -533,7 +563,7 @@ platform.createWebAuthnCredential({
 
 | Параметр                  | Смысл                                                                                          |
 | ------------------------- | ---------------------------------------------------------------------------------------------- |
-| `response`                | Тот же `credentialJSON`, что пришёл в `onSuccess` платформы.                                   |
+| `response`                | Тот же `credentialJSON`, что вернул observable платформы.                                    |
 | `expectedChallenge`       | Challenge из шага регистрации (из сохранённого `optionsJSON.challenge`), не из ответа клиента. |
 | `expectedOrigin`          | Origin, с которого открыт клиент Matreshka (`https://…`).                                      |
 | `expectedRPID`            | Тот же `rpID`, что при генерации options.                                                      |
@@ -560,6 +590,7 @@ import {
   generateAuthenticationOptions,
   verifyAuthenticationResponse,
 } from "@matreshka/bff/webauthn";
+import { firstValueFrom } from "rxjs";
 
 const rpID = "example.com";
 const expectedOrigin = "https://app.example.com";
@@ -579,35 +610,37 @@ const authOptionsJSON = await generateAuthenticationOptions({
 
 await savePendingChallenge(userId, authOptionsJSON.challenge);
 
-platform.getWebAuthnCredential({
-  optionsJSON: authOptionsJSON,
-  onSuccess: async (credentialJSON) => {
-    const expectedChallenge = await loadPendingChallenge(userId);
+try {
+  const credentialJSON = await firstValueFrom(
+    platform.getWebAuthnCredential(authOptionsJSON),
+  );
 
-    const verification = await verifyAuthenticationResponse({
-      response: credentialJSON,
-      expectedChallenge,
-      expectedOrigin,
-      expectedRPID: rpID,
-      credential: {
-        id: stored.credentialID,
-        publicKey: stored.credentialPublicKey,
-        counter: stored.counter,
-        transports: stored.transports,
-      },
-    });
+  const expectedChallenge = await loadPendingChallenge(userId);
 
-    if (verification.verified) {
-      await updateCredentialCounter(
-        userId,
-        verification.authenticationInfo.newCounter,
-      );
-      await clearPendingChallenge(userId);
-      // создать сессию приложения
-    }
-  },
-  onError: (message) => {},
-});
+  const verification = await verifyAuthenticationResponse({
+    response: credentialJSON,
+    expectedChallenge,
+    expectedOrigin,
+    expectedRPID: rpID,
+    credential: {
+      id: stored.credentialID,
+      publicKey: stored.credentialPublicKey,
+      counter: stored.counter,
+      transports: stored.transports,
+    },
+  });
+
+  if (verification.verified) {
+    await updateCredentialCounter(
+      userId,
+      verification.authenticationInfo.newCounter,
+    );
+    await clearPendingChallenge(userId);
+    // создать сессию приложения
+  }
+} catch (error) {
+  // отмена, ошибка клиента
+}
 ```
 
 **`generateAuthenticationOptions`:**

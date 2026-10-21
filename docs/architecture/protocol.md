@@ -42,7 +42,7 @@ Transport передаёт обычный JSON. Пример app-level сооб�
 
 - `"<context-id>"` — конкретный `Context`;
 - `"<component-instance-id>"` — инстанс компонента на клиенте;
-- `"platform-action-<uuid>"` — correlation id для пар request/response между BFF и platform handler на клиенте.
+- `"platform-action-<uuid>"` — correlation id для пар request/response между BFF и platform handler на клиенте. Семантика завершения (результат, пустой ack или ошибка) — [`platform-actions.md`](platform-actions.md).
 
 ## Основные группы сообщений
 

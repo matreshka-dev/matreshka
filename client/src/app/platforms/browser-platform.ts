@@ -20,6 +20,7 @@ import { PlatformWebAuthnGetCredentialMessage } from '@shared/messages/bff-to-cl
 import { ErrorMessage } from '@shared/messages/client-to-bff/error-message';
 import { BrowserGetGeolocationSuccessMessage } from '@shared/messages/client-to-bff/platforms/browser/browser-get-geolocation-success-message';
 import { BrowserRequestPushNotificationsActionGrantedMessage } from '@shared/messages/client-to-bff/platforms/browser/browser-request-push-notifications-action-granted-message';
+import { PlatformActionCompletedMessage } from '@shared/messages/client-to-bff/platforms/platform-action-completed-message';
 import {
   PlatformEnumeratedDevice,
   PlatformEnumerateDevicesSuccessMessage,
@@ -169,10 +170,6 @@ export class BrowserPlatform extends WebPlatform {
     link.remove();
   }
 
-  private openFile(payload: { url: string }): void {
-    void this.openFileAsync(payload);
-  }
-
   private async openFileAsync(payload: { url: string }): Promise<void> {
     const { url } = payload;
 
@@ -203,6 +200,32 @@ export class BrowserPlatform extends WebPlatform {
     this.document.body.appendChild(link);
     link.click();
     link.remove();
+  }
+
+  private completePlatformAction(target: string): void {
+    this.postman.outcomingMessage$.next(
+      new PlatformActionCompletedMessage(target),
+    );
+  }
+
+  private failPlatformAction(target: string, error: unknown): void {
+    this.postman.outcomingMessage$.next(
+      new ErrorMessage(target, {
+        message: error instanceof Error ? error.message : String(error),
+      }),
+    );
+  }
+
+  private runPlatformAction(
+    target: string,
+    action: () => void | Promise<void>,
+  ): void {
+    void Promise.resolve()
+      .then(action)
+      .then(
+        () => this.completePlatformAction(target),
+        (error) => this.failPlatformAction(target, error),
+      );
   }
 
   payload(): Record<string, unknown> {
@@ -245,23 +268,33 @@ export class BrowserPlatform extends WebPlatform {
         return;
       }
       if (message instanceof BrowserAddEventToCalendarMessage) {
-        this.addEventToCalendar(message.payload);
+        this.runPlatformAction(message.target, () => {
+          this.addEventToCalendar(message.payload);
+        });
         return;
       }
       if (message instanceof BrowserDownloadCsvContentMessage) {
-        this.saveCsvContent(message.payload);
+        this.runPlatformAction(message.target, () => {
+          this.saveCsvContent(message.payload);
+        });
         return;
       }
       if (message instanceof BrowserShareMessage) {
-        this.share(message.payload);
+        this.runPlatformAction(message.target, () =>
+          this.share(message.payload),
+        );
         return;
       }
       if (message instanceof BrowserDownloadFileMessage) {
-        this.downloadFile(message.payload);
+        this.runPlatformAction(message.target, () =>
+          this.downloadFile(message.payload),
+        );
         return;
       }
       if (message instanceof BrowserOpenFileMessage) {
-        this.openFile(message.payload);
+        this.runPlatformAction(message.target, () =>
+          this.openFileAsync(message.payload),
+        );
         return;
       }
       if (message instanceof BrowserRequestPushNotificationsMessage) {

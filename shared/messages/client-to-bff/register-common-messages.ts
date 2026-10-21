@@ -27,6 +27,7 @@ import { ContextInitMessage } from "./context/context-init-message";
 import { ContextValuesMessage } from "./context/context-values-message";
 import { ErrorMessage } from "./error-message";
 import { ClientToBffMessageReceivedMessage } from "./message-received-message";
+import { PlatformActionCompletedMessage } from "./platforms/platform-action-completed-message";
 import { PlatformEnumerateDevicesSuccessMessage } from "./platforms/platform-enumerate-devices-success-message";
 import { PlatformWebAuthnCreateCredentialSuccessMessage } from "./platforms/platform-webauthn-create-credential-success-message";
 import { PlatformWebAuthnGetCredentialSuccessMessage } from "./platforms/platform-webauthn-get-credential-success-message";
@@ -59,6 +60,7 @@ export function registerCommonClientToBffMessages() {
   clientToBffMessageRegistry.register(FileUploadAreaCompleteMessage);
   clientToBffMessageRegistry.register(FileUploadAreaErrorMessage);
   clientToBffMessageRegistry.register(FormSubmitMessage);
+  clientToBffMessageRegistry.register(PlatformActionCompletedMessage);
   clientToBffMessageRegistry.register(PlatformEnumerateDevicesSuccessMessage);
   clientToBffMessageRegistry.register(
     PlatformWebAuthnCreateCredentialSuccessMessage,
