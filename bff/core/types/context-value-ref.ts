@@ -10,7 +10,7 @@ import { ContextRef, ContextRefValue } from "../context/context-ref";
  * @example
  * ```ts
  * function bindAmount(ref: ContextValueRef<number | undefined>) {
- *   ref.value(); // number | undefined
+ *   ref.get(); // number | undefined
  * }
  *
  * bindAmount(pageContext.ref("amount"));
@@ -18,8 +18,8 @@ import { ContextRef, ContextRefValue } from "../context/context-ref";
  */
 export type ContextValueRef<ValueType> = ContextRef<any, any> & {
   readonly __valueType?: ValueType;
-  value(): ValueType;
-  setValue(value: ValueType): void;
+  get(): ValueType;
+  set(value: ValueType): void;
 };
 
 /**

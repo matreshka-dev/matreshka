@@ -28,11 +28,11 @@ describe("ForEach type inference", () => {
         return message.id;
       },
       generator: ({ ref }) => {
-        const data = ref.value();
+        const data = ref.get();
         const userNameRef = ref.ref("user.name");
         const textRef = ref.ref("text");
-        const userName = userNameRef.value();
-        const text = textRef.value();
+        const userName = userNameRef.get();
+        const text = textRef.get();
         type MessageRefValue = ContextRefValue<typeof ref>;
         type MessageUserNameRefValue = ContextRefValue<typeof userNameRef>;
         type MessageTextRefValue = ContextRefValue<typeof textRef>;
@@ -70,7 +70,7 @@ describe("ForEach type inference", () => {
       ref: context.ref("sections"),
       track: (section) => section.id,
       generator: ({ ref: sectionRef }) => {
-        const section = sectionRef.value();
+        const section = sectionRef.get();
         type SectionRefValue = ContextRefValue<typeof sectionRef>;
 
         expectTypeOf(section).toEqualTypeOf<Section>();
@@ -80,9 +80,9 @@ describe("ForEach type inference", () => {
           ref: sectionRef.ref("categories"),
           track: (category) => category.id,
           generator: ({ ref }) => {
-            const data = ref.value();
+            const data = ref.get();
             const categoryNameRef = ref.ref("name");
-            const categoryName = categoryNameRef.value();
+            const categoryName = categoryNameRef.get();
             type CategoryRefValue = ContextRefValue<typeof ref>;
             type CategoryNameRefValue = ContextRefValue<typeof categoryNameRef>;
 
@@ -120,9 +120,9 @@ describe("ForEach type inference", () => {
         ref,
         track: (block) => block.id,
         generator: ({ ref: blockRef }) => {
-          const data = blockRef.value();
+          const data = blockRef.get();
           const blockLabelRef = blockRef.ref("value").ref("label");
-          const blockLabel = blockLabelRef.value();
+          const blockLabel = blockLabelRef.get();
           type BlockRefValue = ContextRefValue<typeof blockRef>;
           type BlockLabelRefValue = ContextRefValue<typeof blockLabelRef>;
 

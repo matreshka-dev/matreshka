@@ -30,9 +30,9 @@ map({
       track: (point) => point.id,
       preload: true,
       generator: ({ ref }) => ({
-        coordinates: { latitude: ref.value().lat, longitude: ref.value().lng },
+        coordinates: { latitude: ref.get().lat, longitude: ref.get().lng },
         width: 80,
-        component: text(ref.value().title),
+        component: text(ref.get().title),
       }),
     }),
   ],
@@ -45,8 +45,8 @@ board({
       ref: context.ref("departments"),
       track: (d) => d.id,
       generator: ({ ref }) => ({
-        position: { x: ref.value().x, y: ref.value().y },
-        component: text(ref.value().name),
+        position: { x: ref.get().x, y: ref.get().y },
+        component: text(ref.get().name),
       }),
     }),
   ],
@@ -109,4 +109,4 @@ itemList<TItem>({
 ## См. также
 
 - `components-list.md` — секции `map` / `board`
-- `context.md` — ref и подписки на данные
+- `context.md` — ref, `get` / `set`, подписка через `watch()`

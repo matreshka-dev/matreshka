@@ -53,55 +53,62 @@ text(`Привет, ${this.context.ref("name").toString()}`);
 
 Подробные примеры использования `ref()` с `forEach` и другими компонентами — в [components-basics.md](components-basics.md) и [components-list.md](../reference/components-list.md).
 
-### `ContextRef.value()` и `ContextRef.setValue()`
+### `ContextRef`: чтение и запись по ref
 
-Объект, который возвращает `ref()`, — это `ContextRef`. Помимо передачи в props компонентов, у него есть методы чтения и записи **по уже известному пути ref** с сохранением типов TypeScript.
-
-Чтение (аналог `context.value("…")`, но тип выводится из ref):
+Объект из `ref()` — это `ContextRef`. Его удобно передавать в компоненты **и** использовать в коде BFF, когда путь уже известен:
 
 ```ts
 const nameRef = this.context.ref("name");
-const current = nameRef.value();
+const current = nameRef.get(); // прочитать
+nameRef.set("Bob"); // записать
 ```
 
-Запись из серверной логики (аналог `context.setValue("…", value)`):
+`ref.set()` внутри вызывает `context.set({ … })` — клиент получит те же обновления, что и при записи через контекст.
 
-```ts
-const loadingRef = this.context.ref("loading");
-loadingRef.setValue(true);
-```
-
-`setValue` на ref внутри вызывает `Context.setValue` для того же пути: изменение попадает в `data$` и синхронизируется с клиентом так же, как при записи через контекст.
-
-Это удобно, когда ref уже есть в параметре — например, в общем хелпере с `ContextValueRef<boolean | undefined>` не нужно обращаться к `ref.context` и вручную приводить типы:
+Если ref уже пришёл в хелпер (`ContextValueRef`), не нужно снова искать путь:
 
 ```ts
 import type { ContextValueRef } from "@matreshka/bff/core";
 
 function finishSubmit(loadingRef: ContextValueRef<boolean | undefined>) {
-  loadingRef.setValue(false);
+  loadingRef.set(false);
 }
 ```
 
-Если контекст к этому моменту уже уничтожен (например, пользователь ушёл со страницы во время async-запроса), `ContextRef.setValue` **ничего не делает** и не бросает исключение. Такой вызов безопасно оставлять в `finally` после `await`.
+После `destroy()` вызов `ref.set()` **тихо игнорируется** — безопасно в `finally` после `await`. Прямые `get` / `set` / `replace` на уничтоженном контексте **бросают ошибку**; после async проверяйте `isDestroyed()`.
 
-Для мгновенного обновления UI **из массива actions** на клиенте по-прежнему используйте `setContextValue(ref, value)` — см. [events-and-actions.md](events-and-actions.md). `ContextRef.setValue` — прямая запись на BFF в обработчиках, сервисах и `ServerAction`.
+Для мгновенного UI **из actions на клиенте** используйте `setContextValue(ref, value)` — см. [events-and-actions.md](events-and-actions.md). На BFF в обработчиках и `ServerAction` — `ref.set()` или `context.set()`.
 
-## Изменение значения на BFF
+## API контекста на BFF
 
-Если нужно обновить данные из серверной логики, можно указать путь строкой или записать через ref:
+Кратко, чем пользоваться в коде страницы и сервисов:
+
+| Задача | Метод |
+|--------|--------|
+| Прочитать поле по пути | `context.get("path")` или `ref.get()` |
+| Обновить одно или несколько полей | `context.set({ … })` — ключи с dotted-путями |
+| Заменить всё состояние целиком | `context.replace(data)` — после load или готового снимка |
+| Скопировать всё `T` на время async | `context.snapshot()` |
+| Подписаться на изменения | `context.watch()` |
+
+Примеры:
 
 ```ts
-this.context.setValue("name", "Bob");
+const tab = this.context.get("activeTab");
+this.context.set({ sending: false, message: "" });
 
-const nameRef = this.context.ref("name");
-nameRef.setValue("Bob");
+const loaded = await this.api.loadProfile();
+this.context.replace({ ...loaded, draft: this.context.get("draft") });
 ```
 
-Если нужно не только менять контекст, но и реагировать на его изменения, можно подписаться на `data$`:
+`get` для объектов и массивов отдаёт **копию** — правки «на месте» без `set` / `replace` контекст не меняют.
+
+## Подписка на изменения
+
+Если нужно не только менять контекст, но и реагировать на обновления, подпишитесь на `watch()`:
 
 ```ts
-this.context.data$?.subscribe((data) => {
+this.context.watch().subscribe((data) => {
   console.log("Новое состояние контекста:", data);
 });
 ```
@@ -113,9 +120,12 @@ this.context.data$?.subscribe((data) => {
 ```ts
 import { takeUntil } from "rxjs";
 
-this.context.data$?.pipe(takeUntil(this.destroy$)).subscribe((data) => {
-  console.log("Контекст изменился:", data);
-});
+this.context
+  .watch()
+  .pipe(takeUntil(this.destroy$))
+  .subscribe((data) => {
+    console.log("Контекст изменился:", data);
+  });
 ```
 
 Такой подход особенно полезен в `Page`, `Dialog` и других `entry`-компонентах: когда `entry.destroy$` срабатывает, подписка автоматически завершается.
@@ -189,7 +199,7 @@ class ProfilePage extends Page {
   }
 
   protected content() {
-    const name = this.context.value("name");
+    const name = this.context.get("name");
     return [text(`Пользователь: ${name}`)];
   }
 }
@@ -198,7 +208,7 @@ class ProfilePage extends Page {
 `boot()` — метод entry-компонента, здесь `ProfilePage`. BFF вызывает его до
 сериализации страницы и до вызова `content()`. Поэтому ручной `init()` нужен,
 когда загруженные данные контекста должны участвовать уже в построении разметки:
-например, `content()` или `overlays()` вызывает `context.value()` либо строит
+например, `content()` или `overlays()` вызывает `context.get()` либо строит
 ветки и списки на основе полученных значений.
 
 Если разметка использует только `context.ref()` и клиентские `conditions`, обычно
@@ -296,27 +306,16 @@ const dynamicCardTitleRef = cardsContext
 
 Это скорее `bad practice`, а не основной рекомендуемый способ работы с контекстом.
 
-Если вы мутировали объект из `data$!.getValue()` вручную, нужно явно опубликовать обновление:
+Предпочитайте `set({ … })`, `ref.set(…)` или `replace` после load. Если собрали новое значение в локальной переменной:
 
 ```ts
-const data = this.context.data$!.getValue();
-data.items.push({ id: "3", title: "Новый элемент" });
-this.context.emitAfterInPlaceMutation();
+const items = this.context.get("items") as Item[];
+this.context.set({
+  items: [...items, { id: "3", title: "Новый элемент" }],
+});
 ```
 
-Иначе подписчики и клиент не увидят изменения.
-
-В обычной разработке предпочтительнее:
-
-- либо обновлять значения через `setValue()`;
-- либо собирать новое значение и заменять его явно;
-- а к in-place mutation прибегать только в редких случаях, когда это действительно нужно.
-
-Это важный момент, потому что:
-
-- `setValue()` сам публикует изменение;
-- ручная мутация объекта без `next()` не публикует ничего;
-- `emitAfterInPlaceMutation()` нужен именно для таких случаев.
+`get` для объектов и массивов возвращает копию — мутация результата не меняет контекст, пока не вызван `set` / `replace`.
 
 ## Что приходит с клиента
 

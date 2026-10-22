@@ -10,8 +10,8 @@
 
 Что делает `destroy()`:
 
-- помечает контекст недоступным для `value()`, `setValue` и сериализации ref;
-- завершает `data$` и снимает подписки на BFF;
+- помечает контекст недоступным для `get`, `set`, `replace`, `watch` и сериализации ref;
+- завершает поток данных и снимает подписки на BFF;
 - шлёт клиентам **`context-destroy`**;
 - удаляет контекст из registry (освобождение памяти на сервере).
 
@@ -96,7 +96,7 @@ export class ProfilePage extends Page {
 
 Если диалог не открыли (контекст создали «про запас»), привязать его некому — вызовите `context.destroy()` вручную в ветке ошибки.
 
-Долгие подписки на `data$` в entry завершайте через `takeUntil(this.destroy$)` или `takeUntil(entry.stopUsing$)` — см. [Context (guide)](../guides/context.md).
+Долгие подписки на `watch()` в entry завершайте через `takeUntil(this.destroy$)` или `takeUntil(entry.stopUsing$)` — см. [Context (guide)](../guides/context.md).
 
 ## 2. Сессионный (client-scoped) контекст
 
@@ -180,10 +180,10 @@ export class MyListWidget extends Component {
 
 ## 5. Async после ухода со страницы
 
-`ContextRef.setValue` после `destroy()` **молча игнорируется** — безопасно в `finally` после `await`. Прямой `context.setValue` на уничтоженном контексте на BFF бросает ошибку; в обработчиках после async проверяйте `isDestroyed()`.
+`ref.set()` после `destroy()` **молча игнорируется** — безопасно в `finally` после `await`. Прямые `get` / `set` / `replace` на уничтоженном контексте на BFF бросают ошибку; в обработчиках после async проверяйте `isDestroyed()`.
 
 ## Связь с другими документами
 
-- [Context (guide)](../guides/context.md) — `ref`, preload, подписки на `data$`
+- [Context (guide)](../guides/context.md) — `ref`, preload, подписки на `watch()`
 - [Жизненный цикл Context](../architecture/context-lifecycle.md) — BFF vs клиент, holds, антипаттерны teardown
 - [Протокол](../architecture/protocol.md) — `context-init`, `context-values`, `context-destroy`

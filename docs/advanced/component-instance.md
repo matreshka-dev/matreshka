@@ -268,7 +268,7 @@ const taskList = forEach({
   ref: page.context.ref("tasks"),
   track: (task) => task.id,
   generator: ({ ref }) => {
-    const task = ref.value();
+    const task = ref.get();
     return button(
       {
         onClick: ({ instance }) => {

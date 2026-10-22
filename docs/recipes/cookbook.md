@@ -49,7 +49,7 @@ button({ link: { value: "/settings" } }, [text("Настройки")]);
 button(
   {
     onClick: () => {
-      const isAuthorized = this.context.value("isAuthorized");
+      const isAuthorized = this.context.get("isAuthorized");
 
       if (isAuthorized) {
         void firstValueFrom(currentClientPlatform().navigate("/dashboard"));
@@ -119,8 +119,8 @@ textInput(this.context.ref("name"));
 
 ```ts
 const submitForm = () => {
-  const name = this.context.value("name");
-  this.context.setValue("result", `Привет, ${name}`);
+  const name = this.context.get("name");
+  this.context.set({ result: `Привет, ${name}` });
 };
 
 form(
@@ -207,7 +207,7 @@ text(
 ```ts
 button(
   {
-    onClick: () => this.context.setValue("loading", true),
+    onClick: () => this.context.set({ loading: true }),
     rules: [
       {
         conditions: [when.equals(this.context.ref("loading"), true)],
@@ -437,18 +437,15 @@ text(
 button(
   {
     onClick: () => {
-      const items = this.context.value("items");
-      this.context.setValue("items", [
-        ...items,
-        { id: crypto.randomUUID(), title: "Новый элемент" },
-      ]);
+      const items = this.context.get("items") as Item[];
+      this.context.set({
+        items: [...items, { id: crypto.randomUUID(), title: "Новый элемент" }],
+      });
     },
   },
   [text("Добавить")],
 );
 ```
-
-Если делаете неиммутабельную мутацию, не забудьте `emitAfterInPlaceMutation()`.
 
 ## Popover от кнопки
 

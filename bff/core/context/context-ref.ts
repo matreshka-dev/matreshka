@@ -51,7 +51,7 @@ export class ContextRef<
    * `@{<id контекста other>.<путь other>}` (через `other.toString()`), без подстановки
    * значения на момент вызова.
    *
-   * При каждом чтении `Context.value` подставляет в эту строку актуальное значение по
+   * При каждом чтении {@link Context.get} подставляет в эту строку актуальное значение по
    * ссылке `other` (тот же механизм, что и для обычных путей с плейсхолдерами).
    * Если во втором контексте меняется строка-сегмент пути или индекс, одна и та же
    * ссылка `ContextRef` продолжает указывать на корректные данные.
@@ -88,28 +88,25 @@ export class ContextRef<
         string}`,
     );
   }
-  // Строгое значение по текущему пути
-  value(): PathValue<ContextType, PathType> {
-    // Явно выбираем перегрузку Context.value(string): unknown и приводим к ожидаемому типу
-    return (this.context.value as (p: string) => unknown)(
-      this.path,
-    ) as PathValue<ContextType, PathType>;
+  /** Значение по текущему пути (делегирует {@link Context.get}). */
+  get(): PathValue<ContextType, PathType> {
+    return (this.context.get as (p: string) => unknown)(this.path) as PathValue<
+      ContextType,
+      PathType
+    >;
   }
 
   /**
-   * Запись значения по текущему пути через {@link Context.setValue}.
+   * Запись значения по текущему пути через {@link Context.set}.
    * Если контекст уже уничтожен, вызов игнорируется (без исключения).
    */
-  setValue(value: PathValue<ContextType, PathType>): void {
+  set(value: PathValue<ContextType, PathType>): void {
     if (this.context.isDestroyed()) {
       return;
     }
-    (
-      this.context.setValue as (
-        path: PathType,
-        value: PathValue<ContextType, PathType>,
-      ) => void
-    )(this.path, value);
+    this.context.set({
+      [this.path]: value,
+    });
   }
 
   toString() {

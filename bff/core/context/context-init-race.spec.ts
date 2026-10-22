@@ -5,7 +5,7 @@ import { Context } from "./context";
 type TestData = { name: string };
 
 describe("Context.init race", () => {
-  it("повторный init() ждёт initPromise, а не возвращается на пустом data$", async () => {
+  it("повторный init() ждёт initPromise, а не возвращается до завершения загрузки", async () => {
     let resolveLoad!: (value: TestData) => void;
     const loadPromise = new Promise<TestData>((resolve) => {
       resolveLoad = resolve;
@@ -21,7 +21,7 @@ describe("Context.init race", () => {
     resolveLoad({ name: "unit-11206" });
     await Promise.all([first, second]);
 
-    expect(context.value("name")).toBe("unit-11206");
+    expect(context.get("name")).toBe("unit-11206");
   });
 
   it("destroy() во время init() не бросает и не оставляет unhandled rejection", async () => {

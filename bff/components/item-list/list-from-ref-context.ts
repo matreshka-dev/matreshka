@@ -1,4 +1,3 @@
-import { BehaviorSubject } from "rxjs";
 import { z } from "zod/v4";
 import { Context, type JsonObject } from "../../core";
 
@@ -9,14 +8,10 @@ export class ItemListIndexStore<
   T extends JsonObject = ItemListIndexContext,
 > extends Context<T> {
   initSync() {
-    if (this.inited()) return this;
-    this.data$ = new BehaviorSubject({} as T);
-    this.subscribeToDataChanges();
+    if (!this.inited()) {
+      void this.init();
+    }
     return this;
-  }
-
-  syncIndexStoreFromMutations() {
-    super.emitAfterInPlaceMutation();
   }
 
   constructor(preload: boolean) {

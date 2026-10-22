@@ -50,8 +50,10 @@ export class GreetPage extends Page {
     const greetingRef = this.context.ref("greeting");
 
     const onSubmit = () => {
-      const name = this.context.value("name");
-      this.context.setValue("greeting", name ? `Привет, ${name}!` : "");
+      const name = this.context.get("name");
+      this.context.set({
+        greeting: name ? `Привет, ${name}!` : "",
+      });
     };
 
     return [
@@ -63,7 +65,7 @@ export class GreetPage extends Page {
       button(
         {
           onClick: () => {
-            this.context.setValue("greeting", "");
+            this.context.set({ greeting: "" });
           },
         },
         [text("Очистить")],
@@ -84,7 +86,7 @@ export class GreetPage extends Page {
 
 ### Контекст и поле ввода
 
-`nameRef` и `greetingRef` передаются в UI как **`ContextRef`**, а не как `value()` — клиент подписывается на изменения и обновляет поле и текст. В обработчике submit допустимо разово прочитать `this.context.value("name")` и записать результат через `setValue`.
+`nameRef` и `greetingRef` передаются в UI как **`ContextRef`**, а не как готовые строки — клиент подписывается на изменения и обновляет поле и текст. В обработчике submit можно разово вызвать `this.context.get("name")` и записать результат через `this.context.set({ greeting: … })`.
 
 ### Форма и server `onClick`
 

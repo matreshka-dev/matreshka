@@ -10,7 +10,16 @@ import {
 import { isTargetedMessage } from "@matreshka/shared/messages/targeted-message";
 import { JsonObject } from "@matreshka/shared/types/json";
 import { fetchFromObject } from "@matreshka/shared/utils/fetch-from-object";
-import { BehaviorSubject, filter, ReplaySubject, Subscription } from "rxjs";
+import {
+  BehaviorSubject,
+  EMPTY,
+  filter,
+  Observable,
+  ReplaySubject,
+  Subscription,
+  switchMap,
+  take,
+} from "rxjs";
 import { Paths, PathValue } from "ts-essentials";
 import { z, ZodObject } from "zod/v4";
 import type { Client } from "../client";
@@ -21,6 +30,19 @@ import { objectsDiff } from "../utils/objects-diff";
 import { replaceContextKeys } from "../utils/replace-context-keys";
 import { setObjectProperty } from "../utils/set-object-property";
 import { ContextRef } from "./context-ref";
+
+/** Частичное обновление данных контекста по dotted-путям (см. {@link Context.set}). */
+export type ContextPathPatch<T extends JsonObject> = Partial<{
+  [K in Paths<T>]: PathValue<T, K>;
+}>;
+
+/** Отделяет чтение через {@link Context.get} от живого дерева в хранилище. */
+function cloneGetResult(value: unknown): unknown {
+  if (value !== null && typeof value === "object") {
+    return structuredClone(value);
+  }
+  return value;
+}
 
 type ContextClientBinding = {
   /** Клиенту уже отправляли ContextInitMessage */
@@ -94,7 +116,7 @@ export class Context<T extends JsonObject> {
   /** Уникальный идентификатор контекста */
   readonly id = crypto.randomUUID();
   /** Реактивное хранилище данных контекста. */
-  data$?: BehaviorSubject<T>;
+  protected data$?: BehaviorSubject<T>;
   /** Схема валидации данных контекста */
   readonly schema?: ZodObject;
   /** Флаг, указывающий, что контекст должен быть инициализирован при авторизации клиента */
@@ -124,6 +146,14 @@ export class Context<T extends JsonObject> {
   private assertNotDestroyed() {
     if (this.destroyed) {
       throw new Error(`Context ${this.id} has been destroyed`);
+    }
+  }
+
+  private assertInitialized(): asserts this is this & {
+    data$: BehaviorSubject<T>;
+  } {
+    if (!this.data$) {
+      throw new Error(`Context ${this.id} is not initialized`);
     }
   }
 
@@ -281,7 +311,7 @@ export class Context<T extends JsonObject> {
                 setObjectProperty(data, change.key, change.value);
               });
               this.dataChangedByClient = client;
-              this.data$!.next(data);
+              this.replace(data);
               return;
             }
           }),
@@ -408,37 +438,98 @@ export class Context<T extends JsonObject> {
    * Возвращает значение из контекста по указанному пути.
    *
    * Путь может содержать плейсхолдеры, которые будут заменены актуальными значениями.
+   * Объекты и массивы — **копия** ({@link structuredClone}); in-place мутация результата
+   * не меняет контекст. Для снимка всего `T` — {@link snapshot}.
    *
    * @param path Строка с путём до значения.
    * @returns Значение по заданному пути или undefined.
    */
-  value<K extends Paths<T>>(path: K): PathValue<T, K>;
-  value(path: string): unknown {
+  get<K extends Paths<T>>(path: K): PathValue<T, K>;
+  get(path: string): unknown {
     this.assertNotDestroyed();
-    return fetchFromObject(
-      this.data$!.getValue(),
+    this.assertInitialized();
+    const value = fetchFromObject(
+      this.data$.getValue(),
       replaceContextKeys(path, getContextById) as Paths<T>,
     );
-  }
-
-  setValue<K extends Paths<T>>(path: K, value: PathValue<T, K>) {
-    this.assertNotDestroyed();
-    const data = this.data$!.getValue();
-    setObjectProperty(data, path, value);
-    this.data$!.next(data);
+    return cloneGetResult(value);
   }
 
   /**
-   * После мутаций объекта из `data$!.getValue()` in-place без вызовов `next()`
-   * подписчики и клиенты не получают обновление. Метод публикует в поток глубокую
-   * копию текущего состояния и запускает обычную цепочку (diff → сообщения клиенту).
+   * Частичное обновление данных по dotted-путям одним вызовом `next`.
+   *
+   * Предпочтительный способ правки нескольких полей на BFF. Ключ с явным
+   * `undefined` применяется (отличие от отсутствующего ключа в patch).
+   * Для целого снимка после load — {@link replace}.
    */
-  emitAfterInPlaceMutation() {
+  set(patch: ContextPathPatch<T>): void {
     this.assertNotDestroyed();
-    if (!this.data$) {
-      return;
+    this.assertInitialized();
+    const data = this.data$.getValue();
+    for (const path of Object.keys(patch) as Paths<T>[]) {
+      // hasOwnProperty: «loading: undefined» пишем, пропущенный ключ — не трогаем.
+      if (Object.prototype.hasOwnProperty.call(patch, path)) {
+        setObjectProperty(data, path, patch[path] as PathValue<T, typeof path>);
+      }
     }
-    this.data$.next(structuredClone(this.data$.getValue()));
+    this.data$.next(data);
+  }
+
+  /**
+   * Полная замена корня контекста (результат load, `{ ...loaded, field }`).
+   *
+   * Не merge patch: переданный объект становится новым состоянием целиком.
+   */
+  replace(data: T): void {
+    this.assertNotDestroyed();
+    this.assertInitialized();
+    this.data$.next(data);
+  }
+
+  /**
+   * Глубокая копия всего `T` (structured clone корня).
+   *
+   * Для одного поля — {@link get}. Нужен, когда на время async нужен отсоединённый
+   * снимок всего состояния, а не ссылка на живые данные.
+   */
+  snapshot(): T {
+    this.assertNotDestroyed();
+    this.assertInitialized();
+    return structuredClone(this.data$.getValue());
+  }
+
+  /**
+   * Read-only поток данных контекста для подписок и RxJS-операторов.
+   *
+   * Если {@link init} ещё не создал хранилище, подписка **ждёт** успешного init
+   * ({@link init$}), затем ведёт себя как после init. При {@link destroy} до init
+   * поток завершается без эмиссий.
+   *
+   * После подключения сразу эмитит текущее состояние, затем каждое обновление
+   * через {@link set}, {@link replace} и т.п.
+   */
+  watch(): Observable<T> {
+    this.assertNotDestroyed();
+
+    // asObservable() — без .next у подписчиков; тот же поток, что у внутреннего Subject.
+    const connect = (): Observable<T> => {
+      if (this.destroyed || !this.data$) {
+        // destroy до init: init$ уже complete, подписчик не должен висеть.
+        return EMPTY;
+      }
+      return this.data$.asObservable();
+    };
+
+    // init уже создал Subject (в т.ч. промежуточный `{}` во время await load).
+    if (this.data$) {
+      return connect();
+    }
+
+    // boot() до init(): ждём успешный init, затем обычные эмиссии BehaviorSubject.
+    return this.init$.pipe(
+      take(1),
+      switchMap(() => connect()),
+    );
   }
 
   /**
@@ -455,7 +546,7 @@ export class Context<T extends JsonObject> {
    * Ссылка на значение в **этом** контексте по пути, который задаётся **во втором**
    * контексте строкой и меняется во времени.
    *
-   * В отличие от прямого чтения `other.value()` при создании ссылки, в путь записывается
+   * В отличие от прямого чтения `other.get()` при создании ссылки, в путь записывается
    * только плейсхолдер `@{<id контекста other>.<путь other>}` (см. `ContextRef.toString`).
    * При каждом обращении `Context.value` подставляет актуальное значение поля `other`;
    * это уже строка-путь относительно корня текущего контекста (например `cards.1.balance`).

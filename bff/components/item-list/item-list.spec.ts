@@ -49,7 +49,7 @@ describe("flattenNestedItems", () => {
       track: (point) => point.id,
       preload: true,
       generator: ({ ref }) => {
-        const point = ref.value();
+        const point = ref.get();
         return {
           coordinates: { latitude: point.lat, longitude: point.lng },
           width: 80,

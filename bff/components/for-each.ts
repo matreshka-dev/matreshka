@@ -2,7 +2,7 @@ import { ServerComponentClass } from "@matreshka/shared/enums/server-component-c
 import type { ForEachSyncComponentsPayload } from "@matreshka/shared/messages/bff-to-client/components/for-each/for-each-sync-components-message";
 import { ForEachSyncComponentsMessage } from "@matreshka/shared/messages/bff-to-client/components/for-each/for-each-sync-components-message";
 import type { ForEachConfig } from "@matreshka/shared/types/for-each-config";
-import { BehaviorSubject, skip, Subscription } from "rxjs";
+import { skip, Subscription } from "rxjs";
 import { Paths, PathValue } from "ts-essentials";
 import { z } from "zod/v4";
 import {
@@ -46,12 +46,12 @@ type ForEachTypedItemRef<
   ContextType extends JsonObject,
   PathType extends string,
   ValueType,
-> = Omit<ContextRef<any, any>, "context" | "path" | "ref" | "value"> & {
+> = Omit<ContextRef<any, any>, "context" | "path" | "ref" | "get"> & {
   readonly context: Context<ContextType>;
   readonly path: PathType;
   readonly __valueType?: ValueType;
-  value(): ValueType;
-  value(): JsonObject;
+  get(): ValueType;
+  get(): JsonObject;
   ref<K extends Paths<ValueType>>(
     path: K,
   ): ForEachTypedItemRef<
@@ -83,7 +83,7 @@ type ForEachInstanceState = {
 function getForEachValue<RefType extends ContextRef<any, any>>(
   ref: RefType,
 ): ForEachItemData<RefType>[] {
-  const rawValue = ref.value() as ForEachItemArray<RefType> | undefined;
+  const rawValue = ref.get() as ForEachItemArray<RefType> | undefined;
   return Array.isArray(rawValue)
     ? (rawValue as ForEachItemData<RefType>[])
     : [];
@@ -91,13 +91,13 @@ function getForEachValue<RefType extends ContextRef<any, any>>(
 
 /**
  * Связывает ref элемента списка с ref индекса в {@link ForEachContext},
- * чтобы генератор мог читать `ref.value()` и вложенные поля элемента.
+ * чтобы генератор мог читать `ref.get()` и вложенные поля элемента.
  */
 function createForEachItemLink<
   ContextType extends JsonObject,
   PathType extends string,
   RefType extends ContextRef<ContextType, PathType> & {
-    value(): ForEachArrayValue | undefined;
+    get(): ForEachArrayValue | undefined;
   },
 >(
   ref: RefType,
@@ -165,22 +165,14 @@ export type ForEachInitConfig<
 
 class ForEachContext<T extends JsonObject> extends Context<T> {
   /**
-   * Синхронно поднимает `data$`, чтобы индексы элементов были доступны при preload-сериализации.
+   * Запускает {@link Context.init}, чтобы хранилище данных было доступно при preload-сериализации.
    * @returns Тот же экземпляр контекста.
    */
   initSync() {
-    // Запрет на повторную инициализацию контекста
-    if (this.inited()) return this;
-    this.data$ = new BehaviorSubject({} as T);
-    this.subscribeToDataChanges();
-  }
-
-  /**
-   * После in-place обновления карты индексов в `data$` — одна синхронизация с клиентом.
-   * @see Context.emitAfterInPlaceMutation
-   */
-  syncIndexStoreFromMutations() {
-    super.emitAfterInPlaceMutation();
+    if (!this.inited()) {
+      void this.init();
+    }
+    return this;
   }
 
   /**
@@ -358,32 +350,29 @@ export class ForEach<
     const value = getForEachValue(this.config.ref);
     const itemsCheckSum = value.map(this.config.track).join("|");
     this.lastItemsCheckSum = itemsCheckSum;
-    // Тот же объект, что в BehaviorSubject: мутируем in-place, чтобы strictRef видел
-    // индекс через getValue() без next() (иначе срабатывали бы подписчики Context).
-    const store = this.componentContext.data$!.getValue();
-    for (const key of Object.keys(store)) {
-      delete store[key];
+
+    const items = Array.isArray(value) ? value : [];
+    const store: ForEachIndexContext = {};
+    for (let index = 0; index < items.length; index++) {
+      store[this.itemId(items[index])] = { index: `${index}` };
     }
-    const components = (Array.isArray(value) ? value : []).map(
-      (item, index) => {
-        const itemId = this.itemId(item);
-        store[itemId] = { index: `${index}` };
-        if (cache.has(itemId)) {
-          return cache.get(itemId)!;
-        }
-        const result = this.generateItemComponents({
-          component: this,
-          ref: createForEachItemLink(
-            this.config.ref,
-            this.componentContext.ref(`${itemId}.index`),
-          ),
-        });
-        cache.set(itemId, result);
-        return result;
-      },
-    );
-    this.componentContext.syncIndexStoreFromMutations();
-    return components;
+    this.componentContext.replace(store);
+
+    return items.map((item) => {
+      const itemId = this.itemId(item);
+      if (cache.has(itemId)) {
+        return cache.get(itemId)!;
+      }
+      const result = this.generateItemComponents({
+        component: this,
+        ref: createForEachItemLink(
+          this.config.ref,
+          this.componentContext.ref(`${itemId}.index`),
+        ),
+      });
+      cache.set(itemId, result);
+      return result;
+    });
   }
 
   /**
@@ -461,13 +450,12 @@ export class ForEach<
         const contextSubscription = new Subscription();
         this.contextSubscription = contextSubscription;
         contextSubscription.add(
-          this.config.ref.context.init$.subscribe(() => {
-            contextSubscription.add(
-              this.config.ref.context.data$!.pipe(skip(1)).subscribe(() => {
-                void this.syncComponents(true);
-              }),
-            );
-          }),
+          this.config.ref.context
+            .watch()
+            .pipe(skip(1))
+            .subscribe(() => {
+              void this.syncComponents(true);
+            }),
         );
       }
     });
@@ -493,7 +481,7 @@ export class ForEach<
     this.stopUsing$.subscribe(() => {
       this.instanceStates.clear();
     });
-    // Инициализируем контекст сразу, чтобы при ранней сериализации data$ уже существовал.
+    // Инициализируем контекст сразу, чтобы при ранней сериализации хранилище уже существовало.
     void this.componentContext.initSync();
   }
 

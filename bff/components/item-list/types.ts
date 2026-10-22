@@ -4,7 +4,7 @@ import type { ComponentTreeNode, ContextRef, JsonObject } from "../../core";
 export type ListArrayValue = readonly unknown[] | unknown[];
 
 type ItemArray<RefType extends ContextRef<any, any>> = Extract<
-  ReturnType<RefType["value"]>,
+  ReturnType<RefType["get"]>,
   ListArrayValue
 >;
 
@@ -21,11 +21,11 @@ export type ItemListTypedItemRef<
   ContextType extends JsonObject,
   PathType extends string,
   ValueType,
-> = Omit<ContextRef<any, any>, "path" | "ref" | "value"> & {
+> = Omit<ContextRef<any, any>, "path" | "ref" | "get"> & {
   readonly path: PathType;
   readonly __valueType?: ValueType;
-  value(): ValueType;
-  value(): JsonObject;
+  get(): ValueType;
+  get(): JsonObject;
   ref<K extends Paths<ValueType>>(
     path: K,
   ): ItemListTypedItemRef<
@@ -74,7 +74,7 @@ export type ItemListInitConfig<
 export function getItemListValue<RefType extends ContextRef<any, any>>(
   ref: RefType,
 ): ItemListItemData<RefType>[] {
-  const rawValue = ref.value() as ItemArray<RefType> | undefined;
+  const rawValue = ref.get() as ItemArray<RefType> | undefined;
   return Array.isArray(rawValue)
     ? (rawValue as ItemListItemData<RefType>[])
     : [];
@@ -86,7 +86,7 @@ export function createItemListItemLink<
   ContextType extends JsonObject,
   PathType extends string,
   RefType extends ContextRef<ContextType, PathType> & {
-    value(): ListArrayValue | undefined;
+    get(): ListArrayValue | undefined;
   },
 >(
   ref: RefType,

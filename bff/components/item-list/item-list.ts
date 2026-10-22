@@ -159,13 +159,12 @@ export class ItemList<
     const contextSubscription = new Subscription();
     this.contextSubscription = contextSubscription;
     contextSubscription.add(
-      this.config.ref.context.init$.subscribe(() => {
-        contextSubscription.add(
-          this.config.ref.context.data$!.pipe(skip(1)).subscribe(() => {
-            this.syncToHost(true);
-          }),
-        );
-      }),
+      this.config.ref.context
+        .watch()
+        .pipe(skip(1))
+        .subscribe(() => {
+          this.syncToHost(true);
+        }),
     );
   }
 
@@ -249,13 +248,15 @@ export class ItemList<
   ): { id: string; item: ItemType }[] {
     const cache = this.getInstanceState(instance).itemsCache;
     const value = getItemListValue(this.config.ref);
-    const store = this.indexContext.data$!.getValue();
-    for (const key of Object.keys(store)) {
-      delete store[key];
-    }
-    const items = value.map((data, index) => {
-      const cacheKey = this.itemCacheKey(data);
+    const store: Record<string, { index: `${number}` }> = {};
+    for (let index = 0; index < value.length; index++) {
+      const cacheKey = this.itemCacheKey(value[index]);
       store[cacheKey] = { index: `${index}` };
+    }
+    this.indexContext.replace(store);
+
+    return value.map((data) => {
+      const cacheKey = this.itemCacheKey(data);
       let item = cache.get(cacheKey) as ItemType | undefined;
       if (!item) {
         item = this.config.generator({
@@ -269,8 +270,6 @@ export class ItemList<
       }
       return { id: this.trackId(data), item };
     });
-    this.indexContext.syncIndexStoreFromMutations();
-    return items;
   }
 }
 

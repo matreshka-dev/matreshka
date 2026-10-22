@@ -35,7 +35,7 @@ describe("Context.ref и ContextRef.ref", () => {
     const ref = ctx.ref("user").ref("profile").ref("name");
 
     expect(ref.path).toBe("user.profile.name");
-    expect(ref.value()).toBe("Alice");
+    expect(ref.get()).toBe("Alice");
   });
 
   it("должен уметь продолжать путь через другой ContextRef того же контекста", async () => {
@@ -64,10 +64,10 @@ describe("Context.ref и ContextRef.ref", () => {
     const combined = base.ref(suffix);
 
     expect(combined.path).toBe("user.profile.name");
-    expect(combined.value()).toBe("Bob");
+    expect(combined.get()).toBe("Bob");
   });
 
-  it("ContextRef.setValue должен записывать значение по пути ref", async () => {
+  it("ContextRef.set должен записывать значение по пути ref", async () => {
     type TestContext = {
       user: { name: string };
       loading: boolean;
@@ -83,16 +83,16 @@ describe("Context.ref и ContextRef.ref", () => {
     await ctx.init();
 
     const nameRef = ctx.ref("user").ref("name");
-    nameRef.setValue("Carol");
-    expect(nameRef.value()).toBe("Carol");
+    nameRef.set("Carol");
+    expect(nameRef.get()).toBe("Carol");
 
     const loadingRef = ctx.ref("loading");
-    loadingRef.setValue(true);
-    expect(loadingRef.value()).toBe(true);
+    loadingRef.set(true);
+    expect(loadingRef.get()).toBe(true);
   });
 
-  it("ContextRef.setValue не должен бросать после destroy контекста", async () => {
-    const ctx = new Context({
+  it("ContextRef.set не должен бросать после destroy контекста", async () => {
+    const ctx = new Context<{ flag: boolean }>({
       data: async () => ({ flag: false }),
     });
 
@@ -101,7 +101,7 @@ describe("Context.ref и ContextRef.ref", () => {
     const flagRef = ctx.ref("flag");
     ctx.destroy();
 
-    expect(() => flagRef.setValue(true)).not.toThrow();
+    expect(() => flagRef.set(true)).not.toThrow();
   });
 });
 
@@ -134,7 +134,7 @@ describe("Context.strictRef", () => {
     const resultRef = cardsContext.strictRef(pathRef);
 
     expect(resultRef.path).toBe(pathRef.toString());
-    expect(resultRef.value()).toBe(200);
+    expect(resultRef.get()).toBe(200);
   });
 
   it("должен корректно работать, если значение пути изменилось", async () => {
@@ -163,12 +163,12 @@ describe("Context.strictRef", () => {
     const pathRef = pathContext.ref("path");
 
     const resultRef1 = cardsContext.strictRef(pathRef);
-    expect(resultRef1.value()).toBe(100);
+    expect(resultRef1.get()).toBe(100);
 
     // изменяем путь во втором контексте
-    pathContext.setValue("path", "cards.1.balance");
+    pathContext.set({ path: "cards.1.balance" });
 
     const resultRef2 = cardsContext.strictRef(pathRef);
-    expect(resultRef2.value()).toBe(200);
+    expect(resultRef2.get()).toBe(200);
   });
 });

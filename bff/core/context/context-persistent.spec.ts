@@ -42,7 +42,7 @@ describe("Context persistent", () => {
 
     expect(context.isDestroyed()).toBe(false);
     expect(context.persistent).toBe(true);
-    expect(context.value("name")).toBe("cached");
+    expect(context.get("name")).toBe("cached");
   });
 
   it("persistent: новый клиент получает context-init после ухода предыдущего", async () => {
@@ -64,7 +64,7 @@ describe("Context persistent", () => {
     context.authorizeClient(second);
     await context.init();
 
-    expect(context.value("name")).toBe("shared");
+    expect(context.get("name")).toBe("shared");
     expect(outMessages.some((m) => m instanceof ContextInitMessage)).toBe(true);
   });
 
@@ -108,6 +108,6 @@ describe("Context persistent", () => {
 
     expect(defaultContext.isDestroyed()).toBe(true);
     expect(persistentContext.isDestroyed()).toBe(false);
-    expect(persistentContext.value("name")).toBe("p");
+    expect(persistentContext.get("name")).toBe("p");
   });
 });

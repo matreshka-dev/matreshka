@@ -1,4 +1,3 @@
-import { fetchFromObject } from "@matreshka/shared/utils/fetch-from-object";
 import { Paths } from "ts-essentials";
 import { Context } from "../context/context";
 import { parseContextPath } from "./parse-context-path";
@@ -30,10 +29,7 @@ export function replaceContextKeys(
     if (!context.inited()) {
       throw new Error(`Context ${pathInfo.contextId} not initialized`);
     }
-    const value = fetchFromObject(
-      context.data$!.getValue(),
-      pathInfo.key as Paths<any>,
-    );
+    const value = context.get(pathInfo.key as Paths<any>);
     str = replaceAll(str, `@{${path}}`, value ?? defaultValue);
   });
   const restContextKeys = findContextKeys(str);

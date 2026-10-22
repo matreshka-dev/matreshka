@@ -15,11 +15,11 @@
 
 1. **Создание** — `new Context({ data, schema, … })`, регистрация id в registry.
 2. **Привязка клиента** — `authorizeClient` / сериализация ref в дереве компонентов; при необходимости `init()` и **`context-init`** (полный snapshot).
-3. **Работа** — изменения через `setValue` / `data$`, исходящие **`context-values`** (diff) всем привязанным клиентам; входящие **`context-values`** от клиента (с валидацией schema).
+3. **Работа** — изменения через `set` / `replace` / `ref.set`, исходящие **`context-values`** (diff) всем привязанным клиентам; входящие **`context-values`** от клиента (с валидацией schema).
 4. **Использование entry** — page/dialog держит instances; `stopUsing$` entry часто совпадает с моментом, когда контекст больше не нужен серверу (см. [сценарии destroy](../advanced/context-destroy-scenarios.md)).
 5. **Уничтожение на сервере** — `context.destroy()`:
-   - контекст помечается destroyed, **недоступен** для `value()`, `setValue`, новых ref в сериализации;
-   - отписываются подписки, завершается `data$`;
+   - контекст помечается destroyed, **недоступен** для `get`, `set`, `replace`, `watch`, новых ref в сериализации;
+   - отписываются подписки, завершается поток `watch()`;
    - всем **ещё привязанным** клиентам уходит **`context-destroy`** (см. ниже);
    - запись снимается с registry (освобождение памяти на BFF).
 
@@ -35,7 +35,7 @@
 
 `persistent` **не означает immortal**: если данные не нужны весь runtime процесса, **обязательно** запланируйте ручной destroy (reload справочника, смена версии, shutdown). Иначе — утечка памяти BFF.
 
-Один persistent `Context` — **общий `data$`** для всех одновременно привязанных клиентов; только process-wide данные без смешения персональных сессий. Подробнее — [context-destroy-scenarios.md](../advanced/context-destroy-scenarios.md).
+Один persistent `Context` — **общее состояние** для всех одновременно привязанных клиентов; только process-wide данные без смешения персональных сессий. Подробнее — [context-destroy-scenarios.md](../advanced/context-destroy-scenarios.md).
 
 Повторное обращение к уничтоженному контексту на BFF — ошибка (`Context … has been destroyed`). Это намеренно: id больше не представляет живое состояние.
 

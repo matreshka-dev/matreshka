@@ -44,13 +44,13 @@ npx skills add matreshka-dev/agents--skill --skill context-init-in-boot prefer-c
 | ---------------------------------------------- | ---------------------------------------------------------------- |
 | Новый `Context` — destroy / `persistent`       | `context-plan-destroy-on-create`                                 |
 | Process-wide кэш (`persistent: true`)          | `context-plan-destroy-on-create`                                 |
-| `context.value()` в `content()` / `overlays()` | `context-init-in-boot`                                           |
+| `context.get()` в `content()` / `overlays()`   | `context-init-in-boot`                                           |
 | Реактивный UI без лишнего `init()`             | `prefer-context-ref-in-ui`, `context-init-in-boot` (lazy + refs) |
 | Плейсхолдеры в строках и `link`                | `context-ref-in-strings`                                         |
 | Уничтожение Context с Page/Dialog              | `context-destroy-with-entry`                                     |
 | Badge/корзина в shell приложения               | `client-scoped-context-for-shared-ui`                            |
 | JWT, tenant до построения страницы             | `storage-vs-context`, `route-guard-return-undefined`             |
-| Подписка на `data$`                            | `context-subscribe-take-until-destroy`                           |
+| Подписка на `watch()`                          | `context-subscribe-take-until-destroy`                           |
 | Zod на полях ввода                             | `context-zod-draft-not-live-strict`                              |
 
 ### UI, списки, entry

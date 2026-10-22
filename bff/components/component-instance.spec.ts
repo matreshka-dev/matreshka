@@ -1029,7 +1029,7 @@ describe("Component instance: ForEach и несколько placement", () => {
     expect(rowButtons[0].getInstances({ client })).toHaveLength(1);
     expect(rowButtons[1].getInstances({ client })).toHaveLength(1);
 
-    context.data$!.next({
+    context.replace({
       tasks: [
         { id: "b", title: "B" },
         { id: "a", title: "A" },

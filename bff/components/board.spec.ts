@@ -74,7 +74,7 @@ describe("Board", () => {
           track: (card) => card.id,
           preload: true,
           generator: ({ ref }) => {
-            const card = ref.value();
+            const card = ref.get();
             return {
               position: { x: card.x, y: card.y },
               component: text(card.title),
@@ -107,7 +107,7 @@ describe("Board", () => {
           track: (card) => card.id,
           preload: true,
           generator: ({ ref: cardRef }) => ({
-            position: { x: cardRef.value().x, y: cardRef.value().y },
+            position: { x: cardRef.get().x, y: cardRef.get().y },
             component: text(cardRef.ref("title")),
           }),
         }),

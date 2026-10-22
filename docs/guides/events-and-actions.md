@@ -23,7 +23,7 @@
 button(
   {
     onClick: async ({ instance }) => {
-      await this.draftService.save(this.context.value("draft"));
+      await this.draftService.save(this.context.get("draft"));
       // instance.id — id DOM-инстанса; instance.component — BFF-объект
     },
   },
@@ -59,7 +59,7 @@ class FeedPage extends Page {
         payload.contentSize - payload.offset - payload.viewportSize < 150;
 
       if (nearEnd) {
-        this.feedContext.setValue("loadingMore", true);
+        this.feedContext.set({ loadingMore: true });
       }
     };
   }
@@ -235,7 +235,7 @@ animate({
 ```ts
 new ServerAction(
   () => {
-    this.context.setValue("submitted", true);
+    this.context.set({ submitted: true });
   },
   {
     conditions: [when.equals(this.context.ref("enabled"), true)],
@@ -320,7 +320,7 @@ class SignInPage extends Page {
             new ServerAction(
               () => {
                 // авторизация...
-                this.context.setValue("loading", false);
+                this.context.set({ loading: false });
               },
               {
                 conditions: [when.equals(this.context.ref("loading"), false)],

@@ -1085,7 +1085,7 @@ currency(
 Плохой пример:
 
 ```ts
-this.context.setValue("createdAt", "2026-06-25T11:30:00");
+this.context.set({ createdAt: "2026-06-25T11:30:00" });
 ```
 
 В такой строке нет информации о часовом поясе, поэтому клиент может трактовать ее как локальное время своего устройства.
@@ -1093,11 +1093,11 @@ this.context.setValue("createdAt", "2026-06-25T11:30:00");
 Хорошие примеры:
 
 ```ts
-this.context.setValue("createdAt", "2026-06-25T08:30:00Z");
+this.context.set({ createdAt: "2026-06-25T08:30:00Z" });
 ```
 
 ```ts
-this.context.setValue("createdAt", "2026-06-25T11:30:00+03:00");
+this.context.set({ createdAt: "2026-06-25T11:30:00+03:00" });
 ```
 
 Обе строки содержат часовой пояс, поэтому момент времени интерпретируется однозначно.
@@ -1872,11 +1872,11 @@ map({
       track: (office) => office.id,
       generator: ({ ref }) => ({
         coordinates: {
-          latitude: ref.value().lat,
-          longitude: ref.value().lng,
+          latitude: ref.get().lat,
+          longitude: ref.get().lng,
         },
         width: 80,
-        component: text(ref.value().name),
+        component: text(ref.get().name),
       }),
     }),
   ],
@@ -1947,8 +1947,8 @@ board({
       ref: context.ref("teams"),
       track: (team) => team.id,
       generator: ({ ref }) => ({
-        position: { x: ref.value().x, y: ref.value().y },
-        component: text(ref.value().name),
+        position: { x: ref.get().x, y: ref.get().y },
+        component: text(ref.get().name),
       }),
     }),
   ],
