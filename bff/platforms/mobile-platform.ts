@@ -206,7 +206,7 @@ class BLEDevice {
   ) {}
 
   connect(): Observable<void> {
-    return targetedClientPlatformAction(this.client, {
+    return targetedClientPlatformAction<void>(this.client, {
       outgoingMessage: (scope) =>
         new MobileConnectToBleDeviceMessage(scope, {
           deviceId: this.id,
@@ -253,7 +253,7 @@ class BLEDevice {
   }
 
   disconnect(): Observable<void> {
-    return targetedClientPlatformAction(this.client, {
+    return targetedClientPlatformAction<void>(this.client, {
       outgoingMessage: (scope) =>
         new MobileDisconnectMessage(scope, { deviceId: this.id }),
     }).pipe(tap(() => this.endSession()));
