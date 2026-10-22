@@ -23,6 +23,7 @@ import {
   calculatePopoverWidth,
   calculateScaleStyles,
 } from '../utils/calculate-styles';
+import { waitForPopupDestroyed } from '../utils/wait-for-popup-destroyed';
 import {
   applyPopoverViewportClampStyles,
   computePopoverViewportMaxAvailable,
@@ -66,8 +67,11 @@ export class PopoverComponent
             message instanceof PopoverCloseMessage,
         ),
       )
-      .subscribe(() => {
-        this.popupService.close$.next(this.id());
+      .subscribe((message) => {
+        this.runComponentCommand(message, async () => {
+          this.popupService.close$.next(this.id());
+          await waitForPopupDestroyed(this.popupService, this.id());
+        });
       });
   }
 

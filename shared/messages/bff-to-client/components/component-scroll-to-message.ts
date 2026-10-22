@@ -1,4 +1,5 @@
 import { ScrollToPosition } from "../../../enums/scroll-to-position";
+import type { ComponentCommandActionPayload } from "../component-command-message";
 import { PingableComponentCommandMessage } from "../pingable-component-command-message";
 
 /**
@@ -8,7 +9,8 @@ import { PingableComponentCommandMessage } from "../pingable-component-command-m
  * {@link ScrollToPosition.End} — в конец оси.
  * Иное `value < 0` — отступ от конца: `maxScroll + value`.
  */
-export type ComponentScrollToPayload = {
+
+export type ComponentScrollToPayload = ComponentCommandActionPayload & {
   value: number;
   smooth?: boolean;
 };

@@ -561,7 +561,7 @@ onClick: ({ instance, payload }) => {
 
 ### BFF → Client
 
-Команды компоненту адресуются полем **`target`**. Лёгкие (`MapSetCenterMessage`, `DialogCloseMessage`, `PopoverCloseMessage`, команды text-editor, `ComponentScrollToMessage` и др.) наследуют `PingableComponentCommandMessage` и участвуют в расчёте RTT. Тяжёлые наследуют `ReliableComponentCommandMessage`: сейчас это только `ForEachSyncComponentsMessage`, потому что payload со строками списка не должен искажать ping. Клиент принимает оба вида в `componentCommandMessages$`.
+Команды компоненту адресуются полем **`target`**; ack — по **`actionScope`** (`component-action-<uuid>`). См. [`../architecture/component-actions.md`](../architecture/component-actions.md). Лёгкие (`MapSetCenterMessage`, `DialogCloseMessage`, …) наследуют `PingableComponentCommandMessage` и участвуют в расчёте RTT. Тяжёлые наследуют `ReliableComponentCommandMessage`: сейчас это только `ForEachSyncComponentsMessage`, потому что payload со строками списка не должен искажать ping. Клиент принимает оба вида в `componentCommandMessages$`.
 
 **Одному инстансу** — в `target` указан **instance id** (`uuid-0`); команда обрабатывается только тем DOM-инстансом с совпадающим `id()`.
 
@@ -574,12 +574,12 @@ componentIdMatchesInstance(message.target, this.id());
 // или target === componentBaseId(this.id()) — broadcast всем инстансам одного Component
 ```
 
-На BFF `broadcast()` рассылает сообщение **всем клиентам** с активными инстансами этого объекта. Методы вроде `map.setCenter()`, `dialog.close()`, `stack.scrollTo()` следуют той же схеме: без аргумента `instances` — broadcast с базовым id; с `ComponentInstance[]` — точечная отправка в `instance.client.outcomingMessage$` с `target: instance.id`.
+Публичные методы (`map.setCenter()`, `dialog.close()`, `stack.scrollTo()`, …) возвращают hot **`Observable<void>`** и рассылают команду **каждому instance с клиентом** через `dispatchComponentCommand`: без аргумента `instances` — все активные instances компонента; с `ComponentInstance[]` — только указанные.
 
 ```ts
 onClick: ({ instance }) => {
-  map.setCenter({ latitude: 55.75, longitude: 37.62 }, [instance]); // один инстанс
-  map.zoomIn(); // все инстансы этой карты у текущего клиента
+  map.setCenter({ latitude: 55.75, longitude: 37.62 }, [instance]).subscribe();
+  map.zoomIn().subscribe(); // все instances с подключённым client
 };
 ```
 

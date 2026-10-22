@@ -40,10 +40,12 @@ export class CameraComponent extends ServerComponent<CameraConfig> {
     super.ngOnInit();
     this.componentCommandMessages$.subscribe((message) => {
       if (message instanceof CameraSwitchMessage) {
-        const deviceId = message.payload.deviceId;
-        if (deviceId) {
-          this.switchToCamera(deviceId);
-        }
+        this.runComponentCommand(message, async () => {
+          const deviceId = message.payload.deviceId;
+          if (deviceId) {
+            await this.switchToCamera(deviceId);
+          }
+        });
       }
     });
   }

@@ -267,7 +267,7 @@ class FeedPage extends Page {
 
 | Метод     | Назначение                                 |
 | --------- | ------------------------------------------ |
-| `close()` | Отправляет клиенту команду закрыть диалог. |
+| `close()` | Отправляет клиенту команду закрыть диалог. Hot `Observable<void>` до ack клиента. |
 
 Пример:
 
@@ -305,7 +305,7 @@ dialog(
 
 | Метод     | Назначение                    |
 | --------- | ----------------------------- |
-| `close()` | Закрывает popover на клиенте. |
+| `close()` | Закрывает popover на клиенте. Hot `Observable<void>` до ack клиента. |
 
 Пример:
 
@@ -361,7 +361,7 @@ popover(
 
 | Метод                                                           | Назначение                         |
 | --------------------------------------------------------------- | ---------------------------------- |
-| `scrollTo(value: number \| ScrollToPosition, smooth?: boolean)` | Программно прокручивает контейнер. |
+| `scrollTo(value: number \| ScrollToPosition, smooth?: boolean)` | Программно прокручивает контейнер. Hot `Observable<void>` до ack клиента. |
 
 `scrollTo` передаёт на клиент команду `component-scroll-to`. Для типовых целей используйте enum **`ScrollToPosition`** (из `@matreshka/bff/components`):
 
@@ -1844,9 +1844,9 @@ camera(
 
 | Метод               | Назначение                       |
 | ------------------- | -------------------------------- |
-| `setCenter(center)` | Программно меняет центр карты.   |
-| `setZoom(zoom)`     | Программно меняет масштаб карты. |
-| `zoomIn(step?)`     | Увеличивает zoom.                |
+| `setCenter(center)` | Программно меняет центр карты. Hot `Observable<void>`.   |
+| `setZoom(zoom)`     | Программно меняет масштаб карты. Hot `Observable<void>`. |
+| `zoomIn(step?)`     | Увеличивает zoom. Hot `Observable<void>`.                |
 | `zoomOut(step?)`    | Уменьшает zoom.                  |
 
 Пример:
@@ -1925,9 +1925,9 @@ map({
 
 | Метод               | Назначение                      |
 | ------------------- | ------------------------------- |
-| `setCenter(center)` | Программно меняет центр вида.   |
-| `setZoom(zoom)`     | Программно меняет масштаб вида. |
-| `zoomIn()`          | Увеличивает zoom.               |
+| `setCenter(center)` | Программно меняет центр вида. Hot `Observable<void>`.   |
+| `setZoom(zoom)`     | Программно меняет масштаб вида. Hot `Observable<void>`. |
+| `zoomIn()`          | Увеличивает zoom. Hot `Observable<void>`.               |
 | `zoomOut()`         | Уменьшает zoom.                 |
 
 Пример:

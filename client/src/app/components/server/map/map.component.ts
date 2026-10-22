@@ -148,23 +148,31 @@ export class MapComponent extends NestedItemsHostComponent<
     super.ngOnInit();
     this.componentCommandMessages$.subscribe((message) => {
       if (message instanceof MapSetCenterMessage) {
-        this.currentCenter = this.yMapCenterFromLonLat(
-          message.payload.longitude,
-          message.payload.latitude,
-          message.payload.altitude,
-        );
-        this.applyLocation();
+        this.runComponentCommand(message, () => {
+          this.currentCenter = this.yMapCenterFromLonLat(
+            message.payload.longitude,
+            message.payload.latitude,
+            message.payload.altitude,
+          );
+          this.applyLocation();
+        });
       } else if (message instanceof MapSetZoomMessage) {
-        this.currentZoom = message.payload;
-        this.applyLocation();
+        this.runComponentCommand(message, () => {
+          this.currentZoom = message.payload.zoom;
+          this.applyLocation();
+        });
       } else if (message instanceof MapZoomInMessage) {
-        this.currentZoom =
-          (this.currentZoom ?? this.config.properties.zoom) + 1;
-        this.applyLocation();
+        this.runComponentCommand(message, () => {
+          this.currentZoom =
+            (this.currentZoom ?? this.config.properties.zoom) + 1;
+          this.applyLocation();
+        });
       } else if (message instanceof MapZoomOutMessage) {
-        this.currentZoom =
-          (this.currentZoom ?? this.config.properties.zoom) - 1;
-        this.applyLocation();
+        this.runComponentCommand(message, () => {
+          this.currentZoom =
+            (this.currentZoom ?? this.config.properties.zoom) - 1;
+          this.applyLocation();
+        });
       }
     });
     if (MapComponent.yandexMapsStatus$.getValue() === 'pending') {

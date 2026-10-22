@@ -21,6 +21,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import {
   ComponentCommandMessage,
   isComponentCommandMessage,
+  PingableComponentCommandMessage,
 } from '@shared/messages/bff-to-client/component-command-message';
 import { ClientToBffMessage } from '@shared/messages/client-to-bff/client-to-bff-message';
 import { ComponentEnterMessage } from '@shared/messages/client-to-bff/components/component-enter-message';
@@ -41,6 +42,7 @@ import { ComponentHubService } from '../../services/component-hub.service';
 import { ContextHubService } from '../../services/context-hub.service';
 import { FontRegistryService } from '../../services/font-registry.service';
 import { PostmanService } from '../../services/postman.service';
+import { runTargetedAction } from '../../utils/targeted-action';
 import type { Overlay } from './server-component-config';
 import { ServerComponentConfig } from './server-component-config';
 import { getOverlaysFromConfig } from './server-component-overlays';
@@ -150,6 +152,14 @@ export abstract class ServerComponent<T extends ServerComponentConfig>
       ),
       takeUntilDestroyed(this.destroyRef),
     );
+  }
+
+  /** Выполняет pingable component command и отправляет ack по {@link message.actionScope}. */
+  protected runComponentCommand(
+    message: PingableComponentCommandMessage,
+    action: () => void | Promise<void>,
+  ): void {
+    runTargetedAction(this.postman, message.actionScope, action);
   }
 
   /**

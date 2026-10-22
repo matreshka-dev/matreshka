@@ -1,8 +1,8 @@
 import { PingableComponentCommandMessage } from "../../pingable-component-command-message";
 
-export class BoardZoomOutMessage extends PingableComponentCommandMessage<undefined> {
+export class BoardZoomOutMessage extends PingableComponentCommandMessage {
   static readonly type = "board-zoom-out";
-  constructor(target: string) {
-    super(target);
+  constructor(target: string, actionScope: string) {
+    super(target, { actionScope });
   }
 }

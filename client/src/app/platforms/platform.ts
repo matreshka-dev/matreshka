@@ -20,8 +20,6 @@ import { PlatformSetColorSchemeMessage } from '@shared/messages/bff-to-client/pl
 import { PlatformSetOverlaysMessage } from '@shared/messages/bff-to-client/platforms/platform-set-overlays-message';
 import { PlatformShowNativePickerMessage } from '@shared/messages/bff-to-client/platforms/platform-show-native-picker-message';
 import { AppClientStateMessage } from '@shared/messages/client-to-bff/app';
-import { ErrorMessage } from '@shared/messages/client-to-bff/error-message';
-import { PlatformActionCompletedMessage } from '@shared/messages/client-to-bff/platforms/platform-action-completed-message';
 import { ClientState } from '@shared/types/client-state';
 import { filter, firstValueFrom, take } from 'rxjs';
 import { ServerComponent } from '../components/server/server-component';
@@ -44,6 +42,11 @@ import { parseContextPath } from '../utils/parse-context-path';
 import { registerColors } from '../utils/register-colors';
 import { stringIsExternalUrl } from '../utils/string-is-external-url';
 import { syncConfigColorsToElement } from '../utils/sync-config-colors-to-element';
+import {
+  completeTargetedAction,
+  failTargetedAction,
+  runTargetedAction,
+} from '../utils/targeted-action';
 
 export const PLATFORM = new InjectionToken<Platform>('');
 
@@ -202,29 +205,18 @@ export abstract class Platform {
   ): void {}
 
   protected completePlatformAction(target: string): void {
-    this.postman.outcomingMessage$.next(
-      new PlatformActionCompletedMessage(target),
-    );
+    completeTargetedAction(this.postman, target);
   }
 
   protected failPlatformAction(target: string, error: unknown): void {
-    this.postman.outcomingMessage$.next(
-      new ErrorMessage(target, {
-        message: error instanceof Error ? error.message : String(error),
-      }),
-    );
+    failTargetedAction(this.postman, target, error);
   }
 
   protected runPlatformAction(
     target: string,
     action: () => void | Promise<void>,
   ): void {
-    void Promise.resolve()
-      .then(action)
-      .then(
-        () => this.completePlatformAction(target),
-        (error) => this.failPlatformAction(target, error),
-      );
+    runTargetedAction(this.postman, target, action);
   }
 
   private waitForRouterNavigation(

@@ -1,9 +1,10 @@
+import type { ComponentCommandActionPayload } from "../../component-command-message";
 import { PingableComponentCommandMessage } from "../../pingable-component-command-message";
 
 /**
  * Команда от BFF к клиенту: переключить активную камеру устройства на указанную.
  */
-export type CameraSwitchPayload = {
+export type CameraSwitchPayload = ComponentCommandActionPayload & {
   deviceId: string;
 };
 

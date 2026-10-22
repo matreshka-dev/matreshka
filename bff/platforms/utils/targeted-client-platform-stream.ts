@@ -1,7 +1,7 @@
 import { AnyBffToClientMessage } from "@matreshka/shared/messages/bff-to-client/bff-to-client-message";
+import { ActionCompletedMessage } from "@matreshka/shared/messages/client-to-bff/action-completed-message";
 import { AnyClientToBffMessage } from "@matreshka/shared/messages/client-to-bff/client-to-bff-message";
 import { ErrorMessage } from "@matreshka/shared/messages/client-to-bff/error-message";
-import { PlatformActionCompletedMessage } from "@matreshka/shared/messages/client-to-bff/platforms/platform-action-completed-message";
 import { isTargetedMessage } from "@matreshka/shared/messages/targeted-message";
 import { filter, Observable, Subject } from "rxjs";
 import { z } from "zod/v4";
@@ -84,7 +84,7 @@ export function targetedClientPlatformStream<T>(
           finishWithError(failure);
           return;
         }
-        if (unsafeMessage instanceof PlatformActionCompletedMessage) {
+        if (unsafeMessage instanceof ActionCompletedMessage) {
           finishComplete();
           return;
         }

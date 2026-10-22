@@ -112,59 +112,33 @@ export class Map<
     },
     instances?: ComponentInstance[],
   ) {
-    if (instances) {
-      instances
-        .filter((instance) => instance.client)
-        .forEach((instance) => {
-          instance.client!.outcomingMessage$.next(
-            new MapSetCenterMessage(instance.id, center),
-          );
-        });
-    } else {
-      this.broadcast(new MapSetCenterMessage(this.id, center));
-    }
+    return this.dispatchComponentCommand(
+      instances,
+      (target, actionScope) =>
+        new MapSetCenterMessage(target, { ...center, actionScope }),
+    );
   }
 
   setZoom(zoom: number, instances?: ComponentInstance[]) {
-    if (instances) {
-      instances
-        .filter((instance) => instance.client)
-        .forEach((instance) => {
-          instance.client!.outcomingMessage$.next(
-            new MapSetZoomMessage(instance.id, zoom),
-          );
-        });
-    } else {
-      this.broadcast(new MapSetZoomMessage(this.id, zoom));
-    }
+    return this.dispatchComponentCommand(
+      instances,
+      (target, actionScope) =>
+        new MapSetZoomMessage(target, { zoom, actionScope }),
+    );
   }
 
   zoomIn(instances?: ComponentInstance[]) {
-    if (instances) {
-      instances
-        .filter((instance) => instance.client)
-        .forEach((instance) => {
-          instance.client!.outcomingMessage$.next(
-            new MapZoomInMessage(instance.id),
-          );
-        });
-    } else {
-      this.broadcast(new MapZoomInMessage(this.id));
-    }
+    return this.dispatchComponentCommand(
+      instances,
+      (target, actionScope) => new MapZoomInMessage(target, actionScope),
+    );
   }
 
   zoomOut(instances?: ComponentInstance[]) {
-    if (instances) {
-      instances
-        .filter((instance) => instance.client)
-        .forEach((instance) => {
-          instance.client!.outcomingMessage$.next(
-            new MapZoomOutMessage(instance.id),
-          );
-        });
-    } else {
-      this.broadcast(new MapZoomOutMessage(this.id));
-    }
+    return this.dispatchComponentCommand(
+      instances,
+      (target, actionScope) => new MapZoomOutMessage(target, actionScope),
+    );
   }
 
   constructor(config: InitConfigType) {

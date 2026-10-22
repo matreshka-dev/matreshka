@@ -95,17 +95,10 @@ export class Popover<
    * Закрывает всплывающее окно, инициируя действие "close".
    */
   close(instances?: ComponentInstance[]) {
-    if (instances) {
-      instances
-        .filter((instance) => instance.client)
-        .forEach((instance) => {
-          instance.client!.outcomingMessage$.next(
-            new PopoverCloseMessage(instance.id),
-          );
-        });
-    } else {
-      this.broadcast(new PopoverCloseMessage(this.id));
-    }
+    return this.dispatchComponentCommand(
+      instances,
+      (target, actionScope) => new PopoverCloseMessage(target, actionScope),
+    );
   }
 
   /**

@@ -115,234 +115,141 @@ export class TextEditor<
    */
   insertHTML(value: string, instances?: ComponentInstance[]) {
     const payload = { value };
-    if (instances) {
-      instances
-        .filter((instance) => instance.client)
-        .forEach((instance) => {
-          instance.client!.outcomingMessage$.next(
-            new TextEditorInsertHtmlMessage(instance.id, payload),
-          );
-        });
-    } else {
-      this.broadcast(new TextEditorInsertHtmlMessage(this.id, payload));
-    }
-    return this;
+    return this.dispatchComponentCommand(
+      instances,
+      (target, actionScope) =>
+        new TextEditorInsertHtmlMessage(target, { ...payload, actionScope }),
+    );
   }
 
   /**
    * Переключает курсивное начертание текста.
    */
   toggleItalic(instances?: ComponentInstance[]) {
-    if (instances) {
-      instances
-        .filter((instance) => instance.client)
-        .forEach((instance) => {
-          instance.client!.outcomingMessage$.next(
-            new TextEditorToggleItalicMessage(instance.id),
-          );
-        });
-    } else {
-      this.broadcast(new TextEditorToggleItalicMessage(this.id));
-    }
-    return this;
+    return this.dispatchComponentCommand(
+      instances,
+      (target, actionScope) =>
+        new TextEditorToggleItalicMessage(target, actionScope),
+    );
   }
 
   /**
    * Переключает полужирное начертание текста.
    */
   toggleBold(instances?: ComponentInstance[]) {
-    if (instances) {
-      instances
-        .filter((instance) => instance.client)
-        .forEach((instance) => {
-          instance.client!.outcomingMessage$.next(
-            new TextEditorToggleBoldMessage(instance.id),
-          );
-        });
-    } else {
-      this.broadcast(new TextEditorToggleBoldMessage(this.id));
-    }
-    return this;
+    return this.dispatchComponentCommand(
+      instances,
+      (target, actionScope) =>
+        new TextEditorToggleBoldMessage(target, actionScope),
+    );
   }
 
   /**
    * Переключает подчеркивание текста.
    */
   toggleUnderline(instances?: ComponentInstance[]) {
-    if (instances) {
-      instances
-        .filter((instance) => instance.client)
-        .forEach((instance) => {
-          instance.client!.outcomingMessage$.next(
-            new TextEditorToggleUnderlineMessage(instance.id),
-          );
-        });
-    } else {
-      this.broadcast(new TextEditorToggleUnderlineMessage(this.id));
-    }
-    return this;
+    return this.dispatchComponentCommand(
+      instances,
+      (target, actionScope) =>
+        new TextEditorToggleUnderlineMessage(target, actionScope),
+    );
   }
 
   /**
    * Выполняет операцию отмены последнего действия.
    */
   undo(instances?: ComponentInstance[]) {
-    if (instances) {
-      instances
-        .filter((instance) => instance.client)
-        .forEach((instance) => {
-          instance.client!.outcomingMessage$.next(
-            new TextEditorUndoMessage(instance.id),
-          );
-        });
-    } else {
-      this.broadcast(new TextEditorUndoMessage(this.id));
-    }
-    return this;
+    return this.dispatchComponentCommand(
+      instances,
+      (target, actionScope) => new TextEditorUndoMessage(target, actionScope),
+    );
   }
 
   /**
    * Выполняет операцию повтора последнего отмененного действия.
    */
   redo(instances?: ComponentInstance[]) {
-    if (instances) {
-      instances
-        .filter((instance) => instance.client)
-        .forEach((instance) => {
-          instance.client!.outcomingMessage$.next(
-            new TextEditorRedoMessage(instance.id),
-          );
-        });
-    } else {
-      this.broadcast(new TextEditorRedoMessage(this.id));
-    }
-    return this;
+    return this.dispatchComponentCommand(
+      instances,
+      (target, actionScope) => new TextEditorRedoMessage(target, actionScope),
+    );
   }
 
   /**
    * Применяет формат верхнего индекса к выделенному тексту.
    */
   superscript(instances?: ComponentInstance[]) {
-    if (instances) {
-      instances
-        .filter((instance) => instance.client)
-        .forEach((instance) => {
-          instance.client!.outcomingMessage$.next(
-            new TextEditorSuperscriptMessage(instance.id),
-          );
-        });
-    } else {
-      this.broadcast(new TextEditorSuperscriptMessage(this.id));
-    }
-    return this;
+    return this.dispatchComponentCommand(
+      instances,
+      (target, actionScope) =>
+        new TextEditorSuperscriptMessage(target, actionScope),
+    );
   }
 
   /**
    * Вставляет нумерованный список.
    */
   insertOrderedList(instances?: ComponentInstance[]) {
-    if (instances) {
-      instances
-        .filter((instance) => instance.client)
-        .forEach((instance) => {
-          instance.client!.outcomingMessage$.next(
-            new TextEditorInsertOrderedListMessage(instance.id),
-          );
-        });
-    } else {
-      this.broadcast(new TextEditorInsertOrderedListMessage(this.id));
-    }
-    return this;
+    return this.dispatchComponentCommand(
+      instances,
+      (target, actionScope) =>
+        new TextEditorInsertOrderedListMessage(target, actionScope),
+    );
   }
 
   /**
    * Вставляет маркированный список.
    */
   insertUnorderedList(instances?: ComponentInstance[]) {
-    if (instances) {
-      instances
-        .filter((instance) => instance.client)
-        .forEach((instance) => {
-          instance.client!.outcomingMessage$.next(
-            new TextEditorInsertUnorderedListMessage(instance.id),
-          );
-        });
-    } else {
-      this.broadcast(new TextEditorInsertUnorderedListMessage(this.id));
-    }
-    return this;
+    return this.dispatchComponentCommand(
+      instances,
+      (target, actionScope) =>
+        new TextEditorInsertUnorderedListMessage(target, actionScope),
+    );
   }
 
   /**
    * Выравнивает текст по левому краю.
    */
   justifyLeft(instances?: ComponentInstance[]) {
-    if (instances) {
-      instances
-        .filter((instance) => instance.client)
-        .forEach((instance) => {
-          instance.client!.outcomingMessage$.next(
-            new TextEditorJustifyLeftMessage(instance.id),
-          );
-        });
-    } else {
-      this.broadcast(new TextEditorJustifyLeftMessage(this.id));
-    }
-    return this;
+    return this.dispatchComponentCommand(
+      instances,
+      (target, actionScope) =>
+        new TextEditorJustifyLeftMessage(target, actionScope),
+    );
   }
 
   /**
    * Выравнивает текст по центру.
    */
   justifyCenter(instances?: ComponentInstance[]) {
-    if (instances) {
-      instances
-        .filter((instance) => instance.client)
-        .forEach((instance) => {
-          instance.client!.outcomingMessage$.next(
-            new TextEditorJustifyCenterMessage(instance.id),
-          );
-        });
-    } else {
-      this.broadcast(new TextEditorJustifyCenterMessage(this.id));
-    }
-    return this;
+    return this.dispatchComponentCommand(
+      instances,
+      (target, actionScope) =>
+        new TextEditorJustifyCenterMessage(target, actionScope),
+    );
   }
 
   /**
    * Выравнивает текст по правому краю.
    */
   justifyRight(instances?: ComponentInstance[]) {
-    if (instances) {
-      instances
-        .filter((instance) => instance.client)
-        .forEach((instance) => {
-          instance.client!.outcomingMessage$.next(
-            new TextEditorJustifyRightMessage(instance.id),
-          );
-        });
-    } else {
-      this.broadcast(new TextEditorJustifyRightMessage(this.id));
-    }
-    return this;
+    return this.dispatchComponentCommand(
+      instances,
+      (target, actionScope) =>
+        new TextEditorJustifyRightMessage(target, actionScope),
+    );
   }
 
   /**
    * Выравнивает текст по ширине.
    */
   justifyFull(instances?: ComponentInstance[]) {
-    if (instances) {
-      instances
-        .filter((instance) => instance.client)
-        .forEach((instance) => {
-          instance.client!.outcomingMessage$.next(
-            new TextEditorJustifyFullMessage(instance.id),
-          );
-        });
-    } else {
-      this.broadcast(new TextEditorJustifyFullMessage(this.id));
-    }
-    return this;
+    return this.dispatchComponentCommand(
+      instances,
+      (target, actionScope) =>
+        new TextEditorJustifyFullMessage(target, actionScope),
+    );
   }
 
   /**
@@ -352,17 +259,10 @@ export class TextEditor<
    */
   formatBlock(tag: string, instances?: ComponentInstance[]) {
     const payload = { tag };
-    if (instances) {
-      instances
-        .filter((instance) => instance.client)
-        .forEach((instance) => {
-          instance.client!.outcomingMessage$.next(
-            new TextEditorFormatBlockMessage(instance.id, payload),
-          );
-        });
-    } else {
-      this.broadcast(new TextEditorFormatBlockMessage(this.id, payload));
-    }
-    return this;
+    return this.dispatchComponentCommand(
+      instances,
+      (target, actionScope) =>
+        new TextEditorFormatBlockMessage(target, { ...payload, actionScope }),
+    );
   }
 }

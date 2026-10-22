@@ -11,12 +11,12 @@ import {
 import { NavigationStart, Router } from '@angular/router';
 import { DialogShowMessage } from '@shared/messages/bff-to-client/components/dialog/dialog-show-message';
 import { PopoverShowMessage } from '@shared/messages/bff-to-client/components/popover/popover-show-message';
-import { PlatformActionCompletedMessage } from '@shared/messages/client-to-bff/platforms/platform-action-completed-message';
 import type { DialogConfig } from '@shared/types/dialog-config';
 import type { PopoverConfig } from '@shared/types/popover-config';
 import { Subject, take } from 'rxjs';
 import { ServerComponent } from '../components/server/server-component';
 import { ServerComponentWrapperComponent } from '../components/server/server-component-wrapper/server-component-wrapper.component';
+import { completeTargetedAction } from '../utils/targeted-action';
 import { ComponentHubService } from './component-hub.service';
 import { PostmanService } from './postman.service';
 
@@ -259,8 +259,6 @@ export class PopupService {
   }
 
   private completePlatformAction(target: string): void {
-    this.postman.outcomingMessage$.next(
-      new PlatformActionCompletedMessage(target),
-    );
+    completeTargetedAction(this.postman, target);
   }
 }

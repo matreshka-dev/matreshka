@@ -12,7 +12,7 @@ import { describe, expect, it } from "vitest";
 
 describe("Component command messages", () => {
   it("лёгкие команды компоненту pingable и проходят isComponentCommandMessage", () => {
-    const message = new DialogCloseMessage("dialog-1");
+    const message = new DialogCloseMessage("dialog-1", "component-action-test");
 
     expect(message).toBeInstanceOf(PingableComponentCommandMessage);
     expect(isComponentCommandMessage(message)).toBe(true);

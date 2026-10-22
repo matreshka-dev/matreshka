@@ -277,26 +277,12 @@ export class Stack<
     smooth: boolean = false,
     instances?: ComponentInstance[],
   ) {
-    if (instances) {
-      instances
-        .filter((instance) => instance.client)
-        .forEach((instance) => {
-          instance.client!.outcomingMessage$.next(
-            new ComponentScrollToMessage(instance.id, {
-              value,
-              smooth,
-            }),
-          );
-        });
-    } else {
-      this.broadcast(
-        new ComponentScrollToMessage(this.id, {
-          value,
-          smooth,
-        }),
-      );
-    }
-    return this;
+    const payload = { value, smooth };
+    return this.dispatchComponentCommand(
+      instances,
+      (target, actionScope) =>
+        new ComponentScrollToMessage(target, { ...payload, actionScope }),
+    );
   }
 
   protected serializeRuleOverrides(

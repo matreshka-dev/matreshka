@@ -163,17 +163,10 @@ export class Dialog<
    * Закрывает диалог, инициируя событие взаимодействия "close".
    */
   close(instances?: ComponentInstance[]) {
-    if (instances) {
-      instances
-        .filter((instance) => instance.client)
-        .forEach((instance) => {
-          instance.client!.outcomingMessage$.next(
-            new DialogCloseMessage(instance.id),
-          );
-        });
-    } else {
-      this.broadcast(new DialogCloseMessage(this.id));
-    }
+    return this.dispatchComponentCommand(
+      instances,
+      (target, actionScope) => new DialogCloseMessage(target, actionScope),
+    );
   }
 
   protected serializeRuleOverrides(

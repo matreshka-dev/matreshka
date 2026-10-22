@@ -1,9 +1,18 @@
+import type { ComponentCommandActionPayload } from "./component-command-message";
 import { PingableTargetedBffToClientMessage } from "./pingable-bff-to-client-message";
 
 /**
  * Сообщение BFF→клиент: лёгкая команда инстансу компонента, участвует в расчёте RTT.
- * В `target` передаётся тот же instance id, что и в поле `id` сериализованного компонента.
+ * В `target` — instance id; в `payload.actionScope` — correlation ack (`component-action-<uuid>`).
  */
 export abstract class PingableComponentCommandMessage<
-  PAYLOAD = unknown,
-> extends PingableTargetedBffToClientMessage<PAYLOAD> {}
+  PAYLOAD extends ComponentCommandActionPayload = ComponentCommandActionPayload,
+> extends PingableTargetedBffToClientMessage<PAYLOAD> {
+  constructor(target: string, payload: PAYLOAD) {
+    super(target, payload);
+  }
+
+  get actionScope(): string {
+    return this.payload!.actionScope;
+  }
+}

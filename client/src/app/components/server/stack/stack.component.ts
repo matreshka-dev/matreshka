@@ -29,6 +29,7 @@ import {
   readHorizontalScrollPayload,
   readVerticalScrollPayload,
 } from '../utils/subscribe-throttled-scroll-report';
+import { waitForElementScrollEnd } from '../utils/wait-for-element-scroll-end';
 
 @Component({
   selector: 'app-stack',
@@ -101,25 +102,25 @@ export class StackComponent extends ServerComponent<StackConfig> {
 
     this.componentCommandMessages$.subscribe((message) => {
       if (message instanceof ComponentScrollToMessage) {
-        const behavior = message.payload.smooth ? 'smooth' : 'instant';
-        const el = this.elementRef.nativeElement as HTMLElement;
-        // timer(100).subscribe(() => {
-        //   // TODO 100 мс как магическая константа, не помню что за число, кажется как-то связано с foreach
-
-        // });
-        if (this.stackLayoutHorizontal) {
-          const left = resolveScrollToOffset(
-            { scrollSize: el.scrollWidth, viewportSize: el.clientWidth },
-            message.payload.value,
-          );
-          el.scrollTo({ left, behavior });
-        } else {
-          const top = resolveScrollToOffset(
-            { scrollSize: el.scrollHeight, viewportSize: el.clientHeight },
-            message.payload.value,
-          );
-          el.scrollTo({ top, behavior });
-        }
+        this.runComponentCommand(message, async () => {
+          const smooth = message.payload.smooth ?? false;
+          const behavior = smooth ? 'smooth' : 'instant';
+          const el = this.elementRef.nativeElement as HTMLElement;
+          if (this.stackLayoutHorizontal) {
+            const left = resolveScrollToOffset(
+              { scrollSize: el.scrollWidth, viewportSize: el.clientWidth },
+              message.payload.value,
+            );
+            el.scrollTo({ left, behavior });
+          } else {
+            const top = resolveScrollToOffset(
+              { scrollSize: el.scrollHeight, viewportSize: el.clientHeight },
+              message.payload.value,
+            );
+            el.scrollTo({ top, behavior });
+          }
+          await waitForElementScrollEnd(el, smooth);
+        });
       }
     });
   }

@@ -95,59 +95,33 @@ export class Board<
   private readonly itemListHostAdapter!: ItemListHost;
 
   setCenter(center: BoardPoint, instances?: ComponentInstance[]) {
-    if (instances) {
-      instances
-        .filter((instance) => instance.client)
-        .forEach((instance) => {
-          instance.client!.outcomingMessage$.next(
-            new BoardSetCenterMessage(instance.id, center),
-          );
-        });
-    } else {
-      this.broadcast(new BoardSetCenterMessage(this.id, center));
-    }
+    return this.dispatchComponentCommand(
+      instances,
+      (target, actionScope) =>
+        new BoardSetCenterMessage(target, { ...center, actionScope }),
+    );
   }
 
   setZoom(zoom: number, instances?: ComponentInstance[]) {
-    if (instances) {
-      instances
-        .filter((instance) => instance.client)
-        .forEach((instance) => {
-          instance.client!.outcomingMessage$.next(
-            new BoardSetZoomMessage(instance.id, zoom),
-          );
-        });
-    } else {
-      this.broadcast(new BoardSetZoomMessage(this.id, zoom));
-    }
+    return this.dispatchComponentCommand(
+      instances,
+      (target, actionScope) =>
+        new BoardSetZoomMessage(target, { zoom, actionScope }),
+    );
   }
 
   zoomIn(instances?: ComponentInstance[]) {
-    if (instances) {
-      instances
-        .filter((instance) => instance.client)
-        .forEach((instance) => {
-          instance.client!.outcomingMessage$.next(
-            new BoardZoomInMessage(instance.id),
-          );
-        });
-    } else {
-      this.broadcast(new BoardZoomInMessage(this.id));
-    }
+    return this.dispatchComponentCommand(
+      instances,
+      (target, actionScope) => new BoardZoomInMessage(target, actionScope),
+    );
   }
 
   zoomOut(instances?: ComponentInstance[]) {
-    if (instances) {
-      instances
-        .filter((instance) => instance.client)
-        .forEach((instance) => {
-          instance.client!.outcomingMessage$.next(
-            new BoardZoomOutMessage(instance.id),
-          );
-        });
-    } else {
-      this.broadcast(new BoardZoomOutMessage(this.id));
-    }
+    return this.dispatchComponentCommand(
+      instances,
+      (target, actionScope) => new BoardZoomOutMessage(target, actionScope),
+    );
   }
 
   constructor(config: InitConfigType) {

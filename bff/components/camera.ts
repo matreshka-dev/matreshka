@@ -179,24 +179,12 @@ export class Camera<
    * Отправляет на клиент команду переключения активной камеры устройства на указанную.
    */
   switchCamera(device: VideoInputDevice, instances?: ComponentInstance[]) {
-    if (instances) {
-      instances
-        .filter((instance) => instance.client)
-        .forEach((instance) => {
-          instance.client!.outcomingMessage$.next(
-            new CameraSwitchMessage(instance.id, {
-              deviceId: device.deviceId,
-            }),
-          );
-        });
-    } else {
-      this.broadcast(
-        new CameraSwitchMessage(this.id, {
-          deviceId: device.deviceId,
-        }),
-      );
-    }
-    return this;
+    const payload = { deviceId: device.deviceId };
+    return this.dispatchComponentCommand(
+      instances,
+      (target, actionScope) =>
+        new CameraSwitchMessage(target, { ...payload, actionScope }),
+    );
   }
 
   protected serializeRuleOverrides(

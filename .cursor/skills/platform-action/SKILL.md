@@ -18,8 +18,8 @@ description: >-
 1. **BFF** — публичный метод платформы → **`Observable<T>`**, запрос уходит **при вызове** (hot), не при подписке.
 2. **Wire** — исходящее сообщение с уникальным **`target`** (`platform-action-<uuid>` или отдельный session target для длинных сессий, см. BLE).
 3. **Клиент** — все ответы с **тем же `target`**, что у исходной команды. Два типичных режима:
-   - **One-shot** — после выполнения ровно **одно terminal-сообщение**: типизированный success с payload (`MobileGetGeolocationSuccessMessage`, …), либо `PlatformActionCompletedMessage`, либо `ErrorMessage` с **`payload.message`** (текст ошибки/отмены).
-   - **Поток** (например `requestBLEScan`) — **много** промежуточных сообщений с тем же `target` (`MobileBleReceiveMessage`, …); observable на BFF эмитит `next` на каждое. **Завершение** потока: `ErrorMessage`, `PlatformActionCompletedMessage`, `Client.destroy$`, или teardown на BFF (отписка всех observers → stop, как `MobileStopMessage` для BLE).
+   - **One-shot** — после выполнения ровно **одно terminal-сообщение**: типизированный success с payload (`MobileGetGeolocationSuccessMessage`, …), либо `ActionCompletedMessage` (`action-completed`), либо `ErrorMessage` с **`payload.message`** (текст ошибки/отмены).
+   - **Поток** (например `requestBLEScan`) — **много** промежуточных сообщений с тем же `target` (`MobileBleReceiveMessage`, …); observable на BFF эмитит `next` на каждое. **Завершение** потока: `ErrorMessage`, `ActionCompletedMessage`, `Client.destroy$`, или teardown на BFF (отписка всех observers → stop, как `MobileStopMessage` для BLE).
 4. **Shared** — зарегистрировать новые типы в registry; не ломать сгенерированные файлы.
 
 ### BFF: one-shot
@@ -52,7 +52,7 @@ return targetedClientPlatformStream(this.client, {
 
 ### Client
 
-- **One-shot**: `runPlatformAction(target, async () => { ... })` в `client/src/app/platforms/platform.ts` (ack/error автоматически); или success-сообщение с **`message.target`** вместо `PlatformActionCompletedMessage`.
+- **One-shot**: `runPlatformAction(target, async () => { ... })` в `client/src/app/platforms/platform.ts` (ack/error через `ActionCompletedMessage`); или success-сообщение с **`message.target`** вместо `ActionCompletedMessage`.
 - **Поток**: отдельный обработчик (как `requestBleScan`) — шлёшь элементы на `message.target`, ошибку — `ErrorMessage`; stop по входящему сообщению с тем же target (например `MobileStopMessage`).
 - Не завершать сценарий молча: без terminal/error BFF не узнает об исходе (для one-shot) или не закроет stream.
 

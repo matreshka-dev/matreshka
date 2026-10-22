@@ -107,14 +107,23 @@ export class BoardComponent extends NestedItemsHostComponent<
     this.currentZoom = this.config.properties.zoom;
     this.componentCommandMessages$.subscribe((message) => {
       if (message instanceof BoardSetCenterMessage) {
-        this.currentCenter = message.payload;
-        this.applyView();
+        this.runComponentCommand(message, () => {
+          const { actionScope: _actionScope, ...center } = message.payload;
+          this.currentCenter = center;
+          this.applyView();
+        });
       } else if (message instanceof BoardSetZoomMessage) {
-        this.zoomToScaleAtViewportCenter(message.payload);
+        this.runComponentCommand(message, () => {
+          this.zoomToScaleAtViewportCenter(message.payload.zoom);
+        });
       } else if (message instanceof BoardZoomInMessage) {
-        this.zoomBy(1);
+        this.runComponentCommand(message, () => {
+          this.zoomBy(1);
+        });
       } else if (message instanceof BoardZoomOutMessage) {
-        this.zoomBy(-1);
+        this.runComponentCommand(message, () => {
+          this.zoomBy(-1);
+        });
       }
     });
   }

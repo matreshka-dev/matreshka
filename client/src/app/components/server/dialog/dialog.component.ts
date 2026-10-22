@@ -27,6 +27,7 @@ import {
   runComponentAnimations,
   type ComponentAnimationPayload,
 } from '../utils/run-component-animations';
+import { waitForPopupDestroyed } from '../utils/wait-for-popup-destroyed';
 
 @Component({
   selector: 'app-dialog',
@@ -93,8 +94,11 @@ export class DialogComponent
             message instanceof DialogCloseMessage,
         ),
       )
-      .subscribe(() => {
-        this.popupService.close$.next(this.id());
+      .subscribe((message) => {
+        this.runComponentCommand(message, async () => {
+          this.popupService.close$.next(this.id());
+          await waitForPopupDestroyed(this.popupService, this.id());
+        });
       });
   }
 

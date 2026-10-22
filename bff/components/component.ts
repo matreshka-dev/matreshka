@@ -12,7 +12,15 @@ import type { GridItem } from "@matreshka/shared/types/grid-item";
 import type { ServerComponentConfig } from "@matreshka/shared/types/server-component-config";
 import type { ServerComponentInteraction } from "@matreshka/shared/types/server-component-interaction";
 import * as crypto from "node:crypto";
-import { filter, Subject, Subscription } from "rxjs";
+import {
+  filter,
+  forkJoin,
+  map,
+  Observable,
+  of,
+  Subject,
+  Subscription,
+} from "rxjs";
 import {
   Action,
   Client,
@@ -32,6 +40,7 @@ import { trackCreatedInstance } from "../core/utils/track-created-instances";
 import { ServerAction, ServerActionHandler } from "./actions/server-action";
 import type { EntryComponent } from "./entry-component";
 import type { Overlay } from "./types/container-overlay";
+import { targetedClientComponentAction } from "./utils/targeted-client-component-action";
 /**
  * @prop colors - Цветовые схемы для раскраски
  * @prop font - Stack token для сборки CSS-свойств шрифта
@@ -269,6 +278,34 @@ export abstract class Component<
     (Array.isArray(actions) ? actions : [actions]).forEach((action) => {
       this.destroyHandlers.push(this.parseDestroyAction(action));
     });
+  }
+
+  /**
+   * Hot Observable: команда pingable component command с ack клиента.
+   * По одному сообщению на каждый instance с подключённым клиентом.
+   */
+  protected dispatchComponentCommand(
+    instances: ComponentInstance[] | undefined,
+    createMessage: (
+      instanceTarget: string,
+      actionScope: string,
+    ) => ComponentCommandMessage,
+  ): Observable<void> {
+    const targets = (instances ?? this.instances).filter(
+      (instance) => instance.client,
+    );
+    if (targets.length === 0) {
+      return of(undefined);
+    }
+    const actions = targets.map((instance) =>
+      targetedClientComponentAction(instance.client!, (actionScope) =>
+        createMessage(instance.id, actionScope),
+      ),
+    );
+    if (actions.length === 1) {
+      return actions[0];
+    }
+    return forkJoin(actions).pipe(map(() => undefined));
   }
 
   /** Рассылка сообщения всем подписанным клиентам данного компонента */

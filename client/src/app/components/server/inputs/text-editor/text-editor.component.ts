@@ -122,47 +122,75 @@ export class TextEditorComponent
     //   });
     this.componentCommandMessages$.subscribe((message) => {
       if (message instanceof TextEditorInsertHtmlMessage) {
-        this.focusInput();
-        this.document.execCommand('insertHTML', false, message.payload.value);
+        this.runComponentCommand(message, () => {
+          this.focusInput();
+          this.document.execCommand('insertHTML', false, message.payload.value);
+        });
       } else if (message instanceof TextEditorToggleItalicMessage) {
-        this.focusInput();
-        this.document.execCommand('italic', false);
+        this.runComponentCommand(message, () => {
+          this.focusInput();
+          this.document.execCommand('italic', false);
+        });
       } else if (message instanceof TextEditorToggleBoldMessage) {
-        this.focusInput();
-        this.document.execCommand('bold', false);
+        this.runComponentCommand(message, () => {
+          this.focusInput();
+          this.document.execCommand('bold', false);
+        });
       } else if (message instanceof TextEditorToggleUnderlineMessage) {
-        this.focusInput();
-        this.document.execCommand('underline', false);
+        this.runComponentCommand(message, () => {
+          this.focusInput();
+          this.document.execCommand('underline', false);
+        });
       } else if (message instanceof TextEditorUndoMessage) {
-        this.focusInput();
-        this.document.execCommand('undo', false);
+        this.runComponentCommand(message, () => {
+          this.focusInput();
+          this.document.execCommand('undo', false);
+        });
       } else if (message instanceof TextEditorRedoMessage) {
-        this.focusInput();
-        this.document.execCommand('redo', false);
+        this.runComponentCommand(message, () => {
+          this.focusInput();
+          this.document.execCommand('redo', false);
+        });
       } else if (message instanceof TextEditorSuperscriptMessage) {
-        this.focusInput();
-        this.document.execCommand('superscript', false);
+        this.runComponentCommand(message, () => {
+          this.focusInput();
+          this.document.execCommand('superscript', false);
+        });
       } else if (message instanceof TextEditorInsertOrderedListMessage) {
-        this.focusInput();
-        this.document.execCommand('insertOrderedList', false);
+        this.runComponentCommand(message, () => {
+          this.focusInput();
+          this.document.execCommand('insertOrderedList', false);
+        });
       } else if (message instanceof TextEditorInsertUnorderedListMessage) {
-        this.focusInput();
-        this.document.execCommand('insertUnorderedList', false);
+        this.runComponentCommand(message, () => {
+          this.focusInput();
+          this.document.execCommand('insertUnorderedList', false);
+        });
       } else if (message instanceof TextEditorJustifyLeftMessage) {
-        this.focusInput();
-        this.document.execCommand('justifyLeft', false);
+        this.runComponentCommand(message, () => {
+          this.focusInput();
+          this.document.execCommand('justifyLeft', false);
+        });
       } else if (message instanceof TextEditorJustifyCenterMessage) {
-        this.focusInput();
-        this.document.execCommand('justifyCenter', false);
+        this.runComponentCommand(message, () => {
+          this.focusInput();
+          this.document.execCommand('justifyCenter', false);
+        });
       } else if (message instanceof TextEditorJustifyRightMessage) {
-        this.focusInput();
-        this.document.execCommand('justifyRight', false);
+        this.runComponentCommand(message, () => {
+          this.focusInput();
+          this.document.execCommand('justifyRight', false);
+        });
       } else if (message instanceof TextEditorJustifyFullMessage) {
-        this.focusInput();
-        this.document.execCommand('justifyFull', false);
+        this.runComponentCommand(message, () => {
+          this.focusInput();
+          this.document.execCommand('justifyFull', false);
+        });
       } else if (message instanceof TextEditorFormatBlockMessage) {
-        this.focusInput();
-        this.document.execCommand('formatBlock', false, message.payload.tag);
+        this.runComponentCommand(message, () => {
+          this.focusInput();
+          this.document.execCommand('formatBlock', false, message.payload.tag);
+        });
       }
     });
   }

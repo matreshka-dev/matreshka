@@ -346,7 +346,7 @@ Transport лишь перевозит JSON, а парсинг и dispatch уже
 ## Что полезно помнить
 
 - `target` — ключ адресации для context, component instance и platform actions (только у targeted-сообщений).
-- Для **component commands** (BFF→client): `target` = instance id доставляет команду одному инстансу; базовый id (без суффикса `-N`) — всем инстансам одного server-`Component`. Подробнее — [`../advanced/component-instance.md`](../advanced/component-instance.md).
+- Для **component commands** (BFF→client): `target` = instance id; **`payload.actionScope`** для ack ([`component-actions.md`](component-actions.md)). Публичные методы на BFF возвращают hot `Observable<void>`. Подробнее — [`../advanced/component-instance.md`](../advanced/component-instance.md).
 - Один и тот же transport подходит для любых message types.
 - Если вы пишете собственный transport или runtime, протокол важнее клиентской реализации.
 

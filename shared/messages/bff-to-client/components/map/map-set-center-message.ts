@@ -1,6 +1,7 @@
+import type { ComponentCommandActionPayload } from "../../component-command-message";
 import { PingableComponentCommandMessage } from "../../pingable-component-command-message";
 
-export type MapSetCenterPayload = {
+export type MapSetCenterPayload = ComponentCommandActionPayload & {
   latitude: number;
   longitude: number;
   /** Высота над эллипсоидом WGS84, м (третий элемент `center` в Yandex Maps API v3). */
