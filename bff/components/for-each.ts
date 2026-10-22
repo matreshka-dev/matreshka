@@ -2,7 +2,7 @@ import { ServerComponentClass } from "@matreshka/shared/enums/server-component-c
 import type { ForEachSyncComponentsPayload } from "@matreshka/shared/messages/bff-to-client/components/for-each/for-each-sync-components-message";
 import { ForEachSyncComponentsMessage } from "@matreshka/shared/messages/bff-to-client/components/for-each/for-each-sync-components-message";
 import type { ForEachConfig } from "@matreshka/shared/types/for-each-config";
-import { skip, Subscription } from "rxjs";
+import { BehaviorSubject, skip, Subscription } from "rxjs";
 import { Paths, PathValue } from "ts-essentials";
 import { z } from "zod/v4";
 import {
@@ -165,13 +165,15 @@ export type ForEachInitConfig<
 
 class ForEachContext<T extends JsonObject> extends Context<T> {
   /**
-   * Запускает {@link Context.init}, чтобы хранилище данных было доступно при preload-сериализации.
+   * Синхронно поднимает хранилище до async {@link init} (preload-сериализация индексов).
    * @returns Тот же экземпляр контекста.
    */
   initSync() {
-    if (!this.inited()) {
-      void this.init();
+    if (this.inited()) {
+      return this;
     }
+    this.data$ = new BehaviorSubject({} as T);
+    this.subscribeToDataChanges();
     return this;
   }
 
