@@ -25,6 +25,14 @@
 
 На BFF такие методы обычно возвращают `Observable`: запрос уходит при вызове метода; подписка нужна только если код сервера хочет **дождаться** результата или ошибки. Без подписки действие на клиенте всё равно стартует; без ответа клиента observable не завершится (кроме уничтожения клиента).
 
+**Семантика «завершения»** зависит от действия: ack означает согласованную точку в сценарии на клиенте, а не всегда «пользователь всё сделал». Например, для скачивания файла в браузере успех обычно соответствует **старту** загрузки (запрос к ресурсу / save dialog), а не окончанию записи файла — OS и API это не сообщают. Таблица примеров — в разделе [Platform-action и Observable](../reference/platforms.md#platform-action-и-observable) справочника платформ.
+
+**`Platform.reload()`** — исключение по способу ack: клиент не может отправить `PlatformActionCompletedMessage` до перезагрузки. BFF отправляет `AppReloadMessage` и завершает observable при **`Client.reconnect$`** (повторное подключение transport с тем же token в grace period). Реализация: `bff/platforms/utils/client-reload-platform-action.ts`.
+
+**`Platform.navigate()`** и **`Platform.back()`** — без targeted ack: `AppNavigateMessage` / `AppBackMessage` без `target`, клиент не шлёт `PlatformActionCompletedMessage`. Завершение на BFF: смена `client.state.route`, receipt `AppPageMessage` (`client-navigate-platform-action.ts`, `client-back-platform-action.ts`; общее ожидание — `client-route-page-wait.ts`). У navigate дополнительно `{ routeMatched }`.
+
+**Стримы (много ответов с одним target)** — например BLE scan: hot-сессия через `targetedClientPlatformStream` (`bff/platforms/utils/targeted-client-platform-stream.ts`): исходящее сообщение при вызове, каждый элемент через `parseItem`, stop через `onTeardown` при отписке всех observers.
+
 ## Схема
 
 ```mermaid

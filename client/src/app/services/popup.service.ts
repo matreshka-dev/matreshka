@@ -11,6 +11,7 @@ import {
 import { NavigationStart, Router } from '@angular/router';
 import { DialogShowMessage } from '@shared/messages/bff-to-client/components/dialog/dialog-show-message';
 import { PopoverShowMessage } from '@shared/messages/bff-to-client/components/popover/popover-show-message';
+import { PlatformActionCompletedMessage } from '@shared/messages/client-to-bff/platforms/platform-action-completed-message';
 import type { DialogConfig } from '@shared/types/dialog-config';
 import type { PopoverConfig } from '@shared/types/popover-config';
 import { Subject, take } from 'rxjs';
@@ -51,17 +52,18 @@ export class PopupService {
           ? this.componentHub.getInstancesByComponentId(anchor)
           : undefined;
         const explicitPositionAnchor = anchor !== undefined;
-        for (const sourceInstance of sourceInstances) {
+        sourceInstances.forEach((sourceInstance, index) => {
           const anchorInstance = anchorInstances?.[0] ?? sourceInstance;
           this.showPopover({
             source: sourceInstance,
             anchor: anchorInstance,
             explicitPositionAnchor,
             config: popover,
+            platformActionTarget: index === 0 ? message.target : undefined,
           });
-        }
+        });
       } else if (message instanceof DialogShowMessage) {
-        this.showDialog(message.payload);
+        this.showDialog(message.payload, message.target);
       }
     });
     this.router.events.subscribe((event) => {
@@ -128,7 +130,7 @@ export class PopupService {
     }
   }
 
-  showDialog(config: DialogConfig) {
+  showDialog(config: DialogConfig, platformActionTarget: string) {
     this.componentHub.registerConfig(config);
     this.componentHub
       //.readySubtree$(config)
@@ -136,6 +138,7 @@ export class PopupService {
       .pipe(take(1))
       .subscribe(() => {
         if (isPlatformServer(this.platformId)) {
+          this.completePlatformAction(platformActionTarget);
           return;
         }
         const ref = createComponent(ServerComponentWrapperComponent, {
@@ -146,6 +149,7 @@ export class PopupService {
         this.document.body.appendChild(ref.location.nativeElement);
         this.dialogStack.push(config.id);
         ref.changeDetectorRef.detectChanges();
+        this.completePlatformAction(platformActionTarget);
         this.readyForDestroy$.subscribe((id) => {
           if (id === config.id) {
             this.destroyEntryRef(config.id, ref, () => {
@@ -164,8 +168,15 @@ export class PopupService {
     anchor: ServerComponent<any>;
     explicitPositionAnchor: boolean;
     config: PopoverConfig;
+    platformActionTarget?: string;
   }) {
-    const { source, anchor, explicitPositionAnchor, config } = properties;
+    const {
+      source,
+      anchor,
+      explicitPositionAnchor,
+      config,
+      platformActionTarget,
+    } = properties;
 
     const showPopover = () => {
       this.popoverAnchorInstances.set(config.id, anchor);
@@ -182,6 +193,9 @@ export class PopupService {
             this.popoverAnchorInstances.delete(config.id);
             this.popoverSourceInstances.delete(config.id);
             this.popoverExplicitPositionAnchor.delete(config.id);
+            if (platformActionTarget) {
+              this.completePlatformAction(platformActionTarget);
+            }
             return;
           }
           const ref = createComponent(ServerComponentWrapperComponent, {
@@ -191,6 +205,9 @@ export class PopupService {
           this.appRef.attachView(ref.hostView);
           this.getPopoverMountParent().appendChild(ref.location.nativeElement);
           ref.changeDetectorRef.detectChanges();
+          if (platformActionTarget) {
+            this.completePlatformAction(platformActionTarget);
+          }
           this.popoverStack.push(config.id);
           this.readyForDestroy$.subscribe((id) => {
             if (id === config.id) {
@@ -239,5 +256,11 @@ export class PopupService {
       const topId = this.popoverStack[this.popoverStack.length - 1];
       this.close$.next(topId);
     }
+  }
+
+  private completePlatformAction(target: string): void {
+    this.postman.outcomingMessage$.next(
+      new PlatformActionCompletedMessage(target),
+    );
   }
 }

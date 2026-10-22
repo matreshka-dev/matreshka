@@ -2,6 +2,8 @@ import { PingableTargetedBffToClientMessage } from "../../pingable-bff-to-client
 
 export type MobileConnectToBleDevicePayload = {
   deviceId: string;
+  /** Target для {@link MobileBleDisconnectMessage} при неожиданном разрыве связи. */
+  disconnectNotifyTarget: string;
 };
 
 export class MobileConnectToBleDeviceMessage extends PingableTargetedBffToClientMessage<MobileConnectToBleDevicePayload> {

@@ -1,10 +1,9 @@
 import { MaxMiniAppRequestContactMessage } from "@matreshka/shared/messages/bff-to-client/platforms/max-mini-app/max-mini-app-request-contact-message";
 import { MaxMiniAppRequestContactActionSuccessMessage } from "@matreshka/shared/messages/client-to-bff/platforms/max-mini-app/max-mini-app-request-contact-action-success-message";
-import { isTargetedMessage } from "@matreshka/shared/messages/targeted-message";
 import crypto from "crypto";
-import { filter } from "rxjs";
+import type { Observable } from "rxjs";
 import { z } from "zod/v4";
-import { incomingMessageObserver } from "../core/utils/incoming-message-observer";
+import { targetedClientPlatformAction } from "./utils/targeted-client-platform-action";
 import { WebPlatform } from "./web-platform";
 
 /**
@@ -41,42 +40,21 @@ type MaxWebAppInitData = {
  * Платформа для Max Mini App.
  */
 export class MaxMiniAppPlatform extends WebPlatform {
-  /**
-   * Запрашивает контактные данные пользователя в Max Mini App.
-   *
-   * @param config Объект с обработчиками успешного получения контакта и отмены.
-   */
-  requestContact(config: {
-    onReceive: (
-      data: z.infer<typeof requestContactSuccessMessageSchema>,
-    ) => void;
-  }) {
-    const scope = "platform-action-" + crypto.randomUUID();
-    const subscription = this.client.incomingMessage$
-      .pipe(
-        filter(
-          (unsafeMessage) =>
-            isTargetedMessage(unsafeMessage) && unsafeMessage.target === scope,
-        ),
-      )
-      .subscribe(
-        incomingMessageObserver(this.client, (unsafeMessage) => {
-          subscription.unsubscribe();
-          if (
-            unsafeMessage instanceof
-            MaxMiniAppRequestContactActionSuccessMessage
-          ) {
-            const messagePayload = requestContactSuccessMessageSchema.parse(
-              unsafeMessage.payload,
-            );
-            config.onReceive(messagePayload);
-          }
-        }),
-      );
-
-    this.client.outcomingMessage$.next(
-      new MaxMiniAppRequestContactMessage(scope),
-    );
+  requestContact(): Observable<
+    z.infer<typeof requestContactSuccessMessageSchema>
+  > {
+    return targetedClientPlatformAction(this.client, {
+      outgoingMessage: (scope) => new MaxMiniAppRequestContactMessage(scope),
+      parseSuccess: (unsafeMessage) => {
+        if (
+          unsafeMessage instanceof MaxMiniAppRequestContactActionSuccessMessage
+        ) {
+          return requestContactSuccessMessageSchema.parse(
+            unsafeMessage.payload,
+          );
+        }
+      },
+    });
   }
 
   initData(botToken: string): MaxWebAppInitData {

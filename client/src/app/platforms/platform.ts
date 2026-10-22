@@ -1,5 +1,11 @@
 import { DOCUMENT, inject, InjectionToken, signal } from '@angular/core';
-import { NavigationStart, Router } from '@angular/router';
+import {
+  NavigationCancel,
+  NavigationEnd,
+  NavigationError,
+  NavigationStart,
+  Router,
+} from '@angular/router';
 import { PlatformId } from '@shared/enums/platform-id';
 import {
   AppBackMessage,
@@ -14,8 +20,10 @@ import { PlatformSetColorSchemeMessage } from '@shared/messages/bff-to-client/pl
 import { PlatformSetOverlaysMessage } from '@shared/messages/bff-to-client/platforms/platform-set-overlays-message';
 import { PlatformShowNativePickerMessage } from '@shared/messages/bff-to-client/platforms/platform-show-native-picker-message';
 import { AppClientStateMessage } from '@shared/messages/client-to-bff/app';
+import { ErrorMessage } from '@shared/messages/client-to-bff/error-message';
+import { PlatformActionCompletedMessage } from '@shared/messages/client-to-bff/platforms/platform-action-completed-message';
 import { ClientState } from '@shared/types/client-state';
-import { take } from 'rxjs';
+import { filter, firstValueFrom, take } from 'rxjs';
 import { ServerComponent } from '../components/server/server-component';
 import type {
   Overlay,
@@ -108,29 +116,38 @@ export abstract class Platform {
         return;
       }
       if (message instanceof AppNavigateMessage) {
-        const external = stringIsExternalUrl(message.payload.path);
-        if (!external) {
-          this.router.navigateByUrl(message.payload.path);
-        } else {
+        if (stringIsExternalUrl(message.payload.path)) {
           this.openExternalLink(message.payload.path);
+          return;
         }
+        void this.waitForRouterNavigation(() =>
+          this.router.navigateByUrl(message.payload.path),
+        );
         return;
       }
       if (message instanceof AppBackMessage) {
-        this.window.history.back();
+        void this.waitForRouterNavigation(() => {
+          this.window.history.back();
+        });
         return;
       }
       if (message instanceof PlatformSetOverlaysMessage) {
-        this.applyPlatformOverlays(message.payload.overlays as Overlay[]);
+        this.runPlatformAction(message.target, () => {
+          this.applyPlatformOverlays(message.payload.overlays as Overlay[]);
+        });
         return;
       }
       if (message instanceof PlatformShowNativePickerMessage) {
-        this.showNativePicker(message.payload);
+        this.runPlatformAction(message.target, () =>
+          this.showNativePickerAsync(message),
+        );
         return;
       }
       if (message instanceof PlatformSetColorSchemeMessage) {
-        applyColorSchemePreference(this.document, message.payload.mode, true);
-        this.onColorSchemePreferenceApplied(message.payload.mode);
+        this.runPlatformAction(message.target, () => {
+          applyColorSchemePreference(this.document, message.payload.mode, true);
+          this.onColorSchemePreferenceApplied(message.payload.mode);
+        });
         return;
       }
       if (message instanceof AppStorageValueMessage) {
@@ -184,6 +201,80 @@ export abstract class Platform {
     _mode: PlatformSetColorSchemeMode,
   ): void {}
 
+  protected completePlatformAction(target: string): void {
+    this.postman.outcomingMessage$.next(
+      new PlatformActionCompletedMessage(target),
+    );
+  }
+
+  protected failPlatformAction(target: string, error: unknown): void {
+    this.postman.outcomingMessage$.next(
+      new ErrorMessage(target, {
+        message: error instanceof Error ? error.message : String(error),
+      }),
+    );
+  }
+
+  protected runPlatformAction(
+    target: string,
+    action: () => void | Promise<void>,
+  ): void {
+    void Promise.resolve()
+      .then(action)
+      .then(
+        () => this.completePlatformAction(target),
+        (error) => this.failPlatformAction(target, error),
+      );
+  }
+
+  private waitForRouterNavigation(
+    start: () => void | Promise<boolean>,
+  ): Promise<void> {
+    return new Promise((resolve, reject) => {
+      const sub = this.router.events
+        .pipe(
+          filter(
+            (event) =>
+              event instanceof NavigationEnd ||
+              event instanceof NavigationCancel ||
+              event instanceof NavigationError,
+          ),
+          take(1),
+        )
+        .subscribe((event) => {
+          sub.unsubscribe();
+          if (event instanceof NavigationEnd) {
+            resolve();
+            return;
+          }
+          if (event instanceof NavigationError) {
+            reject(
+              new Error(
+                event.error instanceof Error
+                  ? event.error.message
+                  : 'Navigation failed',
+              ),
+            );
+            return;
+          }
+          reject(new Error('Navigation cancelled'));
+        });
+
+      void Promise.resolve(start()).then(
+        (result) => {
+          if (result === false) {
+            sub.unsubscribe();
+            reject(new Error('Navigation rejected'));
+          }
+        },
+        (error: unknown) => {
+          sub.unsubscribe();
+          reject(error);
+        },
+      );
+    });
+  }
+
   abstract storageValues(): Record<string, string>;
 
   abstract openExternalLink(url: string): void;
@@ -199,36 +290,40 @@ export abstract class Platform {
     this.platformOverlays.set(next);
   }
 
-  private showNativePicker(
-    payload: PlatformShowNativePickerMessage['payload'],
-  ): void {
-    const { contextId } = parseContextPath(payload.ref);
-    this.contextHub
-      .init$(contextId)
-      .pipe(take(1))
-      .subscribe(() => {
-        this.openNativePicker(payload);
-      });
+  private showNativePickerAsync(
+    message: PlatformShowNativePickerMessage,
+  ): Promise<void> {
+    const { contextId } = parseContextPath(message.payload.ref);
+    return firstValueFrom(this.contextHub.init$(contextId)).then(() => {
+      const opened = this.openNativePicker(message.payload);
+      if (!opened) {
+        throw new Error('Native picker anchor not found');
+      }
+    });
   }
 
   private openNativePicker(
     payload: PlatformShowNativePickerMessage['payload'],
-  ): void {
+  ): boolean {
     const instances = this.componentHub.getInstancesByComponentId(
       payload.component_id,
     );
+    let opened = false;
     for (const instance of instances) {
-      this.openNativePickerForInstance(payload, instance);
+      if (this.openNativePickerForInstance(payload, instance)) {
+        opened = true;
+      }
     }
+    return opened;
   }
 
   private openNativePickerForInstance(
     payload: PlatformShowNativePickerMessage['payload'],
     instance: ServerComponent<ServerComponentConfig>,
-  ): void {
+  ): boolean {
     const anchorElement = this.getNativePickerAnchorElement(instance);
     if (!anchorElement) {
-      return;
+      return false;
     }
 
     const instanceId = instance.id();
@@ -282,13 +377,14 @@ export abstract class Platform {
     if (typeof pickerInput.showPicker === 'function') {
       try {
         pickerInput.showPicker();
-        return;
+        return true;
       } catch {
         // В некоторых браузерах showPicker может не работать, тогда используем click.
       }
     }
 
     input.click();
+    return true;
   }
 
   private getNativePickerAnchorElement(

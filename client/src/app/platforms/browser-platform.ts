@@ -20,7 +20,6 @@ import { PlatformWebAuthnGetCredentialMessage } from '@shared/messages/bff-to-cl
 import { ErrorMessage } from '@shared/messages/client-to-bff/error-message';
 import { BrowserGetGeolocationSuccessMessage } from '@shared/messages/client-to-bff/platforms/browser/browser-get-geolocation-success-message';
 import { BrowserRequestPushNotificationsActionGrantedMessage } from '@shared/messages/client-to-bff/platforms/browser/browser-request-push-notifications-action-granted-message';
-import { PlatformActionCompletedMessage } from '@shared/messages/client-to-bff/platforms/platform-action-completed-message';
 import {
   PlatformEnumeratedDevice,
   PlatformEnumerateDevicesSuccessMessage,
@@ -202,32 +201,6 @@ export class BrowserPlatform extends WebPlatform {
     link.remove();
   }
 
-  private completePlatformAction(target: string): void {
-    this.postman.outcomingMessage$.next(
-      new PlatformActionCompletedMessage(target),
-    );
-  }
-
-  private failPlatformAction(target: string, error: unknown): void {
-    this.postman.outcomingMessage$.next(
-      new ErrorMessage(target, {
-        message: error instanceof Error ? error.message : String(error),
-      }),
-    );
-  }
-
-  private runPlatformAction(
-    target: string,
-    action: () => void | Promise<void>,
-  ): void {
-    void Promise.resolve()
-      .then(action)
-      .then(
-        () => this.completePlatformAction(target),
-        (error) => this.failPlatformAction(target, error),
-      );
-  }
-
   payload(): Record<string, unknown> {
     return {};
   }
@@ -240,11 +213,11 @@ export class BrowserPlatform extends WebPlatform {
         return;
       }
       if (message instanceof EnablePrivacyModeMessage) {
-        this.enablePrivacyMode();
+        this.runPlatformAction(message.target, () => this.enablePrivacyMode());
         return;
       }
       if (message instanceof DisablePrivacyModeMessage) {
-        this.disablePrivacyMode();
+        this.runPlatformAction(message.target, () => this.disablePrivacyMode());
         return;
       }
       if (message instanceof BrowserGetGeolocationMessage) {

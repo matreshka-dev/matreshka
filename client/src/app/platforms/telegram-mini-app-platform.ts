@@ -87,17 +87,18 @@ export class TelegramMiniAppPlatform extends WebPlatform {
     return Promise.resolve();
   }
 
-  downloadFile(payload: { url: string; filename: string }) {
-    if (webApp.isVersionAtLeast('8.0')) {
+  downloadFile(payload: { url: string; filename: string }): Promise<void> {
+    if (!webApp.isVersionAtLeast('8.0')) {
+      return Promise.reject(new Error('Please update your Telegram'));
+    }
+    return new Promise((resolve) => {
       webApp.downloadFile(
         { url: payload.url, file_name: payload.filename },
-        (res: boolean) => {
-          // Тут можно реагировать на ответ пользователя, начал ли он скачивание файла
+        () => {
+          resolve();
         },
       );
-    } else {
-      webApp.showAlert('Please update your Telegram');
-    }
+    });
   }
 
   language(): Promise<string> {
@@ -153,19 +154,23 @@ export class TelegramMiniAppPlatform extends WebPlatform {
         return;
       }
       if (message instanceof TelegramMiniAppShareMessage) {
-        this.share(message.payload);
+        this.runPlatformAction(message.target, () =>
+          this.share(message.payload),
+        );
         return;
       }
       if (message instanceof EnablePrivacyModeMessage) {
-        this.enablePrivacyMode();
+        this.runPlatformAction(message.target, () => this.enablePrivacyMode());
         return;
       }
       if (message instanceof DisablePrivacyModeMessage) {
-        this.disablePrivacyMode();
+        this.runPlatformAction(message.target, () => this.disablePrivacyMode());
         return;
       }
       if (message instanceof TelegramMiniAppDownloadFileMessage) {
-        this.downloadFile(message.payload);
+        this.runPlatformAction(message.target, () =>
+          this.downloadFile(message.payload),
+        );
         return;
       }
       if (message instanceof TelegramMiniAppRequestContactMessage) {

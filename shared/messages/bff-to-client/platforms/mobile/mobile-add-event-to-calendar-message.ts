@@ -1,4 +1,4 @@
-import { PingableBffToClientMessage } from "../../pingable-bff-to-client-message";
+import { PingableTargetedBffToClientMessage } from "../../pingable-bff-to-client-message";
 
 export type MobileAddEventToCalendarPayload = {
   start: string | number;
@@ -8,11 +8,12 @@ export type MobileAddEventToCalendarPayload = {
   description?: string;
 };
 
-export class MobileAddEventToCalendarMessage extends PingableBffToClientMessage<MobileAddEventToCalendarPayload> {
+export class MobileAddEventToCalendarMessage extends PingableTargetedBffToClientMessage<MobileAddEventToCalendarPayload> {
   static readonly type = "mobile-add-event-to-calendar";
   constructor(
+    public override readonly target: string,
     public override readonly payload: MobileAddEventToCalendarPayload,
   ) {
-    super(payload);
+    super(target, payload);
   }
 }

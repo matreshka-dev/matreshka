@@ -52,9 +52,9 @@ button(
       const isAuthorized = this.context.value("isAuthorized");
 
       if (isAuthorized) {
-        currentClientPlatform().navigate("/dashboard");
+        void firstValueFrom(currentClientPlatform().navigate("/dashboard"));
       } else {
-        currentClientPlatform().navigate("/login");
+        void firstValueFrom(currentClientPlatform().navigate("/login"));
       }
     },
   },
@@ -612,11 +612,11 @@ button(
 button(
   {
     onClick: () => {
-      currentClientPlatform().enumerateDevices({
-        onSuccess: (devices) => {
+      void firstValueFrom(currentClientPlatform().enumerateDevices()).then(
+        (devices) => {
           console.log(devices);
         },
-      });
+      );
     },
   },
   [text("Устройства")],

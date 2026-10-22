@@ -28,11 +28,11 @@ export class MaxMiniAppPlatform extends WebPlatform {
     await super.boot();
     this.postman.incomingMessage$.subscribe((message) => {
       if (message instanceof EnablePrivacyModeMessage) {
-        this.enablePrivacyMode();
+        this.runPlatformAction(message.target, () => this.enablePrivacyMode());
         return;
       }
       if (message instanceof DisablePrivacyModeMessage) {
-        this.disablePrivacyMode();
+        this.runPlatformAction(message.target, () => this.disablePrivacyMode());
         return;
       }
       if (message instanceof MaxMiniAppRequestContactMessage) {

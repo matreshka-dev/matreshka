@@ -15,6 +15,8 @@ const errorMessagePayloadSchema = z.strictObject({
 export type TargetedClientPlatformActionConfig<T> = {
   outgoingMessage: (scope: string) => AnyBffToClientMessage;
   parseSuccess?: (unsafeMessage: AnyClientToBffMessage) => T | undefined;
+  /** Ответ клиента, который завершает action ошибкой (например отмена диалога). */
+  parseFailure?: (unsafeMessage: AnyClientToBffMessage) => Error | undefined;
 };
 
 type TargetedClientPlatformActionTerminal<T> = {
@@ -68,6 +70,11 @@ function startTargetedClientPlatformAction<T>(
             terminal.next(undefined as T);
             terminal.complete();
           });
+          return;
+        }
+        const failure = config.parseFailure?.(unsafeMessage);
+        if (failure) {
+          finish(() => terminal.error(failure));
           return;
         }
         const value = config.parseSuccess?.(unsafeMessage);

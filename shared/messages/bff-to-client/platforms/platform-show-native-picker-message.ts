@@ -1,4 +1,4 @@
-import { PingableBffToClientMessage } from "../pingable-bff-to-client-message";
+import { PingableTargetedBffToClientMessage } from "../pingable-bff-to-client-message";
 
 export type PlatformNativePickerInputType =
   | "color"
@@ -13,12 +13,13 @@ export type PlatformShowNativePickerPayload = {
   ref: string;
 };
 
-export class PlatformShowNativePickerMessage extends PingableBffToClientMessage<PlatformShowNativePickerPayload> {
+export class PlatformShowNativePickerMessage extends PingableTargetedBffToClientMessage<PlatformShowNativePickerPayload> {
   static readonly type = "platform-show-native-picker";
 
   constructor(
+    public override readonly target: string,
     public override readonly payload: PlatformShowNativePickerPayload,
   ) {
-    super(payload);
+    super(target, payload);
   }
 }

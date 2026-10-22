@@ -1,5 +1,5 @@
 import type { PopoverConfig } from "../../../../types/popover-config";
-import { PingableBffToClientMessage } from "../../pingable-bff-to-client-message";
+import { PingableTargetedBffToClientMessage } from "../../pingable-bff-to-client-message";
 
 export type PopoverShowPayload = {
   /** Id инстанса source (инициатор открытия) на клиенте (`uuid-0`, …). */
@@ -9,9 +9,12 @@ export type PopoverShowPayload = {
   popover: PopoverConfig;
 };
 
-export class PopoverShowMessage extends PingableBffToClientMessage<PopoverShowPayload> {
+export class PopoverShowMessage extends PingableTargetedBffToClientMessage<PopoverShowPayload> {
   static readonly type = "show-popover";
-  constructor(public override readonly payload: PopoverShowPayload) {
-    super(payload);
+  constructor(
+    public override readonly target: string,
+    public override readonly payload: PopoverShowPayload,
+  ) {
+    super(target, payload);
   }
 }

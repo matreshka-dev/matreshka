@@ -1,4 +1,4 @@
-import { PingableBffToClientMessage } from "../../pingable-bff-to-client-message";
+import { PingableTargetedBffToClientMessage } from "../../pingable-bff-to-client-message";
 
 export type TelegramMiniAppSharePayload = {
   url?: string;
@@ -6,9 +6,12 @@ export type TelegramMiniAppSharePayload = {
   text?: string;
 };
 
-export class TelegramMiniAppShareMessage extends PingableBffToClientMessage<TelegramMiniAppSharePayload> {
+export class TelegramMiniAppShareMessage extends PingableTargetedBffToClientMessage<TelegramMiniAppSharePayload> {
   static readonly type = "telegram-mini-app-share";
-  constructor(public override readonly payload: TelegramMiniAppSharePayload) {
-    super(payload);
+  constructor(
+    public override readonly target: string,
+    public override readonly payload: TelegramMiniAppSharePayload,
+  ) {
+    super(target, payload);
   }
 }

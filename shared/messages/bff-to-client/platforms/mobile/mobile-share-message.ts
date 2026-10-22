@@ -1,4 +1,4 @@
-import { PingableBffToClientMessage } from "../../pingable-bff-to-client-message";
+import { PingableTargetedBffToClientMessage } from "../../pingable-bff-to-client-message";
 
 export type MobileSharePayload = {
   url?: string;
@@ -6,9 +6,12 @@ export type MobileSharePayload = {
   text?: string;
 };
 
-export class MobileShareMessage extends PingableBffToClientMessage<MobileSharePayload> {
+export class MobileShareMessage extends PingableTargetedBffToClientMessage<MobileSharePayload> {
   static readonly type = "mobile-share";
-  constructor(public override readonly payload: MobileSharePayload) {
-    super(payload);
+  constructor(
+    public override readonly target: string,
+    public override readonly payload: MobileSharePayload,
+  ) {
+    super(target, payload);
   }
 }

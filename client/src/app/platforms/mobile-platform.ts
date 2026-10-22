@@ -32,7 +32,6 @@ import { MobileRequestPushNotificationsMessage } from '@shared/messages/bff-to-c
 import { MobileShareMessage } from '@shared/messages/bff-to-client/platforms/mobile/mobile-share-message';
 import { MobileStopMessage } from '@shared/messages/bff-to-client/platforms/mobile/mobile-stop-message';
 import { ErrorMessage } from '@shared/messages/client-to-bff/error-message';
-import { MobileBleConnectMessage } from '@shared/messages/client-to-bff/platforms/mobile/mobile-ble-connect-message';
 import { MobileBleDisconnectMessage } from '@shared/messages/client-to-bff/platforms/mobile/mobile-ble-disconnect-message';
 import { MobileBleReceiveMessage } from '@shared/messages/client-to-bff/platforms/mobile/mobile-ble-receive-message';
 import { MobileBleServicesMessage } from '@shared/messages/client-to-bff/platforms/mobile/mobile-ble-services-message';
@@ -92,9 +91,7 @@ export abstract class MobilePlatform extends ClientPlatform {
   pushToken = new Subject<Token>();
   pushError = new Subject<RegistrationError>();
   share(payload: { url?: string; title?: string; text?: string }) {
-    return Share.share(payload).then(() => {
-      return;
-    });
+    return Share.share(payload).then(() => undefined);
   }
 
   async initBleClient() {
@@ -170,33 +167,17 @@ export abstract class MobilePlatform extends ClientPlatform {
     }
   }
 
-  private async connectToBleDevice(message: MobileConnectToBleDeviceMessage) {
-    try {
+  private connectToBleDevice(message: MobileConnectToBleDeviceMessage) {
+    this.runPlatformAction(message.target, async () => {
       await this.initBleClient();
       await BleClient.connect(message.payload.deviceId, () => {
         this.postman.outcomingMessage$.next(
-          new MobileBleDisconnectMessage(message.target),
+          new MobileBleDisconnectMessage(
+            message.payload.disconnectNotifyTarget,
+          ),
         );
       });
-      this.postman.incomingMessage$
-        .pipe(
-          filter((m) => isTargetedMessage(m) && m.target === message.target),
-        )
-        .subscribe(async (m) => {
-          if (m instanceof MobileDisconnectMessage) {
-            await BleClient.disconnect(message.payload.deviceId);
-          }
-        });
-      this.postman.outcomingMessage$.next(
-        new MobileBleConnectMessage(message.target),
-      );
-    } catch (error: any) {
-      this.postman.outcomingMessage$.next(
-        new ErrorMessage(message.target, {
-          message: error.toString(),
-        }),
-      );
-    }
+    });
   }
 
   private async requestBleScan(message: MobileRequestBleScanMessage) {
@@ -264,27 +245,35 @@ export abstract class MobilePlatform extends ClientPlatform {
     await super.boot();
     this.postman.incomingMessage$.subscribe((message) => {
       if (message instanceof MobileAddEventToCalendarMessage) {
-        this.addEventToCalendar(message.payload);
+        this.runPlatformAction(message.target, () =>
+          this.addEventToCalendar(message.payload),
+        );
         return;
       }
       if (message instanceof MobileDownloadCsvContentMessage) {
-        this.saveCsvContent(message.payload);
+        this.runPlatformAction(message.target, () =>
+          this.saveCsvContent(message.payload),
+        );
         return;
       }
       if (message instanceof MobileDownloadFileMessage) {
-        this.downloadFile(message.payload);
+        this.runPlatformAction(message.target, () =>
+          this.downloadFile(message.payload),
+        );
         return;
       }
       if (message instanceof MobileShareMessage) {
-        this.share(message.payload);
+        this.runPlatformAction(message.target, () =>
+          this.share(message.payload),
+        );
         return;
       }
       if (message instanceof EnablePrivacyModeMessage) {
-        this.enablePrivacyMode();
+        this.runPlatformAction(message.target, () => this.enablePrivacyMode());
         return;
       }
       if (message instanceof DisablePrivacyModeMessage) {
-        this.disablePrivacyMode();
+        this.runPlatformAction(message.target, () => this.disablePrivacyMode());
         return;
       }
       if (message instanceof MobileGetGeolocationMessage) {
@@ -346,6 +335,13 @@ export abstract class MobilePlatform extends ClientPlatform {
       }
       if (message instanceof MobileConnectToBleDeviceMessage) {
         this.connectToBleDevice(message);
+        return;
+      }
+      if (message instanceof MobileDisconnectMessage) {
+        this.runPlatformAction(message.target, async () => {
+          await this.initBleClient();
+          await BleClient.disconnect(message.payload.deviceId);
+        });
         return;
       }
       if (message instanceof MobileReadBleCharacteristicMessage) {
@@ -432,8 +428,8 @@ export abstract class MobilePlatform extends ClientPlatform {
     return {};
   }
 
-  addEventToCalendar(payload: CalendarEventPayload) {
-    Filesystem.writeFile({
+  addEventToCalendar(payload: CalendarEventPayload): Promise<void> {
+    return Filesystem.writeFile({
       path: payload.summary + '.ics',
       data: generateCalendarEvent(payload),
       directory: Directory.Cache,
@@ -444,12 +440,15 @@ export abstract class MobilePlatform extends ClientPlatform {
         contentType: 'text/calendar',
         openWithDefault: true, // Тут true, потому что календарь есть всегда
       };
-      FileOpener.open(fileOpenerOptions);
+      return FileOpener.open(fileOpenerOptions).then(() => undefined);
     });
   }
 
-  saveCsvContent(payload: { filename: string; content: string[][] }) {
-    Filesystem.writeFile({
+  saveCsvContent(payload: {
+    filename: string;
+    content: string[][];
+  }): Promise<void> {
+    return Filesystem.writeFile({
       path: payload.filename,
       data: convertToCsv(payload.content),
       directory: Directory.Cache,
@@ -460,12 +459,12 @@ export abstract class MobilePlatform extends ClientPlatform {
         contentType: 'text/csv',
         openWithDefault: false, // Если оставить true, то на андроиде в случае отсутствия нужного приложения ничего не произойдет и пользователь не поймет в чем ошибка
       };
-      FileOpener.open(fileOpenerOptions);
+      return FileOpener.open(fileOpenerOptions).then(() => undefined);
     });
   }
 
-  downloadFile(payload: { url: string; filename: string }) {
-    Filesystem.downloadFile({
+  downloadFile(payload: { url: string; filename: string }): Promise<void> {
+    return Filesystem.downloadFile({
       url: payload.url,
       path: payload.filename,
       directory: Directory.Cache, // Если не в кэш, то нужно придумывать логику сохранения, чтобы файлы с одинаковыми именами не затирали друг друга
@@ -474,7 +473,7 @@ export abstract class MobilePlatform extends ClientPlatform {
         filePath: res.path!,
         openWithDefault: false, // Если оставить true, то на андроиде в случае отсутствия нужного приложения ничего не произойдет и пользователь не поймет в чем ошибка
       };
-      FileOpener.open(fileOpenerOptions);
+      return FileOpener.open(fileOpenerOptions).then(() => undefined);
     });
   }
 

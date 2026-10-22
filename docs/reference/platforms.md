@@ -70,13 +70,80 @@ if (platform instanceof BrowserPlatform) {
 const platform = currentClientPlatform();
 
 if (platform instanceof MobilePlatform) {
-  const stopScan = platform.requestBLEScan({
-    onReceive: (device) => console.log(device),
-  });
+  const scanSubscription = platform
+    .requestBLEScan({})
+    .subscribe((device) => console.log(device));
+  // scanSubscription.unsubscribe(); — остановить скан
 }
 ```
 
 Это особенно полезно, когда одна часть логики общая, а другая зависит от платформы.
+
+## Platform-action и `Observable`
+
+Платформенные методы на BFF возвращают **`Observable`**, кроме синхронного **`getOverlays()`** (снимок оверлеев только на сервере).
+
+Зачем observable, даже когда у действия **нет видимого результата** (privacy mode, смена темы, `share`, скачивание файла):
+
+- важен **момент завершения** — можно снять loading, перейти к следующему шагу сценария, записать метрику;
+- BFF **узнаёт об ошибке** на клиенте (отказ в разрешении, сбой API, отмена диалога), а не остаётся в неопределённости.
+
+Запрос на клиент уходит **сразу при вызове** метода; подписка нужна только если серверному коду нужно дождаться исхода. Без подписки действие на клиенте всё равно выполняется; без ответа клиента observable не завершится (кроме уничтожения клиента).
+
+Подробнее о контракте request/response — в [`platform-actions.md`](../architecture/platform-actions.md). У **`reload()`** особая семантика завершения (см. ниже).
+
+### Что считается «завершением»
+
+Ack клиента и завершение observable на BFF означают **не одно и то же для всех методов**. Момент «успеха» задаётся **спецификой действия** на клиенте: observable фиксирует, что клиент **дошёл до согласованной точки** в этом сценарии, а не обязательно что пользователь полностью закончил работу с UI или OS.
+
+| Тип действия                                      | Типичный момент ack (успех)                                                                                                                                                                             |
+| ------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Геолокация, контакт, WebAuthn, push               | Клиент получил данные или credential и отправил success-сообщение                                                                                                                                       |
+| `showDialog` / `showPopover`                      | Компонент смонтирован на клиенте (не закрытие пользователем)                                                                                                                                            |
+| Native picker                                     | Picker открыт (выбор значения идёт в Context отдельно)                                                                                                                                                  |
+| **Скачивание файла** (`downloadFile`, CSV и т.п.) | Клиент **инициировал** скачивание (например, браузер принял запрос через `<a download>` / blob URL). **Фактическое окончание** загрузки на диск OS/API **не отслеживается** — это ограничение платформы |
+| `share`                                           | Системный share sheet вызван или ссылка передана (зависит от платформы)                                                                                                                                 |
+| Privacy mode, тема, overlays                      | Изменение применено на клиенте                                                                                                                                                                          |
+| **`navigate()`** (внутренний SPA)                 | **Не targeted ack.** Смена `route.visitedAt`, receipt `AppPageMessage`, `{ routeMatched }`                                                                                                              |
+| `navigate()` (внешний URL)                        | Сразу `{ routeMatched: false }` после отправки команды                                                                                                                                                  |
+| **`back()`** (внутренний SPA)                     | **Не targeted ack.** Смена `route.visitedAt` и receipt `AppPageMessage` (как navigate без проверки path)                                                                                                |
+| **`reload()`**                                    | **Не ack с клиента.** BFF ждёт **`Client.reconnect$`**: WebSocket переподключился с тем же token (grace period) — **эвристика**, что страница перезагрузилась после команды                             |
+
+Перед тем как строить бизнес-логику «после скачивания», сверяйтесь с описанием конкретного метода в этом справочнике и с реализацией на клиенте.
+
+### Как дождаться завершения
+
+```ts
+import { firstValueFrom } from "rxjs";
+
+await firstValueFrom(platform.downloadFile(url, "report.pdf"));
+// дальше — после ack: скачивание *запущено* на клиенте, не обязательно дописано на диск
+```
+
+### Как обработать ошибку
+
+Ошибка с клиента приходит как **`Error`** в observable (текст из `ErrorMessage`).
+
+Через `firstValueFrom` и `try/catch`:
+
+```ts
+try {
+  await firstValueFrom(platform.getGeolocation());
+} catch (error) {
+  console.error(error instanceof Error ? error.message : error);
+}
+```
+
+Через `subscribe`:
+
+```ts
+platform.requestContact().subscribe({
+  next: (data) => console.log(data),
+  error: (error) => console.error(error.message),
+});
+```
+
+Для действий без payload после успеха observable один раз эмитит `undefined` и завершается.
 
 ## Методы базового `Platform`
 
@@ -84,44 +151,72 @@ if (platform instanceof MobilePlatform) {
 
 ### `navigate(path: string)`
 
-Переводит клиент на другой route.
+Переводит клиент на другой route. Возвращает `Observable<NavigateResult>` (`{ routeMatched: boolean }`).
+
+Для **внутреннего SPA** observable завершается, когда:
+
+1. клиент сообщил новый `route.visitedAt` (навигация произошла);
+2. BFF отправил `AppPageMessage` для этого route и клиент подтвердил получение (`message-received`);
+3. в результате эмитится **`routeMatched`**: совпал ли фактический path/query с **маской** из аргумента `path` (литералы и query — точно; `@{context.path}` и `{param}` — wildcard сегмента, без подстановки значений контекста с BFF).
+
+Редирект guard на другой URL — **не ошибка**, а `{ routeMatched: false }`. **Ошибка** observable — в основном уничтожение клиента (`Client.destroy$`) до успешного завершения. Timeout не используется: BFF ждёт доставку page (retry через reliable delivery) или конец сессии клиента.
+
+**Внешний URL** (`https://…`): команда уходит на клиент, observable сразу завершается с `{ routeMatched: false }`.
 
 ```ts
-currentClientPlatform().navigate("/profile");
+import { firstValueFrom } from "rxjs";
+
+const { routeMatched } = await firstValueFrom(
+  currentClientPlatform().navigate("/profile"),
+);
+if (!routeMatched) {
+  // например guard перенаправил на /login
+}
 ```
 
 Использовать, когда решение о переходе должно приниматься на BFF.
 
 ### `back()`
 
-Переходит на предыдущую страницу в истории навигации клиента.
+Переходит на предыдущую страницу в истории навигации клиента. Возвращает `Observable<void>`.
+
+Завершение для **внутреннего SPA** — как у `navigate` без `routeMatched`: новый `route.visitedAt`, затем receipt `AppPageMessage`. Targeted ack с клиента не используется. Timeout нет; **ошибка** — в основном `Client.destroy$` до завершения.
+
+Если «назад» выводит за пределы SPA (нет смены route и page), observable **не завершится**, пока жив клиент — по той же логике, что и зависший navigate без page.
 
 ```ts
-currentClientPlatform().back();
+await firstValueFrom(currentClientPlatform().back());
 ```
-
-Использовать, когда нужно вернуть пользователя назад без явного указания route.
 
 ### `reload()`
 
-Перезагружает клиентское приложение.
+Перезагружает клиентское приложение (`location.reload()`). Возвращает `Observable<void>` с **особой логикой**:
+
+1. BFF отправляет `AppReloadMessage` (без targeted ack с клиента — JS-контекст уничтожается).
+2. Observable завершается при первом **`client.reconnect$`** после отправки: клиент переподключил WebSocket с тем же token в grace period.
 
 ```ts
-currentClientPlatform().reload();
+await firstValueFrom(currentClientPlatform().reload());
+// сессия BFF жива, transport снова attached; UI — новый boot на клиенте
 ```
 
-Полезно, когда:
+Это **эвристика** («скорее всего reload дошёл и страница поднялась снова»), а не строгое подтверждение. Если grace period истёк или reconnect не произошёл — observable завершится ошибкой при `Client.destroy()`.
 
-- нужно полностью сбросить клиентский runtime;
-- BFF понял, что состояние устарело;
-- требуется полная повторная инициализация.
+| Метод               | SPA / runtime                      | WebSocket                                       |
+| ------------------- | ---------------------------------- | ----------------------------------------------- |
+| `navigate` / `back` | Обычно SPA без полной перезагрузки | Остаётся открытым                               |
+| `reload`            | Полная перезагрузка документа      | Закрывается и открывается заново → `reconnect$` |
+
+Подробнее про reconnect и grace period — в [`operations.md`](../architecture/operations.md).
 
 ### `enablePrivacyMode()`
 
-Включает режим конфиденциальности.
+Включает режим конфиденциальности. Возвращает `Observable<void>`.
 
 ```ts
-currentClientPlatform().enablePrivacyMode();
+import { firstValueFrom } from "rxjs";
+
+await firstValueFrom(currentClientPlatform().enablePrivacyMode());
 ```
 
 Это единый BFF-метод, но фактическое поведение зависит от платформы:
@@ -132,44 +227,34 @@ currentClientPlatform().enablePrivacyMode();
 
 ### `disablePrivacyMode()`
 
-Отключает режим конфиденциальности.
+Отключает режим конфиденциальности. Возвращает `Observable<void>`.
 
 ```ts
-currentClientPlatform().disablePrivacyMode();
+import { firstValueFrom } from "rxjs";
+
+await firstValueFrom(currentClientPlatform().disablePrivacyMode());
 ```
 
 Обычно используется как парный вызов к `enablePrivacyMode()`.
 
-### `setColorSchemeLight()`
+### `setColorSchemeLight()` / `setColorSchemeDark()` / `setColorSchemeSystem()`
 
-Принудительно включает светлую тему.
-
-```ts
-currentClientPlatform().setColorSchemeLight();
-```
-
-### `setColorSchemeDark()`
-
-Принудительно включает темную тему.
+Переключают тему на клиенте. Каждый метод возвращает `Observable<void>`.
 
 ```ts
-currentClientPlatform().setColorSchemeDark();
-```
+import { firstValueFrom } from "rxjs";
 
-### `setColorSchemeSystem()`
-
-Возвращает клиент к системной теме.
-
-```ts
-currentClientPlatform().setColorSchemeSystem();
+await firstValueFrom(currentClientPlatform().setColorSchemeDark());
 ```
 
 ### `showDialog(dialog: Dialog)`
 
-Показывает `Dialog`.
+Показывает `Dialog`. Возвращает `Observable<void>` (завершается после монтирования на клиенте).
 
 ```ts
-currentClientPlatform().showDialog(dialog);
+import { firstValueFrom } from "rxjs";
+
+await firstValueFrom(currentClientPlatform().showDialog(dialog));
 ```
 
 Использовать, когда нужен самостоятельный entry-слой поверх страницы без привязки к якорному компоненту.
@@ -179,13 +264,17 @@ currentClientPlatform().showDialog(dialog);
 Показывает `Popover` на клиенте.
 
 ```ts
+import { firstValueFrom } from "rxjs";
+
 // source и визуальный anchor — один инстанс (типичный onClick)
-currentClientPlatform().showPopover(instance, popover);
+await firstValueFrom(currentClientPlatform().showPopover(instance, popover));
 
 // source — кнопка, визуальный anchor — другой элемент (например шапка)
-currentClientPlatform().showPopover(
-  { source: buttonInstance, anchor: headerInstance },
-  popover,
+await firstValueFrom(
+  currentClientPlatform().showPopover(
+    { source: buttonInstance, anchor: headerInstance },
+    popover,
+  ),
 );
 ```
 
@@ -205,15 +294,24 @@ currentClientPlatform().showPopover(
 Открывает native date picker и связывает результат с `ref` — ссылка на строковое поле контекста.
 
 ```ts
-currentClientPlatform().showDatePicker(instance, this.context.ref("birthday"));
+import { firstValueFrom } from "rxjs";
+
+await firstValueFrom(
+  currentClientPlatform().showDatePicker(
+    instance,
+    this.context.ref("birthday"),
+  ),
+);
 ```
 
 ### `showColorPicker(anchor, ref: ContextValueRef<string | undefined>)`
 
-Открывает native color picker.
+Открывает native color picker. Возвращает `Observable<void>` (picker открыт на клиенте).
 
 ```ts
-currentClientPlatform().showColorPicker(instance, this.context.ref("color"));
+await firstValueFrom(
+  currentClientPlatform().showColorPicker(instance, this.context.ref("color")),
+);
 ```
 
 ### `showTimePicker(anchor, ref: ContextValueRef<string | undefined>)`
@@ -221,7 +319,9 @@ currentClientPlatform().showColorPicker(instance, this.context.ref("color"));
 Открывает native time picker.
 
 ```ts
-currentClientPlatform().showTimePicker(instance, this.context.ref("time"));
+await firstValueFrom(
+  currentClientPlatform().showTimePicker(instance, this.context.ref("time")),
+);
 ```
 
 ### `showDateTimePicker(anchor, ref: ContextValueRef<string | undefined>)`
@@ -229,9 +329,11 @@ currentClientPlatform().showTimePicker(instance, this.context.ref("time"));
 Открывает native datetime picker.
 
 ```ts
-currentClientPlatform().showDateTimePicker(
-  instance,
-  this.context.ref("meetingAt"),
+await firstValueFrom(
+  currentClientPlatform().showDateTimePicker(
+    instance,
+    this.context.ref("meetingAt"),
+  ),
 );
 ```
 
@@ -240,12 +342,14 @@ currentClientPlatform().showDateTimePicker(
 Устанавливает platform-level overlays.
 
 ```ts
-currentClientPlatform().setOverlays([
-  {
-    anchors: [OverlayAnchor.Bottom, OverlayAnchor.Center],
-    component: floatingActionComponent,
-  },
-]);
+await firstValueFrom(
+  currentClientPlatform().setOverlays([
+    {
+      anchors: [OverlayAnchor.Bottom, OverlayAnchor.Center],
+      component: floatingActionComponent,
+    },
+  ]),
+);
 ```
 
 Использовать, когда overlay должен жить на уровне платформы, а не конкретного контейнера или страницы.
@@ -260,16 +364,17 @@ const overlays = currentClientPlatform().getOverlays();
 
 Обычно это вспомогательный метод для серверной логики, которая управляет overlays.
 
-### `enumerateDevices(config)`
+### `enumerateDevices()`
 
 Запрашивает у клиента список доступных media devices.
 
 ```ts
-currentClientPlatform().enumerateDevices({
-  onSuccess: (devices) => {
-    console.log(devices);
-  },
-});
+import { firstValueFrom } from "rxjs";
+
+const devices = await firstValueFrom(
+  currentClientPlatform().enumerateDevices(),
+);
+console.log(devices);
 ```
 
 Возвращает инстансы:
@@ -563,7 +668,7 @@ try {
 
 | Параметр                  | Смысл                                                                                          |
 | ------------------------- | ---------------------------------------------------------------------------------------------- |
-| `response`                | Тот же `credentialJSON`, что вернул observable платформы.                                    |
+| `response`                | Тот же `credentialJSON`, что вернул observable платформы.                                      |
 | `expectedChallenge`       | Challenge из шага регистрации (из сохранённого `optionsJSON.challenge`), не из ответа клиента. |
 | `expectedOrigin`          | Origin, с которого открыт клиент Matreshka (`https://…`).                                      |
 | `expectedRPID`            | Тот же `rpID`, что при генерации options.                                                      |
@@ -698,7 +803,9 @@ const authOptionsJSON = await generateAuthenticationOptions({
 Скачивание файла через Telegram Mini App.
 
 ```ts
-platform.downloadFile(fileUrl, "invoice.pdf");
+import { firstValueFrom } from "rxjs";
+
+await firstValueFrom(platform.downloadFile(fileUrl, "invoice.pdf"));
 ```
 
 ### `share(data)`
@@ -706,10 +813,14 @@ platform.downloadFile(fileUrl, "invoice.pdf");
 Шаринг через Telegram Mini App.
 
 ```ts
-platform.share({
-  url: "https://example.com",
-  text: "Ссылка",
-});
+import { firstValueFrom } from "rxjs";
+
+await firstValueFrom(
+  platform.share({
+    url: "https://example.com",
+    text: "Ссылка",
+  }),
+);
 ```
 
 ### `TelegramMiniAppPlatform.initData(botToken)`
@@ -722,47 +833,45 @@ const initData = platform.initData(process.env.TELEGRAM_BOT_TOKEN!);
 
 Это серверный способ получить и провалидировать telegram mini app init payload.
 
-### `TelegramMiniAppPlatform.getGeolocation(config)`
+### `TelegramMiniAppPlatform.getGeolocation()`
 
-Запрашивает геолокацию внутри Telegram Mini App.
+Запрашивает геолокацию внутри Telegram Mini App. Возвращает `Observable` с расширенным payload (accuracy, altitude и т.д.).
 
 ```ts
-platform.getGeolocation({
-  onSuccess: (position) => {
-    console.log(position.latitude);
-  },
-});
+import { firstValueFrom } from "rxjs";
+
+const position = await firstValueFrom(platform.getGeolocation());
+console.log(position.latitude);
 ```
 
-### `TelegramMiniAppPlatform.requestContact(config)`
+### `TelegramMiniAppPlatform.requestContact()`
 
-Запрашивает контакт пользователя.
+Запрашивает контакт пользователя. Отмена диалога завершает observable ошибкой.
 
 ```ts
-platform.requestContact({
-  onReceive: (data) => {
-    console.log(data.phone_number);
-  },
-  onCancel: () => {
-    console.log("Пользователь отменил запрос");
-  },
-});
+import { firstValueFrom } from "rxjs";
+
+try {
+  const data = await firstValueFrom(platform.requestContact());
+  console.log(data.phone_number);
+} catch {
+  console.log("Пользователь отменил запрос");
+}
 ```
 
 ## Методы `MaxMiniAppPlatform`
 
 `MaxMiniAppPlatform` похож на Telegram Mini App, но с собственным API.
 
-### `MaxMiniAppPlatform.requestContact(config)`
+### `MaxMiniAppPlatform.requestContact()`
 
 Запрашивает контакт пользователя.
 
 ```ts
-platform.requestContact({
-  onReceive: (data) => {
-    console.log(data.phone);
-  },
-});
+import { firstValueFrom } from "rxjs";
+
+const data = await firstValueFrom(platform.requestContact());
+console.log(data.phone);
 ```
 
 ### `MaxMiniAppPlatform.initData(botToken)`
@@ -789,10 +898,14 @@ const initData = platform.initData(process.env.MAX_BOT_TOKEN!);
 Добавляет событие в системный календарь устройства.
 
 ```ts
-platform.addEventToCalendar({
-  start: Date.now(),
-  summary: "Звонок",
-});
+import { firstValueFrom } from "rxjs";
+
+await firstValueFrom(
+  platform.addEventToCalendar({
+    start: Date.now(),
+    summary: "Звонок",
+  }),
+);
 ```
 
 ### `MobilePlatform.downloadCsvContent(filename, content)`
@@ -800,7 +913,9 @@ platform.addEventToCalendar({
 Сохраняет CSV на устройство.
 
 ```ts
-platform.downloadCsvContent("report", [["A", "B"]]);
+import { firstValueFrom } from "rxjs";
+
+await firstValueFrom(platform.downloadCsvContent("report", [["A", "B"]]));
 ```
 
 ### `MobilePlatform.downloadFile(url, filename)`
@@ -808,7 +923,9 @@ platform.downloadCsvContent("report", [["A", "B"]]);
 Скачивает файл на устройство.
 
 ```ts
-platform.downloadFile(fileUrl, "document.pdf");
+import { firstValueFrom } from "rxjs";
+
+await firstValueFrom(platform.downloadFile(fileUrl, "document.pdf"));
 ```
 
 ### `MobilePlatform.share(data)`
@@ -816,90 +933,85 @@ platform.downloadFile(fileUrl, "document.pdf");
 Открывает системный share dialog.
 
 ```ts
-platform.share({
-  text: "Поделиться",
-  url: "https://example.com",
-});
+import { firstValueFrom } from "rxjs";
+
+await firstValueFrom(
+  platform.share({
+    text: "Поделиться",
+    url: "https://example.com",
+  }),
+);
 ```
 
-### `MobilePlatform.getGeolocation(config)`
+### `MobilePlatform.getGeolocation()`
 
 Запрашивает геолокацию на мобильном устройстве.
 
 ```ts
-platform.getGeolocation({
-  onSuccess: ({ latitude, longitude }) => {
-    console.log(latitude, longitude);
-  },
-});
+import { firstValueFrom } from "rxjs";
+
+const { latitude, longitude } = await firstValueFrom(platform.getGeolocation());
 ```
 
-### `MobilePlatform.registerPushNotifications(config)`
+### `MobilePlatform.registerPushNotifications()`
 
 Запрашивает push token.
 
 ```ts
-platform.registerPushNotifications({
-  onGranted: (token) => {
-    console.log(token.value);
-  },
-});
+import { firstValueFrom } from "rxjs";
+
+const token = await firstValueFrom(platform.registerPushNotifications());
+console.log(token.value);
 ```
 
 ### `MobilePlatform.requestBLEScan(config)`
 
-Запускает BLE scan.
+Запускает BLE scan. **Hot:** команда на клиент уходит **при вызове** метода (как у остальных platform-action). Возвращает `Observable` с результатами сканирования; когда **не остаётся подписчиков**, на клиент уходит stop. Если подписчиков не было — скан идёт до ошибки или `destroy$` клиента.
 
 ```ts
-const stopScan = platform.requestBLEScan({
-  onReceive: (result) => {
-    console.log(result.device.deviceId);
-  },
+const scan$ = platform.requestBLEScan({});
+const subscription = scan$.subscribe((result) => {
+  console.log(result.device.deviceId);
 });
-```
 
-Метод возвращает функцию остановки:
-
-```ts
-stopScan();
+subscription.unsubscribe();
 ```
 
 ### `MobilePlatform.connectToBLEDevice(deviceId)`
 
-Создает объект BLE-устройства и инициирует подключение.
+Подключается к BLE-устройству и возвращает `Observable<BLEDevice>` (platform-action).
 
 ```ts
-const device = platform.connectToBLEDevice(deviceId);
+platform.connectToBLEDevice(deviceId).subscribe({
+  next: (device) => {
+    /* устройство подключено */
+  },
+  error: (err) => {
+    /* ошибка подключения */
+  },
+});
 ```
 
-Дальше можно работать уже с объектом устройства.
+Эквивалент: `new BLEDevice(deviceId, client).connect()` на стороне BFF — снаружи используйте только `connectToBLEDevice`.
 
 ## BLEDevice
 
-`connectToBLEDevice()` возвращает `BLEDevice`.
+После успешного `connectToBLEDevice` доступен объект с методами:
 
-У него есть события:
+- `disconnect()` → `Observable<void>`
+- `read(serviceId, characteristicId)` → `Observable<number>`
+- `getServices()` → `Observable<MobileBleService[]>`
+- `discoverServices()` → `Observable<MobileBleService[]>`
 
-- `connect$`
-- `error$`
-- `disconnect$`
-
-И методы:
-
-- `disconnect()`
-- `read(serviceId, characteristicId, config)`
-- `write(serviceId, characteristicId, value, config)`
-- `getServices(config)`
-
-Это уже отдельный под-API поверх мобильной платформы.
+Событие **`disconnect$`**: неожиданный разрыв связи на клиенте (callback Capacitor BLE), не путать с явным `disconnect()`.
 
 Пример:
 
 ```ts
-const device = platform.connectToBLEDevice(deviceId);
-
-device.connect$.subscribe(() => {
-  console.log("Подключено");
+platform.connectToBLEDevice(deviceId).subscribe((device) => {
+  device.disconnect$.subscribe(() => {
+    console.log("Связь потеряна");
+  });
 });
 ```
 

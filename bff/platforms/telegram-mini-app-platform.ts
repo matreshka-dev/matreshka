@@ -2,15 +2,13 @@ import { TelegramMiniAppDownloadFileMessage } from "@matreshka/shared/messages/b
 import { TelegramMiniAppGetGeolocationMessage } from "@matreshka/shared/messages/bff-to-client/platforms/telegram-mini-app/telegram-mini-app-get-geolocation-message";
 import { TelegramMiniAppRequestContactMessage } from "@matreshka/shared/messages/bff-to-client/platforms/telegram-mini-app/telegram-mini-app-request-contact-message";
 import { TelegramMiniAppShareMessage } from "@matreshka/shared/messages/bff-to-client/platforms/telegram-mini-app/telegram-mini-app-share-message";
-import { ErrorMessage } from "@matreshka/shared/messages/client-to-bff/error-message";
 import { TelegramMiniAppGetGeolocationSuccessMessage } from "@matreshka/shared/messages/client-to-bff/platforms/telegram-mini-app/telegram-mini-app-get-geolocation-success-message";
 import { TelegramMiniAppRequestContactActionCancelMessage } from "@matreshka/shared/messages/client-to-bff/platforms/telegram-mini-app/telegram-mini-app-request-contact-action-cancel-message";
 import { TelegramMiniAppRequestContactActionSuccessMessage } from "@matreshka/shared/messages/client-to-bff/platforms/telegram-mini-app/telegram-mini-app-request-contact-action-success-message";
-import { isTargetedMessage } from "@matreshka/shared/messages/targeted-message";
 import crypto from "crypto";
-import { filter } from "rxjs";
+import type { Observable } from "rxjs";
 import { z } from "zod/v4";
-import { incomingMessageObserver } from "../core/utils/incoming-message-observer";
+import { targetedClientPlatformAction } from "./utils/targeted-client-platform-action";
 import { WebPlatform } from "./web-platform";
 
 /**
@@ -21,6 +19,18 @@ const requestContactSuccessMessageSchema = z.strictObject({
   first_name: z.string(),
   last_name: z.string().optional(),
   user_id: z.number(),
+});
+
+const telegramGeolocationSuccessSchema = z.strictObject({
+  latitude: z.number(),
+  longitude: z.number(),
+  altitude: z.number().nullable(),
+  course: z.number().nullable(),
+  speed: z.number().nullable(),
+  horizontal_accuracy: z.number().nullable(),
+  vertical_accuracy: z.number().nullable(),
+  course_accuracy: z.number().nullable(),
+  speed_accuracy: z.number().nullable(),
 });
 
 type TelegramWebAppUser = {
@@ -59,25 +69,21 @@ type TelegramWebAppInitData = {
  * Платформа для Telegram Mini App.
  */
 export class TelegramMiniAppPlatform extends WebPlatform {
-  /**
-   * Инициирует загрузку файла по указанному URL.
-   *
-   * @param url Ссылка на файл.
-   * @param filename Имя файла для сохранения.
-   */
-  downloadFile(url: string, filename: string) {
-    this.client.outcomingMessage$.next(
-      new TelegramMiniAppDownloadFileMessage({ url, filename }),
-    );
+  downloadFile(url: string, filename: string): Observable<void> {
+    return targetedClientPlatformAction(this.client, {
+      outgoingMessage: (scope) =>
+        new TelegramMiniAppDownloadFileMessage(scope, { url, filename }),
+    });
   }
 
-  /**
-   * Делится содержимым через системное диалоговое окно обмена.
-   *
-   * @param data Объект с текстом, ссылкой и/или заголовком.
-   */
-  share(data: { url?: string; title?: string; text?: string }) {
-    this.client.outcomingMessage$.next(new TelegramMiniAppShareMessage(data));
+  share(data: {
+    url?: string;
+    title?: string;
+    text?: string;
+  }): Observable<void> {
+    return targetedClientPlatformAction(this.client, {
+      outgoingMessage: (scope) => new TelegramMiniAppShareMessage(scope, data),
+    });
   }
 
   initData(botToken: string): TelegramWebAppInitData {
@@ -92,9 +98,6 @@ export class TelegramMiniAppPlatform extends WebPlatform {
         chat?: string;
       } = Object.fromEntries(new URLSearchParams(initDataString)) as any;
 
-      // if (res.user) {
-      //   res.user = JSON.parse(res.user);
-      // }
       return {
         ...res,
         // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment
@@ -110,133 +113,65 @@ export class TelegramMiniAppPlatform extends WebPlatform {
   }
 
   private verifyTelegramWebAppData(telegramInitData: string, botToken: string) {
-    // The data is a query string, which is composed of a series of field-value pairs.
     const encoded = decodeURIComponent(telegramInitData);
 
-    // HMAC-SHA-256 signature of the bot's token with the constant string WebAppData used as a key.
     const secret = crypto.createHmac("sha256", "WebAppData").update(botToken);
 
-    // Data-check-string is a chain of all received fields'.
     const arr = encoded.split("&");
     const hashIndex = arr.findIndex((str) => str.startsWith("hash="));
     const hash = arr.splice(hashIndex, 1)[0].split("=")[1];
-    // sorted alphabetically
     arr.sort((a, b) => a.localeCompare(b));
-    // in the format key=<value> with a line feed character ('\n', 0x0A) used as separator
-    // e.g., 'auth_date=<auth_date>\nquery_id=<query_id>\nuser=<user>
     const dataCheckString = arr.join("\n");
 
-    // The hexadecimal representation of the HMAC-SHA-256 signature of the data-check-string with the secret key
     const secretHex = secret.digest("hex");
     const _hash = crypto
       .createHmac("sha256", secretHex)
       .update(dataCheckString)
       .digest("hex");
 
-    // if hash are equal the data may be used on your server.
-    // Complex data types are represented as JSON-serialized objects.
     return _hash === hash;
   }
-  /**
-   * Запрашивает геолокацию пользователя в Telegram Mini App.
-   *
-   * @param config Объект с обработчиками успешного получения геолокации и отмены.
-   */
-  getGeolocation(config: {
-    onSuccess: (position: { latitude: number; longitude: number }) => void;
-    onError?: (error: string) => void;
-  }) {
-    const scope = "platform-action-" + crypto.randomUUID();
-    const subscription = this.client.incomingMessage$
-      .pipe(
-        filter(
-          (unsafeMessage) =>
-            isTargetedMessage(unsafeMessage) && unsafeMessage.target === scope,
-        ),
-      )
-      .subscribe(
-        incomingMessageObserver(this.client, (unsafeMessage) => {
-          subscription.unsubscribe();
-          if (
-            unsafeMessage instanceof TelegramMiniAppGetGeolocationSuccessMessage
-          ) {
-            const messagePayload = z
-              .strictObject({
-                latitude: z.number(),
-                longitude: z.number(),
-                altitude: z.number().nullable(),
-                course: z.number().nullable(),
-                speed: z.number().nullable(),
-                horizontal_accuracy: z.number().nullable(),
-                vertical_accuracy: z.number().nullable(),
-                course_accuracy: z.number().nullable(),
-                speed_accuracy: z.number().nullable(),
-              })
-              .parse(unsafeMessage.payload);
-            config.onSuccess(messagePayload);
-            return;
-          }
-          if (unsafeMessage instanceof ErrorMessage) {
-            const messagePayload = z
-              .strictObject({
-                message: z.string(),
-              })
-              .parse(unsafeMessage.payload);
-            if (typeof config.onError === "function") {
-              config.onError(messagePayload.message);
-            }
-          }
-        }),
-      );
-    this.client.outcomingMessage$.next(
-      new TelegramMiniAppGetGeolocationMessage(scope),
-    );
+
+  getGeolocation(): Observable<
+    z.infer<typeof telegramGeolocationSuccessSchema>
+  > {
+    return targetedClientPlatformAction(this.client, {
+      outgoingMessage: (scope) =>
+        new TelegramMiniAppGetGeolocationMessage(scope),
+      parseSuccess: (unsafeMessage) => {
+        if (
+          unsafeMessage instanceof TelegramMiniAppGetGeolocationSuccessMessage
+        ) {
+          return telegramGeolocationSuccessSchema.parse(unsafeMessage.payload);
+        }
+      },
+    });
   }
 
-  /**
-   * Запрашивает контактные данные пользователя в Telegram Mini App.
-   *
-   * @param config Объект с обработчиками успешного получения контакта и отмены.
-   */
-  requestContact(config: {
-    onReceive: (
-      data: z.infer<typeof requestContactSuccessMessageSchema>,
-    ) => void;
-    onCancel?: () => void;
-  }) {
-    const scope = "platform-action-" + crypto.randomUUID();
-    const subscription = this.client.incomingMessage$
-      .pipe(
-        filter(
-          (unsafeMessage) =>
-            isTargetedMessage(unsafeMessage) && unsafeMessage.target === scope,
-        ),
-      )
-      .subscribe(
-        incomingMessageObserver(this.client, (unsafeMessage) => {
-          subscription.unsubscribe();
-          if (
-            unsafeMessage instanceof
-            TelegramMiniAppRequestContactActionSuccessMessage
-          ) {
-            const messagePayload = requestContactSuccessMessageSchema.parse(
-              unsafeMessage.payload,
-            );
-            config.onReceive(messagePayload);
-            return;
-          }
-          if (
-            unsafeMessage instanceof
-            TelegramMiniAppRequestContactActionCancelMessage
-          ) {
-            if ("onCancel" in config) {
-              config.onCancel!();
-            }
-          }
-        }),
-      );
-    this.client.outcomingMessage$.next(
-      new TelegramMiniAppRequestContactMessage(scope),
-    );
+  requestContact(): Observable<
+    z.infer<typeof requestContactSuccessMessageSchema>
+  > {
+    return targetedClientPlatformAction(this.client, {
+      outgoingMessage: (scope) =>
+        new TelegramMiniAppRequestContactMessage(scope),
+      parseSuccess: (unsafeMessage) => {
+        if (
+          unsafeMessage instanceof
+          TelegramMiniAppRequestContactActionSuccessMessage
+        ) {
+          return requestContactSuccessMessageSchema.parse(
+            unsafeMessage.payload,
+          );
+        }
+      },
+      parseFailure: (unsafeMessage) => {
+        if (
+          unsafeMessage instanceof
+          TelegramMiniAppRequestContactActionCancelMessage
+        ) {
+          return new Error("User cancelled contact request");
+        }
+      },
+    });
   }
 }

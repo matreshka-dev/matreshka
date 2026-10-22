@@ -1,8 +1,8 @@
-import { PingableBffToClientMessage } from "../pingable-bff-to-client-message";
+import { PingableTargetedBffToClientMessage } from "../pingable-bff-to-client-message";
 
-export class DisablePrivacyModeMessage extends PingableBffToClientMessage<undefined> {
+export class DisablePrivacyModeMessage extends PingableTargetedBffToClientMessage<undefined> {
   static readonly type = "disable-privacy-mode";
-  constructor() {
-    super();
+  constructor(public override readonly target: string) {
+    super(target);
   }
 }

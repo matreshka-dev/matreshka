@@ -1,8 +1,3 @@
-import {
-  AppBackMessage,
-  AppNavigateMessage,
-  AppReloadMessage,
-} from "@matreshka/shared/messages/bff-to-client/app/index";
 import { DialogShowMessage } from "@matreshka/shared/messages/bff-to-client/components/dialog/dialog-show-message";
 import { PopoverShowMessage } from "@matreshka/shared/messages/bff-to-client/components/popover/popover-show-message";
 import { DisablePrivacyModeMessage } from "@matreshka/shared/messages/bff-to-client/platforms/disable-privacy-mode-message";
@@ -14,13 +9,9 @@ import {
   PlatformNativePickerInputType,
   PlatformShowNativePickerMessage,
 } from "@matreshka/shared/messages/bff-to-client/platforms/platform-show-native-picker-message";
-import { ErrorMessage } from "@matreshka/shared/messages/client-to-bff/error-message";
-import {
-  PlatformEnumeratedDevice,
-  PlatformEnumerateDevicesSuccessMessage,
-} from "@matreshka/shared/messages/client-to-bff/platforms/platform-enumerate-devices-success-message";
-import { isTargetedMessage } from "@matreshka/shared/messages/targeted-message";
-import { filter } from "rxjs";
+import type { PlatformEnumeratedDevice } from "@matreshka/shared/messages/client-to-bff/platforms/platform-enumerate-devices-success-message";
+import { PlatformEnumerateDevicesSuccessMessage } from "@matreshka/shared/messages/client-to-bff/platforms/platform-enumerate-devices-success-message";
+import type { Observable } from "rxjs";
 import { z } from "zod/v4";
 import { Dialog, Popover } from "../components";
 import { Overlay } from "../components/types/container-overlay";
@@ -32,12 +23,29 @@ import {
   runWithEntry,
   serializeOverlays,
 } from "../core";
-import { incomingMessageObserver } from "../core/utils/incoming-message-observer";
 import {
   isPopoverShowPlacement,
   type PopoverShowComponent,
   type PopoverShowPlacement,
 } from "./popover-show";
+import { clientBackPlatformAction } from "./utils/client-back-platform-action";
+import {
+  clientNavigatePlatformAction,
+  type NavigateResult,
+} from "./utils/client-navigate-platform-action";
+import { clientReloadPlatformAction } from "./utils/client-reload-platform-action";
+import { targetedClientPlatformAction } from "./utils/targeted-client-platform-action";
+
+export type { NavigateResult };
+
+const enumeratedDeviceSchema = z.strictObject({
+  kind: z.enum(["audioinput", "audiooutput", "videoinput"]),
+  deviceId: z.string(),
+  groupId: z.string(),
+  label: z.string().optional(),
+  capabilities: z.record(z.string(), z.unknown()).optional(),
+  settings: z.record(z.string(), z.unknown()).optional(),
+});
 
 /**
  * Абстрактный класс платформы, управляющий клиентом и его состоянием.
@@ -55,73 +63,68 @@ export abstract class Platform {
    *
    * @param path Путь, по которому необходимо перейти.
    */
-  navigate(path: string) {
-    this.client.outcomingMessage$.next(new AppNavigateMessage({ path }));
+  navigate(path: string): Observable<NavigateResult> {
+    return clientNavigatePlatformAction(this.client, path);
   }
 
-  /**
-   * Переходит на предыдущую страницу в истории навигации клиента.
-   */
-  back() {
-    this.client.outcomingMessage$.next(new AppBackMessage());
+  /** Переходит на предыдущую страницу в истории навигации клиента. */
+  back(): Observable<void> {
+    return clientBackPlatformAction(this.client);
   }
 
   /**
    * Перезагружает клиентское приложение.
-   */
-  reload() {
-    this.client.outcomingMessage$.next(new AppReloadMessage());
-  }
-
-  /**
-   * Включает режим конфиденциальности.
-   */
-  enablePrivacyMode() {
-    this.client.outcomingMessage$.next(new EnablePrivacyModeMessage());
-  }
-
-  /**
-   * Отключает режим конфиденциальности.
-   */
-  disablePrivacyMode() {
-    this.client.outcomingMessage$.next(new DisablePrivacyModeMessage());
-  }
-
-  /**
-   * Явно включает светлую цветовую схему на клиенте.
-   */
-  setColorSchemeLight() {
-    this.client.outcomingMessage$.next(
-      new PlatformSetColorSchemeMessage({ mode: "light" }),
-    );
-  }
-
-  /**
-   * Явно включает тёмную цветовую схему на клиенте.
-   */
-  setColorSchemeDark() {
-    this.client.outcomingMessage$.next(
-      new PlatformSetColorSchemeMessage({ mode: "dark" }),
-    );
-  }
-
-  /**
-   * Сбрасывает выбор темы: снова используется системная схема.
-   */
-  setColorSchemeSystem() {
-    this.client.outcomingMessage$.next(
-      new PlatformSetColorSchemeMessage({ mode: "system" }),
-    );
-  }
-
-  /**
-   * Отображает диалоговое окно.
    *
-   * @param dialog Компонент диалога.
+   * Завершение observable — {@link Client.reconnect$} (переподключение WS с тем же token),
+   * а не ack с клиента до reload.
    */
-  showDialog(dialog: Dialog) {
+  reload(): Observable<void> {
+    return clientReloadPlatformAction(this.client);
+  }
+
+  /** Включает режим конфиденциальности. */
+  enablePrivacyMode(): Observable<void> {
+    return targetedClientPlatformAction(this.client, {
+      outgoingMessage: (scope) => new EnablePrivacyModeMessage(scope),
+    });
+  }
+
+  /** Отключает режим конфиденциальности. */
+  disablePrivacyMode(): Observable<void> {
+    return targetedClientPlatformAction(this.client, {
+      outgoingMessage: (scope) => new DisablePrivacyModeMessage(scope),
+    });
+  }
+
+  /** Явно включает светлую цветовую схему на клиенте. */
+  setColorSchemeLight(): Observable<void> {
+    return this.setColorScheme("light");
+  }
+
+  /** Явно включает тёмную цветовую схему на клиенте. */
+  setColorSchemeDark(): Observable<void> {
+    return this.setColorScheme("dark");
+  }
+
+  /** Сбрасывает выбор темы: снова используется системная схема. */
+  setColorSchemeSystem(): Observable<void> {
+    return this.setColorScheme("system");
+  }
+
+  private setColorScheme(mode: "light" | "dark" | "system"): Observable<void> {
+    return targetedClientPlatformAction(this.client, {
+      outgoingMessage: (scope) =>
+        new PlatformSetColorSchemeMessage(scope, { mode }),
+    });
+  }
+
+  /** Отображает диалоговое окно. */
+  showDialog(dialog: Dialog): Observable<void> {
     const serializedDialog = dialog.serialize();
-    this.client.outcomingMessage$.next(new DialogShowMessage(serializedDialog));
+    return targetedClientPlatformAction(this.client, {
+      outgoingMessage: (scope) =>
+        new DialogShowMessage(scope, serializedDialog),
+    });
   }
 
   /**
@@ -129,18 +132,18 @@ export abstract class Platform {
    *
    * **source** — элемент, инициировавший открытие (Tab-order, `showPopover({ source })` на клиенте).
    * **anchor** — визуальный якорь (`anchor-name` / `position-anchor`), если отличается от source.
-   *
-   * @param sourceOrPlacement Один инстанс (source = anchor) или `{ anchor, source }`.
-   * @param popover Компонент всплывающего окна.
    */
-  showPopover(source: PopoverShowComponent, popover: Popover): void;
-  showPopover(placement: PopoverShowPlacement, popover: Popover): void;
+  showPopover(source: PopoverShowComponent, popover: Popover): Observable<void>;
+  showPopover(
+    placement: PopoverShowPlacement,
+    popover: Popover,
+  ): Observable<void>;
   showPopover(
     sourceOrPlacement: PopoverShowComponent | PopoverShowPlacement,
     popover: Popover,
-  ): void {
+  ): Observable<void> {
     const serializedPopover = popover.serialize();
-    const payload = isPopoverShowPlacement(sourceOrPlacement)
+    const wirePayload = isPopoverShowPlacement(sourceOrPlacement)
       ? {
           source: sourceOrPlacement.source.id,
           anchor: sourceOrPlacement.anchor.id,
@@ -150,67 +153,71 @@ export abstract class Platform {
           source: sourceOrPlacement.id,
           popover: serializedPopover,
         };
-    this.client.outcomingMessage$.next(new PopoverShowMessage(payload));
+    return targetedClientPlatformAction(this.client, {
+      outgoingMessage: (scope) => new PopoverShowMessage(scope, wirePayload),
+    });
   }
 
   showDatePicker(
     anchor: ComponentInstance | Componentable,
     ref: ContextValueRef<string | undefined>,
-  ) {
-    this.emitNativePickerCommand(anchor, "date", ref);
+  ): Observable<void> {
+    return this.showNativePicker(anchor, "date", ref);
   }
 
   showColorPicker(
     anchor: ComponentInstance | Componentable,
     ref: ContextValueRef<string | undefined>,
-  ) {
-    this.emitNativePickerCommand(anchor, "color", ref);
+  ): Observable<void> {
+    return this.showNativePicker(anchor, "color", ref);
   }
 
   showTimePicker(
     anchor: ComponentInstance | Componentable,
     ref: ContextValueRef<string | undefined>,
-  ) {
-    this.emitNativePickerCommand(anchor, "time", ref);
+  ): Observable<void> {
+    return this.showNativePicker(anchor, "time", ref);
   }
 
   showDateTimePicker(
     anchor: ComponentInstance | Componentable,
     ref: ContextValueRef<string | undefined>,
-  ) {
-    this.emitNativePickerCommand(anchor, "datetime-local", ref);
+  ): Observable<void> {
+    return this.showNativePicker(anchor, "datetime-local", ref);
   }
 
-  private emitNativePickerCommand<T extends PlatformNativePickerInputType>(
+  private showNativePicker(
     anchor: ComponentInstance | Componentable,
-    inputType: T,
+    inputType: PlatformNativePickerInputType,
     ref: ContextValueRef<string | undefined>,
-  ) {
-    this.client.outcomingMessage$.next(
-      new PlatformShowNativePickerMessage({
-        component_id: anchor.id,
-        inputType,
-        ref: ref.toJSON(),
-      }),
-    );
+  ): Observable<void> {
+    return targetedClientPlatformAction(this.client, {
+      outgoingMessage: (scope) =>
+        new PlatformShowNativePickerMessage(scope, {
+          component_id: anchor.id,
+          inputType,
+          ref: ref.toJSON(),
+        }),
+    });
   }
 
   /**
    * Задаёт платформенные оверлеи (anchors + component). Вложенные компоненты участвуют в поиске на сервере;
    * на клиент уходит массив конфигов, как у `properties.overlays` страницы.
    */
-  setOverlays(overlays: Overlay[]) {
+  setOverlays(overlays: Overlay[]): Observable<void> {
     for (const o of this.platformOverlays) {
       this.client.removeGlobalComponent(o.component);
     }
     this.platformOverlays = [...overlays];
-    this.client.outcomingMessage$.next(
-      new PlatformSetOverlaysMessage({
-        overlays: runWithEntry(this.client.ensureAppOverlayEntry(), () =>
-          serializeOverlays(this.platformOverlays),
-        ),
-      }),
-    );
+    return targetedClientPlatformAction(this.client, {
+      outgoingMessage: (scope) =>
+        new PlatformSetOverlaysMessage(scope, {
+          overlays: runWithEntry(this.client.ensureAppOverlayEntry(), () =>
+            serializeOverlays(this.platformOverlays),
+          ),
+        }),
+    });
   }
 
   /**
@@ -222,61 +229,23 @@ export abstract class Platform {
 
   /**
    * Запрашивает у клиента список доступных media-устройств (navigator.mediaDevices.enumerateDevices()).
-   * Клиент возвращает нормализованный список устройств + capabilities/settings где доступно.
    *
    * Документация: https://developer.mozilla.org/en-US/docs/Web/API/MediaDevices/enumerateDevices
    */
-  enumerateDevices(config: {
-    onSuccess: (devices: EnumeratedDeviceInstance[]) => void;
-    onError?: (text: string) => void;
-  }) {
-    const scope = "platform-action-" + crypto.randomUUID();
-
-    const deviceSchema = z.strictObject({
-      kind: z.enum(["audioinput", "audiooutput", "videoinput"]),
-      deviceId: z.string(),
-      groupId: z.string(),
-      label: z.string().optional(),
-      // capabilities/settings сильно зависят от браузера; валидируем как JSON-подобные объекты
-      capabilities: z.record(z.string(), z.unknown()).optional(),
-      settings: z.record(z.string(), z.unknown()).optional(),
+  enumerateDevices(): Observable<EnumeratedDeviceInstance[]> {
+    return targetedClientPlatformAction(this.client, {
+      outgoingMessage: (scope) => new PlatformEnumerateDevicesMessage(scope),
+      parseSuccess: (unsafeMessage) => {
+        if (unsafeMessage instanceof PlatformEnumerateDevicesSuccessMessage) {
+          const payload = z
+            .strictObject({
+              devices: z.array(enumeratedDeviceSchema),
+            })
+            .parse(unsafeMessage.payload);
+          return payload.devices.map((d) => toDeviceInstance(d));
+        }
+      },
     });
-
-    const successPayloadSchema = z.strictObject({
-      devices: z.array(deviceSchema),
-    });
-
-    const errorPayloadSchema = z.strictObject({
-      message: z.string(),
-    });
-
-    const subscription = this.client.incomingMessage$
-      .pipe(
-        filter(
-          (unsafeMessage) =>
-            isTargetedMessage(unsafeMessage) && unsafeMessage.target === scope,
-        ),
-      )
-      .subscribe(
-        incomingMessageObserver(this.client, (unsafeMessage) => {
-          subscription.unsubscribe();
-          if (unsafeMessage instanceof PlatformEnumerateDevicesSuccessMessage) {
-            const payload = successPayloadSchema.parse(unsafeMessage.payload);
-            config.onSuccess(payload.devices.map((d) => toDeviceInstance(d)));
-            return;
-          }
-          if (unsafeMessage instanceof ErrorMessage) {
-            const payload = errorPayloadSchema.parse(unsafeMessage.payload);
-            if (typeof config.onError === "function") {
-              config.onError(payload.message);
-            }
-          }
-        }),
-      );
-
-    this.client.outcomingMessage$.next(
-      new PlatformEnumerateDevicesMessage(scope),
-    );
   }
 }
 
