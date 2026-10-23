@@ -11,13 +11,13 @@ import type { CompatibleContextValueRef } from "../types/context-value-ref";
 type ContextArrayValue = readonly unknown[] | unknown[];
 
 /** Элемент массива по значению `ContextRef`. */
-export type ContextRefArrayElement<R extends ContextRef> = Extract<
+export type ContextRefArrayElement<R extends ContextRef<any, any>> = Extract<
   ContextRefValue<R>,
   ContextArrayValue
 >[number];
 
 /** Ref на массив в контексте (значение по ref — массив или readonly-массив). */
-export type CompatibleArrayContextRef<R extends ContextRef> = [
+export type CompatibleArrayContextRef<R extends ContextRef<any, any>> = [
   Extract<ContextRefValue<R>, ContextArrayValue>,
 ] extends [never]
   ? never
@@ -38,9 +38,8 @@ export type ConditionOperandFor<ValueType> =
  * Операнд условия на BFF: JSON-примитив того же типа, что значение по `ref`,
  * либо другая ссылка с совместимым типом значения (сравнение в рантайме через `===`).
  */
-export type ConditionOperand<R extends ContextRef> = ConditionOperandFor<
-  ContextRefValue<R>
->;
+export type ConditionOperand<R extends ContextRef<any, any>> =
+  ConditionOperandFor<ContextRefValue<R>>;
 
 /** Значение поля элемента массива по `itemPath` (пустой путь — сам элемент). */
 export type ArrayIncludesItemValue<Item, P extends string> = P extends ""
@@ -51,7 +50,7 @@ export type ArrayIncludesItemValue<Item, P extends string> = P extends ""
 
 /** Операнд {@link ContextArrayIncludes} / {@link ContextArrayNotIncludes}. */
 export type ArrayIncludesOperand<
-  R extends ContextRef,
+  R extends ContextRef<any, any>,
   P extends string,
 > = ConditionOperandFor<ArrayIncludesItemValue<ContextRefArrayElement<R>, P>>;
 

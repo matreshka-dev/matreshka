@@ -9,7 +9,7 @@ import { ConditionOperand, toWireOperand } from "./condition-operand";
  *
  * @internal Используйте {@link contextValueIn} / {@link when.oneOf}.
  */
-export class ContextValueIn<R extends ContextRef> extends Condition {
+export class ContextValueIn<R extends ContextRef<any, any>> extends Condition {
   constructor(ref: R, value: ConditionOperand<R>[]) {
     super(ConditionType.ContextValueIn, {
       ref,
@@ -19,7 +19,7 @@ export class ContextValueIn<R extends ContextRef> extends Condition {
 }
 
 /** Функциональная форма {@link ContextValueIn}. */
-export function contextValueIn<R extends ContextRef>(
+export function contextValueIn<R extends ContextRef<any, any>>(
   ref: R,
   value: ConditionOperand<R>[],
 ): ContextValueIn<R> {

@@ -9,7 +9,9 @@ import { ConditionOperand, toWireOperand } from "./condition-operand";
  *
  * @internal Используйте {@link contextValueNotEqual} / {@link when.notEquals}.
  */
-export class ContextValueNotEqual<R extends ContextRef> extends Condition {
+export class ContextValueNotEqual<
+  R extends ContextRef<any, any>,
+> extends Condition {
   constructor(ref: R, value: ConditionOperand<R>) {
     super(ConditionType.ContextValueNotEqual, {
       ref,
@@ -19,7 +21,7 @@ export class ContextValueNotEqual<R extends ContextRef> extends Condition {
 }
 
 /** Функциональная форма {@link ContextValueNotEqual}. */
-export function contextValueNotEqual<R extends ContextRef>(
+export function contextValueNotEqual<R extends ContextRef<any, any>>(
   ref: R,
   value: ConditionOperand<R>,
 ): ContextValueNotEqual<R> {

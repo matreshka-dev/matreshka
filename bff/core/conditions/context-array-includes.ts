@@ -18,8 +18,8 @@ import {
  * @internal Используйте {@link contextArrayIncludes} / {@link when.includes}.
  */
 export class ContextArrayIncludes<
-  R extends ContextRef,
-  P extends Paths<ContextRefArrayElement<R>> | "" = "",
+  R extends ContextRef<any, any>,
+  P extends Extract<Paths<ContextRefArrayElement<R>>, string> | "" = "",
 > extends Condition {
   constructor(
     ref: CompatibleArrayContextRef<R>,
@@ -36,8 +36,8 @@ export class ContextArrayIncludes<
 
 /** Функциональная форма {@link ContextArrayIncludes}. */
 export function contextArrayIncludes<
-  R extends ContextRef,
-  P extends Paths<ContextRefArrayElement<R>> | "" = "",
+  R extends ContextRef<any, any>,
+  P extends Extract<Paths<ContextRefArrayElement<R>>, string> | "" = "",
 >(
   ref: CompatibleArrayContextRef<R>,
   itemPath: P,
@@ -55,8 +55,8 @@ export function contextArrayIncludes<
  * @internal Используйте {@link contextArrayNotIncludes} / {@link when.excludes}.
  */
 export class ContextArrayNotIncludes<
-  R extends ContextRef,
-  P extends Paths<ContextRefArrayElement<R>> | "" = "",
+  R extends ContextRef<any, any>,
+  P extends Extract<Paths<ContextRefArrayElement<R>>, string> | "" = "",
 > extends Condition {
   constructor(
     ref: CompatibleArrayContextRef<R>,
@@ -73,8 +73,8 @@ export class ContextArrayNotIncludes<
 
 /** Функциональная форма {@link ContextArrayNotIncludes}. */
 export function contextArrayNotIncludes<
-  R extends ContextRef,
-  P extends Paths<ContextRefArrayElement<R>> | "" = "",
+  R extends ContextRef<any, any>,
+  P extends Extract<Paths<ContextRefArrayElement<R>>, string> | "" = "",
 >(
   ref: CompatibleArrayContextRef<R>,
   itemPath: P,
