@@ -18,7 +18,7 @@ describe("close entry local action", () => {
     });
   });
 
-  it("dialog.local.close в дереве сериализует instance id entry", () => {
+  it("dialog.local.close в дереве сериализует базовый id компонента", () => {
     const client = createClient();
     const dlg = dialog({
       content: [
@@ -29,7 +29,18 @@ describe("close entry local action", () => {
     const buttonConfig = config.properties.content[0];
     expect(buttonConfig.interactions?.click?.[0]).toEqual({
       class: "close-entry",
-      payload: { target: `${dlg.id}-0` },
+      payload: { target: dlg.id },
+    });
+  });
+
+  it("instance.local.close сериализует id конкретного instance", () => {
+    const client = createClient();
+    const dlg = dialog({ content: [] });
+    const instance = runWithClient(client, () => dlg.createInstance());
+
+    expect(instance.local.close().toJSON()).toEqual({
+      class: "close-entry",
+      payload: { target: instance.id },
     });
   });
 });

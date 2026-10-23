@@ -268,7 +268,7 @@ class FeedPage extends Page {
 | Метод / свойство | Назначение                                                                 |
 | ---------------- | -------------------------------------------------------------------------- |
 | `close()`        | Серверная команда закрыть диалог. Hot `Observable<void>` до ack клиента.   |
-| `local.close()`  | LocalAction: закрытие на клиенте без round-trip (`target` — instance id).  |
+| `local.close()`  | LocalAction: закрытие на клиенте без round-trip; у `component.local.close()` target — базовый id (все instances), у `instance.local.close()` — `instance.id` (один instance).  |
 
 Пример:
 
@@ -307,7 +307,7 @@ dialog(
 | Метод / свойство | Назначение                                                                 |
 | ---------------- | -------------------------------------------------------------------------- |
 | `close()`        | Серверная команда закрыть popover. Hot `Observable<void>` до ack клиента.  |
-| `local.close()`  | LocalAction: закрытие на клиенте без round-trip (`target` — instance id).  |
+| `local.close()`  | LocalAction: закрытие на клиенте без round-trip; у `component.local.close()` target — базовый id (все instances), у `instance.local.close()` — `instance.id` (один instance).  |
 
 Пример:
 

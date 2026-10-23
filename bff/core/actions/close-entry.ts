@@ -1,16 +1,16 @@
-import { tryCurrentEntry } from "../entry-context";
 import type { Componentable } from "../types/componentable";
 import { ActionConfig } from "./action";
 import { LocalAction } from "./local-action";
 
 /**
  * Локальное закрытие entry (dialog / popover) на клиенте без round-trip на BFF.
- * {@link target} в payload — instance id entry при сериализации внутри entry.
+ * {@link target} в payload — явный instance id или базовый id компонента.
  */
 export class CloseEntry extends LocalAction {
   constructor(
     private readonly entry: Componentable,
     config: ActionConfig = {},
+    private readonly target: string = entry.id,
   ) {
     super(config.conditions);
   }
@@ -21,22 +21,15 @@ export class CloseEntry extends LocalAction {
 
   payload(): object {
     return {
-      target: this.resolveTarget(),
+      target: this.target,
     };
-  }
-
-  private resolveTarget(): string {
-    const currentEntry = tryCurrentEntry();
-    if (currentEntry !== undefined && currentEntry.component === this.entry) {
-      return currentEntry.id;
-    }
-    return this.entry.id;
   }
 }
 
 export function closeEntry(
   entry: Componentable,
   config: ActionConfig = {},
+  target: string = entry.id,
 ): CloseEntry {
-  return new CloseEntry(entry, config);
+  return new CloseEntry(entry, config, target);
 }

@@ -1,8 +1,18 @@
 import { EntryComponent } from "../../components";
+import {
+  createInstanceLocalActions,
+  InstanceLocalActions,
+} from "../actions/local-action";
 import type { Client } from "../client";
 import { currentClient } from "../client-context";
 import { tryCurrentEntry } from "../entry-context";
 import type { Componentable } from "./componentable";
+
+type ComponentInstanceLocalActions<ComponentType> = ComponentType extends {
+  local: infer LocalActions;
+}
+  ? InstanceLocalActions<LocalActions>
+  : Record<string, never>;
 
 /**
  * Инстанс server-компонента на клиенте.
@@ -18,7 +28,17 @@ export class ComponentInstance<
     /** Id инстанса на клиенте (обычно `target` входящего сообщения). */
     readonly id: string,
     readonly component: ComponentType,
-  ) {}
+  ) {
+    this.local = createInstanceLocalActions(
+      "local" in component
+        ? (component as ComponentType & { local: object }).local
+        : undefined,
+      id,
+    ) as ComponentInstanceLocalActions<ComponentType>;
+  }
+
+  /** Локальные действия компонента, адресованные этому instance. */
+  readonly local: ComponentInstanceLocalActions<ComponentType>;
 
   get client(): Client | undefined {
     return this._client;

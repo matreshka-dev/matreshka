@@ -25,6 +25,9 @@
 class ComponentInstance<ComponentType = unknown> {
   readonly id: string; // instance id (назначается в createInstance)
   readonly component: ComponentType; // BFF-объект
+  readonly local: {
+    close(config?: ActionConfig): LocalAction;
+  };
   get client(): Client | undefined; // после единственной serialize
   get entry(): EntryComponent | undefined; // entry-владелец дерева — после serialize
 }
@@ -91,7 +94,7 @@ stack({
 | ----------------------------------------------------- | ----------------------------------------------------------------------------------------- |
 | Сравнить в обработчике, **какой** инстанс нажали      | Сохранить ссылки `firstButton`, `secondButton` и сравнить `instance === firstButton`      |
 | Передать якорь в Platform API **до** клика            | `showPopover(instance, …)`, `showDatePicker(instance, …)` — нужен известный `instance.id` |
-| Отправить команду одному инстансу по известной ссылке | `map.setCenter(…, [instance])`, `stack.scrollTo(ScrollToPosition.End, …, [instance])` |
+| Отправить команду одному инстансу по известной ссылке | `map.setCenter(…, [instance])`, `stack.scrollTo(ScrollToPosition.End, …, [instance])`     |
 | Зафиксировать instance id до сериализации дерева      | Редко: когда id нужен в коде до `page.serialize()`                                        |
 
 | Сценарий                                   | `createInstance()` **не** нужен                                                 |
@@ -137,12 +140,12 @@ stack({ content: [first, second] });
 stack({ content: [demoButton, demoButton] });
 ```
 
-| Проблема                          | Что происходит                                                 |
-| --------------------------------- | -------------------------------------------------------------- |
-| Повторный `instance.serialize()`  | Ошибка на BFF                                                  |
-| Один инстанс в двух местах дерева | Один id на клиенте — нельзя отличить DOM-узлы                  |
+| Проблема                          | Что происходит                                                                                                        |
+| --------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Повторный `instance.serialize()`  | Ошибка на BFF                                                                                                         |
+| Один инстанс в двух местах дерева | Один id на клиенте — нельзя отличить DOM-узлы                                                                         |
 | Popover / native picker           | Popover: `source` / `anchor` в show-popover; picker: `component_id: instance.id` — может затронуть все узлы с этим id |
-| Команды BFF→client                | `target: instance.id` попадёт во все инстансы с этим id         |
+| Команды BFF→client                | `target: instance.id` попадёт во все инстансы с этим id                                                               |
 
 **Итог:** `createInstance()` — для **явной ссылки** на инстанс, не для «создания копии UI». Три одинаковые кнопки без сравнения в обработчике — три вхождения `Component`.
 
@@ -575,6 +578,17 @@ componentIdMatchesInstance(message.target, this.id());
 ```
 
 Публичные методы (`map.setCenter()`, `dialog.close()`, `stack.scrollTo()`, …) возвращают hot **`Observable<void>`** и рассылают команду **каждому instance с клиентом** через `dispatchComponentCommand`: без аргумента `instances` — все активные instances компонента; с `ComponentInstance[]` — только указанные.
+
+Для локального закрытия `Dialog`/`Popover` target можно выбрать через API инстанса:
+
+```ts
+onClick: ({ instance }) => {
+  instance.local.close(); // только этот dialog/popover
+  instance.component.local.close(); // все instances этого компонента
+};
+```
+
+`instance.local.close()` сериализует явный `instance.id`. Вызов `component.local.close()` сериализует базовый id компонента, поэтому клиент применяет действие ко всем совпавшим instances.
 
 ```ts
 onClick: ({ instance }) => {
