@@ -27,12 +27,12 @@ import {
   Componentable,
   ComponentInstance,
   currentClient,
-  LocalAction,
   resolvePartialColorsToIds,
   runWithClient,
   SerializedComponentRule,
   tryCurrentEntry,
 } from "../core";
+import { LocalAction } from "../core/actions/local-action";
 import { Condition } from "../core/conditions";
 import { incomingMessageObserver } from "../core/utils/incoming-message-observer";
 import { assignSerializedOverlays } from "../core/utils/serialize-component-tree";

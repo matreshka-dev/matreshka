@@ -41,12 +41,16 @@ import { filter, Observable, Subject } from 'rxjs';
 import { ComponentHubService } from '../../services/component-hub.service';
 import { ContextHubService } from '../../services/context-hub.service';
 import { FontRegistryService } from '../../services/font-registry.service';
+import { PopupService } from '../../services/popup.service';
 import { PostmanService } from '../../services/postman.service';
 import { runTargetedAction } from '../../utils/targeted-action';
 import type { Overlay } from './server-component-config';
 import { ServerComponentConfig } from './server-component-config';
 import { getOverlaysFromConfig } from './server-component-overlays';
-import { applyContextValueUpdates } from './utils/apply-context-value-updates';
+import {
+  applyContextPatch,
+  applyContextValueUpdates,
+} from './utils/apply-context-value-updates';
 import {
   calculateGridItemStyles,
   calculateScaleStyles,
@@ -76,6 +80,7 @@ export abstract class ServerComponent<T extends ServerComponentConfig>
   componentHub = inject(ComponentHubService);
   fontRegistry = inject(FontRegistryService);
   destroyRef = inject(DestroyRef);
+  popupService = inject(PopupService);
   private injector = inject(Injector);
   cdr = inject(ChangeDetectorRef);
   elementRef = inject(ElementRef);
@@ -428,7 +433,7 @@ export abstract class ServerComponent<T extends ServerComponentConfig>
     const animateByTarget = new Map<string, ComponentAnimationPayload[]>();
     const handlers: number[] = [];
 
-    // Conditions снимаем до выполнения: иначе первый set-context-value меняет
+    // Conditions снимаем до выполнения: иначе первый set-context меняет
     // Context, и взаимоисключающие действия в том же массиве начинают срабатывать подряд.
     const sourceInteractions = this.config.interactions?.[type] || [];
     const interactions = sourceInteractions.filter((interaction, index) => {
@@ -452,19 +457,12 @@ export abstract class ServerComponent<T extends ServerComponentConfig>
             ),
           );
           break;
-        case 'set-context-value': {
+        case 'set-context': {
           const payload = interaction.payload as {
-            ref: string;
-            value: unknown;
+            context: string;
+            patch: Record<string, unknown>;
           };
-          applyContextValueUpdates(this.contextHub, [payload]);
-          break;
-        }
-        case 'set-context-values': {
-          const payload = interaction.payload as {
-            values: { ref: string; value: unknown }[];
-          };
-          applyContextValueUpdates(this.contextHub, payload.values);
+          applyContextPatch(this.contextHub, payload.context, payload.patch);
           break;
         }
         case 'toggle-context-value': {
@@ -475,6 +473,39 @@ export abstract class ServerComponent<T extends ServerComponentConfig>
               value: !this.contextHub.value(payload.ref),
             },
           ]);
+          break;
+        }
+        case 'inc-context-value': {
+          const payload = interaction.payload as { ref: string; step?: number };
+          const current = this.contextHub.value(payload.ref);
+          const step = typeof payload.step === 'number' ? payload.step : 1;
+          applyContextValueUpdates(this.contextHub, [
+            {
+              ref: payload.ref,
+              value: (typeof current === 'number' ? current : 0) + step,
+            },
+          ]);
+          break;
+        }
+        case 'dec-context-value': {
+          const payload = interaction.payload as { ref: string; step?: number };
+          const current = this.contextHub.value(payload.ref);
+          const step = typeof payload.step === 'number' ? payload.step : 1;
+          applyContextValueUpdates(this.contextHub, [
+            {
+              ref: payload.ref,
+              value: (typeof current === 'number' ? current : 0) - step,
+            },
+          ]);
+          break;
+        }
+        case 'close-entry': {
+          const payload = interaction.payload as { target: string };
+          for (const instance of this.componentHub.getInstancesByComponentId(
+            payload.target,
+          )) {
+            this.popupService.close$.next(instance.id());
+          }
           break;
         }
         case 'animate-component':

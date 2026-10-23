@@ -1,10 +1,4 @@
 export * from "./actions/action";
-export * from "./actions/animate-component";
-export * from "./actions/local-action";
-export * from "./actions/set-context-value";
-export * from "./actions/set-context-values";
-export * from "./actions/toggle-context-value";
-export * from "./actions/write-text-to-clipboard";
 export * from "./boot";
 export * from "./client";
 export * from "./client-context";
@@ -17,6 +11,21 @@ export * from "./conditions";
 
 export * from "./context/context";
 export * from "./context/context-ref";
+
+export type { DimensionalValue } from "@matreshka/shared/types/dimensional-value";
+export {
+  ComponentAnimationEffect,
+  DimensionalUnit,
+  TimingFunction,
+  local,
+} from "./local";
+export type {
+  ActionConfig,
+  AnimateComponentConfig,
+  ComponentAnimationEffects,
+  DimensionalKeyframeStops,
+  OpacityKeyframeStops,
+} from "./local";
 
 export * from "./types/client-settings";
 export * from "./utils/calculate-components";

@@ -1,7 +1,51 @@
 import { JsonObject } from "@matreshka/shared/types/json";
 import { Paths, PathValue } from "ts-essentials";
+import { ActionConfig } from "../actions/action";
+import { decContextValue, DecContextValue } from "../actions/dec-context-value";
+import {
+  incContextValue,
+  IncContextValue,
+  NumberValueRef,
+} from "../actions/inc-context-value";
+import { createSetContext, SetContext } from "../actions/set-context";
+import {
+  BooleanValueRef,
+  toggleContextValue,
+  ToggleContextValue,
+} from "../actions/toggle-context-value";
 import { currentClient } from "../client-context";
-import { Context } from "./context";
+import { Context, ContextPathPatch } from "./context";
+
+type ContextRefLocalSet<
+  ContextType extends JsonObject,
+  PathType extends string,
+> = {
+  set: (
+    value: PathValue<ContextType, PathType>,
+    config?: ActionConfig,
+  ) => SetContext<ContextType>;
+};
+
+type ContextRefLocalToggle = {
+  toggle: (config?: ActionConfig) => ToggleContextValue;
+};
+
+type ContextRefLocalNumeric = {
+  inc: (step?: number, config?: ActionConfig) => IncContextValue;
+  dec: (step?: number, config?: ActionConfig) => DecContextValue;
+};
+
+/** Локальные действия по ref; `toggle` / `inc` / `dec` — по типу значения по пути. */
+export type ContextRefLocalActions<
+  ContextType extends JsonObject,
+  PathType extends string,
+> = ContextRefLocalSet<ContextType, PathType> &
+  (PathValue<ContextType, PathType> extends boolean | undefined
+    ? ContextRefLocalToggle
+    : {}) &
+  (PathValue<ContextType, PathType> extends number | undefined
+    ? ContextRefLocalNumeric
+    : {});
 
 export type ContextRefValue<R extends ContextRef> = R extends {
   readonly __valueType?: infer ValueType;
@@ -15,6 +59,26 @@ export class ContextRef<
   ContextType extends JsonObject = JsonObject,
   PathType extends string = string,
 > {
+  /** Локальные (client-only) действия по этому ref. */
+  readonly local = {
+    set: (value: PathValue<ContextType, PathType>, config?: ActionConfig) => {
+      const patch = {
+        [this.path]: value,
+      } as unknown as ContextPathPatch<ContextType>;
+      return createSetContext(
+        this.context as Context<ContextType>,
+        patch,
+        config,
+      );
+    },
+    toggle: (config?: ActionConfig) =>
+      toggleContextValue(this as BooleanValueRef, config),
+    inc: (step = 1, config?: ActionConfig) =>
+      incContextValue(this as NumberValueRef, step, config),
+    dec: (step = 1, config?: ActionConfig) =>
+      decContextValue(this as NumberValueRef, step, config),
+  } as ContextRefLocalActions<ContextType, PathType>;
+
   constructor(
     readonly context: Context<any>,
     readonly path: PathType,

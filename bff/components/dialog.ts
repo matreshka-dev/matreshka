@@ -12,12 +12,15 @@ import {
   MixedWithCallbacksArray,
   serializeComponentList,
 } from "../core";
+import type { ActionConfig } from "../core/actions/action";
 import type { AnimateComponent } from "../core/actions/animate-component";
+import { closeEntry } from "../core/actions/close-entry";
 import {
   EntryComponent,
   EntryComponentInitConfig,
   EntryComponentProperties,
 } from "./entry-component";
+
 function serializeLocalActions(
   actions: AnimateComponent | AnimateComponent[] | undefined,
 ): ServerComponentInteraction[] | undefined {
@@ -135,6 +138,11 @@ export class Dialog<
   extends EntryComponent<InitConfigType, PropertiesType>
   implements Componentable
 {
+  /** Локальные (client-only) действия entry-диалога. */
+  readonly local = {
+    close: (config?: ActionConfig) => closeEntry(this, config),
+  };
+
   /**
    * Возвращает уникальный идентификатор класса компонента.
    * @returns Строка "dialog".

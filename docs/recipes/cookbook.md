@@ -277,13 +277,12 @@ stack(
 `onMouseEnter` и `onMouseLeave` доступны у любого компонента. Payload у событий нет.
 
 ```ts
-import { setContextValue } from "@matreshka/bff/core";
 import { stack, text } from "@matreshka/bff/components";
 
 stack(
   {
-    onMouseEnter: setContextValue(this.context.ref("hovered"), true),
-    onMouseLeave: setContextValue(this.context.ref("hovered"), false),
+    onMouseEnter: this.context.local.set({ hovered: true }),
+    onMouseLeave: this.context.local.set({ hovered: false }),
   },
   [text("Наведи на меня")],
 );
@@ -532,7 +531,7 @@ button(
 ```ts
 button(
   {
-    onClick: setContextValue(this.context.ref("loading"), true),
+    onClick: this.context.local.set({ loading: true }),
   },
   [text("Загрузка")],
 );
@@ -543,9 +542,27 @@ Boolean-флаг можно инвертировать:
 ```ts
 button(
   {
-    onClick: toggleContextValue(this.context.ref("enabled")),
+    onClick: this.context.local.toggle("enabled"),
   },
   [text("Переключить")],
+);
+```
+
+Числовое поле можно изменить на шаг (по умолчанию `1`):
+
+```ts
+button(
+  {
+    onClick: this.context.local.inc("quantity"),
+  },
+  [text("Добавить")],
+);
+
+button(
+  {
+    onClick: this.context.local.dec("quantity"),
+  },
+  [text("Убрать")],
 );
 ```
 
@@ -554,10 +571,7 @@ button(
 ```ts
 button(
   {
-    onClick: setContextValues([
-      { ref: this.context.ref("loading"), value: true },
-      { ref: this.context.ref("dirty"), value: true },
-    ]),
+    onClick: this.context.local.set({ loading: true, dirty: true }),
   },
   [text("Сохранить черновик")],
 );

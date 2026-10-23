@@ -77,7 +77,7 @@ function finishSubmit(loadingRef: ContextValueRef<boolean | undefined>) {
 
 После `destroy()` вызов `ref.set()` **тихо игнорируется** — безопасно в `finally` после `await`. Прямые `get` / `set` / `replace` на уничтоженном контексте **бросают ошибку**; после async проверяйте `isDestroyed()`.
 
-Для мгновенного UI **из actions на клиенте** используйте `setContextValue(ref, value)` — см. [events-and-actions.md](events-and-actions.md). На BFF в обработчиках и `ServerAction` — `ref.set()` или `context.set()`.
+Для мгновенного UI **из actions на клиенте** используйте `context.local.set(patch)` или `ref.local.set(value)` — см. [events-and-actions.md](events-and-actions.md). На BFF в обработчиках и `ServerAction` — `ref.set()` или `context.set()`.
 
 ## API контекста на BFF
 

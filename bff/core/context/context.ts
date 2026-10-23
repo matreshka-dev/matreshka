@@ -22,6 +22,14 @@ import {
 } from "rxjs";
 import { Paths, PathValue } from "ts-essentials";
 import { z, ZodObject } from "zod/v4";
+import { ActionConfig } from "../actions/action";
+import { decContextValue } from "../actions/dec-context-value";
+import { incContextValue, NumberValueRef } from "../actions/inc-context-value";
+import { createSetContext } from "../actions/set-context";
+import {
+  BooleanValueRef,
+  toggleContextValue,
+} from "../actions/toggle-context-value";
 import type { Client } from "../client";
 import { currentClient } from "../client-context";
 import { zodDeepPick } from "../utils/deep-pick";
@@ -126,6 +134,25 @@ export class Context<T extends JsonObject> {
    * Явный {@link destroy} по-прежнему обязателен, если данные не нужны весь runtime.
    */
   readonly persistent: boolean;
+  /** Локальные (client-only) действия над данными этого контекста. */
+  readonly local = {
+    set: (patch: ContextPathPatch<T>, config?: ActionConfig) =>
+      createSetContext(this, patch, config),
+    toggle: <K extends Paths<T>>(
+      path: PathValue<T, K> extends boolean | undefined ? K : never,
+      config?: ActionConfig,
+    ) => toggleContextValue(this.ref(path) as BooleanValueRef, config),
+    inc: <K extends Paths<T>>(
+      path: PathValue<T, K> extends number | undefined ? K : never,
+      step?: number,
+      config?: ActionConfig,
+    ) => incContextValue(this.ref(path) as NumberValueRef, step ?? 1, config),
+    dec: <K extends Paths<T>>(
+      path: PathValue<T, K> extends number | undefined ? K : never,
+      step?: number,
+      config?: ActionConfig,
+    ) => decContextValue(this.ref(path) as NumberValueRef, step ?? 1, config),
+  };
   /** Реактивное хранилище инициализации контекста */
   private _init$ = new ReplaySubject<void>(1);
   readonly init$ = this._init$.asObservable();

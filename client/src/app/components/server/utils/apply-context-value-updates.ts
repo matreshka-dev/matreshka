@@ -29,3 +29,26 @@ export function applyContextValueUpdates(
     contextHub.setValues(contextId, data);
   }
 }
+
+/**
+ * Применяет patch одного Context на клиенте (LocalAction `set-context`).
+ */
+export function applyContextPatch(
+  contextHub: ContextHubService,
+  contextId: string,
+  patch: Record<string, unknown>,
+): void {
+  const data: { key: string; value: unknown }[] = [];
+
+  for (const key of Object.keys(patch)) {
+    if (!Object.prototype.hasOwnProperty.call(patch, key)) {
+      continue;
+    }
+    const resolvedKey = contextHub.replacePlaceholders(key);
+    data.push({ key: resolvedKey, value: patch[key] });
+  }
+
+  if (data.length > 0) {
+    contextHub.setValues(contextId, data);
+  }
+}

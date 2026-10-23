@@ -109,8 +109,8 @@ class FeedPage extends Page {
 ```ts
 stack(
   {
-    onMouseEnter: setContextValue(this.context.ref("hovered"), true),
-    onMouseLeave: setContextValue(this.context.ref("hovered"), false),
+    onMouseEnter: this.context.local.set({ hovered: true }),
+    onMouseLeave: this.context.local.set({ hovered: false }),
   },
   [text("Hover")],
 );
@@ -126,12 +126,12 @@ stack(
 
 ```ts
 import {
-  animate,
+  local,
   ComponentAnimationEffect,
   DimensionalUnit,
 } from "@matreshka/bff/core";
 
-const bounceAnimation = animate({
+const bounceAnimation = local.animate({
   duration: 180,
   effects: {
     [ComponentAnimationEffect.TranslateY]: {
@@ -155,38 +155,48 @@ button(
 Для записи в `Context` без `server-interaction` есть локальные действия. Клиент сразу обновляет своё зеркало контекста и синхронизирует изменение на BFF.
 
 ```ts
-import {
-  setContextValue,
-  setContextValues,
-  toggleContextValue,
-} from "@matreshka/bff/core";
-
 button(
   {
-    onClick: setContextValue(this.context.ref("loading"), true),
+    onClick: this.context.local.set({ loading: true }),
   },
   [text("Загрузка")],
 );
 
 button(
   {
-    onClick: toggleContextValue(this.context.ref("enabled")),
+    onClick: this.context.local.toggle("enabled"),
   },
   [text("Переключить")],
 );
 
 button(
   {
-    onClick: setContextValues([
-      { ref: this.context.ref("loading"), value: true },
-      { ref: this.context.ref("dirty"), value: true },
-    ]),
+    onClick: this.context.local.inc("quantity"),
+  },
+  [text("Добавить")],
+);
+
+button(
+  {
+    onClick: this.context.local.dec("quantity"),
+  },
+  [text("Убрать")],
+);
+
+button(
+  {
+    onClick: this.context.local.set({ loading: true, dirty: true }),
   },
   [text("Сохранить черновик")],
 );
+
+// Если ref уже есть (helper, forEach):
+loadingRef.local.set(true);
+enabledRef.local.toggle();
+quantityRef.local.dec();
 ```
 
-Типы жёсткие: `value` должен совпадать с типом значения по `ref`, а `toggleContextValue` принимает только boolean-`ref`.
+**`context.set` / `ref.set`** — запись на BFF в handler; **`context.local.set` / `ref.local.set`** — LocalAction на клиенте. Patch как у `Context.set`: несколько dotted-путей одним объектом. **`toggle`** — только **`context.local.toggle(path)`** для boolean-полей. **`inc` / `dec`** — **`context.local.inc|dec(path, step?)`** и **`ref.local.inc|dec(step?)`** для числовых полей: клиент прибавляет или вычитает `step` (по умолчанию `1`).
 
 ## Анимация как `LocalAction`
 
@@ -282,7 +292,7 @@ import {
   TextInputKind,
   textInput,
 } from "@matreshka/bff/components";
-import { Context, setContextValue } from "@matreshka/bff/core";
+import { Context } from "@matreshka/bff/core";
 import { when } from "@matreshka/bff/core/conditions";
 
 class SignInPage extends Page {
@@ -315,7 +325,7 @@ class SignInPage extends Page {
         {
           onClick: [
             // Сразу на клиенте: UI обновляется без ожидания ответа BFF.
-            setContextValue(this.context.ref("loading"), true),
+            this.context.local.set({ loading: true }),
             // На сервер уходит только если в момент клика loading ещё false.
             new ServerAction(
               () => {
@@ -345,13 +355,13 @@ class SignInPage extends Page {
 
 Что происходит при первом клике (`loading === false`):
 
-1. клиент отбирает оба действия — у `setContextValue` условий нет, у `ServerAction` условие выполняется;
-2. `setContextValue` сразу пишет `loading: true` в клиентское зеркало Context → `rules` меняют текст кнопки на «Входим...» без задержки сети;
+1. клиент отбирает оба действия — у `context.local.set` условий нет, у `ServerAction` условие выполняется;
+2. `context.local.set` сразу пишет `loading: true` в клиентское зеркало Context → `rules` меняют текст кнопки на «Входим...» без задержки сети;
 3. `ServerAction` всё равно выполняется: он уже был в списке до записи `loading`, поэтому порядок в массиве здесь не мешает.
 
 При повторном клике, пока `loading === true`:
 
-- `setContextValue` снова выполнится (условия нет), но значение уже `true`;
+- `context.local.set` снова выполнится (условия нет), но значение уже `true`;
 - `ServerAction` клиент пропустит — условие `loading == false` не выполняется, лишний запрос на BFF не уйдёт.
 
 Так решаются сразу две задачи: мгновенная реакция UI и защита от повторной отправки формы.

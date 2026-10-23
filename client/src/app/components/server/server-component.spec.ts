@@ -331,7 +331,10 @@ describe('ServerComponent (abstract базовый компонент)', () => {
 
       config.interactions = {
         click: [
-          { class: 'set-context-value', payload: { ref: 'x.y', value: 1 } },
+          {
+            class: 'set-context',
+            payload: { context: 'x', patch: { y: 1 } },
+          },
           { class: 'server-interaction', payload: {} },
           { class: 'server-interaction', payload: {} },
         ],
@@ -385,7 +388,7 @@ describe('ServerComponent (abstract базовый компонент)', () => {
       expect(sentMessages).toHaveLength(0);
     });
 
-    it('должен снимать conditions до выполнения взаимоисключающих set-context-value', async () => {
+    it('должен снимать conditions до выполнения взаимоисключающих set-context', async () => {
       const contextId = 'toggle-ctx';
       const init$ = contextHub.init$(contextId);
       postman.incomingMessage$.next(
@@ -398,8 +401,11 @@ describe('ServerComponent (abstract базовый компонент)', () => {
       config.interactions = {
         click: [
           {
-            class: 'set-context-value',
-            payload: { ref: `${contextId}.status`, value: 'off' },
+            class: 'set-context',
+            payload: {
+              context: contextId,
+              patch: { status: 'off' },
+            },
             conditions: [
               {
                 type: ConditionType.ContextValueEqual,
@@ -411,8 +417,11 @@ describe('ServerComponent (abstract базовый компонент)', () => {
             ],
           },
           {
-            class: 'set-context-value',
-            payload: { ref: `${contextId}.status`, value: 'on' },
+            class: 'set-context',
+            payload: {
+              context: contextId,
+              patch: { status: 'on' },
+            },
             conditions: [
               {
                 type: ConditionType.ContextValueEqual,
@@ -433,6 +442,78 @@ describe('ServerComponent (abstract базовый компонент)', () => {
         { key: 'status', value: 'off' },
       ]);
       expect(contextHub.value(`${contextId}.status`)).toBe('off');
+    });
+
+    it('должен увеличивать числовое поле Context на шаг', async () => {
+      const contextId = 'cart-ctx';
+      const init$ = contextHub.init$(contextId);
+      postman.incomingMessage$.next(
+        new BffToClientContextInitMessage(contextId, { quantity: 2 }),
+      );
+      await firstValueFrom(init$);
+
+      const setValuesSpy = vi.spyOn(contextHub, 'setValues');
+
+      config.interactions = {
+        click: [
+          {
+            class: 'inc-context-value',
+            payload: { ref: `${contextId}.quantity`, step: 3 },
+          },
+        ],
+      };
+
+      component.interact('click', (_indices) => ({}) as any);
+
+      expect(setValuesSpy).toHaveBeenCalledTimes(1);
+      expect(setValuesSpy).toHaveBeenCalledWith(contextId, [
+        { key: 'quantity', value: 5 },
+      ]);
+      expect(contextHub.value(`${contextId}.quantity`)).toBe(5);
+    });
+
+    it('должен уменьшать числовое поле Context через dec', async () => {
+      const contextId = 'cart-dec-ctx';
+      const init$ = contextHub.init$(contextId);
+      postman.incomingMessage$.next(
+        new BffToClientContextInitMessage(contextId, { quantity: 2 }),
+      );
+      await firstValueFrom(init$);
+
+      config.interactions = {
+        click: [
+          {
+            class: 'dec-context-value',
+            payload: { ref: `${contextId}.quantity`, step: 1 },
+          },
+        ],
+      };
+
+      component.interact('click', (_indices) => ({}) as any);
+
+      expect(contextHub.value(`${contextId}.quantity`)).toBe(1);
+    });
+
+    it('должен считать отсутствующее число как 0 при inc', async () => {
+      const contextId = 'cart-empty-ctx';
+      const init$ = contextHub.init$(contextId);
+      postman.incomingMessage$.next(
+        new BffToClientContextInitMessage(contextId, { quantity: undefined }),
+      );
+      await firstValueFrom(init$);
+
+      config.interactions = {
+        click: [
+          {
+            class: 'inc-context-value',
+            payload: { ref: `${contextId}.quantity`, step: 1 },
+          },
+        ],
+      };
+
+      component.interact('click', (_indices) => ({}) as any);
+
+      expect(contextHub.value(`${contextId}.quantity`)).toBe(1);
     });
   });
 });

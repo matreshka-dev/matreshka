@@ -20,7 +20,6 @@ import { AppDestroyEntryInstanceMessage } from '@shared/messages/client-to-bff/a
 import { OverlayAnchor } from '@shared/types/container-overlay';
 import type { ServerComponentInteraction } from '@shared/types/server-component-interaction';
 import { filter } from 'rxjs';
-import { PopupService } from '../../../services/popup.service';
 import { rem } from '../../../utils/rem';
 import { EntryServerComponent } from '../entry-server-component';
 import {
@@ -41,7 +40,6 @@ export class DialogComponent
   extends EntryServerComponent<DialogConfig>
   implements OnInit, AfterViewInit
 {
-  private readonly popupService = inject(PopupService);
   private readonly platformId = inject(PLATFORM_ID);
 
   private readonly nativeDialogRef =

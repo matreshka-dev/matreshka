@@ -9,12 +9,15 @@ import {
   MixedWithCallbacksArray,
   serializeComponentList,
 } from "../core";
+import type { ActionConfig } from "../core/actions/action";
+import { closeEntry } from "../core/actions/close-entry";
 import {
   EntryComponent,
   EntryComponentInitConfig,
   EntryComponentProperties,
 } from "./entry-component";
 import { PopoverPositionArea } from "./enum/popover-position-area";
+
 export type PopoverProperties = {
   content: ComponentTreeNode[];
   positionArea?: PopoverPositionArea;
@@ -82,6 +85,11 @@ export class Popover<
   InitConfigType extends PopoverInitConfig<any> = DefaultInitConfigType,
   PropertiesType extends PopoverProperties = PopoverProperties,
 > extends EntryComponent<InitConfigType, PropertiesType> {
+  /** Локальные (client-only) действия entry-popover. */
+  readonly local = {
+    close: (config?: ActionConfig) => closeEntry(this, config),
+  };
+
   /**
    * Возвращает уникальный идентификатор класса компонента.
    *

@@ -1,9 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { Client, runWithClient } from "../core";
 import {
-  animate,
+  Client,
   ComponentAnimationEffect,
-} from "../core/actions/animate-component";
+  local,
+  runWithClient,
+} from "../core";
 import { dialog } from "./dialog";
 
 function createClient(): Client {
@@ -15,7 +16,7 @@ describe("Dialog backdrop", () => {
     const client = createClient();
     const dlg = dialog({
       backdrop: {
-        onEnter: animate({
+        onEnter: local.animate({
           duration: 200,
           effects: {
             [ComponentAnimationEffect.Opacity]: {
@@ -24,7 +25,7 @@ describe("Dialog backdrop", () => {
             },
           },
         }),
-        onLeave: animate({
+        onLeave: local.animate({
           duration: 150,
           effects: {
             [ComponentAnimationEffect.Opacity]: {

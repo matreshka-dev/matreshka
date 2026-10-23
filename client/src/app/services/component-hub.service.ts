@@ -19,6 +19,7 @@ import { ComponentContextReaction } from './component-hub/component-context-reac
 import { ComponentEntryLifecycle } from './component-hub/component-entry-lifecycle';
 import { ComponentReadyLoader } from './component-hub/component-ready.loader';
 import { ContextHubService } from './context-hub.service';
+import { PopupService } from './popup.service';
 
 /**
  * Центральный сервис для server-driven UI на клиенте.
@@ -36,6 +37,7 @@ export class ComponentHubService {
   private readonly document = inject(DOCUMENT);
   private readonly serverComponents = inject(SERVER_COMPONENTS);
   private readonly contextHub = inject(ContextHubService);
+  private readonly popupService = inject(PopupService);
   private readonly contextDependencyHolds = inject(
     ComponentContextDependencyHolds,
   );

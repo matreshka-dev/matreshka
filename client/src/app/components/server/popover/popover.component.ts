@@ -15,7 +15,6 @@ import { PopoverCloseMessage } from '@shared/messages/bff-to-client/components/p
 import { AppDestroyEntryInstanceMessage } from '@shared/messages/client-to-bff/app';
 import type { PopoverConfig } from '@shared/types/popover-config';
 import { filter } from 'rxjs';
-import { PopupService } from '../../../services/popup.service';
 import { OverlaysComponent } from '../../local/overlays/overlays.component';
 import { EntryServerComponent } from '../entry-server-component';
 import { ServerComponentsListComponent } from '../server-components-list/server-components-list.component';
@@ -46,7 +45,6 @@ export class PopoverComponent
   extends EntryServerComponent<PopoverConfig>
   implements OnInit, AfterViewInit
 {
-  private readonly popupService = inject(PopupService);
   private readonly platformId = inject(PLATFORM_ID);
   private popoverWidth?: string;
   private isViewInitialized = false;
