@@ -1,6 +1,10 @@
 import type { Condition } from '@shared/types/condition';
 import { fetchFromObject } from '@shared/utils/fetch-from-object';
-import { collectConditionPayloadRefs } from '@shared/utils/serialized-operand';
+import {
+  collectConditionPayloadRefs,
+  collectSerializedOperandRefs,
+  isSerializedOperand,
+} from '@shared/utils/serialized-operand';
 import {
   ComponentDependencies,
   ServerComponentConfig,
@@ -86,6 +90,53 @@ function getActionConditions(config: ServerComponentConfig): Condition[] {
   );
 }
 
+function getActionPayloadDependencies(config: ServerComponentConfig): {
+  contextIds: string[];
+  refs: string[];
+} {
+  const contextIds: string[] = [];
+  const refs: string[] = [];
+
+  for (const interactions of Object.values(config.interactions || {})) {
+    for (const interaction of interactions) {
+      const payload = interaction.payload as Record<string, unknown>;
+      if (interaction.class === 'set-context') {
+        if (typeof payload['context'] === 'string') {
+          contextIds.push(payload['context']);
+        }
+        const patch = payload['patch'];
+        if (patch && typeof patch === 'object' && !Array.isArray(patch)) {
+          for (const [key, value] of Object.entries(
+            patch as Record<string, unknown>,
+          )) {
+            refs.push(...findContextKeys(key));
+            if (isSerializedOperand(value)) {
+              refs.push(...collectSerializedOperandRefs(value));
+            }
+          }
+        }
+      } else if (
+        interaction.class === 'inc-context-value' ||
+        interaction.class === 'dec-context-value' ||
+        interaction.class === 'toggle-context-value'
+      ) {
+        if (typeof payload['ref'] === 'string') {
+          refs.push(payload['ref']);
+        }
+        if (
+          (interaction.class === 'inc-context-value' ||
+            interaction.class === 'dec-context-value') &&
+          isSerializedOperand(payload['step'])
+        ) {
+          refs.push(...collectSerializedOperandRefs(payload['step']));
+        }
+      }
+    }
+  }
+
+  return { contextIds, refs };
+}
+
 type ServerComponentSettings = Record<
   string,
   { dependencies: ComponentDependencies }
@@ -144,6 +195,7 @@ export function calculateConfigContextDependencies(
   }
 
   const actionConditions = getActionConditions(config);
+  const actionPayloadDependencies = getActionPayloadDependencies(config);
   const actionsContexts = actionConditions
     .filter((condition) => isContextIdCondition(condition))
     .map((condition) => ({
@@ -155,10 +207,23 @@ export function calculateConfigContextDependencies(
       prepareConditionRefDependencies(ref, false),
     ),
   );
-  if (actionsContexts.length || actionsContextsKeys.length) {
+  const actionPayloadContexts = actionPayloadDependencies.contextIds.map(
+    (contextId) => ({ contextId, rerender: false }),
+  );
+  const actionPayloadKeys = actionPayloadDependencies.refs.flatMap((ref) =>
+    prepareConditionRefDependencies(ref, false),
+  );
+  if (
+    actionsContexts.length ||
+    actionsContextsKeys.length ||
+    actionPayloadContexts.length ||
+    actionPayloadKeys.length
+  ) {
     contextDependencies.set(ACTIONS_DEPENDENCIES_KEY, [
       ...actionsContexts,
       ...actionsContextsKeys,
+      ...actionPayloadContexts,
+      ...actionPayloadKeys,
     ]);
   }
 

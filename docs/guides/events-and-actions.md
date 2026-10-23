@@ -196,7 +196,17 @@ enabledRef.local.toggle();
 quantityRef.local.dec();
 ```
 
-**`context.set` / `ref.set`** — запись на BFF в handler; **`context.local.set` / `ref.local.set`** — LocalAction на клиенте. Patch как у `Context.set`: несколько dotted-путей одним объектом. **`toggle`** — только **`context.local.toggle(path)`** для boolean-полей. **`inc` / `dec`** — **`context.local.inc|dec(path, step?)`** и **`ref.local.inc|dec(step?)`** для числовых полей: клиент прибавляет или вычитает `step` (по умолчанию `1`).
+**`context.set` / `ref.set`** — запись на BFF в handler; **`context.local.set` / `ref.local.set`** — LocalAction на клиенте. Patch как у `Context.set`: несколько dotted-путей одним объектом. Значением поля patch может быть либо обычное значение нужного типа, либо `ContextRef` с совместимым типом:
+
+```ts
+const sourceEnabled = this.context.ref("sourceEnabled");
+
+button({
+  onClick: this.context.local.set({ enabled: sourceEnabled }),
+});
+```
+
+Ссылка разрешается на клиенте в момент выполнения действия, поэтому используется её актуальное значение. **`toggle`** — только **`context.local.toggle(path)`** для boolean-полей. **`inc` / `dec`** — **`context.local.inc|dec(path, step?)`** и **`ref.local.inc|dec(step?)`** для числовых полей: клиент прибавляет или вычитает `step` (по умолчанию `1`), причём `step` также может быть числовым `ContextRef`.
 
 ## Анимация как `LocalAction`
 
@@ -212,12 +222,12 @@ quantityRef.local.dec();
 Пример с клиентским действием:
 
 ```ts
-import { writeTextToClipboard } from "@matreshka/bff/core";
+import { local } from "@matreshka/bff/core/local";
 import { when } from "@matreshka/bff/core/conditions";
 
 button(
   {
-    onClick: writeTextToClipboard("Скопировано", {
+    onClick: local.writeTextToClipboard("Скопировано", {
       conditions: [when.equals(this.context.ref("canCopy"), true)],
     }),
   },
@@ -228,7 +238,7 @@ button(
 Пример с анимацией:
 
 ```ts
-animate({
+local.animate({
   duration: 180,
   effects: {
     [ComponentAnimationEffect.Opacity]: {

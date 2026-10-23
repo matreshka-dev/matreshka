@@ -50,6 +50,7 @@ import { getOverlaysFromConfig } from './server-component-overlays';
 import {
   applyContextPatch,
   applyContextValueUpdates,
+  resolveLocalActionOperand,
 } from './utils/apply-context-value-updates';
 import {
   calculateGridItemStyles,
@@ -476,9 +477,16 @@ export abstract class ServerComponent<T extends ServerComponentConfig>
           break;
         }
         case 'inc-context-value': {
-          const payload = interaction.payload as { ref: string; step?: number };
+          const payload = interaction.payload as {
+            ref: string;
+            step?: unknown;
+          };
           const current = this.contextHub.value(payload.ref);
-          const step = typeof payload.step === 'number' ? payload.step : 1;
+          const resolvedStep = resolveLocalActionOperand(
+            this.contextHub,
+            payload.step ?? { kind: 'literal', value: 1 },
+          );
+          const step = typeof resolvedStep === 'number' ? resolvedStep : 1;
           applyContextValueUpdates(this.contextHub, [
             {
               ref: payload.ref,
@@ -488,9 +496,16 @@ export abstract class ServerComponent<T extends ServerComponentConfig>
           break;
         }
         case 'dec-context-value': {
-          const payload = interaction.payload as { ref: string; step?: number };
+          const payload = interaction.payload as {
+            ref: string;
+            step?: unknown;
+          };
           const current = this.contextHub.value(payload.ref);
-          const step = typeof payload.step === 'number' ? payload.step : 1;
+          const resolvedStep = resolveLocalActionOperand(
+            this.contextHub,
+            payload.step ?? { kind: 'literal', value: 1 },
+          );
+          const step = typeof resolvedStep === 'number' ? resolvedStep : 1;
           applyContextValueUpdates(this.contextHub, [
             {
               ref: payload.ref,

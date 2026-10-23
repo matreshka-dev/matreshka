@@ -130,4 +130,57 @@ describe('calculateConfigContextDependencies', () => {
     expect(entry.heldContextIds.has('ctx-rule-only')).toBe(true);
     expect(env.contextHub.holdCount('ctx-rule-only')).toBe(1);
   });
+
+  it('должен учитывать refs из payload local actions', () => {
+    const config: ServerComponentConfig = {
+      id: 'config-action-payload-refs',
+      class: ServerComponentClass.UnitTest,
+      interactions: {
+        click: [
+          {
+            class: 'set-context',
+            payload: {
+              context: 'target-ctx',
+              patch: {
+                'items.@{index-ctx.position}.value': {
+                  kind: 'ref',
+                  ref: 'source-ctx.value',
+                },
+              },
+            },
+          },
+          {
+            class: 'inc-context-value',
+            payload: {
+              ref: 'target-ctx.total',
+              step: { kind: 'ref', ref: 'step-ctx.amount' },
+            },
+          },
+        ],
+      },
+    };
+
+    const initSpy = vi.spyOn(env.contextHub, 'init$');
+    env.service.registerConfig(config);
+    const sub = env.service.ready$(config).subscribe();
+
+    expect(initSpy).toHaveBeenCalledWith('target-ctx');
+    expect(initSpy).toHaveBeenCalledWith('index-ctx');
+    expect(initSpy).toHaveBeenCalledWith('source-ctx');
+    expect(initSpy).toHaveBeenCalledWith('step-ctx');
+
+    const entry = hubConfigEntry(env.service, config.id);
+    const deps = entry.contextDependencies.get('%%%actions%%%');
+    const contextIds = deps.map((d: { contextId: string }) => d.contextId);
+    expect(contextIds).toEqual(
+      expect.arrayContaining([
+        'target-ctx',
+        'index-ctx',
+        'source-ctx',
+        'step-ctx',
+      ]),
+    );
+
+    sub.unsubscribe();
+  });
 });

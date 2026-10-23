@@ -8,13 +8,7 @@ export function isSerializedOperand(
   }
   const record = value as Record<string, unknown>;
   if (record["kind"] === "literal") {
-    const literal = record["value"];
-    return (
-      literal === null ||
-      typeof literal === "string" ||
-      typeof literal === "number" ||
-      typeof literal === "boolean"
-    );
+    return true;
   }
   return record["kind"] === "ref" && typeof record["ref"] === "string";
 }

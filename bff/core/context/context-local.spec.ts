@@ -13,12 +13,14 @@ describe("context.local / ref.local", () => {
     const json = action.toJSON();
     const payload = json.payload as {
       context: string;
-      patch: { loading: boolean };
+      patch: { loading: { kind: "literal"; value: boolean } };
     };
 
     expect(json.class).toBe("set-context");
     expect(payload.context).toBe(context.id);
-    expect(payload.patch).toEqual({ loading: true });
+    expect(payload.patch).toEqual({
+      loading: { kind: "literal", value: true },
+    });
   });
 
   it("set-context сериализует batch patch", async () => {
@@ -33,10 +35,16 @@ describe("context.local / ref.local", () => {
     const action = context.local.set({ loading: true, dirty: true });
     const json = action.toJSON();
     const payload = json.payload as {
-      patch: { loading: boolean; dirty: boolean };
+      patch: {
+        loading: { kind: "literal"; value: boolean };
+        dirty: { kind: "literal"; value: boolean };
+      };
     };
 
-    expect(payload.patch).toEqual({ loading: true, dirty: true });
+    expect(payload.patch).toEqual({
+      loading: { kind: "literal", value: true },
+      dirty: { kind: "literal", value: true },
+    });
   });
 
   it("ref.local.set сериализует patch по path ref", async () => {
@@ -50,13 +58,55 @@ describe("context.local / ref.local", () => {
     const json = action.toJSON();
     const payload = json.payload as {
       context: string;
-      patch: { loading: boolean };
+      patch: { loading: { kind: "literal"; value: boolean } };
     };
 
     expect(json.class).toBe("set-context");
     expect(payload.context).toBe(context.id);
-    expect(payload.patch).toEqual({ loading: true });
-    expect(payload.patch.loading).toBe(true);
+    expect(payload.patch).toEqual({
+      loading: { kind: "literal", value: true },
+    });
+  });
+
+  it("set и inc сериализуют ссылку как ref operand", async () => {
+    const context = new Context({
+      data: async () => ({
+        loading: false as boolean,
+        quantity: 1 as number,
+      }),
+    });
+    const source = new Context({
+      data: async () => ({
+        enabled: true as boolean,
+        step: 2 as number,
+      }),
+    });
+    await context.init();
+    await source.init();
+
+    const setPayload = context.local
+      .set({ loading: source.ref("enabled") })
+      .toJSON().payload as {
+      patch: {
+        loading: { kind: "ref"; ref: ContextRef };
+      };
+    };
+    const incPayload = context
+      .ref("quantity")
+      .local.inc(source.ref("step"))
+      .toJSON().payload as {
+      step: { kind: "ref"; ref: ContextRef };
+    };
+
+    // @ts-expect-error ссылка должна иметь тип значения поля patch
+    context.local.set({ loading: source.ref("step") });
+    // @ts-expect-error ссылка шага должна быть числовой
+    context.ref("quantity").local.inc(source.ref("enabled"));
+
+    expect(setPayload.patch.loading.kind).toBe("ref");
+    expect(setPayload.patch.loading.ref.path).toBe("enabled");
+    expect(incPayload.step.kind).toBe("ref");
+    expect(incPayload.step.ref.path).toBe("step");
   });
 
   it("toggle сериализует class и ref path", async () => {
@@ -82,12 +132,15 @@ describe("context.local / ref.local", () => {
 
     const action = context.local.inc("quantity");
     const json = action.toJSON();
-    const payload = json.payload as { ref: ContextRef; step: number };
+    const payload = json.payload as {
+      ref: ContextRef;
+      step: { kind: "literal"; value: number };
+    };
 
     expect(json.class).toBe("inc-context-value");
     expect(payload.ref).toBeInstanceOf(ContextRef);
     expect(payload.ref.path).toBe("quantity");
-    expect(payload.step).toBe(1);
+    expect(payload.step).toEqual({ kind: "literal", value: 1 });
   });
 
   it("inc сериализует заданный шаг", async () => {
@@ -98,9 +151,11 @@ describe("context.local / ref.local", () => {
 
     const action = context.local.inc("quantity", 3);
     const json = action.toJSON();
-    const payload = json.payload as { step: number };
+    const payload = json.payload as {
+      step: { kind: "literal"; value: number };
+    };
 
-    expect(payload.step).toBe(3);
+    expect(payload.step).toEqual({ kind: "literal", value: 3 });
   });
 
   it("dec сериализует class, ref path и шаг 1 по умолчанию", async () => {
@@ -111,12 +166,15 @@ describe("context.local / ref.local", () => {
 
     const action = context.local.dec("quantity");
     const json = action.toJSON();
-    const payload = json.payload as { ref: ContextRef; step: number };
+    const payload = json.payload as {
+      ref: ContextRef;
+      step: { kind: "literal"; value: number };
+    };
 
     expect(json.class).toBe("dec-context-value");
     expect(payload.ref).toBeInstanceOf(ContextRef);
     expect(payload.ref.path).toBe("quantity");
-    expect(payload.step).toBe(1);
+    expect(payload.step).toEqual({ kind: "literal", value: 1 });
   });
 
   it("dec принимает только числовой путь", async () => {
@@ -161,12 +219,15 @@ describe("context.local / ref.local", () => {
     const ref = context.ref("quantity");
     const action = ref.local.inc(-1);
     const json = action.toJSON();
-    const payload = json.payload as { ref: ContextRef; step: number };
+    const payload = json.payload as {
+      ref: ContextRef;
+      step: { kind: "literal"; value: number };
+    };
 
     expect(json.class).toBe("inc-context-value");
     expect(payload.ref).toBeInstanceOf(ContextRef);
     expect(payload.ref.path).toBe("quantity");
-    expect(payload.step).toBe(-1);
+    expect(payload.step).toEqual({ kind: "literal", value: -1 });
   });
 
   it("ref.local.inc недоступен для нечислового ref", async () => {
@@ -190,11 +251,14 @@ describe("context.local / ref.local", () => {
     const ref = context.ref("quantity");
     const action = ref.local.dec(2);
     const json = action.toJSON();
-    const payload = json.payload as { ref: ContextRef; step: number };
+    const payload = json.payload as {
+      ref: ContextRef;
+      step: { kind: "literal"; value: number };
+    };
 
     expect(json.class).toBe("dec-context-value");
     expect(payload.ref.path).toBe("quantity");
-    expect(payload.step).toBe(2);
+    expect(payload.step).toEqual({ kind: "literal", value: 2 });
   });
 
   it("ref.local.dec недоступен для нечислового ref", async () => {

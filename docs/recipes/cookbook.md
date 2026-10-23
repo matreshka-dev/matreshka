@@ -155,7 +155,7 @@ const submitButton = button([text("Отправить")]);
 
 form(
   {
-    onSubmit: animate({
+    onSubmit: local.animate({
       componentId: submitButton.id,
       duration: 160,
       effects: {
@@ -230,7 +230,7 @@ button(
 ```ts
 button(
   {
-    onClick: animate({
+    onClick: local.animate({
       duration: 180,
       effects: {
         [ComponentAnimationEffect.TranslateY]: {
@@ -254,7 +254,7 @@ button(
 ```ts
 stack(
   {
-    onShow: animate({
+    onShow: local.animate({
       duration: 250,
       effects: {
         [ComponentAnimationEffect.Opacity]: {
@@ -314,7 +314,7 @@ const banner = text("Сохранено");
   banner,
   button(
     {
-      onClick: animate({
+      onClick: local.animate({
         componentId: banner.id,
         duration: 300,
         effects: {
@@ -340,11 +340,12 @@ const banner = text("Сохранено");
 
 ```ts
 import { dialog, text } from "@matreshka/bff/components";
-import { animate, ComponentAnimationEffect } from "@matreshka/bff/core";
+import { ComponentAnimationEffect } from "@matreshka/bff/core";
+import { local } from "@matreshka/bff/core/local";
 
 dialog(
   {
-    onEnter: animate({
+    onEnter: local.animate({
       duration: 200,
       effects: {
         [ComponentAnimationEffect.Opacity]: {
@@ -353,7 +354,7 @@ dialog(
         },
       },
     }),
-    onLeave: animate({
+    onLeave: local.animate({
       duration: 200,
       effects: {
         [ComponentAnimationEffect.Opacity]: {
@@ -362,7 +363,7 @@ dialog(
       },
     }),
     backdrop: {
-      onEnter: animate({
+      onEnter: local.animate({
         duration: 200,
         effects: {
           [ComponentAnimationEffect.Opacity]: {
@@ -375,7 +376,7 @@ dialog(
           },
         },
       }),
-      onLeave: animate({
+      onLeave: local.animate({
         duration: 200,
         effects: {
           [ComponentAnimationEffect.Opacity]: {
@@ -518,7 +519,7 @@ async boot() {
 ```ts
 button(
   {
-    onClick: writeTextToClipboard("Скопировано"),
+    onClick: local.writeTextToClipboard("Скопировано"),
   },
   [text("Копировать")],
 );

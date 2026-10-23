@@ -494,6 +494,39 @@ describe('ServerComponent (abstract базовый компонент)', () => {
       expect(contextHub.value(`${contextId}.quantity`)).toBe(1);
     });
 
+    it('должен разрешать ref в шаге inc во время выполнения', async () => {
+      const contextId = 'cart-ref-step-ctx';
+      const sourceId = 'cart-ref-source-ctx';
+      const targetInit$ = contextHub.init$(contextId);
+      const sourceInit$ = contextHub.init$(sourceId);
+      postman.incomingMessage$.next(
+        new BffToClientContextInitMessage(contextId, { quantity: 2 }),
+      );
+      postman.incomingMessage$.next(
+        new BffToClientContextInitMessage(sourceId, { step: 4 }),
+      );
+      await Promise.all([
+        firstValueFrom(targetInit$),
+        firstValueFrom(sourceInit$),
+      ]);
+
+      config.interactions = {
+        click: [
+          {
+            class: 'inc-context-value',
+            payload: {
+              ref: `${contextId}.quantity`,
+              step: { kind: 'ref', ref: `${sourceId}.step` },
+            },
+          },
+        ],
+      };
+
+      component.interact('click', (_indices) => ({}) as any);
+
+      expect(contextHub.value(`${contextId}.quantity`)).toBe(6);
+    });
+
     it('должен считать отсутствующее число как 0 при inc', async () => {
       const contextId = 'cart-empty-ctx';
       const init$ = contextHub.init$(contextId);

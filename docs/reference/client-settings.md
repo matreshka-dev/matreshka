@@ -526,11 +526,12 @@ const frostedHeaderColorToken: ColorToken = {
 Типичный сценарий — `surface` в overlay с полупрозрачным фоном и `ComponentAnimationEffect.BackdropBlur` в `onShow`: mask затухает к краю, чтобы размытие не обрывалось резкой границей.
 
 ```ts
-import { animate, ComponentAnimationEffect } from "@matreshka/bff/core";
+import { ComponentAnimationEffect } from "@matreshka/bff/core";
+import { local } from "@matreshka/bff/core/local";
 
 surface(
   {
-    onShow: animate({
+    onShow: local.animate({
       duration: 0,
       effects: {
         [ComponentAnimationEffect.BackdropBlur]: { 0: 0, 100: 16 },

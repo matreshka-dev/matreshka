@@ -1,4 +1,4 @@
-import type { JsonPrimitive } from "./json";
+import type { Json } from "./json";
 
 /**
  * Операнд условия: литерал или ссылка на значение в контексте.
@@ -7,5 +7,5 @@ import type { JsonPrimitive } from "./json";
  * от сериализованного `ContextRef` (`contextId.path`).
  */
 export type SerializedOperand =
-  | { kind: "literal"; value: JsonPrimitive }
+  | { kind: "literal"; value: Json }
   | { kind: "ref"; ref: string };

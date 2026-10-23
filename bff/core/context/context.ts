@@ -25,13 +25,17 @@ import { z, ZodObject } from "zod/v4";
 import { ActionConfig } from "../actions/action";
 import { decContextValue } from "../actions/dec-context-value";
 import { incContextValue, NumberValueRef } from "../actions/inc-context-value";
-import { createSetContext } from "../actions/set-context";
+import {
+  createSetContext,
+  LocalContextPathPatch,
+} from "../actions/set-context";
 import {
   BooleanValueRef,
   toggleContextValue,
 } from "../actions/toggle-context-value";
 import type { Client } from "../client";
 import { currentClient } from "../client-context";
+import { ContextValueOrRef } from "../types/context-value-ref";
 import { zodDeepPick } from "../utils/deep-pick";
 import { incomingMessageObserver } from "../utils/incoming-message-observer";
 import { objectsDiff } from "../utils/objects-diff";
@@ -136,7 +140,7 @@ export class Context<T extends JsonObject> {
   readonly persistent: boolean;
   /** Локальные (client-only) действия над данными этого контекста. */
   readonly local = {
-    set: (patch: ContextPathPatch<T>, config?: ActionConfig) =>
+    set: (patch: LocalContextPathPatch<T>, config?: ActionConfig) =>
       createSetContext(this, patch, config),
     toggle: <K extends Paths<T>>(
       path: PathValue<T, K> extends boolean | undefined ? K : never,
@@ -144,12 +148,12 @@ export class Context<T extends JsonObject> {
     ) => toggleContextValue(this.ref(path) as BooleanValueRef, config),
     inc: <K extends Paths<T>>(
       path: PathValue<T, K> extends number | undefined ? K : never,
-      step?: number,
+      step?: ContextValueOrRef<number>,
       config?: ActionConfig,
     ) => incContextValue(this.ref(path) as NumberValueRef, step ?? 1, config),
     dec: <K extends Paths<T>>(
       path: PathValue<T, K> extends number | undefined ? K : never,
-      step?: number,
+      step?: ContextValueOrRef<number>,
       config?: ActionConfig,
     ) => decContextValue(this.ref(path) as NumberValueRef, step ?? 1, config),
   };

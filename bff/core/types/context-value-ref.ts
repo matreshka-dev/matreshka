@@ -28,6 +28,11 @@ export type ContextValueRef<ValueType> = ContextRef<any, any> & {
 export type CompatibleContextValueRef<ValueType, R extends ContextRef> =
   ValueType extends ContextRefValue<R> ? R : never;
 
+/** Статическое значение или ссылка на совместимое значение в контексте. */
+export type ContextValueOrRef<ValueType> =
+  | ValueType
+  | ContextValueRef<Exclude<ValueType, undefined>>;
+
 /**
  * Ссылка на массив элементов в контексте (`ItemType[] | undefined`).
  *

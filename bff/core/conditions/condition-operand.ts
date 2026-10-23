@@ -1,4 +1,8 @@
-import type { JsonObject, JsonPrimitive } from "@matreshka/shared/types/json";
+import type {
+  Json,
+  JsonObject,
+  JsonPrimitive,
+} from "@matreshka/shared/types/json";
 import type { SerializedOperand } from "@matreshka/shared/types/serialized-operand";
 import { Paths, PathValue } from "ts-essentials";
 import { ContextRef, ContextRefValue } from "../context/context-ref";
@@ -57,16 +61,19 @@ export type ConditionLengthOperand = ConditionOperandFor<number>;
 /** Операнд без привязки к конкретному `ref` (сериализация на wire). */
 export type UntypedConditionOperand = JsonPrimitive | ContextRef;
 
+/** Значение local action: JSON-значение или ссылка на значение в контексте. */
+export type UntypedActionOperand = Json | ContextRef;
+
 /**
  * До JSON-сериализации в `kind: "ref"` лежит `ContextRef`;
  * после stringify `ref` становится строкой `contextId.path`.
  */
 export type BffSerializedOperand =
-  | { kind: "literal"; value: JsonPrimitive }
+  | { kind: "literal"; value: Json }
   | { kind: "ref"; ref: ContextRef };
 
 export function toSerializedOperand(
-  value: UntypedConditionOperand,
+  value: UntypedActionOperand,
 ): BffSerializedOperand {
   if (value instanceof ContextRef) {
     return { kind: "ref", ref: value };

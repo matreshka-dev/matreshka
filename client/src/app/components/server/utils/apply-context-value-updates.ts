@@ -1,7 +1,20 @@
+import {
+  isSerializedOperand,
+  resolveSerializedOperand,
+} from '@shared/utils/serialized-operand';
 import type { ContextHubService } from '../../../services/context-hub.service';
 import { parseContextPath } from '../../../utils/parse-context-path';
 
 export type ContextValueUpdate = { ref: string; value: unknown };
+
+export function resolveLocalActionOperand(
+  contextHub: ContextHubService,
+  operand: unknown,
+): unknown {
+  return isSerializedOperand(operand)
+    ? resolveSerializedOperand(operand, (ref) => contextHub.value(ref))
+    : operand;
+}
 
 /**
  * Применяет обновления Context на клиенте через ContextHub.setValues
@@ -45,7 +58,10 @@ export function applyContextPatch(
       continue;
     }
     const resolvedKey = contextHub.replacePlaceholders(key);
-    data.push({ key: resolvedKey, value: patch[key] });
+    data.push({
+      key: resolvedKey,
+      value: resolveLocalActionOperand(contextHub, patch[key]),
+    });
   }
 
   if (data.length > 0) {

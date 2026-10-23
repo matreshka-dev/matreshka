@@ -95,4 +95,26 @@ describe('applyContextPatch', () => {
       { key: 'devices.0.status', value: 'on' },
     ]);
   });
+
+  it('разрешает ref operand в значении patch во время выполнения', () => {
+    const setValues = vi.fn();
+    const replacePlaceholders = vi.fn((key: string) => key);
+    const value = vi.fn((ref: string) =>
+      ref === 'source.enabled' ? true : undefined,
+    );
+    const contextHub = {
+      setValues,
+      replacePlaceholders,
+      value,
+    } as unknown as ContextHubService;
+
+    applyContextPatch(contextHub, 'ctx-a', {
+      enabled: { kind: 'ref', ref: 'source.enabled' },
+    });
+
+    expect(value).toHaveBeenCalledWith('source.enabled');
+    expect(setValues).toHaveBeenCalledWith('ctx-a', [
+      { key: 'enabled', value: true },
+    ]);
+  });
 });

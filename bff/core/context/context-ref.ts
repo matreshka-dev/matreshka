@@ -7,21 +7,26 @@ import {
   IncContextValue,
   NumberValueRef,
 } from "../actions/inc-context-value";
-import { createSetContext, SetContext } from "../actions/set-context";
+import {
+  createSetContext,
+  LocalContextPathPatch,
+  SetContext,
+} from "../actions/set-context";
 import {
   BooleanValueRef,
   toggleContextValue,
   ToggleContextValue,
 } from "../actions/toggle-context-value";
 import { currentClient } from "../client-context";
-import { Context, ContextPathPatch } from "./context";
+import { ContextValueOrRef } from "../types/context-value-ref";
+import { Context } from "./context";
 
 type ContextRefLocalSet<
   ContextType extends JsonObject,
   PathType extends string,
 > = {
   set: (
-    value: PathValue<ContextType, PathType>,
+    value: ContextValueOrRef<PathValue<ContextType, PathType>>,
     config?: ActionConfig,
   ) => SetContext<ContextType>;
 };
@@ -31,8 +36,14 @@ type ContextRefLocalToggle = {
 };
 
 type ContextRefLocalNumeric = {
-  inc: (step?: number, config?: ActionConfig) => IncContextValue;
-  dec: (step?: number, config?: ActionConfig) => DecContextValue;
+  inc: (
+    step?: ContextValueOrRef<number>,
+    config?: ActionConfig,
+  ) => IncContextValue;
+  dec: (
+    step?: ContextValueOrRef<number>,
+    config?: ActionConfig,
+  ) => DecContextValue;
 };
 
 /** Локальные действия по ref; `toggle` / `inc` / `dec` — по типу значения по пути. */
@@ -61,10 +72,13 @@ export class ContextRef<
 > {
   /** Локальные (client-only) действия по этому ref. */
   readonly local = {
-    set: (value: PathValue<ContextType, PathType>, config?: ActionConfig) => {
+    set: (
+      value: ContextValueOrRef<PathValue<ContextType, PathType>>,
+      config?: ActionConfig,
+    ) => {
       const patch = {
         [this.path]: value,
-      } as unknown as ContextPathPatch<ContextType>;
+      } as unknown as LocalContextPathPatch<ContextType>;
       return createSetContext(
         this.context as Context<ContextType>,
         patch,
@@ -73,9 +87,9 @@ export class ContextRef<
     },
     toggle: (config?: ActionConfig) =>
       toggleContextValue(this as BooleanValueRef, config),
-    inc: (step = 1, config?: ActionConfig) =>
+    inc: (step: ContextValueOrRef<number> = 1, config?: ActionConfig) =>
       incContextValue(this as NumberValueRef, step, config),
-    dec: (step = 1, config?: ActionConfig) =>
+    dec: (step: ContextValueOrRef<number> = 1, config?: ActionConfig) =>
       decContextValue(this as NumberValueRef, step, config),
   } as ContextRefLocalActions<ContextType, PathType>;
 
