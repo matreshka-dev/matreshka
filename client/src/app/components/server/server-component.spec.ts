@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { firstValueFrom } from 'rxjs';
+import { firstValueFrom, Subject } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import { ConditionType } from '@shared/enums/condition-type';
@@ -10,6 +10,7 @@ import { TextDecoration } from '@shared/enums/text-decoration';
 import { ContextInitMessage as BffToClientContextInitMessage } from '@shared/messages/bff-to-client/context/context-init-message';
 import { ComponentClickMessage } from '@shared/messages/client-to-bff/components/component-click-message';
 import { OverlayAnchor } from '@shared/types/container-overlay';
+import type { ServerComponentInteraction } from '@shared/types/server-component-interaction';
 import { PLATFORM } from '../../platforms/platform';
 import { TestPlatform } from '../../platforms/tests/test-platform';
 import { ComponentHubService } from '../../services/component-hub.service';
@@ -29,7 +30,15 @@ import { SERVER_COMPONENTS } from './server-components-injection-token';
   changeDetection: ChangeDetectionStrategy.Eager,
   template: '',
 })
-class TestServerComponent extends ServerComponent<ServerComponentConfig> {}
+class TestServerComponent extends ServerComponent<ServerComponentConfig> {
+  localActions: unknown[] = [];
+
+  protected override executeLocalComponentAction(
+    interaction: ServerComponentInteraction,
+  ): void {
+    this.localActions.push(interaction);
+  }
+}
 
 describe('ServerComponent (abstract базовый компонент)', () => {
   let component: TestServerComponent;
@@ -217,9 +226,9 @@ describe('ServerComponent (abstract базовый компонент)', () => {
       expect(addInstanceSpy).toHaveBeenCalledWith(configId, component);
 
       // Эмулируем запрос ререндера от ComponentHubService
-      const map = (componentHub as any).map as Map<string, any>;
-      const entry = map.get(configId);
-      entry.requestRerender$.next();
+      const requestRerender$ = addInstanceSpy.mock.results[0]
+        .value as Subject<void>;
+      requestRerender$.next();
 
       expect(markForCheckSpy).toHaveBeenCalled();
     });
@@ -331,10 +340,6 @@ describe('ServerComponent (abstract базовый компонент)', () => {
 
       config.interactions = {
         click: [
-          {
-            class: 'set-context',
-            payload: { context: 'x', patch: { y: 1 } },
-          },
           { class: 'server-interaction', payload: {} },
           { class: 'server-interaction', payload: {} },
         ],
@@ -346,7 +351,7 @@ describe('ServerComponent (abstract базовый компонент)', () => {
 
       expect(sentMessages).toHaveLength(1);
       expect((sentMessages[0] as ComponentClickMessage).getHandlers()).toEqual([
-        1, 2,
+        0, 1,
       ]);
     });
 
@@ -385,6 +390,35 @@ describe('ServerComponent (abstract базовый компонент)', () => {
 
       component.interact('click', factory);
 
+      expect(sentMessages).toHaveLength(0);
+    });
+
+    it('должен выполнять локальную component-команду без сообщения на сервер', () => {
+      const sentMessages: any[] = [];
+      postman.outcomingMessage$.subscribe((msg) => sentMessages.push(msg));
+
+      config.interactions = {
+        click: [
+          {
+            class: 'component-local-test-action',
+            payload: { target: configId, value: 12 },
+          },
+        ],
+      };
+
+      component.ngOnInit();
+      (
+        component as unknown as {
+          _configSignal: { set(value: ServerComponentConfig): void };
+        }
+      )._configSignal.set(config);
+      component.interact('click', (_indices) => ({}) as any);
+
+      expect(component.localActions).toHaveLength(1);
+      expect(component.localActions[0]).toEqual({
+        class: 'component-local-test-action',
+        payload: { target: configId, value: 12 },
+      });
       expect(sentMessages).toHaveLength(0);
     });
 

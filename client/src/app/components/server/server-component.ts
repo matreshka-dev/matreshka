@@ -46,7 +46,10 @@ import { PostmanService } from '../../services/postman.service';
 import { runTargetedAction } from '../../utils/targeted-action';
 import type { Overlay } from './server-component-config';
 import { ServerComponentConfig } from './server-component-config';
-import { getOverlaysFromConfig } from './server-component-overlays';
+import {
+  getOverlaysFromConfig,
+  shouldRenderOverlaysInWrapper,
+} from './server-component-overlays';
 import {
   applyContextPatch,
   applyContextValueUpdates,
@@ -168,6 +171,11 @@ export abstract class ServerComponent<T extends ServerComponentConfig>
     runTargetedAction(this.postman, message.actionScope, action);
   }
 
+  /** Выполняет локальную component-команду на target instance без round-trip на BFF. */
+  protected executeLocalComponentAction(
+    _interaction: ServerComponentInteraction,
+  ): void | Promise<void> {}
+
   /**
    * Троттлинг отчётов скролла + отправка {@link ComponentScrollMessage}, если
    * `getPayloadOrSkip` вернул не `null`.
@@ -229,7 +237,9 @@ export abstract class ServerComponent<T extends ServerComponentConfig>
     // Внутренний stack без flexItem на хосте: ширина/высота внутри overlay-host — cross-axis stretch column
     // и вложенная вёрстка; внешний размер по-прежнему задаёт overlay-host. Dialog/Popover с overlays
     // в wrapper не попадают (shouldRenderOverlaysInWrapper) — у них свой корень и app-overlays на entry.
-    const flexItem = this.config.properties?.flexItem;
+    const flexItem = shouldRenderOverlaysInWrapper(this.config)
+      ? undefined
+      : this.config.properties?.flexItem;
     const sizeStyles = calculateSizeStyles({ flexItem });
     const scaleStyles = calculateScaleStyles({
       scale: this.config.properties?.scale,
@@ -447,6 +457,23 @@ export abstract class ServerComponent<T extends ServerComponentConfig>
 
     interactions.forEach((interaction) => {
       if (interaction.class === 'server-interaction') {
+        return;
+      }
+
+      if (interaction.class.startsWith('component-local-')) {
+        const target = (interaction.payload as { target: string }).target;
+        this.componentHub
+          .getInstancesByComponentId(target)
+          .forEach((component) => {
+            void Promise.resolve(
+              component.executeLocalComponentAction(interaction),
+            ).catch((error: unknown) => {
+              console.error(
+                `Local component action failed: ${interaction.class}`,
+                error,
+              );
+            });
+          });
         return;
       }
 

@@ -30,6 +30,7 @@ import { TextEditorToggleItalicMessage } from '@shared/messages/bff-to-client/co
 import { TextEditorToggleUnderlineMessage } from '@shared/messages/bff-to-client/components/text-editor/text-editor-toggle-underline-message';
 import { TextEditorUndoMessage } from '@shared/messages/bff-to-client/components/text-editor/text-editor-undo-message';
 import { TextEditorSelectionChangeMessage } from '@shared/messages/client-to-bff/components/text-editor/text-editor-selection-change-message';
+import type { ServerComponentInteraction } from '@shared/types/server-component-interaction';
 
 @Component({
   selector: 'app-text-editor',
@@ -193,6 +194,49 @@ export class TextEditorComponent
         });
       }
     });
+  }
+
+  protected override executeLocalComponentAction(
+    interaction: ServerComponentInteraction,
+  ): void {
+    const commands: Record<string, string> = {
+      'component-local-text-editor-toggle-italic': 'italic',
+      'component-local-text-editor-toggle-bold': 'bold',
+      'component-local-text-editor-toggle-underline': 'underline',
+      'component-local-text-editor-undo': 'undo',
+      'component-local-text-editor-redo': 'redo',
+      'component-local-text-editor-superscript': 'superscript',
+      'component-local-text-editor-insert-ordered-list': 'insertOrderedList',
+      'component-local-text-editor-insert-unordered-list':
+        'insertUnorderedList',
+      'component-local-text-editor-justify-left': 'justifyLeft',
+      'component-local-text-editor-justify-center': 'justifyCenter',
+      'component-local-text-editor-justify-right': 'justifyRight',
+      'component-local-text-editor-justify-full': 'justifyFull',
+    };
+    const command = commands[interaction.class];
+    if (command) {
+      this.focusInput();
+      this.document.execCommand(command, false);
+      return;
+    }
+    if (interaction.class === 'component-local-text-editor-insert-html') {
+      this.focusInput();
+      this.document.execCommand(
+        'insertHTML',
+        false,
+        (interaction.payload as { value: string }).value,
+      );
+      return;
+    }
+    if (interaction.class === 'component-local-text-editor-format-block') {
+      this.focusInput();
+      this.document.execCommand(
+        'formatBlock',
+        false,
+        (interaction.payload as { tag: string }).tag,
+      );
+    }
   }
 
   focusInput() {

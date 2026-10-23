@@ -12,6 +12,8 @@ import {
   serializeComponentList,
   StandaloneComponent,
 } from "../core";
+import type { ActionConfig } from "../core/actions/action";
+import { cameraSwitchLocal } from "../core/actions/component-local-actions";
 import { VideoInputDevice } from "../platforms/platform";
 import {
   Component,
@@ -127,6 +129,11 @@ export class Camera<
   extends Component<InitConfigType, PropertiesType>
   implements StandaloneComponent
 {
+  readonly local = {
+    switchCamera: (device: VideoInputDevice, config?: ActionConfig) =>
+      cameraSwitchLocal(this, device, config),
+  };
+
   constructor(config: InitConfigType) {
     super(config);
     if (config.onQrCode) {

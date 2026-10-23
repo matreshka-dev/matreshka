@@ -364,6 +364,7 @@ popover(
 | Метод                                                           | Назначение                         |
 | --------------------------------------------------------------- | ---------------------------------- |
 | `scrollTo(value: number \| ScrollToPosition, smooth?: boolean)` | Программно прокручивает контейнер. Hot `Observable<void>` до ack клиента. |
+| `local.scrollTo(value, smooth?, config?)`                       | LocalAction: прокручивает на клиенте без round-trip. `component.local` действует на все instances, `instance.local` — на один instance. |
 
 `scrollTo` передаёт на клиент команду `component-scroll-to`. Для типовых целей используйте enum **`ScrollToPosition`** (из `@matreshka/bff/components`):
 
@@ -885,6 +886,8 @@ textarea(
 | `justifyCenter()`       | Центрирует текст.                           |
 | `justifyRight()`        | Выравнивает текст по правому краю.          |
 | `formatBlock(tag)`      | Меняет блочный HTML-тег текущего фрагмента. |
+
+Все команды TextEditor доступны также через `local.*`: они выполняются на клиенте без round-trip; `component.local.*` адресует все instances, `instance.local.*` — один instance.
 
 Пример:
 
@@ -1788,6 +1791,7 @@ fileUploadArea(
 | Метод                                    | Назначение                                 |
 | ---------------------------------------- | ------------------------------------------ |
 | `switchCamera(device: VideoInputDevice)` | Переключает активную камеру по `deviceId`. |
+| `local.switchCamera(device, config?)`     | LocalAction: переключает камеру на клиенте без round-trip; component-level действует на все instances, instance-level — на один instance. |
 
 Пример:
 
@@ -1850,6 +1854,8 @@ camera(
 | `setZoom(zoom)`     | Программно меняет масштаб карты. Hot `Observable<void>`. |
 | `zoomIn(step?)`     | Увеличивает zoom. Hot `Observable<void>`.                |
 | `zoomOut(step?)`    | Уменьшает zoom.                  |
+
+Локальные аналоги: `local.setCenter`, `local.setZoom`, `local.zoomIn`, `local.zoomOut`. Они выполняются на клиенте без round-trip; вызов через компонент действует на все его instances, а вызов через `instance.local` — только на выбранный instance.
 
 Пример:
 
@@ -1931,6 +1937,8 @@ map({
 | `setZoom(zoom)`     | Программно меняет масштаб вида. Hot `Observable<void>`. |
 | `zoomIn()`          | Увеличивает zoom. Hot `Observable<void>`.               |
 | `zoomOut()`         | Уменьшает zoom.                 |
+
+Локальные аналоги: `local.setCenter`, `local.setZoom`, `local.zoomIn`, `local.zoomOut`. Они выполняются на клиенте без round-trip; вызов через компонент действует на все его instances, а вызов через `instance.local` — только на выбранный instance.
 
 Пример:
 

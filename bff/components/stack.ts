@@ -28,6 +28,8 @@ import {
   serializeComponentList,
   StandaloneComponent,
 } from "../core";
+import type { ActionConfig } from "../core/actions/action";
+import { scrollToLocal } from "../core/actions/component-local-actions";
 import {
   Component,
   ComponentInitConfig,
@@ -197,6 +199,14 @@ export class Stack<
   extends Component<InitConfigType, PropertiesType>
   implements StandaloneComponent
 {
+  readonly local = {
+    scrollTo: (
+      value: number | ScrollToPosition,
+      smooth = false,
+      config?: ActionConfig,
+    ) => scrollToLocal(this, value, smooth, config),
+  };
+
   constructor(config: InitConfigType) {
     super(config);
     if (config.onClick) {

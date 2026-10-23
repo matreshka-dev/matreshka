@@ -590,6 +590,17 @@ onClick: ({ instance }) => {
 
 `instance.local.close()` сериализует явный `instance.id`. Вызов `component.local.close()` сериализует базовый id компонента, поэтому клиент применяет действие ко всем совпавшим instances.
 
+Тот же двухуровневый API доступен для локальных аналогов команд Map, Board, Stack, Camera и TextEditor:
+
+```ts
+onClick: ({ instance }) => {
+  instance.component.local.setZoom(12); // все instances компонента
+  instance.local.setZoom(8); // только этот instance
+};
+```
+
+Локальные методы выполняются непосредственно на клиенте и не возвращают `Observable` с ack. Серверные методы с теми же именами по-прежнему используют round-trip и `Observable<void>`.
+
 ```ts
 onClick: ({ instance }) => {
   map.setCenter({ latitude: 55.75, longitude: 37.62 }, [instance]).subscribe();

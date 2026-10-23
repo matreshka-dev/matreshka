@@ -17,6 +17,13 @@ import {
   ComponentTreeNode,
   StandaloneComponent,
 } from "../core";
+import type { ActionConfig } from "../core/actions/action";
+import {
+  mapSetCenterLocal,
+  mapSetZoomLocal,
+  mapZoomInLocal,
+  mapZoomOutLocal,
+} from "../core/actions/component-local-actions";
 import {
   Component,
   ComponentInitConfig,
@@ -103,6 +110,21 @@ export class Map<
     itemLists: [] as ItemList<any, MapMarker>[],
   };
   private readonly itemListHostAdapter!: ItemListHost;
+
+  readonly local = {
+    setCenter: (
+      center: {
+        latitude: number;
+        longitude: number;
+        altitude?: number;
+      },
+      config?: ActionConfig,
+    ) => mapSetCenterLocal(this, center, config),
+    setZoom: (zoom: number, config?: ActionConfig) =>
+      mapSetZoomLocal(this, zoom, config),
+    zoomIn: (config?: ActionConfig) => mapZoomInLocal(this, config),
+    zoomOut: (config?: ActionConfig) => mapZoomOutLocal(this, config),
+  };
 
   setCenter(
     center: {

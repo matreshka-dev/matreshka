@@ -21,6 +21,7 @@ import type {
   BoardPoint,
   SerializedBoardItem,
 } from '@shared/types/board-config';
+import type { ServerComponentInteraction } from '@shared/types/server-component-interaction';
 import type { NestedItemsDiff } from '@shared/utils/diff-nested-items';
 import { rem } from '../../../utils/rem';
 import { NestedItemsHostComponent } from '../nested-items-host/nested-items-host.component';
@@ -126,6 +127,28 @@ export class BoardComponent extends NestedItemsHostComponent<
         });
       }
     });
+  }
+
+  protected override executeLocalComponentAction(
+    interaction: ServerComponentInteraction,
+  ): void {
+    switch (interaction.class) {
+      case 'component-local-board-set-center':
+        this.currentCenter = interaction.payload as BoardPoint;
+        this.applyView();
+        break;
+      case 'component-local-board-set-zoom':
+        this.zoomToScaleAtViewportCenter(
+          (interaction.payload as { zoom: number }).zoom,
+        );
+        break;
+      case 'component-local-board-zoom-in':
+        this.zoomBy(1);
+        break;
+      case 'component-local-board-zoom-out':
+        this.zoomBy(-1);
+        break;
+    }
   }
 
   /** Инициализирует panzoom после появления viewport/plane в DOM. */

@@ -10,10 +10,12 @@ import {
 import { ComponentOutline, OutlineType } from '@shared/enums/outline-type';
 import { Overflow } from '@shared/enums/overflow';
 import { SafeAreaSide } from '@shared/enums/safe-area-side';
+import { ScrollToPosition } from '@shared/enums/scroll-to-position';
 import { StackDirection } from '@shared/enums/stack-direction';
 import { ComponentScrollToMessage } from '@shared/messages/bff-to-client/components/component-scroll-to-message';
 import { ComponentClickMessage } from '@shared/messages/client-to-bff/components/component-click-message';
 import { ComponentKeyDownMessage } from '@shared/messages/client-to-bff/components/component-keydown-message';
+import type { ServerComponentInteraction } from '@shared/types/server-component-interaction';
 import type { StackConfig } from '@shared/types/stack-config';
 import { resolveScrollToOffset } from '@shared/utils/resolve-scroll-to-offset';
 import { WINDOW } from '../../../tokens/window';
@@ -123,6 +125,35 @@ export class StackComponent extends ServerComponent<StackConfig> {
         });
       }
     });
+  }
+
+  protected override async executeLocalComponentAction(
+    interaction: ServerComponentInteraction,
+  ): Promise<void> {
+    if (interaction.class !== 'component-local-stack-scroll-to') {
+      return;
+    }
+    const payload = interaction.payload as {
+      value: number | ScrollToPosition;
+      smooth?: boolean;
+    };
+    const smooth = payload.smooth ?? false;
+    const behavior = smooth ? 'smooth' : 'instant';
+    const el = this.elementRef.nativeElement as HTMLElement;
+    if (this.stackLayoutHorizontal) {
+      const left = resolveScrollToOffset(
+        { scrollSize: el.scrollWidth, viewportSize: el.clientWidth },
+        payload.value,
+      );
+      el.scrollTo({ left, behavior });
+    } else {
+      const top = resolveScrollToOffset(
+        { scrollSize: el.scrollHeight, viewportSize: el.clientHeight },
+        payload.value,
+      );
+      el.scrollTo({ top, behavior });
+    }
+    await waitForElementScrollEnd(el, smooth);
   }
 
   get stackLayoutVertical(): boolean {

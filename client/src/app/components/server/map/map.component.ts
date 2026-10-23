@@ -17,6 +17,7 @@ import { MapZoomOutMessage } from '@shared/messages/bff-to-client/components/map
 import { MapCenterChangeMessage } from '@shared/messages/client-to-bff/components/map/map-center-change-message';
 import { MapZoomChangeMessage } from '@shared/messages/client-to-bff/components/map/map-zoom-change-message';
 import type { MapConfig, SerializedMapMarker } from '@shared/types/map-config';
+import type { ServerComponentInteraction } from '@shared/types/server-component-interaction';
 import type { NestedItemsDiff } from '@shared/utils/diff-nested-items';
 import { BehaviorSubject, filter } from 'rxjs';
 import { type LngLat, type YMapLocationRequest } from 'ymaps3';
@@ -177,6 +178,41 @@ export class MapComponent extends NestedItemsHostComponent<
     });
     if (MapComponent.yandexMapsStatus$.getValue() === 'pending') {
       this.initYandexMaps();
+    }
+  }
+
+  protected override executeLocalComponentAction(
+    interaction: ServerComponentInteraction,
+  ): void {
+    switch (interaction.class) {
+      case 'component-local-map-set-center': {
+        const payload = interaction.payload as {
+          latitude: number;
+          longitude: number;
+          altitude?: number;
+        };
+        this.currentCenter = this.yMapCenterFromLonLat(
+          payload.longitude,
+          payload.latitude,
+          payload.altitude,
+        );
+        this.applyLocation();
+        break;
+      }
+      case 'component-local-map-set-zoom':
+        this.currentZoom = (interaction.payload as { zoom: number }).zoom;
+        this.applyLocation();
+        break;
+      case 'component-local-map-zoom-in':
+        this.currentZoom =
+          (this.currentZoom ?? this.config.properties.zoom) + 1;
+        this.applyLocation();
+        break;
+      case 'component-local-map-zoom-out':
+        this.currentZoom =
+          (this.currentZoom ?? this.config.properties.zoom) - 1;
+        this.applyLocation();
+        break;
     }
   }
 

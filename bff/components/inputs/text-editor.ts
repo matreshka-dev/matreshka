@@ -14,6 +14,23 @@ import { TextEditorToggleItalicMessage } from "@matreshka/shared/messages/bff-to
 import { TextEditorToggleUnderlineMessage } from "@matreshka/shared/messages/bff-to-client/components/text-editor/text-editor-toggle-underline-message";
 import { TextEditorUndoMessage } from "@matreshka/shared/messages/bff-to-client/components/text-editor/text-editor-undo-message";
 import { Componentable, ComponentInstance, ContextRef } from "../../core";
+import type { ActionConfig } from "../../core/actions/action";
+import {
+  textEditorFormatBlockLocal,
+  textEditorInsertHtmlLocal,
+  textEditorInsertOrderedListLocal,
+  textEditorInsertUnorderedListLocal,
+  textEditorJustifyCenterLocal,
+  textEditorJustifyFullLocal,
+  textEditorJustifyLeftLocal,
+  textEditorJustifyRightLocal,
+  textEditorRedoLocal,
+  textEditorSuperscriptLocal,
+  textEditorToggleBoldLocal,
+  textEditorToggleItalicLocal,
+  textEditorToggleUnderlineLocal,
+  textEditorUndoLocal,
+} from "../../core/actions/component-local-actions";
 import { ServerComponentAction } from "../component";
 import {
   InputComponent,
@@ -93,6 +110,35 @@ export class TextEditor<
   > = DefaultInitConfigType<RefType>,
   PropertiesType extends TextEditorProperties = TextEditorProperties,
 > extends InputComponent<InitConfigType, PropertiesType> {
+  readonly local = {
+    insertHTML: (value: string, config?: ActionConfig) =>
+      textEditorInsertHtmlLocal(this, value, config),
+    toggleItalic: (config?: ActionConfig) =>
+      textEditorToggleItalicLocal(this, config),
+    toggleBold: (config?: ActionConfig) =>
+      textEditorToggleBoldLocal(this, config),
+    toggleUnderline: (config?: ActionConfig) =>
+      textEditorToggleUnderlineLocal(this, config),
+    undo: (config?: ActionConfig) => textEditorUndoLocal(this, config),
+    redo: (config?: ActionConfig) => textEditorRedoLocal(this, config),
+    superscript: (config?: ActionConfig) =>
+      textEditorSuperscriptLocal(this, config),
+    insertOrderedList: (config?: ActionConfig) =>
+      textEditorInsertOrderedListLocal(this, config),
+    insertUnorderedList: (config?: ActionConfig) =>
+      textEditorInsertUnorderedListLocal(this, config),
+    justifyLeft: (config?: ActionConfig) =>
+      textEditorJustifyLeftLocal(this, config),
+    justifyCenter: (config?: ActionConfig) =>
+      textEditorJustifyCenterLocal(this, config),
+    justifyRight: (config?: ActionConfig) =>
+      textEditorJustifyRightLocal(this, config),
+    justifyFull: (config?: ActionConfig) =>
+      textEditorJustifyFullLocal(this, config),
+    formatBlock: (tag: string, config?: ActionConfig) =>
+      textEditorFormatBlockLocal(this, tag, config),
+  };
+
   constructor(config: TextEditorInitConfig<any, RefType>);
   constructor(config: InitConfigType) {
     super(config);

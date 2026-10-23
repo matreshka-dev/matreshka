@@ -13,6 +13,7 @@ import { CameraDeviceChangeMessage } from '@shared/messages/client-to-bff/compon
 import { CameraQrCodeMessage } from '@shared/messages/client-to-bff/components/camera/camera-qr-code-message';
 import { ErrorMessage } from '@shared/messages/client-to-bff/error-message';
 import type { CameraConfig } from '@shared/types/camera-config';
+import type { ServerComponentInteraction } from '@shared/types/server-component-interaction';
 import { ServerComponent } from '../server-component';
 import { ServerComponentsListComponent } from '../server-components-list/server-components-list.component';
 
@@ -48,6 +49,18 @@ export class CameraComponent extends ServerComponent<CameraConfig> {
         });
       }
     });
+  }
+
+  protected override async executeLocalComponentAction(
+    interaction: ServerComponentInteraction,
+  ): Promise<void> {
+    if (interaction.class !== 'component-local-camera-switch') {
+      return;
+    }
+    const deviceId = (interaction.payload as { deviceId: string }).deviceId;
+    if (deviceId) {
+      await this.switchToCamera(deviceId);
+    }
   }
 
   override ngAfterViewInit(): void {

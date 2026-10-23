@@ -18,6 +18,13 @@ import {
   ComponentTreeNode,
   StandaloneComponent,
 } from "../core";
+import type { ActionConfig } from "../core/actions/action";
+import {
+  boardSetCenterLocal,
+  boardSetZoomLocal,
+  boardZoomInLocal,
+  boardZoomOutLocal,
+} from "../core/actions/component-local-actions";
 import {
   Component,
   ComponentInitConfig,
@@ -93,6 +100,15 @@ export class Board<
     itemLists: [] as ItemList<any, BoardItem>[],
   };
   private readonly itemListHostAdapter!: ItemListHost;
+
+  readonly local = {
+    setCenter: (center: BoardPoint, config?: ActionConfig) =>
+      boardSetCenterLocal(this, center, config),
+    setZoom: (zoom: number, config?: ActionConfig) =>
+      boardSetZoomLocal(this, zoom, config),
+    zoomIn: (config?: ActionConfig) => boardZoomInLocal(this, config),
+    zoomOut: (config?: ActionConfig) => boardZoomOutLocal(this, config),
+  };
 
   setCenter(center: BoardPoint, instances?: ComponentInstance[]) {
     return this.dispatchComponentCommand(

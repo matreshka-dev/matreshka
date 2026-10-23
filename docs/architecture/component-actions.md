@@ -22,3 +22,23 @@ Reliable sync (`ForEachSyncComponentsMessage`, `NestedItemsSyncMessage`) — о�
 ## Client
 
 - [`runComponentCommand`](../../client/src/app/components/server/server-component.ts) + [`runTargetedAction`](../../client/src/app/utils/targeted-action.ts).
+
+## Локальные component actions
+
+Для команд, которым не нужен round-trip на BFF, компоненты предоставляют `local` API:
+
+```ts
+button({
+  onClick: ({ instance }) =>
+    map.local.setZoom(12),
+});
+```
+
+`component.local.*` сериализует базовый id компонента и выполняет действие на всех его instances. У каждого `ComponentInstance` есть проксированный `instance.local.*`; он сериализует конкретный `instance.id` и выполняет действие только на этом instance:
+
+```ts
+onClick: ({ instance }) => instance.component.local.zoomIn();
+onClick: ({ instance }) => instance.local.zoomIn();
+```
+
+Локальные команды являются обычными `LocalAction` в `interactions`: клиент находит target через `ComponentHubService` и вызывает DOM/API без сообщения BFF и без ack. Параметры локальных команд совпадают с соответствующими серверными командами; у локального метода дополнительно может быть `ActionConfig` с conditions.
