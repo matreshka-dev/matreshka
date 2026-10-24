@@ -22,7 +22,13 @@ import { ClientToBffMessageReceivedMessage } from "@matreshka/shared/messages/cl
 import { parseClientToBffMessage } from "@matreshka/shared/messages/client-to-bff/parse-client-to-bff-message";
 import { ReliableDelivery } from "@matreshka/shared/messages/reliable-delivery";
 import { ClientState } from "@matreshka/shared/types/client-state";
-import { BehaviorSubject, filter, Subject } from "rxjs";
+import {
+  BehaviorSubject,
+  filter,
+  Observable,
+  Subject,
+  Subscription,
+} from "rxjs";
 import { z } from "zod/v4";
 import { Page } from "../components";
 import { App } from "../components/app";
@@ -36,11 +42,8 @@ import {
 } from "./types/component-tree-node";
 import { incomingMessageObserver } from "./utils/incoming-message-observer";
 
-const resolveOsNameFromUserAgent = getOsNameFromUserAgent as unknown as (
-  userAgent: string,
-) => OsName;
-const resolveDeviceTypeFromUserAgent =
-  getDeviceTypeFromUserAgent as unknown as (userAgent: string) => DeviceType;
+const resolveOsNameFromUserAgent = getOsNameFromUserAgent;
+const resolveDeviceTypeFromUserAgent = getDeviceTypeFromUserAgent;
 
 /**
  * Схема состояния клиента, определяющая структуру и типы данных, передаваемых от клиента.
@@ -169,6 +172,37 @@ export class Client {
    */
   detachTransport(): void {
     delete this.transportSend;
+  }
+
+  /**
+   * Ждёт transport-level receipt для outgoing reliable-сообщения.
+   * Если клиент уничтожается раньше receipt, ожидание завершается как terminal.
+   */
+  waitForDelivery(message: AnyBffToClientMessage): Observable<void> {
+    return new Observable<void>((subscriber) => {
+      const receiptSubscription = this.reliableDelivery
+        .waitForReceipt(message)
+        .subscribe({
+          next: () => {
+            subscriber.next(undefined);
+            subscriber.complete();
+          },
+          error: (error) => subscriber.error(error),
+        });
+
+      const destroySubscription: Subscription = this.destroy$.subscribe(() => {
+        if (subscriber.closed) {
+          return;
+        }
+        subscriber.next(undefined);
+        subscriber.complete();
+      });
+
+      return () => {
+        receiptSubscription.unsubscribe();
+        destroySubscription.unsubscribe();
+      };
+    });
   }
 
   /**

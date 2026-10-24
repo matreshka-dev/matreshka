@@ -14,6 +14,7 @@ import {
   BehaviorSubject,
   EMPTY,
   filter,
+  forkJoin,
   Observable,
   ReplaySubject,
   Subscription,
@@ -173,6 +174,8 @@ export class Context<T extends JsonObject> {
   private subscriptions = new Subscription();
   private dataSubscription?: Subscription;
   private clientSubscriptions = new Map<Client, Subscription>();
+  /** Серверный set/replace уже сам отправил diff; в subscribeToDataChanges повторять не нужно. */
+  private skipNextDataSync = false;
 
   private assertNotDestroyed() {
     if (this.destroyed) {
@@ -332,17 +335,16 @@ export class Context<T extends JsonObject> {
                 z.strictObject({ key: z.string(), value: z.unknown() }),
               );
               const changes = payloadSchema.parse(unsafeMessage.payload);
-              const data = this.data$!.getValue();
+              const patch: Partial<Record<string, unknown>> = {};
               changes.forEach((change) => {
                 if (this.schema) {
                   const keySchema = zodDeepPick(this.schema, change.key);
                   keySchema.parse(change.value);
                 }
-                // @ts-expect-error Проверка типа происходит при помощи zod, так что ошибка не актуальна
-                setObjectProperty(data, change.key, change.value);
+                patch[change.key] = change.value;
               });
               this.dataChangedByClient = client;
-              this.replace(data);
+              this.set(patch as ContextPathPatch<T>);
               return;
             }
           }),
@@ -356,6 +358,11 @@ export class Context<T extends JsonObject> {
     this.dataSubscription?.unsubscribe();
     this.dataSubscription = this.data$!.subscribe((data) => {
       if (this.destroyed) {
+        return;
+      }
+      if (this.skipNextDataSync) {
+        this.skipNextDataSync = false;
+        prevData = structuredClone(data);
         return;
       }
       // Во время init() не шлём diff (сохраняем текущую семантику: первая "реальная" установка данных не должна рассылаться как изменения).
@@ -386,6 +393,68 @@ export class Context<T extends JsonObject> {
       this.dataChangedByClient = undefined;
       prevData = structuredClone(data);
     });
+  }
+
+  private completeImmediately(): Observable<void> {
+    const result$ = new ReplaySubject<void>(1);
+    result$.next(undefined);
+    result$.complete();
+    return result$.asObservable();
+  }
+
+  private recipientsForDiff(): Client[] {
+    const recipients: Client[] = [];
+    getRegistryEntry(this.id)?.clients.forEach((_, client) => {
+      if (this.dataChangedByClient !== client) {
+        recipients.push(client);
+      }
+    });
+    return recipients;
+  }
+
+  private emitDiffAndWait(diff: Record<string, unknown>): Observable<void> {
+    const recipients = this.recipientsForDiff();
+    this.dataChangedByClient = undefined;
+    if (Object.keys(diff).length === 0 || recipients.length === 0) {
+      return this.completeImmediately();
+    }
+
+    const payload = Object.entries(diff).map(([key, value]) => ({
+      key,
+      value,
+    }));
+    const result$ = new ReplaySubject<void>(1);
+
+    forkJoin(
+      recipients.map((client) => {
+        const message = new BffToClientContextValuesMessage(this.id, payload);
+        const delivery$ = client.waitForDelivery(message);
+        client.outcomingMessage$.next(message);
+        return delivery$;
+      }),
+    ).subscribe({
+      next: () => {
+        result$.next(undefined);
+        result$.complete();
+      },
+      error: (error) => result$.error(error),
+    });
+
+    return result$.asObservable();
+  }
+
+  private updateDataAndWait(mutator: (currentData: T) => T): Observable<void> {
+    this.assertNotDestroyed();
+    this.assertInitialized();
+
+    const prevData = structuredClone(this.data$.getValue());
+    const nextData = mutator(this.data$.getValue());
+    const diff = objectsDiff(prevData, nextData);
+
+    this.skipNextDataSync = true;
+    this.data$.next(nextData);
+
+    return this.emitDiffAndWait(diff);
   }
 
   /**
@@ -492,29 +561,35 @@ export class Context<T extends JsonObject> {
    * Предпочтительный способ правки нескольких полей на BFF. Ключ с явным
    * `undefined` применяется (отличие от отсутствующего ключа в patch).
    * Для целого снимка после load — {@link replace}.
+   *
+   * Возвращает hot {@link Observable}: update стартует сразу, completion —
+   * receipt всех фактических адресатов diff либо мгновенный success, если
+   * слать нечего. См. `docs/architecture/context-update-delivery.md`.
    */
-  set(patch: ContextPathPatch<T>): void {
-    this.assertNotDestroyed();
-    this.assertInitialized();
-    const data = this.data$.getValue();
-    for (const path of Object.keys(patch) as Paths<T>[]) {
-      // hasOwnProperty: «loading: undefined» пишем, пропущенный ключ — не трогаем.
-      if (Object.prototype.hasOwnProperty.call(patch, path)) {
-        setObjectProperty(data, path, patch[path] as PathValue<T, typeof path>);
+  set(patch: ContextPathPatch<T>): Observable<void> {
+    return this.updateDataAndWait((data) => {
+      for (const path of Object.keys(patch) as Paths<T>[]) {
+        // hasOwnProperty: «loading: undefined» пишем, пропущенный ключ — не трогаем.
+        if (Object.prototype.hasOwnProperty.call(patch, path)) {
+          setObjectProperty(
+            data,
+            path,
+            patch[path] as PathValue<T, typeof path>,
+          );
+        }
       }
-    }
-    this.data$.next(data);
+      return data;
+    });
   }
 
   /**
    * Полная замена корня контекста (результат load, `{ ...loaded, field }`).
    *
    * Не merge patch: переданный объект становится новым состоянием целиком.
+   * Возвращает тот же hot {@link Observable}, что и {@link set}.
    */
-  replace(data: T): void {
-    this.assertNotDestroyed();
-    this.assertInitialized();
-    this.data$.next(data);
+  replace(data: T): Observable<void> {
+    return this.updateDataAndWait(() => data);
   }
 
   /**

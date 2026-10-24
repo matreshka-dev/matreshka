@@ -1,5 +1,6 @@
-import { BehaviorSubject } from "rxjs";
+import { BehaviorSubject, Subject } from "rxjs";
 import { describe, expect, it, vi } from "vitest";
+import type { Client } from "../client";
 import { Context } from "./context";
 import { ContextRef } from "./context-ref";
 
@@ -83,15 +84,26 @@ describe("Context.ref и ContextRef.ref", () => {
     await ctx.init();
 
     const nameRef = ctx.ref("user").ref("name");
-    nameRef.set("Carol");
+    let nextCalls = 0;
+    let completed = false;
+    nameRef.set("Carol").subscribe({
+      next: () => {
+        nextCalls += 1;
+      },
+      complete: () => {
+        completed = true;
+      },
+    });
     expect(nameRef.get()).toBe("Carol");
+    expect(nextCalls).toBe(1);
+    expect(completed).toBe(true);
 
     const loadingRef = ctx.ref("loading");
     loadingRef.set(true);
     expect(loadingRef.get()).toBe(true);
   });
 
-  it("ContextRef.set не должен бросать после destroy контекста", async () => {
+  it("ContextRef.set после destroy бросает ту же ошибку, что Context.set", async () => {
     const ctx = new Context<{ flag: boolean }>({
       data: async () => ({ flag: false }),
     });
@@ -101,7 +113,56 @@ describe("Context.ref и ContextRef.ref", () => {
     const flagRef = ctx.ref("flag");
     ctx.destroy();
 
-    expect(() => flagRef.set(true)).not.toThrow();
+    expect(() => flagRef.set(true)).toThrow(/has been destroyed/);
+  });
+
+  it("ContextRef.set ждёт receipt так же, как Context.set", async () => {
+    const waiters: Subject<void>[] = [];
+    const sentMessages: unknown[] = [];
+    const outcomingMessage$ = new Subject<unknown>();
+    outcomingMessage$.subscribe((message) => sentMessages.push(message));
+    const client = {
+      destroy$: new Subject<void>(),
+      outcomingMessage$,
+      incomingMessage$: new Subject<unknown>(),
+      error$: { next: () => undefined },
+      waitForDelivery: vi.fn(() => {
+        const waiter = new Subject<void>();
+        waiters.push(waiter);
+        return waiter.asObservable();
+      }),
+    } as unknown as Client;
+
+    const ctx = new Context<{ flag: boolean }>({
+      data: async () => ({ flag: false }),
+    });
+    ctx.authorizeClient(client);
+    await ctx.init();
+
+    let nextCalls = 0;
+    let completed = false;
+    ctx
+      .ref("flag")
+      .set(true)
+      .subscribe({
+        next: () => {
+          nextCalls += 1;
+        },
+        complete: () => {
+          completed = true;
+        },
+      });
+
+    expect(ctx.get("flag")).toBe(true);
+    expect(sentMessages).toHaveLength(1);
+    expect(nextCalls).toBe(0);
+    expect(completed).toBe(false);
+
+    waiters[0].next(undefined);
+    waiters[0].complete();
+
+    expect(nextCalls).toBe(1);
+    expect(completed).toBe(true);
   });
 });
 

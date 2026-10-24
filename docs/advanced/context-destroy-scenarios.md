@@ -180,7 +180,7 @@ export class MyListWidget extends Component {
 
 ## 5. Async после ухода со страницы
 
-`ref.set()` после `destroy()` **молча игнорируется** — безопасно в `finally` после `await`. Прямые `get` / `set` / `replace` на уничтоженном контексте на BFF бросают ошибку; в обработчиках после async проверяйте `isDestroyed()`.
+`get` / `set` / `replace` и `ref.set()` после `destroy()` на BFF бросают ошибку; в обработчиках после async проверяйте `isDestroyed()`.
 
 ## Связь с другими документами
 

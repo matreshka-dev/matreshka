@@ -361,4 +361,5 @@ sequenceDiagram
 
 - [`protocol.md`](protocol.md) — общий протокол и форма wire-сообщений.
 - [`operations.md`](operations.md) — reconnect, lifecycle клиента и ограничения runtime.
+- [`context-update-delivery.md`](context-update-delivery.md) — как `Context.set` / `replace` ждут receipt через `ReliableDelivery.waitForReceipt`.
 - [`README.md`](README.md) — оглавление архитектурных документов.

@@ -1,4 +1,4 @@
-import { Subscription, timer } from "rxjs";
+import { Observable, ReplaySubject, Subscription, timer } from "rxjs";
 import {
   BffToClientMessage,
   TargetedBffToClientMessage,
@@ -88,6 +88,8 @@ export class ReliableDelivery<
 > {
   /** Исходящие reliable-сообщения, для которых еще не пришло подтверждение. */
   private readonly pending = new Map<string, PendingEntry<OUTGOING>>();
+  /** Подписчики, ожидающие receipt для конкретного reliable outgoing message. */
+  private readonly receiptSubjects = new Map<string, ReplaySubject<void>>();
   /**
    * Набор уже обработанных входящих `message.id`.
    *
@@ -170,6 +172,30 @@ export class ReliableDelivery<
       sentAt: Date.now(),
       timer: this.paused ? new Subscription() : this.createRetryTimer(message),
     });
+  }
+
+  /**
+   * Observable, который эмитит один `void` после receipt для этого outgoing reliable-message.
+   *
+   * Внутренний контракт: ожидание регистрируется до фактической отправки сообщения.
+   * Для non-reliable сообщений завершается сразу.
+   */
+  waitForReceipt(message: OUTGOING): Observable<void> {
+    if (!isReliableMessage(message)) {
+      const result$ = new ReplaySubject<void>(1);
+      result$.next(undefined);
+      result$.complete();
+      return result$.asObservable();
+    }
+
+    const existing = this.receiptSubjects.get(message.id);
+    if (existing) {
+      return existing.asObservable();
+    }
+
+    const subject = new ReplaySubject<void>(1);
+    this.receiptSubjects.set(message.id, subject);
+    return subject.asObservable();
   }
 
   /**
@@ -260,6 +286,10 @@ export class ReliableDelivery<
       entry.timer.unsubscribe();
     }
     this.pending.clear();
+    for (const subject of this.receiptSubjects.values()) {
+      subject.complete();
+    }
+    this.receiptSubjects.clear();
     this.receivedIds.clear();
     this.receivedOrder.length = 0;
   }
@@ -291,6 +321,10 @@ export class ReliableDelivery<
       // повторы, но не должен искажать RTT текущей попытки.
       this.config.ping$.next(Date.now() - pendingEntry.sentAt);
     }
+
+    this.receiptSubjects.get(message.payload.id)?.next(undefined);
+    this.receiptSubjects.get(message.payload.id)?.complete();
+    this.receiptSubjects.delete(message.payload.id);
   }
 
   /**
@@ -348,7 +382,7 @@ export class ReliableDelivery<
 
 /** Проверяет, требует ли сообщение подтверждения и retry-логики. */
 export function isReliableMessage(
-  message: AnyIncomingMessage | AnyOutgoingMessage,
+  message: AnyIncomingMessage,
 ): message is AnyReliableMessage {
   return (
     isReliableBffToClientMessage(message) ||
@@ -358,7 +392,7 @@ export function isReliableMessage(
 
 /** Проверяет, можно ли использовать сообщение для расчета RTT/ping. */
 export function isPingableMessage(
-  message: AnyIncomingMessage | AnyOutgoingMessage,
+  message: AnyIncomingMessage,
 ): message is AnyPingableMessage {
   return (
     message instanceof PingableBffToClientMessage ||

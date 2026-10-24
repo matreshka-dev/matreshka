@@ -15,7 +15,7 @@
 
 1. **Создание** — `new Context({ data, schema, … })`, регистрация id в registry.
 2. **Привязка клиента** — `authorizeClient` / сериализация ref в дереве компонентов; при необходимости `init()` и **`context-init`** (полный snapshot).
-3. **Работа** — изменения через `set` / `replace` / `ref.set`, исходящие **`context-values`** (diff) всем привязанным клиентам; входящие **`context-values`** от клиента (с валидацией schema).
+3. **Работа** — изменения через `set` / `replace` / `ref.set`, исходящие **`context-values`** (diff) всем привязанным клиентам; входящие **`context-values`** от клиента (с валидацией schema). Семантика completion у server-side update описана отдельно в [context-update-delivery.md](context-update-delivery.md).
 4. **Использование entry** — page/dialog держит instances; `stopUsing$` entry часто совпадает с моментом, когда контекст больше не нужен серверу (см. [сценарии destroy](../advanced/context-destroy-scenarios.md)).
 5. **Уничтожение на сервере** — `context.destroy()`:
    - контекст помечается destroyed, **недоступен** для `get`, `set`, `replace`, `watch`, новых ref в сериализации;
@@ -116,6 +116,7 @@ Entry-scoped контексты нужно завершать на сервер�
 ## Связь с другими документами
 
 - [protocol.md](protocol.md) — `context-init`, `context-values`; добавьте в mindmap **`context-destroy`** как targeted-сообщение с `target = context-id`.
+- [context-update-delivery.md](context-update-delivery.md) — hot `Observable<void>` для `set` / `replace` / `ref.set`, receipt и wait-group адресатов.
 - [client-rendering.md](client-rendering.md) — `ContextHub`, `ComponentHub`, `ready$`, граф `contextDependencies`.
 - [guides/context.md](../guides/context.md) — создание контекста, `ref`, preload/lazy;
 - [context-destroy-scenarios.md](../advanced/context-destroy-scenarios.md) — сценарии и `destroy()` в приложении.

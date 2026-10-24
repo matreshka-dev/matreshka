@@ -131,6 +131,85 @@ describe("ReliableDelivery", () => {
     expect(ping$.getValue()).toBe(123);
   });
 
+  it("waitForReceipt эмитит success после receipt для outgoing reliable-message", () => {
+    const ping$ = new BehaviorSubject<number | undefined>(undefined);
+    let delivery!: ReliableDelivery<BffToClientMessage, ClientToBffMessage>;
+
+    const emitOutgoing = (message: ClientToBffMessage) => {
+      delivery.observeOutgoing(message);
+    };
+
+    delivery = new ReliableDelivery({
+      emitOutgoing,
+      createReceipt: (payload) =>
+        new ClientToBffMessageReceivedMessage(payload),
+      isReceiptMessage: (message) =>
+        message instanceof BffToClientMessageReceivedMessage,
+      ping$,
+    });
+
+    const outgoing = new AppDestroyEntryInstanceMessage({ id: "entry-wait" });
+    let nextCalls = 0;
+    let completed = false;
+
+    delivery.waitForReceipt(outgoing).subscribe({
+      next: () => {
+        nextCalls += 1;
+      },
+      complete: () => {
+        completed = true;
+      },
+    });
+
+    emitOutgoing(outgoing);
+    expect(nextCalls).toBe(0);
+    expect(completed).toBe(false);
+
+    delivery.handleIncoming(
+      new BffToClientMessageReceivedMessage({
+        id: outgoing.id,
+        attempt: outgoing.attempt,
+      }),
+    );
+
+    expect(nextCalls).toBe(1);
+    expect(completed).toBe(true);
+  });
+
+  it("waitForReceipt сразу завершается для non-reliable сообщения", () => {
+    const ping$ = new BehaviorSubject<number | undefined>(undefined);
+    const delivery = new ReliableDelivery<
+      BffToClientMessage,
+      ClientToBffMessage
+    >({
+      emitOutgoing: () => {},
+      createReceipt: (payload) =>
+        new ClientToBffMessageReceivedMessage(payload),
+      isReceiptMessage: (message) =>
+        message instanceof BffToClientMessageReceivedMessage,
+      ping$,
+    });
+
+    const outgoing = new ClientToBffMessageReceivedMessage({
+      id: "not-reliable",
+      attempt: 1,
+    });
+    let nextCalls = 0;
+    let completed = false;
+
+    delivery.waitForReceipt(outgoing).subscribe({
+      next: () => {
+        nextCalls += 1;
+      },
+      complete: () => {
+        completed = true;
+      },
+    });
+
+    expect(nextCalls).toBe(1);
+    expect(completed).toBe(true);
+  });
+
   it("pause останавливает retry до resume", () => {
     vi.useFakeTimers();
 
@@ -372,5 +451,59 @@ describe("Client reliable delivery", () => {
       id: incoming.id,
       attempt: incoming.attempt,
     });
+  });
+
+  it("waitForDelivery завершается после receipt исходящего reliable-сообщения", () => {
+    const client = new Client();
+    const outgoing = new AppBackMessage();
+    let nextCalls = 0;
+    let completed = false;
+
+    client.waitForDelivery(outgoing).subscribe({
+      next: () => {
+        nextCalls += 1;
+      },
+      complete: () => {
+        completed = true;
+      },
+    });
+    client.outcomingMessage$.next(outgoing);
+
+    expect(nextCalls).toBe(0);
+    expect(completed).toBe(false);
+
+    client.newMessage(
+      JSON.stringify(
+        new ClientToBffMessageReceivedMessage({
+          id: outgoing.id,
+          attempt: outgoing.attempt,
+        }).toJSON(),
+      ),
+    );
+
+    expect(nextCalls).toBe(1);
+    expect(completed).toBe(true);
+    client.destroy();
+  });
+
+  it("waitForDelivery завершается при destroy клиента", () => {
+    const client = new Client();
+    const outgoing = new AppBackMessage();
+    let nextCalls = 0;
+    let completed = false;
+
+    client.waitForDelivery(outgoing).subscribe({
+      next: () => {
+        nextCalls += 1;
+      },
+      complete: () => {
+        completed = true;
+      },
+    });
+    client.outcomingMessage$.next(outgoing);
+    client.destroy();
+
+    expect(nextCalls).toBe(1);
+    expect(completed).toBe(true);
   });
 });

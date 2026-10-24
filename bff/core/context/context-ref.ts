@@ -1,4 +1,5 @@
 import { JsonObject } from "@matreshka/shared/types/json";
+import { Observable } from "rxjs";
 import { Paths, PathValue } from "ts-essentials";
 import { ActionConfig } from "../actions/action";
 import { decContextValue, DecContextValue } from "../actions/dec-context-value";
@@ -176,13 +177,11 @@ export class ContextRef<
 
   /**
    * Запись значения по текущему пути через {@link Context.set}.
-   * Если контекст уже уничтожен, вызов игнорируется (без исключения).
+   * Hot Observable стартует в момент вызова. Уничтоженный контекст —
+   * та же ошибка, что у {@link Context.set}.
    */
-  set(value: PathValue<ContextType, PathType>): void {
-    if (this.context.isDestroyed()) {
-      return;
-    }
-    this.context.set({
+  set(value: PathValue<ContextType, PathType>): Observable<void> {
+    return this.context.set({
       [this.path]: value,
     });
   }
