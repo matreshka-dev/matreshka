@@ -18,6 +18,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { DimensionalUnit } from '@shared/enums/dimensional-unit';
 import {
   ComponentCommandMessage,
   isComponentCommandMessage,
@@ -220,25 +221,13 @@ export abstract class ServerComponent<T extends ServerComponentConfig>
   }
 
   calculateStyles() {
-    // flexItem при overlays в server-component-wrapper задаётся только на overlay-host, не на хосте stack/surface.
-    //
-    // Цепочка: у компонента с properties.overlays wrapper вставляет app-overlays (display: contents), чтобы
-    // flex-родитель (row/column entry-host и т.д.) видел реальный бокс, а не «прозрачный» outlet. Стили
-    // flex-item с конфига parent дублируются на div.server-components-list__overlay-host — см.
-    // OverlaysComponent.overlayHostFlexStyles (тот же calculateSizeStyles, что здесь).
-    //
-    // overlay-host — flex-контейнер с классом .stack (flex-direction: column) для якорных overlays и
-    // растягивания ng-content. Если оставить flexItem и на хосте app-stack/surface, basis/grow/shrink
-    // применятся дважды в разных flex-контекстах: сначала вдоль главной оси внешнего родителя (на host —
-    // правильно, напр. ширина в row), затем снова вдоль главной оси overlay-host (column — уже высота).
-    // Типичный баг: row + surface { flexItem: { basis: 430 }, overlays: [...] } → модалка 430px по ширине
-    // и ~430px «потолок» по высоте.
-    //
-    // Внутренний stack без flexItem на хосте: ширина/высота внутри overlay-host — cross-axis stretch column
-    // и вложенная вёрстка; внешний размер по-прежнему задаёт overlay-host. Dialog/Popover с overlays
-    // в wrapper не попадают (shouldRenderOverlaysInWrapper) — у них свой корень и app-overlays на entry.
+    // Если component внутри overlays, то растгиваем его на всю доступную ширину/высоту
     const flexItem = shouldRenderOverlaysInWrapper(this.config)
-      ? undefined
+      ? {
+          basis: { unit: DimensionalUnit.Percent, value: 0 },
+          grow: 1,
+          shrink: 1,
+        }
       : this.config.properties?.flexItem;
     const sizeStyles = calculateSizeStyles({ flexItem });
     const scaleStyles = calculateScaleStyles({
