@@ -579,7 +579,8 @@ export abstract class Component<
             );
             if (!instance) {
               client.error$.next(
-                "Component interaction call, component instance not found",
+                "Component interaction call, component instance not found. Component class: " +
+                  this.class(),
               );
               return;
             }

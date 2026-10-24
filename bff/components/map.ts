@@ -152,14 +152,14 @@ export class Map<
   zoomIn(instances?: ComponentInstance[]) {
     return this.dispatchComponentCommand(
       instances,
-      (target, actionScope) => new MapZoomInMessage(target, actionScope),
+      (target, actionScope) => new MapZoomInMessage(target, { actionScope }),
     );
   }
 
   zoomOut(instances?: ComponentInstance[]) {
     return this.dispatchComponentCommand(
       instances,
-      (target, actionScope) => new MapZoomOutMessage(target, actionScope),
+      (target, actionScope) => new MapZoomOutMessage(target, { actionScope }),
     );
   }
 

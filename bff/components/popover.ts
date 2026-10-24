@@ -105,7 +105,7 @@ export class Popover<
   close(instances?: ComponentInstance[]) {
     return this.dispatchComponentCommand(
       instances,
-      (target, actionScope) => new PopoverCloseMessage(target, actionScope),
+      (target, actionScope) => new PopoverCloseMessage(target, { actionScope }),
     );
   }
 

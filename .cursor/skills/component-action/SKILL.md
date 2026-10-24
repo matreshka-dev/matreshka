@@ -67,7 +67,7 @@ this.componentCommandMessages$.subscribe((message) => {
 
 ## Чеклист новой команды
 
-- [ ] `shared/messages/bff-to-client/components/...`: класс extends `PingableComponentCommandMessage`, `actionScope` в конструкторе; register.
+- [ ] `shared/messages/bff-to-client/components/...`: класс extends `PingableComponentCommandMessage`, конструктор `(target, payload)` с `ComponentCommandActionPayload`; register.
 - [ ] `bff/components/*.ts`: публичный метод → `return this.dispatchComponentCommand(...)`, не `broadcast` / `outcomingMessage$.next` без Observable.
 - [ ] `client/.../server/**/*.component.ts`: ветка в `componentCommandMessages$` + `runComponentCommand`.
 - [ ] `docs/reference/components-list.md` (+ `component-actions.md` при новой семантике завершения).
@@ -83,10 +83,10 @@ this.componentCommandMessages$.subscribe((message) => {
 
 ## Связь с platform-action
 
-| | Platform | Component |
-| --- | --- | --- |
-| Correlation | `target` = `platform-action-<uuid>` | `actionScope` = `component-action-<uuid>` |
-| Адресация команды | `target` на BffToClient | `target` = instance id |
-| BFF helper | `targetedClientPlatformAction` | `targetedClientComponentAction` / `dispatchComponentCommand` |
-| Client helper | `runPlatformAction` | `runComponentCommand` |
-| Terminal success | `ActionCompletedMessage` | то же |
+|                   | Platform                            | Component                                                    |
+| ----------------- | ----------------------------------- | ------------------------------------------------------------ |
+| Correlation       | `target` = `platform-action-<uuid>` | `actionScope` = `component-action-<uuid>`                    |
+| Адресация команды | `target` на BffToClient             | `target` = instance id                                       |
+| BFF helper        | `targetedClientPlatformAction`      | `targetedClientComponentAction` / `dispatchComponentCommand` |
+| Client helper     | `runPlatformAction`                 | `runComponentCommand`                                        |
+| Terminal success  | `ActionCompletedMessage`            | то же                                                        |

@@ -129,14 +129,14 @@ export class Board<
   zoomIn(instances?: ComponentInstance[]) {
     return this.dispatchComponentCommand(
       instances,
-      (target, actionScope) => new BoardZoomInMessage(target, actionScope),
+      (target, actionScope) => new BoardZoomInMessage(target, { actionScope }),
     );
   }
 
   zoomOut(instances?: ComponentInstance[]) {
     return this.dispatchComponentCommand(
       instances,
-      (target, actionScope) => new BoardZoomOutMessage(target, actionScope),
+      (target, actionScope) => new BoardZoomOutMessage(target, { actionScope }),
     );
   }
 

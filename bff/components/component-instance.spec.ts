@@ -661,6 +661,14 @@ describe("Component instance: destroy-entry-instance", () => {
   });
 });
 
+const COMPONENT_INSTANCE_NOT_FOUND_ERROR =
+  "Component interaction call, component instance not found";
+
+function expectComponentInstanceNotFoundError(errors: unknown[]) {
+  expect(errors).toHaveLength(1);
+  expect(errors[0]).toContain(COMPONENT_INSTANCE_NOT_FOUND_ERROR);
+}
+
 describe("Component instance: ошибки interaction", () => {
   it("неизвестный scope пишет ошибку", () => {
     const client = createClient();
@@ -672,9 +680,7 @@ describe("Component instance: ошибки interaction", () => {
 
     sendComponentClick(client, `${btn.id}-999`);
 
-    expect(errors).toContain(
-      "Component interaction call, component instance not found",
-    );
+    expectComponentInstanceNotFoundError(errors);
   });
 
   it("клик по снятому instance пишет ошибку", () => {
@@ -691,9 +697,7 @@ describe("Component instance: ошибки interaction", () => {
     sendComponentClick(client, instance.id);
 
     expect(clicked).toHaveLength(0);
-    expect(errors).toContain(
-      "Component interaction call, component instance not found",
-    );
+    expectComponentInstanceNotFoundError(errors);
   });
 
   it("hide по снятому instance пишет ошибку", () => {
@@ -708,9 +712,7 @@ describe("Component instance: ошибки interaction", () => {
     client.error$.subscribe((error) => errors.push(error));
     sendComponentHide(client, instance.id);
 
-    expect(errors).toContain(
-      "Component interaction call, component instance not found",
-    );
+    expectComponentInstanceNotFoundError(errors);
   });
 
   it("async onClick reject уходит в client.error$, а не в unhandledRejection", async () => {

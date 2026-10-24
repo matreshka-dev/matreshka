@@ -175,7 +175,7 @@ export class TextEditor<
     return this.dispatchComponentCommand(
       instances,
       (target, actionScope) =>
-        new TextEditorToggleItalicMessage(target, actionScope),
+        new TextEditorToggleItalicMessage(target, { actionScope }),
     );
   }
 
@@ -186,7 +186,7 @@ export class TextEditor<
     return this.dispatchComponentCommand(
       instances,
       (target, actionScope) =>
-        new TextEditorToggleBoldMessage(target, actionScope),
+        new TextEditorToggleBoldMessage(target, { actionScope }),
     );
   }
 
@@ -197,7 +197,7 @@ export class TextEditor<
     return this.dispatchComponentCommand(
       instances,
       (target, actionScope) =>
-        new TextEditorToggleUnderlineMessage(target, actionScope),
+        new TextEditorToggleUnderlineMessage(target, { actionScope }),
     );
   }
 
@@ -207,7 +207,7 @@ export class TextEditor<
   undo(instances?: ComponentInstance[]) {
     return this.dispatchComponentCommand(
       instances,
-      (target, actionScope) => new TextEditorUndoMessage(target, actionScope),
+      (target, actionScope) => new TextEditorUndoMessage(target, { actionScope }),
     );
   }
 
@@ -217,7 +217,7 @@ export class TextEditor<
   redo(instances?: ComponentInstance[]) {
     return this.dispatchComponentCommand(
       instances,
-      (target, actionScope) => new TextEditorRedoMessage(target, actionScope),
+      (target, actionScope) => new TextEditorRedoMessage(target, { actionScope }),
     );
   }
 
@@ -228,7 +228,7 @@ export class TextEditor<
     return this.dispatchComponentCommand(
       instances,
       (target, actionScope) =>
-        new TextEditorSuperscriptMessage(target, actionScope),
+        new TextEditorSuperscriptMessage(target, { actionScope }),
     );
   }
 
@@ -239,7 +239,7 @@ export class TextEditor<
     return this.dispatchComponentCommand(
       instances,
       (target, actionScope) =>
-        new TextEditorInsertOrderedListMessage(target, actionScope),
+        new TextEditorInsertOrderedListMessage(target, { actionScope }),
     );
   }
 
@@ -250,7 +250,7 @@ export class TextEditor<
     return this.dispatchComponentCommand(
       instances,
       (target, actionScope) =>
-        new TextEditorInsertUnorderedListMessage(target, actionScope),
+        new TextEditorInsertUnorderedListMessage(target, { actionScope }),
     );
   }
 
@@ -261,7 +261,7 @@ export class TextEditor<
     return this.dispatchComponentCommand(
       instances,
       (target, actionScope) =>
-        new TextEditorJustifyLeftMessage(target, actionScope),
+        new TextEditorJustifyLeftMessage(target, { actionScope }),
     );
   }
 
@@ -272,7 +272,7 @@ export class TextEditor<
     return this.dispatchComponentCommand(
       instances,
       (target, actionScope) =>
-        new TextEditorJustifyCenterMessage(target, actionScope),
+        new TextEditorJustifyCenterMessage(target, { actionScope }),
     );
   }
 
@@ -283,7 +283,7 @@ export class TextEditor<
     return this.dispatchComponentCommand(
       instances,
       (target, actionScope) =>
-        new TextEditorJustifyRightMessage(target, actionScope),
+        new TextEditorJustifyRightMessage(target, { actionScope }),
     );
   }
 
@@ -294,7 +294,7 @@ export class TextEditor<
     return this.dispatchComponentCommand(
       instances,
       (target, actionScope) =>
-        new TextEditorJustifyFullMessage(target, actionScope),
+        new TextEditorJustifyFullMessage(target, { actionScope }),
     );
   }
 

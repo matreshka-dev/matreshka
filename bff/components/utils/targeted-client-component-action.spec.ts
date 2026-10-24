@@ -20,7 +20,7 @@ describe("targetedClientComponentAction", () => {
     await new Promise<void>((resolve, reject) => {
       targetedClientComponentAction(
         client,
-        (actionScope) => new DialogCloseMessage("dialog-1", actionScope),
+        (actionScope) => new DialogCloseMessage("dialog-1", { actionScope }),
       ).subscribe({
         next: () => resolve(),
         error: reject,
@@ -42,7 +42,7 @@ describe("targetedClientComponentAction", () => {
     const error = await new Promise<Error>((resolve) => {
       targetedClientComponentAction(
         client,
-        (actionScope) => new DialogCloseMessage("dialog-1", actionScope),
+        (actionScope) => new DialogCloseMessage("dialog-1", { actionScope }),
       ).subscribe({
         error: (err) => resolve(err as Error),
       });

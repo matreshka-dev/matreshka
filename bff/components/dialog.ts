@@ -173,7 +173,7 @@ export class Dialog<
   close(instances?: ComponentInstance[]) {
     return this.dispatchComponentCommand(
       instances,
-      (target, actionScope) => new DialogCloseMessage(target, actionScope),
+      (target, actionScope) => new DialogCloseMessage(target, { actionScope }),
     );
   }
 
