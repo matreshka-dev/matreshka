@@ -14,7 +14,6 @@ import {
   BehaviorSubject,
   EMPTY,
   filter,
-  forkJoin,
   Observable,
   ReplaySubject,
   Subscription,
@@ -36,6 +35,7 @@ import {
 } from "../actions/toggle-context-value";
 import type { Client } from "../client";
 import { currentClient } from "../client-context";
+import { ContextUpdateDelivery } from "../types/context-update-delivery";
 import { ContextValueOrRef } from "../types/context-value-ref";
 import { zodDeepPick } from "../utils/deep-pick";
 import { incomingMessageObserver } from "../utils/incoming-message-observer";
@@ -43,6 +43,8 @@ import { objectsDiff } from "../utils/objects-diff";
 import { replaceContextKeys } from "../utils/replace-context-keys";
 import { setObjectProperty } from "../utils/set-object-property";
 import { ContextRef } from "./context-ref";
+
+export type { ContextUpdateDelivery } from "../types/context-update-delivery";
 
 /** Частичное обновление данных контекста по dotted-путям (см. {@link Context.set}). */
 export type ContextPathPatch<T extends JsonObject> = Partial<{
@@ -395,9 +397,9 @@ export class Context<T extends JsonObject> {
     });
   }
 
-  private completeImmediately(): Observable<void> {
-    const result$ = new ReplaySubject<void>(1);
-    result$.next(undefined);
+  private completeImmediately(): Observable<ContextUpdateDelivery> {
+    const result$ = new ReplaySubject<ContextUpdateDelivery>(1);
+    result$.next({ delivered: [] });
     result$.complete();
     return result$.asObservable();
   }
@@ -412,7 +414,9 @@ export class Context<T extends JsonObject> {
     return recipients;
   }
 
-  private emitDiffAndWait(diff: Record<string, unknown>): Observable<void> {
+  private emitDiffAndWait(
+    diff: Record<string, unknown>,
+  ): Observable<ContextUpdateDelivery> {
     const recipients = this.recipientsForDiff();
     this.dataChangedByClient = undefined;
     if (Object.keys(diff).length === 0 || recipients.length === 0) {
@@ -423,27 +427,50 @@ export class Context<T extends JsonObject> {
       key,
       value,
     }));
-    const result$ = new ReplaySubject<void>(1);
+    const result$ = new ReplaySubject<ContextUpdateDelivery>(recipients.length);
+    const delivered: Client[] = [];
+    let finalized = false;
+    const subscriptions = new Subscription();
 
-    forkJoin(
-      recipients.map((client) => {
-        const message = new BffToClientContextValuesMessage(this.id, payload);
-        const delivery$ = client.waitForDelivery(message);
-        client.outcomingMessage$.next(message);
-        return delivery$;
-      }),
-    ).subscribe({
-      next: () => {
-        result$.next(undefined);
+    const finishError = (error: unknown) => {
+      if (finalized) {
+        return;
+      }
+      finalized = true;
+      subscriptions.unsubscribe();
+      result$.error(error);
+    };
+
+    const finishSuccess = (client: Client) => {
+      if (finalized) {
+        return;
+      }
+      delivered.push(client);
+      result$.next({ delivered: [...delivered] });
+      if (delivered.length === recipients.length) {
+        finalized = true;
+        subscriptions.unsubscribe();
         result$.complete();
-      },
-      error: (error) => result$.error(error),
-    });
+      }
+    };
+
+    for (const client of recipients) {
+      const message = new BffToClientContextValuesMessage(this.id, payload);
+      subscriptions.add(
+        client.waitForDelivery(message).subscribe({
+          next: () => finishSuccess(client),
+          error: (error) => finishError(error),
+        }),
+      );
+      client.outcomingMessage$.next(message);
+    }
 
     return result$.asObservable();
   }
 
-  private updateDataAndWait(mutator: (currentData: T) => T): Observable<void> {
+  private updateDataAndWait(
+    mutator: (currentData: T) => T,
+  ): Observable<ContextUpdateDelivery> {
     this.assertNotDestroyed();
     this.assertInitialized();
 
@@ -562,11 +589,12 @@ export class Context<T extends JsonObject> {
    * `undefined` применяется (отличие от отсутствующего ключа в patch).
    * Для целого снимка после load — {@link replace}.
    *
-   * Возвращает hot {@link Observable}: update стартует сразу, completion —
-   * receipt всех фактических адресатов diff либо мгновенный success, если
-   * слать нечего. См. `docs/architecture/context-update-delivery.md`.
+   * Возвращает hot {@link Observable}: на каждый receipt — {@link ContextUpdateDelivery}
+   * с накопительным `delivered`; `complete` после всех адресатов. Пустой diff /
+   * нет получателей — один `next({ delivered: [] })` и `complete`.
+   * См. `docs/architecture/context-update-delivery.md`.
    */
-  set(patch: ContextPathPatch<T>): Observable<void> {
+  set(patch: ContextPathPatch<T>): Observable<ContextUpdateDelivery> {
     return this.updateDataAndWait((data) => {
       for (const path of Object.keys(patch) as Paths<T>[]) {
         // hasOwnProperty: «loading: undefined» пишем, пропущенный ключ — не трогаем.
@@ -588,7 +616,7 @@ export class Context<T extends JsonObject> {
    * Не merge patch: переданный объект становится новым состоянием целиком.
    * Возвращает тот же hot {@link Observable}, что и {@link set}.
    */
-  replace(data: T): Observable<void> {
+  replace(data: T): Observable<ContextUpdateDelivery> {
     return this.updateDataAndWait(() => data);
   }
 

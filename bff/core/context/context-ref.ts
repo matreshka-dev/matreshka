@@ -19,6 +19,7 @@ import {
   ToggleContextValue,
 } from "../actions/toggle-context-value";
 import { currentClient } from "../client-context";
+import type { ContextUpdateDelivery } from "../types/context-update-delivery";
 import { ContextValueOrRef } from "../types/context-value-ref";
 import { Context } from "./context";
 
@@ -180,7 +181,9 @@ export class ContextRef<
    * Hot Observable стартует в момент вызова. Уничтоженный контекст —
    * та же ошибка, что у {@link Context.set}.
    */
-  set(value: PathValue<ContextType, PathType>): Observable<void> {
+  set(
+    value: PathValue<ContextType, PathType>,
+  ): Observable<ContextUpdateDelivery> {
     return this.context.set({
       [this.path]: value,
     });

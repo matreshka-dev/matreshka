@@ -37,6 +37,7 @@ export * from "@matreshka/shared/types/json";
 export * from "./types/component-instance";
 export * from "./types/component-tree-node";
 export * from "./types/componentable";
+export * from "./types/context-update-delivery";
 export * from "./types/context-value-ref";
 export * from "./types/message";
 export * from "./types/mixed-with-callbacks-array";

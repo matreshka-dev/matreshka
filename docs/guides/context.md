@@ -65,13 +65,14 @@ nameRef.set("Bob"); // записать
 
 `ref.set()` внутри вызывает `context.set({ … })` — клиент получит те же обновления, что и при записи через контекст.
 
-На BFF `context.set(...)`, `context.replace(...)` и `ref.set(...)` возвращают **hot `Observable<void>`**:
+На BFF `context.set(...)`, `context.replace(...)` и `ref.set(...)` возвращают **hot `Observable<ContextUpdateDelivery>`**:
 
 - update стартует **сразу при вызове метода**;
-- completion означает, что все фактические адресаты прислали подтверждение получения;
-- если diff пустой или адресатов нет, Observable сразу успешно завершается.
+- на каждый transport-level receipt у очередного клиента — `next({ delivered })`, где `delivered` — **накопительный** список `Client`;
+- `complete` — когда receipt получены от **всех** ожидаемых адресатов diff;
+- если diff пустой или адресатов нет — один `next({ delivered: [] })` и `complete`.
 
-Если нужно явно дождаться доставки в server-коде, можно подписаться на Observable или использовать `firstValueFrom(...)`. Архитектурные детали — в [../architecture/context-update-delivery.md](../architecture/context-update-delivery.md).
+Тип `ContextUpdateDelivery` экспортируется из `@matreshka/bff/core`. Подробности — [../architecture/context-update-delivery.md](../architecture/context-update-delivery.md). Для финала доставки используйте `complete` или `lastValueFrom`, а не `firstValueFrom` (он даёт только первый прогресс).
 
 Если ref уже пришёл в хелпер (`ContextValueRef`), не нужно снова искать путь:
 
@@ -94,8 +95,8 @@ function finishSubmit(loadingRef: ContextValueRef<boolean | undefined>) {
 | Задача                             | Метод                                                                            |
 | ---------------------------------- | -------------------------------------------------------------------------------- |
 | Прочитать поле по пути             | `context.get("path")` или `ref.get()`                                            |
-| Обновить одно или несколько полей  | `context.set({ … })` — ключи с dotted-путями, hot `Observable<void>`             |
-| Заменить всё состояние целиком     | `context.replace(data)` — после load или готового снимка, hot `Observable<void>` |
+| Обновить одно или несколько полей  | `context.set({ … })` — ключи с dotted-путями, hot `Observable<ContextUpdateDelivery>`             |
+| Заменить всё состояние целиком     | `context.replace(data)` — после load или готового снимка, hot `Observable<ContextUpdateDelivery>` |
 | Скопировать всё `T` на время async | `context.snapshot()`                                                             |
 | Подписаться на изменения           | `context.watch()`                                                                |
 
@@ -111,7 +112,7 @@ this.context.replace({ ...loaded, draft: this.context.get("draft") });
 
 `get` для объектов и массивов отдаёт **копию** — правки «на месте» без `set` / `replace` контекст не меняют.
 
-Если вам не нужно ждать доставку diff, можно по-прежнему вызывать `context.set(...)` / `replace(...)` в fire-and-forget стиле: update уже стартовал. Возвращаемый Observable нужен только когда важно дождаться transport-level completion.
+Если вам не нужно ждать доставку diff, можно по-прежнему вызывать `context.set(...)` / `replace(...)` в fire-and-forget стиле: update уже стартовал. Подписка нужна, когда важно отслеживать `delivered` по клиентам или дождаться `complete`.
 
 ## Подписка на изменения
 

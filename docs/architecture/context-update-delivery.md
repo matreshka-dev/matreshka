@@ -1,6 +1,6 @@
 # Доставка server-updates Context
 
-Документ описывает, что именно означает completion у `Context.set(...)`, `Context.replace(...)` и `ContextRef.set(...)` на BFF после перехода на hot `Observable<void>`.
+Документ описывает семантику `Context.set(...)`, `Context.replace(...)` и `ContextRef.set(...)` на BFF: hot `Observable<ContextUpdateDelivery>` и прогресс по клиентам.
 
 Связанные документы:
 
@@ -10,12 +10,21 @@
 
 ## Коротко
 
-- `context.set(...)`, `context.replace(...)` и `ref.set(...)` на BFF теперь возвращают **hot `Observable<void>`**.
-- Работа стартует **в момент вызова метода**, а не при первой подписке.
-- Completion означает: **все фактические адресаты diff** прислали transport-level receipt на свои `context-values`.
-- Если `diff = {}` или адресатов нет, Observable сразу делает `next(undefined)` и `complete()`.
+- `context.set(...)`, `context.replace(...)` и `ref.set(...)` на BFF возвращают **hot `Observable<ContextUpdateDelivery>`**.
+- Тип payload:
 
-Это не application-level ack из `ContextHubService`: BFF знает, что сообщение дошло до клиентского runtime reliable-delivery слоя, но не ждёт отдельного подтверждения "diff применён в Angular service".
+```ts
+type ContextUpdateDelivery = {
+  delivered: Client[]; // накопительный snapshot после каждого receipt
+};
+```
+
+- Работа стартует **в момент вызова метода**, а не при первой подписке.
+- После transport-level **receipt** каждого `context-values` у очередного адресата — **`next({ delivered })`**, где `delivered` растёт (порядок = порядок прихода receipt).
+- **`complete()`** — когда receipt получены от **всех** ожидаемых адресатов diff.
+- Если **`diff = {}`** или **нет получателей** — один **`next({ delivered: [] })`**, затем **`complete()`** (без исходящих `context-values`).
+
+Это не application-level ack из `ContextHubService`: BFF знает, что сообщение дошло до клиентского runtime reliable-delivery слоя, но не ждёт отдельного подтверждения «diff применён в Angular service».
 
 ## Почему именно transport-level receipt
 
@@ -30,11 +39,11 @@
 
 ## Что считается адресатом
 
-Wait-group строится только по тем клиентам, которым **реально** надо слать diff:
+Список ожидаемых receipt строится только по тем клиентам, которым **реально** надо слать diff:
 
 - в него входят все привязанные клиенты, которым положено получить `context-values`;
 - из него исключается клиент-источник, если изменение пришло от него самого через client-to-BFF `context-values`;
-- если после вычисления diff отправлять нечего, wait-group пустой.
+- если после вычисления diff отправлять нечего, ожидаемых receipt нет.
 
 ## Нормальный поток
 
@@ -44,25 +53,23 @@ sequenceDiagram
   participant ctx as Context
   participant clientA as ClientA
   participant clientB as ClientB
-  participant deliveryA as ReliableDeliveryA
-  participant deliveryB as ReliableDeliveryB
 
   bffCode->>ctx: set(patch) / replace(data)
   ctx->>ctx: computePrevSnapshotAndDiff
-  ctx->>clientA: context-values(id, attempt=1)
-  ctx->>clientB: context-values(id, attempt=1)
-  clientA->>deliveryA: receipt(id, attempt=1)
-  clientB->>deliveryB: receipt(id, attempt=1)
-  deliveryA-->>ctx: receiptObserved
-  deliveryB-->>ctx: receiptObserved
-  ctx-->>bffCode: next(undefined) + complete()
+  ctx->>clientA: context-values
+  ctx->>clientB: context-values
+  clientA-->>ctx: receipt
+  ctx-->>bffCode: next delivered A
+  clientB-->>ctx: receipt
+  ctx-->>bffCode: next delivered A,B
+  ctx-->>bffCode: complete
 ```
 
 Ключевые свойства:
 
 - сообщение уходит сразу при вызове метода;
-- Observable можно подписать позже и всё равно получить replay terminal-success;
-- если receipt потерялся, retry делает existing reliable-delivery слой, а completion наступит только после фактического receipt.
+- late subscriber получает replay всех прогресс-emission до `complete`;
+- если receipt потерялся, retry делает existing reliable-delivery слой; следующий `next` наступит только после фактического receipt.
 
 ## Пустой diff или нет адресатов
 
@@ -71,14 +78,14 @@ flowchart TD
   apiCall[Context.set or replace]
   diffCheck{DiffIsEmptyOrNoRecipients}
   noSend[NoContextValuesSent]
-  finish[NextUndefinedAndComplete]
+  finish["next delivered empty + complete"]
 
   apiCall --> diffCheck
   diffCheck -->|yes| noSend
   noSend --> finish
 ```
 
-Это считается успешным сценарием, потому что у BFF нет ни одного обязательного outgoing diff, доставку которого нужно ждать.
+Успешный сценарий: доставлять некому, в `delivered` передаётся пустой массив.
 
 ## Client-originated update
 
@@ -88,17 +95,26 @@ flowchart TD
 2. применяет patch к `Context`;
 3. строит diff относительно предыдущего snapshot;
 4. рассылает diff только **другим** клиентам;
-5. completion ждёт receipt только от этих других клиентов.
+5. `next` / `complete` учитывают receipt только от этих других клиентов.
 
 Так предотвращается эхо обратно в клиент-источник и не возникает двойной рассылки при server-side re-broadcast.
+
+## Потребление Observable
+
+- **`firstValueFrom(context.set(...))`** — только **первый** прогресс (может быть `{ delivered: [] }` или первый ack); не означает «все доставлено».
+- **`lastValueFrom(...)`** — последний snapshot перед `complete` (полный список при успехе).
+- Для пошагового UI или метрик — подписка на **`next`** и чтение накопительного `delivered`.
+- Финал сценария — **`complete`** (все ожидаемые receipt) или **`error`**.
+
+Если клиент уничтожен до receipt, `Client.waitForDelivery` может завершить ожидание как terminal без полного списка — тогда Observable может не дойти до `complete` со всеми адресатами.
 
 ## Границы гарантии
 
 Этот контракт гарантирует:
 
-- hot API без fire-and-forget `void`;
-- ожидание receipt всех фактических получателей;
-- мгновенный success при отсутствии полезной отправки;
+- hot API с прогрессом по клиентам;
+- `complete` только после receipt всех фактических получателей diff;
+- `{ delivered: [] }` при отсутствии полезной отправки;
 - reuse уже существующего retry/dedup механизма.
 
 Этот контракт **не** гарантирует:

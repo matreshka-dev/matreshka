@@ -139,14 +139,14 @@ describe("Context.ref и ContextRef.ref", () => {
     ctx.authorizeClient(client);
     await ctx.init();
 
-    let nextCalls = 0;
+    let lastDelivery: { delivered: Client[] } | undefined;
     let completed = false;
     ctx
       .ref("flag")
       .set(true)
       .subscribe({
-        next: () => {
-          nextCalls += 1;
+        next: (progress) => {
+          lastDelivery = progress;
         },
         complete: () => {
           completed = true;
@@ -155,13 +155,13 @@ describe("Context.ref и ContextRef.ref", () => {
 
     expect(ctx.get("flag")).toBe(true);
     expect(sentMessages).toHaveLength(1);
-    expect(nextCalls).toBe(0);
+    expect(lastDelivery).toBeUndefined();
     expect(completed).toBe(false);
 
     waiters[0].next(undefined);
     waiters[0].complete();
 
-    expect(nextCalls).toBe(1);
+    expect(lastDelivery?.delivered).toEqual([client]);
     expect(completed).toBe(true);
   });
 });

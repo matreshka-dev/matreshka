@@ -94,24 +94,25 @@ describe("Context.set", () => {
     expect(recipient.sentMessages).toHaveLength(1);
     expect(ctx.get("loading")).toBe(true);
 
-    let nextCalls = 0;
+    const snapshots: Client[][] = [];
     let completed = false;
     result$.subscribe({
-      next: () => {
-        nextCalls += 1;
+      next: (progress) => {
+        snapshots.push(progress.delivered);
       },
       complete: () => {
         completed = true;
       },
     });
 
-    expect(nextCalls).toBe(0);
+    expect(snapshots).toHaveLength(0);
     expect(completed).toBe(false);
 
     recipient.waiters[0].next(undefined);
     recipient.waiters[0].complete();
 
-    expect(nextCalls).toBe(1);
+    expect(snapshots).toHaveLength(1);
+    expect(snapshots[0]).toEqual([recipient.client]);
     expect(completed).toBe(true);
   });
 
@@ -127,11 +128,11 @@ describe("Context.set", () => {
     await ctx.init();
 
     const result$ = ctx.set({ loading: true });
-    let nextCalls = 0;
+    const snapshots: Client[][] = [];
     let completed = false;
     result$.subscribe({
-      next: () => {
-        nextCalls += 1;
+      next: (progress) => {
+        snapshots.push(progress.delivered);
       },
       complete: () => {
         completed = true;
@@ -144,13 +145,15 @@ describe("Context.set", () => {
     first.waiters[0].next(undefined);
     first.waiters[0].complete();
 
-    expect(nextCalls).toBe(0);
+    expect(snapshots).toHaveLength(1);
+    expect(snapshots[0]).toEqual([first.client]);
     expect(completed).toBe(false);
 
     second.waiters[0].next(undefined);
     second.waiters[0].complete();
 
-    expect(nextCalls).toBe(1);
+    expect(snapshots).toHaveLength(2);
+    expect(snapshots[1]).toEqual([first.client, second.client]);
     expect(completed).toBe(true);
   });
 
@@ -219,18 +222,18 @@ describe("Context.set", () => {
     ctx.authorizeClient(recipient.client);
     await ctx.init();
 
-    let nextCalls = 0;
+    let lastDelivery: { delivered: Client[] } | undefined;
     let completed = false;
     ctx.set({ loading: false }).subscribe({
-      next: () => {
-        nextCalls += 1;
+      next: (progress) => {
+        lastDelivery = progress;
       },
       complete: () => {
         completed = true;
       },
     });
 
-    expect(nextCalls).toBe(1);
+    expect(lastDelivery?.delivered).toEqual([]);
     expect(completed).toBe(true);
     expect(recipient.sentMessages).toHaveLength(0);
     expect(recipient.waiters).toHaveLength(0);
@@ -243,11 +246,11 @@ describe("Context.set", () => {
 
     await ctx.init();
 
-    let nextCalls = 0;
+    let lastDelivery: { delivered: Client[] } | undefined;
     let completed = false;
     ctx.set({ loading: true }).subscribe({
-      next: () => {
-        nextCalls += 1;
+      next: (progress) => {
+        lastDelivery = progress;
       },
       complete: () => {
         completed = true;
@@ -255,7 +258,7 @@ describe("Context.set", () => {
     });
 
     expect(ctx.get("loading")).toBe(true);
-    expect(nextCalls).toBe(1);
+    expect(lastDelivery?.delivered).toEqual([]);
     expect(completed).toBe(true);
   });
 

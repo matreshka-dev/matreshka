@@ -116,7 +116,7 @@ Entry-scoped контексты нужно завершать на сервер�
 ## Связь с другими документами
 
 - [protocol.md](protocol.md) — `context-init`, `context-values`; добавьте в mindmap **`context-destroy`** как targeted-сообщение с `target = context-id`.
-- [context-update-delivery.md](context-update-delivery.md) — hot `Observable<void>` для `set` / `replace` / `ref.set`, receipt и wait-group адресатов.
+- [context-update-delivery.md](context-update-delivery.md) — hot `Observable<ContextUpdateDelivery>` для `set` / `replace` / `ref.set`, прогресс `delivered` и receipt по клиентам.
 - [client-rendering.md](client-rendering.md) — `ContextHub`, `ComponentHub`, `ready$`, граф `contextDependencies`.
 - [guides/context.md](../guides/context.md) — создание контекста, `ref`, preload/lazy;
 - [context-destroy-scenarios.md](../advanced/context-destroy-scenarios.md) — сценарии и `destroy()` в приложении.

@@ -68,24 +68,24 @@ describe("Context.replace", () => {
     await ctx.init();
 
     const result$ = ctx.replace({ message: "new", count: 42 });
-    let nextCalls = 0;
+    let lastDelivery: { delivered: Client[] } | undefined;
     let completed = false;
     result$.subscribe({
-      next: () => {
-        nextCalls += 1;
+      next: (progress) => {
+        lastDelivery = progress;
       },
       complete: () => {
         completed = true;
       },
     });
 
-    expect(nextCalls).toBe(0);
+    expect(lastDelivery).toBeUndefined();
     expect(completed).toBe(false);
 
     recipient.waiters[0].next(undefined);
     recipient.waiters[0].complete();
 
-    expect(nextCalls).toBe(1);
+    expect(lastDelivery?.delivered).toEqual([recipient.client]);
     expect(completed).toBe(true);
   });
 
