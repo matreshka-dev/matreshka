@@ -1,6 +1,5 @@
 import { ActionCompletedMessage } from "./action-completed-message";
 import { AppClientStateMessage } from "./app/app-client-state-message";
-import { AppDestroyEntryInstanceMessage } from "./app/app-destroy-entry-instance-message";
 import { HandshakeMessage } from "./app/handshake-message";
 import { clientToBffMessageRegistry } from "./client-to-bff-message-registry";
 import { BoardCenterChangeMessage } from "./components/board/board-center-change-message";
@@ -36,7 +35,6 @@ export function registerCommonClientToBffMessages() {
   clientToBffMessageRegistry.register(ClientToBffMessageReceivedMessage);
   clientToBffMessageRegistry.register(HandshakeMessage);
   clientToBffMessageRegistry.register(AppClientStateMessage);
-  clientToBffMessageRegistry.register(AppDestroyEntryInstanceMessage);
   clientToBffMessageRegistry.register(ContextInitMessage);
   clientToBffMessageRegistry.register(ContextValuesMessage);
   clientToBffMessageRegistry.register(ComponentShowMessage);

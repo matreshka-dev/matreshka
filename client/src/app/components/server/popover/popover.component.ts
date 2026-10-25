@@ -12,7 +12,6 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PopoverCloseMessage } from '@shared/messages/bff-to-client/components/popover/popover-close-message';
-import { AppDestroyEntryInstanceMessage } from '@shared/messages/client-to-bff/app';
 import type { PopoverConfig } from '@shared/types/popover-config';
 import { filter } from 'rxjs';
 import { OverlaysComponent } from '../../local/overlays/overlays.component';
@@ -307,8 +306,5 @@ export class PopoverComponent
   override ngOnDestroy() {
     super.ngOnDestroy();
     this.componentHub.deleteConfig(this.config);
-    this.postman.outcomingMessage$.next(
-      new AppDestroyEntryInstanceMessage({ id: this.id() }),
-    );
   }
 }

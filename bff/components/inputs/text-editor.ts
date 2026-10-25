@@ -207,7 +207,8 @@ export class TextEditor<
   undo(instances?: ComponentInstance[]) {
     return this.dispatchComponentCommand(
       instances,
-      (target, actionScope) => new TextEditorUndoMessage(target, { actionScope }),
+      (target, actionScope) =>
+        new TextEditorUndoMessage(target, { actionScope }),
     );
   }
 
@@ -217,7 +218,8 @@ export class TextEditor<
   redo(instances?: ComponentInstance[]) {
     return this.dispatchComponentCommand(
       instances,
-      (target, actionScope) => new TextEditorRedoMessage(target, { actionScope }),
+      (target, actionScope) =>
+        new TextEditorRedoMessage(target, { actionScope }),
     );
   }
 

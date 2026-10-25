@@ -553,7 +553,7 @@ export abstract class ServerComponent<T extends ServerComponentConfig>
       animations = this.animateInteraction(type);
     }
 
-    if (handlers.length > 0) {
+    if (handlers.length > 0 || type === 'leave') {
       this.postman.outcomingMessage$.next(createMessage(handlers));
     }
 

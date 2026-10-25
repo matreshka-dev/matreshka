@@ -1,11 +1,11 @@
 import { AppBackMessage } from "@matreshka/shared/messages/bff-to-client/app/app-back-message";
-import { isComponentCommandMessage } from "@matreshka/shared/messages/bff-to-client/component-command-message";
 import { bffToClientMessageRegistry } from "@matreshka/shared/messages/bff-to-client/bff-to-client-message-registry";
+import { isComponentCommandMessage } from "@matreshka/shared/messages/bff-to-client/component-command-message";
 import { DialogCloseMessage } from "@matreshka/shared/messages/bff-to-client/components/dialog/dialog-close-message";
-import { parseBffToClientMessage } from "@matreshka/shared/messages/bff-to-client/parse-bff-to-client-message";
-import { registerBffToClientMessages } from "@matreshka/shared/messages/bff-to-client/register-messages";
 import { ForEachSyncComponentsMessage } from "@matreshka/shared/messages/bff-to-client/components/for-each/for-each-sync-components-message";
+import { parseBffToClientMessage } from "@matreshka/shared/messages/bff-to-client/parse-bff-to-client-message";
 import { PingableComponentCommandMessage } from "@matreshka/shared/messages/bff-to-client/pingable-component-command-message";
+import { registerBffToClientMessages } from "@matreshka/shared/messages/bff-to-client/register-messages";
 import { ReliableComponentCommandMessage } from "@matreshka/shared/messages/bff-to-client/reliable-component-command-message";
 import {
   isPingableMessage,

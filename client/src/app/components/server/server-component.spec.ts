@@ -9,6 +9,7 @@ import { ServerComponentClass } from '@shared/enums/server-component-class';
 import { TextDecoration } from '@shared/enums/text-decoration';
 import { ContextInitMessage as BffToClientContextInitMessage } from '@shared/messages/bff-to-client/context/context-init-message';
 import { ComponentClickMessage } from '@shared/messages/client-to-bff/components/component-click-message';
+import { ComponentLeaveMessage } from '@shared/messages/client-to-bff/components/component-leave-message';
 import { OverlayAnchor } from '@shared/types/container-overlay';
 import type { ServerComponentInteraction } from '@shared/types/server-component-interaction';
 import { PLATFORM } from '../../platforms/platform';
@@ -391,6 +392,22 @@ describe('ServerComponent (abstract базовый компонент)', () => {
       component.interact('click', factory);
 
       expect(sentMessages).toHaveLength(0);
+    });
+
+    it('должен отправлять leave на сервер даже без server-interaction', () => {
+      const sentMessages: unknown[] = [];
+      postman.outcomingMessage$.subscribe((msg) => sentMessages.push(msg));
+
+      config.interactions = {};
+
+      component.interact('leave', (handlers) =>
+        new ComponentLeaveMessage(component.id()).setHandlers(handlers),
+      );
+
+      expect(sentMessages).toHaveLength(1);
+      expect((sentMessages[0] as ComponentLeaveMessage).getHandlers()).toEqual(
+        [],
+      );
     });
 
     it('должен выполнять локальную component-команду без сообщения на сервер', () => {

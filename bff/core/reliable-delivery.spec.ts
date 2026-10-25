@@ -4,9 +4,9 @@ import { bffToClientMessageRegistry } from "@matreshka/shared/messages/bff-to-cl
 import { BffToClientMessageReceivedMessage } from "@matreshka/shared/messages/bff-to-client/message-received-message";
 import { parseBffToClientMessage } from "@matreshka/shared/messages/bff-to-client/parse-bff-to-client-message";
 import { registerBffToClientMessages } from "@matreshka/shared/messages/bff-to-client/register-messages";
-import { AppDestroyEntryInstanceMessage } from "@matreshka/shared/messages/client-to-bff/app/app-destroy-entry-instance-message";
 import { ClientToBffMessage } from "@matreshka/shared/messages/client-to-bff/client-to-bff-message";
 import { clientToBffMessageRegistry } from "@matreshka/shared/messages/client-to-bff/client-to-bff-message-registry";
+import { ComponentLeaveMessage } from "@matreshka/shared/messages/client-to-bff/components/component-leave-message";
 import { ClientToBffMessageReceivedMessage } from "@matreshka/shared/messages/client-to-bff/message-received-message";
 import { parseClientToBffMessage } from "@matreshka/shared/messages/client-to-bff/parse-client-to-bff-message";
 import { registerClientToBffMessages } from "@matreshka/shared/messages/client-to-bff/register-messages";
@@ -20,11 +20,7 @@ describe("ReliableDelivery", () => {
     if (!bffToClientMessageRegistry.findByType(AppBackMessage.type)) {
       registerBffToClientMessages();
     }
-    if (
-      !clientToBffMessageRegistry.findByType(
-        AppDestroyEntryInstanceMessage.type,
-      )
-    ) {
+    if (!clientToBffMessageRegistry.findByType(ComponentLeaveMessage.type)) {
       registerClientToBffMessages();
     }
   });
@@ -42,17 +38,13 @@ describe("ReliableDelivery", () => {
     expect((parsedBff as AppBackMessage).id).toBe(outgoing.id);
     expect((parsedBff as AppBackMessage).attempt).toBe(2);
 
-    const clientOutgoing = new AppDestroyEntryInstanceMessage({
-      id: "entry-1",
-    });
+    const clientOutgoing = new ComponentLeaveMessage("entry-1");
     clientOutgoing.nextAttempt();
 
     const parsedClient = parseClientToBffMessage(clientOutgoing.toJSON());
-    expect(parsedClient).toBeInstanceOf(AppDestroyEntryInstanceMessage);
-    expect((parsedClient as AppDestroyEntryInstanceMessage).id).toBe(
-      clientOutgoing.id,
-    );
-    expect((parsedClient as AppDestroyEntryInstanceMessage).attempt).toBe(2);
+    expect(parsedClient).toBeInstanceOf(ComponentLeaveMessage);
+    expect((parsedClient as ComponentLeaveMessage).id).toBe(clientOutgoing.id);
+    expect((parsedClient as ComponentLeaveMessage).attempt).toBe(2);
   });
 
   it("повторно отправляет reliable-сообщение и считает пинг только для текущей попытки", () => {
@@ -76,7 +68,7 @@ describe("ReliableDelivery", () => {
       ping$,
     });
 
-    const outgoing = new AppDestroyEntryInstanceMessage({ id: "entry-1" });
+    const outgoing = new ComponentLeaveMessage("entry-1");
     emitOutgoing(outgoing);
 
     vi.advanceTimersByTime(2_000);
@@ -116,7 +108,7 @@ describe("ReliableDelivery", () => {
       ping$,
     });
 
-    const outgoing = new AppDestroyEntryInstanceMessage({ id: "entry-2" });
+    const outgoing = new ComponentLeaveMessage("entry-2");
     emitOutgoing(outgoing);
 
     vi.advanceTimersByTime(123);
@@ -148,7 +140,7 @@ describe("ReliableDelivery", () => {
       ping$,
     });
 
-    const outgoing = new AppDestroyEntryInstanceMessage({ id: "entry-wait" });
+    const outgoing = new ComponentLeaveMessage("entry-wait");
     let nextCalls = 0;
     let completed = false;
 
@@ -231,7 +223,7 @@ describe("ReliableDelivery", () => {
       ping$,
     });
 
-    const outgoing = new AppDestroyEntryInstanceMessage({ id: "entry-pause" });
+    const outgoing = new ComponentLeaveMessage("entry-pause");
     emitOutgoing(outgoing);
 
     delivery.pause();
@@ -349,7 +341,7 @@ describe("ReliableDelivery", () => {
       ping$: ping$,
     });
 
-    const incoming = new AppDestroyEntryInstanceMessage({ id: "entry-3" });
+    const incoming = new ComponentLeaveMessage("entry-3");
     const duplicate = parseClientToBffMessage(incoming.toJSON());
 
     expect(delivery.handleIncoming(incoming)).toBe(incoming);
@@ -366,11 +358,7 @@ describe("ReliableDelivery", () => {
 
 describe("Client reliable delivery", () => {
   beforeAll(() => {
-    if (
-      !clientToBffMessageRegistry.findByType(
-        AppDestroyEntryInstanceMessage.type,
-      )
-    ) {
+    if (!clientToBffMessageRegistry.findByType(ComponentLeaveMessage.type)) {
       registerClientToBffMessages();
     }
     if (!bffToClientMessageRegistry.findByType(AppBackMessage.type)) {
@@ -437,14 +425,14 @@ describe("Client reliable delivery", () => {
     client.outcomingMessage$.subscribe((message) => receipts.push(message));
     client.incomingMessage$.subscribe((message) => handled.push(message));
 
-    const incoming = new AppDestroyEntryInstanceMessage({ id: "entry-4" });
+    const incoming = new ComponentLeaveMessage("entry-4");
     const payload = JSON.stringify(incoming.toJSON());
 
     client.newMessage(payload);
     client.newMessage(payload);
 
     expect(handled).toHaveLength(1);
-    expect(handled[0]).toBeInstanceOf(AppDestroyEntryInstanceMessage);
+    expect(handled[0]).toBeInstanceOf(ComponentLeaveMessage);
     expect(receipts).toHaveLength(2);
     expect(receipts[0]).toBeInstanceOf(BffToClientMessageReceivedMessage);
     expect((receipts[0] as BffToClientMessageReceivedMessage).payload).toEqual({

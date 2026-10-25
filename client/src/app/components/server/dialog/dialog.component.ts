@@ -16,7 +16,6 @@ import { OverlaysComponent } from '../../local/overlays/overlays.component';
 import { ServerComponentsListComponent } from '../server-components-list/server-components-list.component';
 
 import { DialogCloseMessage } from '@shared/messages/bff-to-client/components/dialog/dialog-close-message';
-import { AppDestroyEntryInstanceMessage } from '@shared/messages/client-to-bff/app';
 import { OverlayAnchor } from '@shared/types/container-overlay';
 import type { ServerComponentInteraction } from '@shared/types/server-component-interaction';
 import { filter } from 'rxjs';
@@ -251,8 +250,5 @@ export class DialogComponent
   override ngOnDestroy() {
     super.ngOnDestroy();
     this.componentHub.deleteConfig(this.config);
-    this.postman.outcomingMessage$.next(
-      new AppDestroyEntryInstanceMessage({ id: this.id() }),
-    );
   }
 }

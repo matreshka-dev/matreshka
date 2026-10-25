@@ -6,7 +6,6 @@ import {
 import { PlatformId } from "@matreshka/shared/enums/platform-id";
 import { ServerComponentClass } from "@matreshka/shared/enums/server-component-class";
 import { ForEachSyncComponentsMessage } from "@matreshka/shared/messages/bff-to-client/components/for-each/for-each-sync-components-message";
-import { AppDestroyEntryInstanceMessage } from "@matreshka/shared/messages/client-to-bff/app/app-destroy-entry-instance-message";
 import { ComponentClickMessage } from "@matreshka/shared/messages/client-to-bff/components/component-click-message";
 import { ComponentEnterMessage } from "@matreshka/shared/messages/client-to-bff/components/component-enter-message";
 import { ComponentHideMessage } from "@matreshka/shared/messages/client-to-bff/components/component-hide-message";
@@ -150,15 +149,6 @@ function sendComponentLeave(
       type: ComponentLeaveMessage.type,
       target: instanceId,
       handlers,
-    }),
-  );
-}
-
-function sendDestroyEntryInstance(client: Client, instanceId: string): void {
-  client.newMessage(
-    JSON.stringify({
-      type: AppDestroyEntryInstanceMessage.type,
-      payload: { id: instanceId },
     }),
   );
 }
@@ -606,8 +596,8 @@ describe("Component instance: навигация страницы", () => {
   });
 });
 
-describe("Component instance: destroy-entry-instance", () => {
-  it("сообщение клиента снимает dialog instance и его поддерево", () => {
+describe("Component instance: leave entry", () => {
+  it("leave клиента снимает dialog instance и его поддерево", () => {
     const client = createClient();
     const shared = text("dialog-destroy");
     const dlg = dialog([shared]);
@@ -618,7 +608,7 @@ describe("Component instance: destroy-entry-instance", () => {
     const [firstDialogInstance] = dlg.getInstances({ client });
     expect(shared.getInstances({ client })).toHaveLength(2);
 
-    sendDestroyEntryInstance(client, firstDialogInstance.id);
+    sendComponentLeave(client, firstDialogInstance.id, []);
 
     expect(dlg.getInstances({ client })).toHaveLength(1);
     expect(shared.getInstances({ client })).toHaveLength(1);
@@ -627,7 +617,7 @@ describe("Component instance: destroy-entry-instance", () => {
     );
   });
 
-  it("сообщение клиента снимает popover instance и его поддерево", () => {
+  it("leave клиента снимает popover instance и его поддерево", () => {
     const client = createClient();
     const shared = text("popover-destroy");
     const pop = popover([shared]);
@@ -638,7 +628,7 @@ describe("Component instance: destroy-entry-instance", () => {
     const [firstPopoverInstance] = pop.getInstances({ client });
     expect(shared.getInstances({ client })).toHaveLength(2);
 
-    sendDestroyEntryInstance(client, firstPopoverInstance.id);
+    sendComponentLeave(client, firstPopoverInstance.id, []);
 
     expect(pop.getInstances({ client })).toHaveLength(1);
     expect(shared.getInstances({ client })).toHaveLength(1);
@@ -647,15 +637,15 @@ describe("Component instance: destroy-entry-instance", () => {
     );
   });
 
-  it("повторный destroy-entry-instance не снимает instance повторно", () => {
+  it("повторный leave не снимает instance повторно", () => {
     const client = createClient();
     const dlg = dialog([text("dialog-cleanup")]);
 
     runWithClient(client, () => dlg.serialize());
     const [dialogInstance] = dlg.getInstances({ client });
 
-    sendDestroyEntryInstance(client, dialogInstance.id);
-    sendDestroyEntryInstance(client, dialogInstance.id);
+    sendComponentLeave(client, dialogInstance.id, []);
+    sendComponentLeave(client, dialogInstance.id, []);
 
     expect(dlg.getInstances({ client })).toHaveLength(0);
   });

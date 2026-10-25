@@ -91,7 +91,7 @@ export class Client {
   app = new App({});
   /**
    * Id страницы, для которой при навигации нужно снять обработчики предыдущей страницы.
-   * Диалоги/popover/оверлеи сюда не входят — их снимают по AppDestroyEntryInstanceMessage или removeGlobalComponent.
+   * Диалоги/popover/оверлеи сюда не входят — их снимают по leave interaction или removeGlobalComponent.
    */
   private currentPageInstance?: ComponentInstance<Page>;
   private appOverlayEntry?: ComponentInstance<App>;
@@ -265,6 +265,7 @@ export class Client {
    * Переход на другую страницу: снимает обработчики с предыдущей страницы и запоминает id новой.
    */
   switchPage(newPageInstance: ComponentInstance<Page>): void {
+    // Вообще эта логика не обязательна, т.к. releaseInstances вызывается при получении leave interaction, это скорее защита от недобросовестных клиентов чтобы не копились лишние обработчики в памяти
     this.currentPageInstance?.component.releaseInstances([
       this.currentPageInstance,
     ]);

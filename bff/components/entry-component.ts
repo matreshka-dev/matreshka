@@ -1,12 +1,7 @@
-import { AppDestroyEntryInstanceMessage } from "@matreshka/shared/messages/client-to-bff/app/app-destroy-entry-instance-message";
-import { filter } from "rxjs";
-import { z } from "zod";
-import type { Client } from "../core/client";
 import { currentClient } from "../core/client-context";
 import { runWithEntry } from "../core/entry-context";
 import type { ComponentInstance } from "../core/types/component-instance";
 import type { Componentable } from "../core/types/componentable";
-import { incomingMessageObserver } from "../core/utils/incoming-message-observer";
 import {
   Component,
   ComponentInitConfig,
@@ -106,39 +101,22 @@ export abstract class EntryComponent<
   protected override createSelfEntry(): ComponentInstance<this> {
     const instance = super.createSelfEntry();
     const client = currentClient();
-    // Явное подписываение на сообщения от клиента, потому что нужно отслеживать сообщение о закрытии
+    // Подписка на leave и прочие interaction до commitSerialization instance.entry.
     if (!this.usingByClient(client)) {
       this.subscribeClientEvents(client);
     }
     return instance;
   }
 
-  override subscribeClientEvents(client: Client) {
-    super.subscribeClientEvents(client);
-    this.clientSubscriptions.get(client)!.add(
-      client.incomingMessage$
-        .pipe(
-          filter(
-            (message) => message instanceof AppDestroyEntryInstanceMessage,
-          ),
-        )
-        .subscribe(
-          incomingMessageObserver(client, (unsafeMessage) => {
-            const messagePayload = z
-              .object({ id: z.string() })
-              .parse(unsafeMessage.payload);
-            const instanceIndex = this.instances.findIndex(
-              (instance) => instance.id === messagePayload.id,
-            );
-            if (instanceIndex === -1) {
-              return;
-            }
-            if (this.instances[instanceIndex].client !== client) {
-              return;
-            }
-            this.releaseInstances([this.instances[instanceIndex]]);
-          }),
-        ),
-    );
+  protected override emitInteraction(
+    type: string,
+    payload: unknown,
+    instance: ComponentInstance<this>,
+    handlers: number[],
+  ): void {
+    super.emitInteraction(type, payload, instance, handlers);
+    if (type === "leave") {
+      this.releaseInstances([instance]);
+    }
   }
 }
