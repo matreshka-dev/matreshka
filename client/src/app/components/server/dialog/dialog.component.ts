@@ -6,7 +6,6 @@ import {
   ElementRef,
   inject,
   OnInit,
-  PLATFORM_ID,
   viewChild,
   ViewEncapsulation,
 } from '@angular/core';
@@ -39,8 +38,6 @@ export class DialogComponent
   extends EntryServerComponent<DialogConfig>
   implements OnInit, AfterViewInit
 {
-  private readonly platformId = inject(PLATFORM_ID);
-
   private readonly nativeDialogRef =
     viewChild.required<ElementRef<HTMLDialogElement>>('nativeDialog');
 

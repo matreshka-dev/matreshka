@@ -1,13 +1,22 @@
 import { isPlatformBrowser } from '@angular/common';
-import { inject, PLATFORM_ID } from '@angular/core';
+import {
+  ChangeDetectionStrategy,
+  Component,
+  inject,
+  PLATFORM_ID,
+} from '@angular/core';
 import type { EntryServerComponentConfig } from '@shared/types/entry-server-component-config';
 import { ServerComponent } from './server-component';
 import { registerWebMcpTools } from './webmcp/register-entry-tools';
 
+@Component({
+  template: '',
+  changeDetection: ChangeDetectionStrategy.OnPush,
+})
 export abstract class EntryServerComponent<
   T extends EntryServerComponentConfig,
 > extends ServerComponent<T> {
-  private readonly platformId = inject(PLATFORM_ID);
+  protected readonly platformId = inject(PLATFORM_ID);
   private unregisterWebMcpTools: () => void = () => undefined;
 
   override ngOnInit() {

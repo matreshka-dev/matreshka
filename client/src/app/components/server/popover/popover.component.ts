@@ -6,7 +6,6 @@ import {
   ElementRef,
   inject,
   OnInit,
-  PLATFORM_ID,
   viewChild,
   ViewEncapsulation,
 } from '@angular/core';
@@ -44,7 +43,6 @@ export class PopoverComponent
   extends EntryServerComponent<PopoverConfig>
   implements OnInit, AfterViewInit
 {
-  private readonly platformId = inject(PLATFORM_ID);
   private popoverWidth?: string;
   private isViewInitialized = false;
   /** Динамический clamp (--popover-max-*) только при positionArea. */

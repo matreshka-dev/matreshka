@@ -3,7 +3,6 @@ import {
   Component,
   inject,
   OnInit,
-  PLATFORM_ID,
   ViewEncapsulation,
 } from '@angular/core';
 import { Title } from '@angular/platform-browser';
@@ -31,7 +30,6 @@ export class PageComponent
 {
   title = inject(Title);
   response = inject(RESPONSE, { optional: true });
-  platformId = inject(PLATFORM_ID);
   ssr = inject(SsrService);
   loadingTask = this.ssr.addTask();
   override ngOnInit() {
