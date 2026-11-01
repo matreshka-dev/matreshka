@@ -19,6 +19,12 @@ export abstract class EntryServerComponent<
       this.document,
       this._configSignal()?.tools,
       this.postman,
+      {
+        conditionsMet: (conditions) =>
+          this.componentHub.conditionsMet(conditions),
+        contextChange$: this.contextHub.change$,
+        replacePlaceholders: (key) => this.contextHub.replacePlaceholders(key),
+      },
     );
   }
 

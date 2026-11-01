@@ -68,7 +68,7 @@ Transport передаёт обычный JSON. Пример app-level сооб�
 
 ## Вызов WebMCP-тулза
 
-Entry сериализует поле `tools` рядом с `properties`: `id`, `name`, `description`, `annotations` и, если автор задал Zod-схему, `inputSchema` в виде JSON Schema. `execute` остаётся на BFF. Клиент регистрирует эти метаданные в `document.modelContext` при создании entry и снимает регистрацию при его уничтожении. Вызов агента уходит на BFF вместе с аргументами:
+Entry сериализует поле `tools` рядом с `properties`: `id`, `name`, `description`, `annotations`, необязательные `inputSchema` и `conditions`. `execute` остаётся на BFF. Клиент регистрирует тулз в `document.modelContext`, пока его `conditions` выполнены, и снимает регистрацию, когда они перестают выполняться или entry уничтожается. Вызов агента уходит на BFF вместе с аргументами:
 
 ```json
 {

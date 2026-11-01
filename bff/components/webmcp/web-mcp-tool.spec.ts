@@ -7,6 +7,7 @@ import { describe, expect, it } from "vitest";
 import { ZodError } from "zod";
 import { z } from "zod/v4";
 import { Client, runWithClient } from "../../core";
+import { desktopDevice } from "../../core/conditions/desktop-device";
 import { dialog } from "../dialog";
 import { Page } from "../page";
 import type { WebMcpTool, WebMcpToolExecute } from "./web-mcp-tool";
@@ -58,6 +59,29 @@ class SameNamePage extends Page {
         name: "status",
         description: "Second",
         execute: async () => "second",
+      },
+    ];
+  }
+}
+
+class LateFieldPage extends Page {
+  label = "ready";
+
+  protected title(): string {
+    return "Late";
+  }
+
+  protected content() {
+    return [];
+  }
+
+  protected override tools(): WebMcpTool[] {
+    return [
+      {
+        name: this.label,
+        description: "Поле наследника уже есть",
+        conditions: [desktopDevice()],
+        execute: async () => "ok",
       },
     ];
   }
@@ -183,6 +207,8 @@ describe("WebMCP tools", () => {
         description: "Статус заказа",
         execute: page.entryTools[0]?.execute,
         annotations: [WebMcpToolAnnotation.ReadOnlyHint],
+        inputSchema: undefined,
+        conditions: [],
       },
     ]);
     const storedId = page.entryTools[0]?.id;
@@ -350,6 +376,17 @@ describe("WebMCP tools", () => {
 
     expect(page.calls).toBe(0);
     expect(outgoing).toEqual([]);
+  });
+
+  it("собирает tools страницы после конструктора и сериализует conditions", () => {
+    const page = new LateFieldPage();
+    const client = new Client();
+    const config = runWithClient(client, () => page.serialize());
+
+    expect(page.entryTools[0]?.name).toBe("ready");
+    expect(config.tools?.[0]?.conditions).toEqual([
+      { type: "desktop-device", payload: {} },
+    ]);
   });
 
   it("сериализует Zod-схему и передаёт проверенный input в execute", async () => {

@@ -1,16 +1,21 @@
 import { WebMcpToolAnnotation } from "@matreshka/shared/enums/web-mcp-tool-annotation";
+import type { Condition as SerializedCondition } from "@matreshka/shared/types/condition";
 import * as crypto from "node:crypto";
 import { z as z3 } from "zod";
 import { z } from "zod/v4";
+import { Condition } from "../../core/conditions/condition";
 
 export { WebMcpToolAnnotation };
 
 export type WebMcpToolExecute = () => Promise<string>;
 
+export type WebMcpToolConditions = Condition[] | (() => Condition[]);
+
 type WebMcpToolBase = {
   name: string;
   description: string;
   annotations?: readonly WebMcpToolAnnotation[];
+  conditions?: WebMcpToolConditions;
 };
 
 /** Тулз в списке entry. `execute` бивариантен, чтобы схема не терялась при возврате из `tools()`. */
@@ -36,6 +41,7 @@ export type RegisteredWebMcpTool = {
   execute: (input?: unknown) => Promise<string>;
   annotations: readonly WebMcpToolAnnotation[];
   inputSchema?: z.ZodType;
+  conditions: SerializedCondition[];
 };
 
 const webMcpToolSchema = z3.object({
@@ -70,7 +76,16 @@ export function acceptWebMcpTool(tool: WebMcpTool): RegisteredWebMcpTool {
     execute: tool.execute as RegisteredWebMcpTool["execute"],
     annotations: parsed.annotations,
     inputSchema: tool.inputSchema,
+    conditions: resolveWebMcpToolConditions(tool.conditions),
   };
+}
+
+function resolveWebMcpToolConditions(
+  conditions: WebMcpToolConditions | undefined,
+): SerializedCondition[] {
+  const list =
+    typeof conditions === "function" ? conditions() : (conditions ?? []);
+  return list.map((condition) => condition.toJSON());
 }
 
 export function webMcpInputJsonSchema(

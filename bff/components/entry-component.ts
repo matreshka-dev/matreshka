@@ -140,6 +140,9 @@ export abstract class EntryComponent<
           ...(tool.inputSchema
             ? { inputSchema: webMcpInputJsonSchema(tool.inputSchema) }
             : {}),
+          ...(tool.conditions.length > 0
+            ? { conditions: tool.conditions }
+            : {}),
         }),
       ),
     };

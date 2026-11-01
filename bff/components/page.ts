@@ -52,13 +52,14 @@ export abstract class Page<
   extends EntryComponent<InitConfigType, PropertiesType>
   implements Pageable
 {
+  private pageToolsRegistered = false;
+
   constructor() {
     // @ts-expect-error Page задаёт content в boot(), а не через конфиг конструктора Component.
     super({});
     this.bindPageInteraction("scroll", this.onScroll());
     this.bindPageEntryInteraction("enter", this.onEnter());
     this.bindPageEntryInteraction("leave", this.onLeave());
-    this.registerEntryTools(this.tools());
   }
 
   /** Привязка обработчиков страницы к имени взаимодействия (как на клиенте в `interact`). */
@@ -180,6 +181,23 @@ export abstract class Page<
   }
 
   /**
+   * Тулзы страницы читают поля наследника, поэтому регистрируются после конструктора:
+   * при первом чтении списка и перед сериализацией.
+   */
+  private registerPageTools(): void {
+    if (this.pageToolsRegistered) {
+      return;
+    }
+    this.pageToolsRegistered = true;
+    this.registerEntryTools(this.tools());
+  }
+
+  override get entryTools() {
+    this.registerPageTools();
+    return super.entryTools;
+  }
+
+  /**
    * Инициализирует свойства страницы.
    *
    * @param initValues Конфигурация страницы.
@@ -217,6 +235,7 @@ export abstract class Page<
   protected override serializeEntry(
     instance: ComponentInstance<this>,
   ): PageConfig {
+    this.registerPageTools();
     const result = super.serializeEntry(instance);
     return {
       ...result,

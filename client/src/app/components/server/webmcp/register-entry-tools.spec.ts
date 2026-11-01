@@ -1,10 +1,14 @@
+import { ConditionType } from '@shared/enums/condition-type';
 import { WebMcpToolAnnotation } from '@shared/enums/web-mcp-tool-annotation';
 import { WebMcpToolErrorMessage } from '@shared/messages/bff-to-client/webmcp/web-mcp-tool-error-message';
 import { WebMcpToolResultMessage } from '@shared/messages/bff-to-client/webmcp/web-mcp-tool-result-message';
 import { WebMcpToolCallMessage } from '@shared/messages/client-to-bff/webmcp/web-mcp-tool-call-message';
+import type { Condition } from '@shared/types/condition';
 import type { WebMcpToolConfig } from '@shared/types/web-mcp-tool-config';
+import { Subject } from 'rxjs';
 import { describe, expect, it, vi } from 'vitest';
 import { TestPostmanService } from '../../../services/tests/test-postman.service';
+import type { ContextChangeEvent } from '../../../types/context-change-event';
 import { registerEntryWebMcpTools } from './register-entry-tools';
 
 const tool: WebMcpToolConfig = {
@@ -90,7 +94,11 @@ describe('registerEntryWebMcpTools', () => {
   it('отклоняет execute текстом ошибки', async () => {
     const registerTool = vi.fn<RegisterTool>().mockResolvedValue(undefined);
     const postman = new TestPostmanService();
-    registerEntryWebMcpTools(documentWith(registerTool), [tool], postman);
+    const unregister = registerEntryWebMcpTools(
+      documentWith(registerTool),
+      [tool],
+      postman,
+    );
     const registered = registerTool.mock.calls[0][0];
     const outgoing: WebMcpToolCallMessage[] = [];
     postman.outcomingMessage$.subscribe((message) => {
@@ -111,6 +119,7 @@ describe('registerEntryWebMcpTools', () => {
       }),
     );
     await expect(pending).rejects.toThrow('boom');
+    unregister();
   });
 
   it('передаёт JSON Schema и аргументы вызова', async () => {
@@ -121,7 +130,7 @@ describe('registerEntryWebMcpTools', () => {
     };
     const registerTool = vi.fn<RegisterTool>().mockResolvedValue(undefined);
     const postman = new TestPostmanService();
-    registerEntryWebMcpTools(
+    const unregister = registerEntryWebMcpTools(
       documentWith(registerTool),
       [{ ...tool, inputSchema }],
       postman,
@@ -144,6 +153,7 @@ describe('registerEntryWebMcpTools', () => {
       }),
     );
     await expect(pending).resolves.toBe('Купить молоко');
+    unregister();
   });
 
   it('не регистрирует тулзы без modelContext и глотает отказ registerTool', async () => {
@@ -155,9 +165,94 @@ describe('registerEntryWebMcpTools', () => {
     const registerTool = vi
       .fn<RegisterTool>()
       .mockRejectedValue(new Error('duplicate'));
-    expect(() =>
-      registerEntryWebMcpTools(documentWith(registerTool), [tool], postman),
-    ).not.toThrow();
+    const unregister = registerEntryWebMcpTools(
+      documentWith(registerTool),
+      [tool],
+      postman,
+    );
+    unregister();
     await Promise.resolve();
+  });
+
+  it('регистрирует тулз только пока выполнены conditions', () => {
+    const conditions: Condition[] = [
+      {
+        type: ConditionType.ContextValueEqual,
+        payload: {
+          ref: 'ctx.mode',
+          value: { kind: 'literal', value: 'edit' },
+        },
+      },
+    ];
+    let met = false;
+    const contextChange$ = new Subject<ContextChangeEvent>();
+    const registerTool = vi.fn<RegisterTool>().mockResolvedValue(undefined);
+    const postman = new TestPostmanService();
+    const unregister = registerEntryWebMcpTools(
+      documentWith(registerTool),
+      [{ ...tool, conditions }],
+      postman,
+      {
+        conditionsMet: () => met,
+        contextChange$,
+      },
+    );
+
+    expect(registerTool).not.toHaveBeenCalled();
+
+    contextChange$.next({
+      contextId: 'other',
+      values: [{ key: 'mode', value: 'edit' }],
+    });
+    expect(registerTool).not.toHaveBeenCalled();
+
+    met = true;
+    contextChange$.next({
+      contextId: 'ctx',
+      values: [{ key: 'mode', value: 'edit' }],
+    });
+    expect(registerTool).toHaveBeenCalledTimes(1);
+    const signal = registerTool.mock.calls[0]?.[1]?.signal;
+    expect(signal?.aborted).toBe(false);
+
+    met = false;
+    contextChange$.next({
+      contextId: 'ctx',
+      values: [{ key: 'mode', value: 'view' }],
+    });
+    expect(signal?.aborted).toBe(true);
+
+    unregister();
+  });
+
+  it('добавляет суффикс к занятому имени и освобождает его после снятия', () => {
+    const registerTool = vi.fn<RegisterTool>().mockResolvedValue(undefined);
+    const postman = new TestPostmanService();
+    const first = registerEntryWebMcpTools(
+      documentWith(registerTool),
+      [{ ...tool, id: 'save-a', name: 'save' }],
+      postman,
+    );
+    const second = registerEntryWebMcpTools(
+      documentWith(registerTool),
+      [{ ...tool, id: 'save-b', name: 'save' }],
+      postman,
+    );
+
+    expect(registerTool.mock.calls.map((call) => call[0].name)).toEqual([
+      'save',
+      'save_2',
+    ]);
+
+    first();
+    const third = registerEntryWebMcpTools(
+      documentWith(registerTool),
+      [{ ...tool, id: 'save-c', name: 'save' }],
+      postman,
+    );
+    expect(registerTool.mock.calls.at(-1)?.[0].name).toBe('save');
+
+    second();
+    third();
   });
 });
