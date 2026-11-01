@@ -7,7 +7,6 @@ import {
   ComponentInstance,
   ComponentTreeNode,
   MixedWithCallbacksArray,
-  serializeComponentList,
 } from "../core";
 import type { ActionConfig } from "../core/actions/action";
 import { closeEntry } from "../core/actions/close-entry";
@@ -77,18 +76,55 @@ export function popover(
 }
 
 /**
- * Компонент всплывающей панели (popover), содержащей вложенные компоненты.
+ * Всплывающая панель.
  *
  * На клиенте рендерится через [Popover API](https://doka.guide/html/popover/) (`popover="auto"`).
+ *
+ * Фабрика {@link popover} и `new Popover(config)` задают панель конфигурацией.
+ * Наследник задаёт те же поля методами, как Page, и не обязан передавать их в `super`.
+ * Метод по умолчанию возвращает значение из конфигурации конструктора.
+ * Переопределение заменяет его; `super.метод()` по-прежнему читает конструктор.
  */
 export class Popover<
   InitConfigType extends PopoverInitConfig<any> = DefaultInitConfigType,
   PropertiesType extends PopoverProperties = PopoverProperties,
-> extends EntryComponent<InitConfigType, PropertiesType> {
+> extends EntryComponent<InitConfigType, PropertiesType, PopoverConfig> {
   /** Локальные (client-only) действия entry-popover. */
   readonly local = {
     close: (config?: ActionConfig) => closeEntry(this, config),
   };
+
+  constructor(config?: Partial<InitConfigType>) {
+    super((config ?? {}) as InitConfigType);
+  }
+
+  /**
+   * Содержимое popover. По умолчанию — `content` конструктора.
+   */
+  protected content(): InitConfigType["content"] {
+    return this.config.content;
+  }
+
+  /**
+   * Привязка к якорю. По умолчанию — `positionArea` конструктора.
+   */
+  protected positionArea(): InitConfigType["positionArea"] {
+    return this.config.positionArea;
+  }
+
+  /**
+   * Ширина popover. По умолчанию — `size` конструктора.
+   */
+  protected size(): InitConfigType["size"] {
+    return this.config.size;
+  }
+
+  /**
+   * Оверлеи popover. По умолчанию — `overlays` конструктора.
+   */
+  protected overlays(): InitConfigType["overlays"] {
+    return this.config.overlays;
+  }
 
   /**
    * Возвращает уникальный идентификатор класса компонента.
@@ -118,38 +154,10 @@ export class Popover<
   protected initProperties(initValues: InitConfigType): PropertiesType {
     return {
       ...super.initProperties(initValues),
-      content: calculateComponents(initValues.content),
-      positionArea: initValues.positionArea,
-      size: initValues.size,
+      content: calculateComponents(this.content()),
+      positionArea: this.positionArea(),
+      size: this.size(),
+      overlays: this.overlays(),
     };
-  }
-
-  protected serializeRuleOverrides(
-    overrides: Partial<PropertiesType>,
-  ): Record<string, unknown> {
-    const out = super.serializeRuleOverrides(overrides);
-    if (overrides.content !== undefined) {
-      out.content = serializeComponentList(overrides.content);
-    }
-    return out;
-  }
-
-  protected override serializeEntry(
-    instance: ComponentInstance<this>,
-  ): PopoverConfig {
-    const result = super.serializeEntry(instance);
-    return {
-      ...result,
-      class: ServerComponentClass.Popover,
-      properties: this.buildPropertiesForClient({
-        content: serializeComponentList(this.properties.content),
-      }),
-    };
-  }
-
-  override serialize(instance?: ComponentInstance<this>): PopoverConfig {
-    return this.withEntrySerializationContext(instance, (resolvedInstance) =>
-      this.serializeEntry(resolvedInstance),
-    );
   }
 }

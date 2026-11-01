@@ -3,13 +3,11 @@ import type { ComponentScrollPayload } from "@matreshka/shared/messages/client-t
 import type { PageConfig } from "@matreshka/shared/types/page-config";
 import {
   Componentable,
-  ComponentInstance,
   ComponentTreeNode,
   MixedWithCallbacksArray,
   Pageable,
 } from "../core";
 import StatusCode from "../core/types/status-code";
-import { serializeComponentList } from "../core/utils/serialize-component-tree";
 import { ServerComponentAction } from "./component";
 import {
   EntryComponent,
@@ -17,7 +15,6 @@ import {
   EntryComponentProperties,
 } from "./entry-component";
 import { Overlay } from "./types/container-overlay";
-import type { WebMcpTool } from "./webmcp/web-mcp-tool";
 
 /**
  * Свойства страницы.
@@ -49,56 +46,15 @@ export abstract class Page<
     InitConfigType extends PageInitConfig<any> = DefaultInitConfigType,
     PropertiesType extends PageProperties = PageProperties,
   >
-  extends EntryComponent<InitConfigType, PropertiesType>
+  extends EntryComponent<InitConfigType, PropertiesType, PageConfig>
   implements Pageable
 {
-  private pageToolsRegistered = false;
-
   constructor() {
     // @ts-expect-error Page задаёт content в boot(), а не через конфиг конструктора Component.
     super({});
-    this.bindPageInteraction("scroll", this.onScroll());
-    this.bindPageEntryInteraction("enter", this.onEnter());
-    this.bindPageEntryInteraction("leave", this.onLeave());
+    this.bindDeclaredInteraction("scroll", this.onScroll());
   }
 
-  /** Привязка обработчиков страницы к имени взаимодействия (как на клиенте в `interact`). */
-  private bindPageInteraction(
-    event: string,
-    handlers:
-      | ServerComponentAction<Page, any>
-      | ServerComponentAction<Page, any>[]
-      | undefined,
-  ): void {
-    if (handlers === undefined) {
-      return;
-    }
-    this.bindActions(
-      event,
-      handlers as
-        | ServerComponentAction<Componentable, unknown>
-        | ServerComponentAction<Componentable, unknown>[],
-    );
-  }
-
-  /** Привязка lifecycle entry-страницы к имени взаимодействия. */
-  private bindPageEntryInteraction(
-    event: string,
-    handlers:
-      | ServerComponentAction<Page, undefined>
-      | ServerComponentAction<Page, undefined>[]
-      | undefined,
-  ): void {
-    if (handlers === undefined) {
-      return;
-    }
-    this.bindActions(
-      event,
-      handlers as
-        | ServerComponentAction<Componentable, unknown>
-        | ServerComponentAction<Componentable, unknown>[],
-    );
-  }
   /**
    * Возвращает HTTP-статус страницы.
    * @returns Статус страницы (по умолчанию 200 OK).
@@ -153,51 +109,6 @@ export abstract class Page<
   }
 
   /**
-   * Обработчики показа хоста страницы (`app-page`), после готовности представления на клиенте.
-   */
-  protected onEnter():
-    | ServerComponentAction<Page, undefined>
-    | ServerComponentAction<Page, undefined>[]
-    | undefined {
-    return undefined;
-  }
-
-  /**
-   * Обработчики скрытия / уничтожения хоста страницы на клиенте.
-   */
-  protected onLeave():
-    | ServerComponentAction<Page, undefined>
-    | ServerComponentAction<Page, undefined>[]
-    | undefined {
-    return undefined;
-  }
-
-  /**
-   * WebMCP-тулзы страницы. Клиент регистрирует их при создании entry.
-   * execute вызывается на BFF по id и возвращает строку.
-   */
-  protected tools(): WebMcpTool[] | undefined {
-    return undefined;
-  }
-
-  /**
-   * Тулзы страницы читают поля наследника, поэтому регистрируются после конструктора:
-   * при первом чтении списка и перед сериализацией.
-   */
-  private registerPageTools(): void {
-    if (this.pageToolsRegistered) {
-      return;
-    }
-    this.pageToolsRegistered = true;
-    this.registerEntryTools(this.tools());
-  }
-
-  override get entryTools() {
-    this.registerPageTools();
-    return super.entryTools;
-  }
-
-  /**
    * Инициализирует свойства страницы.
    *
    * @param initValues Конфигурация страницы.
@@ -220,35 +131,5 @@ export abstract class Page<
    */
   protected class(): ServerComponentClass {
     return ServerComponentClass.Page;
-  }
-
-  protected serializeRuleOverrides(
-    overrides: Partial<PropertiesType>,
-  ): Record<string, unknown> {
-    const out = super.serializeRuleOverrides(overrides);
-    if (overrides.content !== undefined) {
-      out.content = serializeComponentList(overrides.content);
-    }
-    return out;
-  }
-
-  protected override serializeEntry(
-    instance: ComponentInstance<this>,
-  ): PageConfig {
-    this.registerPageTools();
-    const result = super.serializeEntry(instance);
-    return {
-      ...result,
-      class: ServerComponentClass.Page,
-      properties: this.buildPropertiesForClient({
-        content: serializeComponentList(this.properties.content),
-      }),
-    };
-  }
-
-  override serialize(instance?: ComponentInstance<this>): PageConfig {
-    return this.withEntrySerializationContext(instance, (resolvedInstance) =>
-      this.serializeEntry(resolvedInstance),
-    );
   }
 }

@@ -10,7 +10,6 @@ import {
   ComponentInstance,
   ComponentTreeNode,
   MixedWithCallbacksArray,
-  serializeComponentList,
 } from "../core";
 import type { ActionConfig } from "../core/actions/action";
 import type { AnimateComponent } from "../core/actions/animate-component";
@@ -20,6 +19,7 @@ import {
   EntryComponentInitConfig,
   EntryComponentProperties,
 } from "./entry-component";
+import type { Overlay } from "./types/container-overlay";
 
 function serializeLocalActions(
   actions: AnimateComponent | AnimateComponent[] | undefined,
@@ -127,7 +127,12 @@ export function dialog(
 }
 
 /**
- * Абстрактный базовый класс диалогового компонента.
+ * Базовый класс диалога.
+ *
+ * Фабрика {@link dialog} и `new Dialog(config)` задают диалог конфигурацией.
+ * Наследник задаёт те же поля методами, как Page, и не обязан передавать их в `super`.
+ * Метод по умолчанию возвращает значение из конфигурации конструктора.
+ * Переопределение заменяет его; `super.метод()` по-прежнему читает конструктор.
  *
  * @template InitConfigType Тип конфигурации инициализации.
  */
@@ -135,13 +140,53 @@ export class Dialog<
     InitConfigType extends DialogInitConfig<any> = DefaultInitConfigType,
     PropertiesType extends DialogProperties = DialogProperties,
   >
-  extends EntryComponent<InitConfigType, PropertiesType>
+  extends EntryComponent<InitConfigType, PropertiesType, DialogConfig>
   implements Componentable
 {
   /** Локальные (client-only) действия entry-диалога. */
   readonly local = {
     close: (config?: ActionConfig) => closeEntry(this, config),
   };
+
+  constructor(config?: Partial<InitConfigType>) {
+    super((config ?? {}) as InitConfigType);
+  }
+
+  /**
+   * Содержимое диалога. По умолчанию — `content` конструктора.
+   */
+  protected content(): InitConfigType["content"] {
+    return this.config.content;
+  }
+
+  /**
+   * Якоря позиционирования. По умолчанию — `anchors` конструктора.
+   * Обычный массив, чтобы литерал `[OverlayAnchor.Center]` в наследнике не требовал кортеж.
+   */
+  protected anchors(): readonly OverlayAnchor[] | undefined {
+    return this.config.anchors;
+  }
+
+  /**
+   * Модальность. По умолчанию — `modal` конструктора.
+   */
+  protected modal(): InitConfigType["modal"] {
+    return this.config.modal;
+  }
+
+  /**
+   * Анимации подложки. По умолчанию — `backdrop` конструктора.
+   */
+  protected backdrop(): InitConfigType["backdrop"] {
+    return this.config.backdrop;
+  }
+
+  /**
+   * Оверлеи диалога. По умолчанию — `overlays` конструктора.
+   */
+  protected overlays(): Overlay[] | undefined {
+    return this.config.overlays;
+  }
 
   /**
    * Возвращает уникальный идентификатор класса компонента.
@@ -160,10 +205,11 @@ export class Dialog<
   protected initProperties(initValues: InitConfigType): PropertiesType {
     return {
       ...super.initProperties(initValues),
-      content: calculateComponents(initValues.content),
-      anchors: initValues.anchors,
-      modal: initValues.modal,
-      backdrop: serializeDialogBackdrop(initValues.backdrop),
+      content: calculateComponents(this.content()),
+      anchors: this.anchors(),
+      modal: this.modal(),
+      backdrop: serializeDialogBackdrop(this.backdrop()),
+      overlays: this.overlays(),
     };
   }
 
@@ -174,35 +220,6 @@ export class Dialog<
     return this.dispatchComponentCommand(
       instances,
       (target, actionScope) => new DialogCloseMessage(target, { actionScope }),
-    );
-  }
-
-  protected serializeRuleOverrides(
-    overrides: Partial<PropertiesType>,
-  ): Record<string, unknown> {
-    const out = super.serializeRuleOverrides(overrides);
-    if (overrides.content !== undefined) {
-      out.content = serializeComponentList(overrides.content);
-    }
-    return out;
-  }
-
-  protected override serializeEntry(
-    instance: ComponentInstance<this>,
-  ): DialogConfig {
-    const result = super.serializeEntry(instance);
-    return {
-      ...result,
-      class: ServerComponentClass.Dialog,
-      properties: this.buildPropertiesForClient({
-        content: serializeComponentList(this.properties.content),
-      }),
-    };
-  }
-
-  override serialize(instance?: ComponentInstance<this>): DialogConfig {
-    return this.withEntrySerializationContext(instance, (resolvedInstance) =>
-      this.serializeEntry(resolvedInstance),
     );
   }
 }

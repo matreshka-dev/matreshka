@@ -5,8 +5,10 @@ import type { Client } from "../core/client";
 import { currentClient } from "../core/client-context";
 import { runWithEntry } from "../core/entry-context";
 import type { ComponentInstance } from "../core/types/component-instance";
+import type { ComponentTreeNode } from "../core/types/component-tree-node";
 import type { Componentable } from "../core/types/componentable";
 import { incomingMessageObserver } from "../core/utils/incoming-message-observer";
+import { serializeComponentList } from "../core/utils/serialize-component-tree";
 import {
   Component,
   ComponentInitConfig,
@@ -52,32 +54,46 @@ type DefaultInitConfigType = EntryComponentInitConfig<EntryComponent>;
 export abstract class EntryComponent<
   InitConfigType extends EntryComponentInitConfig<any> = DefaultInitConfigType,
   PropertiesType extends EntryComponentProperties = EntryComponentProperties,
+  SerializedConfigType extends
+    EntryServerComponentConfig = EntryServerComponentConfig,
 > extends Component<InitConfigType, PropertiesType> {
   private readonly registeredTools: WebMcpTool[] = [];
+  private declaredToolsRegistered = false;
 
   constructor(config: InitConfigType) {
     super(config);
-    this.registerEntryTools(config.tools);
-    if (config.onEnter) {
-      this.bindActions(
-        "enter",
-        config.onEnter as unknown as
-          | ServerComponentAction<Componentable, unknown>
-          | ServerComponentAction<Componentable, unknown>[],
-      );
-    }
-    if (config.onLeave) {
-      this.bindActions(
-        "leave",
-        config.onLeave as unknown as
-          | ServerComponentAction<Componentable, unknown>
-          | ServerComponentAction<Componentable, unknown>[],
-      );
-    }
+    // До полей наследника. В отложенном обработчике this уже собран.
+    this.bindDeclaredInteraction("enter", this.onEnter());
+    this.bindDeclaredInteraction("leave", this.onLeave());
+  }
+
+  /**
+   * Показ entry. По умолчанию — `onEnter` конструктора.
+   * Читается в конструкторе, до полей наследника.
+   */
+  protected onEnter(): InitConfigType["onEnter"] {
+    return this.config.onEnter;
+  }
+
+  /**
+   * Начало ухода entry. По умолчанию — `onLeave` конструктора.
+   * Читается в конструкторе, до полей наследника.
+   */
+  protected onLeave(): InitConfigType["onLeave"] {
+    return this.config.onLeave;
+  }
+
+  /**
+   * WebMCP-тулзы entry. По умолчанию — `tools` конструктора.
+   * Читается после конструктора наследника: поля наследника уже есть.
+   */
+  protected tools(): readonly WebMcpTool[] | undefined {
+    return this.config.tools;
   }
 
   /** Сохранённые WebMCP-тулзы. execute не сериализуется и не вызывается до сообщения вызова. */
   get entryTools(): readonly WebMcpTool[] {
+    this.registerDeclaredTools();
     return this.registeredTools;
   }
 
@@ -88,7 +104,39 @@ export abstract class EntryComponent<
     this.registeredTools.push(...tools);
   }
 
-  override serialize(instance?: ComponentInstance<this>) {
+  /** Привязка обработчиков к имени взаимодействия. */
+  protected bindDeclaredInteraction(
+    event: string,
+    handlers:
+      | ServerComponentAction<any, any>
+      | ServerComponentAction<any, any>[]
+      | undefined,
+  ): void {
+    if (handlers === undefined) {
+      return;
+    }
+    this.bindActions(
+      event,
+      handlers as
+        | ServerComponentAction<Componentable, unknown>
+        | ServerComponentAction<Componentable, unknown>[],
+    );
+  }
+
+  /**
+   * Тулзы читают поля наследника, поэтому регистрируются после конструктора:
+   * при первом чтении списка и перед сериализацией.
+   * Флаг ставится до чтения, чтобы `tools()` мог обратиться к `entryTools`.
+   */
+  private registerDeclaredTools(): void {
+    if (this.declaredToolsRegistered) {
+      return;
+    }
+    this.declaredToolsRegistered = true;
+    this.registerEntryTools(this.tools());
+  }
+
+  override serialize(instance?: ComponentInstance<this>): SerializedConfigType {
     return this.withEntrySerializationContext(instance, (resolvedInstance) =>
       this.serializeEntry(resolvedInstance),
     );
@@ -113,15 +161,45 @@ export abstract class EntryComponent<
 
   protected serializeEntry(
     instance: ComponentInstance<this>,
-  ): EntryServerComponentConfig {
+  ): SerializedConfigType {
+    this.registerDeclaredTools();
     const result = super.serialize(instance);
-    if (this.registeredTools.length === 0) {
-      return result;
-    }
+    const content = this.entryContent();
     return {
       ...result,
-      tools: this.registeredTools.map((tool) => tool.serialize()),
-    };
+      ...(this.registeredTools.length > 0
+        ? {
+            tools: this.registeredTools.map((tool) => tool.serialize()),
+          }
+        : {}),
+      ...(content
+        ? {
+            properties: this.buildPropertiesForClient({
+              content: serializeComponentList(content),
+            }),
+          }
+        : {}),
+    } as SerializedConfigType;
+  }
+
+  protected override serializeRuleOverrides(
+    overrides: Partial<PropertiesType>,
+  ): Record<string, unknown> {
+    const out = super.serializeRuleOverrides(overrides);
+    const content = (overrides as { content?: readonly ComponentTreeNode[] })
+      .content;
+    if (content !== undefined) {
+      out.content = serializeComponentList(content);
+    }
+    return out;
+  }
+
+  /** Сырое дерево content, если наследник его задаёт. */
+  private entryContent(): readonly ComponentTreeNode[] | undefined {
+    const content = (this.properties as { content?: unknown }).content;
+    return Array.isArray(content)
+      ? (content as readonly ComponentTreeNode[])
+      : undefined;
   }
 
   protected override subscribeClientEvents(client: Client): void {
