@@ -153,8 +153,7 @@ text({ scale: 2 }, "Заголовок");
 
 - `onEnter` — entry впервые показан клиенту;
 - `onLeave` — entry начал уходить, но ещё не уничтожен.
-
-То есть `entry`-компонент — это не просто еще один leaf/branch в дереве, а самостоятельный UI-контейнер со своим жизненным циклом.
+  То есть `entry`-компонент — это не просто еще один leaf/branch в дереве, а самостоятельный UI-контейнер со своим жизненным циклом.
 
 ### Когда нужен `entry`-компонент
 
@@ -205,9 +204,12 @@ textInput(this.context.ref("name"));
 text("Статический текст");
 text(this.context.ref("name"));
 text(`Привет, ${this.context.ref("name").toString()}`);
-text({
-  processors: [lineBreaks(), autolink()],
-}, this.context.ref("content"));
+text(
+  {
+    processors: [lineBreaks(), autolink()],
+  },
+  this.context.ref("content"),
+);
 number(42);
 datetime(this.context.ref("createdAt"));
 ```

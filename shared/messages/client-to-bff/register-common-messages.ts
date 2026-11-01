@@ -30,6 +30,7 @@ import { ClientToBffMessageReceivedMessage } from "./message-received-message";
 import { PlatformEnumerateDevicesSuccessMessage } from "./platforms/platform-enumerate-devices-success-message";
 import { PlatformWebAuthnCreateCredentialSuccessMessage } from "./platforms/platform-webauthn-create-credential-success-message";
 import { PlatformWebAuthnGetCredentialSuccessMessage } from "./platforms/platform-webauthn-get-credential-success-message";
+import { WebMcpToolCallMessage } from "./webmcp/web-mcp-tool-call-message";
 
 export function registerCommonClientToBffMessages() {
   clientToBffMessageRegistry.register(ClientToBffMessageReceivedMessage);
@@ -67,4 +68,5 @@ export function registerCommonClientToBffMessages() {
     PlatformWebAuthnGetCredentialSuccessMessage,
   );
   clientToBffMessageRegistry.register(ErrorMessage);
+  clientToBffMessageRegistry.register(WebMcpToolCallMessage);
 }

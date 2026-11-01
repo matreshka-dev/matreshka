@@ -48,6 +48,8 @@ import { PlatformSetOverlaysMessage } from "./platforms/platform-set-overlays-me
 import { PlatformShowNativePickerMessage } from "./platforms/platform-show-native-picker-message";
 import { PlatformWebAuthnCreateCredentialMessage } from "./platforms/platform-webauthn-create-credential-message";
 import { PlatformWebAuthnGetCredentialMessage } from "./platforms/platform-webauthn-get-credential-message";
+import { WebMcpToolErrorMessage } from "./webmcp/web-mcp-tool-error-message";
+import { WebMcpToolResultMessage } from "./webmcp/web-mcp-tool-result-message";
 
 export function registerCommonBffToClientMessages() {
   bffToClientMessageRegistry.register(BffToClientMessageReceivedMessage);
@@ -99,4 +101,6 @@ export function registerCommonBffToClientMessages() {
   bffToClientMessageRegistry.register(PlatformSetOverlaysMessage);
   bffToClientMessageRegistry.register(PlatformShowNativePickerMessage);
   bffToClientMessageRegistry.register(PlatformSetColorSchemeMessage);
+  bffToClientMessageRegistry.register(WebMcpToolResultMessage);
+  bffToClientMessageRegistry.register(WebMcpToolErrorMessage);
 }

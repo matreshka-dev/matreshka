@@ -43,6 +43,7 @@ Transport передаёт обычный JSON. Пример app-level сооб�
 - `"<context-id>"` — конкретный `Context`;
 - `"<component-instance-id>"` — инстанс компонента на клиенте;
 - `"platform-action-<uuid>"` — correlation id для пар request/response между BFF и platform handler на клиенте. Семантика завершения (результат, пустой ack или ошибка) — [`platform-actions.md`](platform-actions.md).
+- `"<tool-id>"` — id WebMCP-тулза для `web-mcp-tool-call`, `web-mcp-tool-result` и `web-mcp-tool-error`.
 
 ## Основные группы сообщений
 
@@ -52,7 +53,8 @@ Transport передаёт обычный JSON. Пример app-level сооб�
 - контексты: `context-init`, `context-values`, `context-destroy`;
 - компоненты: лёгкие component commands (`PingableComponentCommandMessage`), тяжёлые вроде `for-each` sync (`ReliableComponentCommandMessage`), dialog/popover show;
 - подтверждения получения: `message-received` для reliable client-to-bff сообщений;
-- platform commands: navigation, overlays, color scheme, privacy mode, native pickers.
+- platform commands: navigation, overlays, color scheme, privacy mode, native pickers;
+- WebMCP: `web-mcp-tool-result`, `web-mcp-tool-error`.
 
 ### client -> BFF
 
@@ -61,7 +63,50 @@ Transport передаёт обычный JSON. Пример app-level сооб�
 - component interactions — click, submit, scroll, show/hide и специализированные события;
 - context messages — init и values;
 - подтверждения получения: `message-received` для reliable bff-to-client сообщений;
-- platform feedback и error messages.
+- platform feedback и error messages;
+- WebMCP: `web-mcp-tool-call`.
+
+## Вызов WebMCP-тулза
+
+Entry сериализует поле `tools` рядом с `properties`: `id`, `name`, `description`, `annotations` и, если автор задал Zod-схему, `inputSchema` в виде JSON Schema. `execute` остаётся на BFF. Клиент регистрирует эти метаданные в `document.modelContext` при создании entry и снимает регистрацию при его уничтожении. Вызов агента уходит на BFF вместе с аргументами:
+
+```json
+{
+  "type": "web-mcp-tool-call",
+  "target": "<tool-id>",
+  "payload": {
+    "input": { "text": "Купить молоко" }
+  }
+}
+```
+
+`target` — `id`, который BFF выдал тулзу при объявлении. `input` — аргументы вызова. Если у тулза есть схема, BFF проверяет `input` этой схемой до `execute` и при несоответствии отвечает `web-mcp-tool-error`. После успешного `execute` BFF отвечает одним сообщением с тем же `target`. `callId` равен reliable-`id` вызова, чтобы параллельные вызовы одного тулза не смешались.
+
+Успех:
+
+```json
+{
+  "type": "web-mcp-tool-result",
+  "target": "<tool-id>",
+  "payload": {
+    "result": "текст результата",
+    "callId": "<id вызова>"
+  }
+}
+```
+
+Ошибка `execute`:
+
+```json
+{
+  "type": "web-mcp-tool-error",
+  "target": "<tool-id>",
+  "payload": {
+    "message": "текст ошибки",
+    "callId": "<id вызова>"
+  }
+}
+```
 
 ## Handshake
 

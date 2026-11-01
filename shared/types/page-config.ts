@@ -1,5 +1,6 @@
 import { ServerComponentClass } from "../enums/server-component-class";
 import type { Overlay } from "./container-overlay";
+import type { EntryServerComponentConfig } from "./entry-server-component-config";
 import type { ServerComponentConfig } from "./server-component-config";
 
 export type PageConfig = {
@@ -10,4 +11,4 @@ export type PageConfig = {
     overlays?: Overlay<ServerComponentConfig>[];
     statusCode: number;
   };
-} & ServerComponentConfig;
+} & EntryServerComponentConfig;

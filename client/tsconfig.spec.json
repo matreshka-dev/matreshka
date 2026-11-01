@@ -3,7 +3,8 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "outDir": "./out-tsc/spec"
+    "outDir": "./out-tsc/spec",
+    "types": ["node", "telegram-web-app", "webmcp-types"]
   },
   "include": ["src/**/*.d.ts", "src/**/*.spec.ts"],
   "angularCompilerOptions": {

@@ -1,6 +1,7 @@
 import { ServerComponentClass } from "../enums/server-component-class";
 import type { Overlay, OverlayAnchor } from "./container-overlay";
 import type { DialogBackdropConfig } from "./dialog-backdrop-config";
+import type { EntryServerComponentConfig } from "./entry-server-component-config";
 import type { ServerComponentConfig } from "./server-component-config";
 
 export type DialogConfig = {
@@ -12,4 +13,4 @@ export type DialogConfig = {
     overlays?: Overlay<ServerComponentConfig>[];
     backdrop?: DialogBackdropConfig;
   };
-} & ServerComponentConfig;
+} & EntryServerComponentConfig;

@@ -17,6 +17,7 @@ import {
   EntryComponentProperties,
 } from "./entry-component";
 import { Overlay } from "./types/container-overlay";
+import type { WebMcpTool } from "./webmcp/web-mcp-tool";
 
 /**
  * Свойства страницы.
@@ -57,6 +58,7 @@ export abstract class Page<
     this.bindPageInteraction("scroll", this.onScroll());
     this.bindPageEntryInteraction("enter", this.onEnter());
     this.bindPageEntryInteraction("leave", this.onLeave());
+    this.registerEntryTools(this.tools());
   }
 
   /** Привязка обработчиков страницы к имени взаимодействия (как на клиенте в `interact`). */
@@ -166,6 +168,14 @@ export abstract class Page<
     | ServerComponentAction<Page, undefined>
     | ServerComponentAction<Page, undefined>[]
     | undefined {
+    return undefined;
+  }
+
+  /**
+   * WebMCP-тулзы страницы. Клиент регистрирует их при создании entry.
+   * execute вызывается на BFF по id и возвращает строку.
+   */
+  protected tools(): WebMcpTool[] | undefined {
     return undefined;
   }
 

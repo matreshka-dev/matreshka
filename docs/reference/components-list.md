@@ -162,6 +162,7 @@ Lifecycle-события:
 | `onScroll()` | `ComponentScrollPayload` | Реакция на прокрутку страницы.                              |
 | `onEnter()`  | `undefined`              | Реакция на первый показ страницы как entry-компонента.      |
 | `onLeave()`  | `undefined`              | Реакция на начало ухода страницы; lifecycle стартует сразу. |
+| `tools()`    | `WebMcpTool[]?`          | WebMCP-тулзы страницы.                                      |
 
 Пример:
 
@@ -257,6 +258,7 @@ class FeedPage extends Page {
 | `backdrop` | `{ onEnter?, onLeave? }?`              | Анимации подложки модального диалога (`::backdrop`).       |
 | `onEnter`  | `ServerComponentAction<...>[]?`        | Реакция на первый показ диалога.                           |
 | `onLeave`  | `ServerComponentAction<...>[]?`        | Реакция на начало закрытия; lifecycle стартует сразу.      |
+| `tools`    | `WebMcpTool[]?`                        | WebMCP-тулзы диалога.                                      |
 
 Особенность init:
 
@@ -265,10 +267,10 @@ class FeedPage extends Page {
 
 Методы:
 
-| Метод / свойство | Назначение                                                                 |
-| ---------------- | -------------------------------------------------------------------------- |
-| `close()`        | Серверная команда закрыть диалог. Hot `Observable<void>` до ack клиента.   |
-| `local.close()`  | LocalAction: закрытие на клиенте без round-trip; у `component.local.close()` target — базовый id (все instances), у `instance.local.close()` — `instance.id` (один instance).  |
+| Метод / свойство | Назначение                                                                                                                                                                    |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `close()`        | Серверная команда закрыть диалог. Hot `Observable<void>` до ack клиента.                                                                                                      |
+| `local.close()`  | LocalAction: закрытие на клиенте без round-trip; у `component.local.close()` target — базовый id (все instances), у `instance.local.close()` — `instance.id` (один instance). |
 
 Пример:
 
@@ -301,13 +303,14 @@ dialog(
 | `overlays`     | `Overlay[]?`                    | Оверлеи внутри popover.                                      |
 | `onEnter`      | `ServerComponentAction<...>[]?` | Реакция на первый показ popover.                             |
 | `onLeave`      | `ServerComponentAction<...>[]?` | Реакция на начало закрытия; lifecycle стартует сразу.        |
+| `tools`        | `WebMcpTool[]?`                 | WebMCP-тулзы popover.                                        |
 
 Методы:
 
-| Метод / свойство | Назначение                                                                 |
-| ---------------- | -------------------------------------------------------------------------- |
-| `close()`        | Серверная команда закрыть popover. Hot `Observable<void>` до ack клиента.  |
-| `local.close()`  | LocalAction: закрытие на клиенте без round-trip; у `component.local.close()` target — базовый id (все instances), у `instance.local.close()` — `instance.id` (один instance).  |
+| Метод / свойство | Назначение                                                                                                                                                                    |
+| ---------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `close()`        | Серверная команда закрыть popover. Hot `Observable<void>` до ack клиента.                                                                                                     |
+| `local.close()`  | LocalAction: закрытие на клиенте без round-trip; у `component.local.close()` target — базовый id (все instances), у `instance.local.close()` — `instance.id` (один instance). |
 
 Пример:
 
@@ -361,9 +364,9 @@ popover(
 
 Методы:
 
-| Метод                                                           | Назначение                         |
-| --------------------------------------------------------------- | ---------------------------------- |
-| `scrollTo(value: number \| ScrollToPosition, smooth?: boolean)` | Программно прокручивает контейнер. Hot `Observable<void>` до ack клиента. |
+| Метод                                                           | Назначение                                                                                                                              |
+| --------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `scrollTo(value: number \| ScrollToPosition, smooth?: boolean)` | Программно прокручивает контейнер. Hot `Observable<void>` до ack клиента.                                                               |
 | `local.scrollTo(value, smooth?, config?)`                       | LocalAction: прокручивает на клиенте без round-trip. `component.local` действует на все instances, `instance.local` — на один instance. |
 
 `scrollTo` передаёт на клиент команду `component-scroll-to`. Для типовых целей используйте enum **`ScrollToPosition`** (из `@matreshka/bff/components`):
@@ -1788,10 +1791,10 @@ fileUploadArea(
 
 Методы:
 
-| Метод                                    | Назначение                                 |
-| ---------------------------------------- | ------------------------------------------ |
-| `switchCamera(device: VideoInputDevice)` | Переключает активную камеру по `deviceId`. |
-| `local.switchCamera(device, config?)`     | LocalAction: переключает камеру на клиенте без round-trip; component-level действует на все instances, instance-level — на один instance. |
+| Метод                                    | Назначение                                                                                                                                |
+| ---------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `switchCamera(device: VideoInputDevice)` | Переключает активную камеру по `deviceId`.                                                                                                |
+| `local.switchCamera(device, config?)`    | LocalAction: переключает камеру на клиенте без round-trip; component-level действует на все instances, instance-level — на один instance. |
 
 Пример:
 
@@ -1848,12 +1851,12 @@ camera(
 
 Методы:
 
-| Метод               | Назначение                       |
-| ------------------- | -------------------------------- |
+| Метод               | Назначение                                               |
+| ------------------- | -------------------------------------------------------- |
 | `setCenter(center)` | Программно меняет центр карты. Hot `Observable<void>`.   |
 | `setZoom(zoom)`     | Программно меняет масштаб карты. Hot `Observable<void>`. |
 | `zoomIn(step?)`     | Увеличивает zoom. Hot `Observable<void>`.                |
-| `zoomOut(step?)`    | Уменьшает zoom.                  |
+| `zoomOut(step?)`    | Уменьшает zoom.                                          |
 
 Локальные аналоги: `local.setCenter`, `local.setZoom`, `local.zoomIn`, `local.zoomOut`. Они выполняются на клиенте без round-trip; вызов через компонент действует на все его instances, а вызов через `instance.local` — только на выбранный instance.
 
@@ -1931,12 +1934,12 @@ map({
 
 Методы:
 
-| Метод               | Назначение                      |
-| ------------------- | ------------------------------- |
+| Метод               | Назначение                                              |
+| ------------------- | ------------------------------------------------------- |
 | `setCenter(center)` | Программно меняет центр вида. Hot `Observable<void>`.   |
 | `setZoom(zoom)`     | Программно меняет масштаб вида. Hot `Observable<void>`. |
 | `zoomIn()`          | Увеличивает zoom. Hot `Observable<void>`.               |
-| `zoomOut()`         | Уменьшает zoom.                 |
+| `zoomOut()`         | Уменьшает zoom.                                         |
 
 Локальные аналоги: `local.setCenter`, `local.setZoom`, `local.zoomIn`, `local.zoomOut`. Они выполняются на клиенте без round-trip; вызов через компонент действует на все его instances, а вызов через `instance.local` — только на выбранный instance.
 
