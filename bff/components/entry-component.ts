@@ -1,8 +1,5 @@
-import { WebMcpToolErrorMessage } from "@matreshka/shared/messages/bff-to-client/webmcp/web-mcp-tool-error-message";
-import { WebMcpToolResultMessage } from "@matreshka/shared/messages/bff-to-client/webmcp/web-mcp-tool-result-message";
 import { WebMcpToolCallMessage } from "@matreshka/shared/messages/client-to-bff/webmcp/web-mcp-tool-call-message";
 import type { EntryServerComponentConfig } from "@matreshka/shared/types/entry-server-component-config";
-import type { WebMcpToolConfig } from "@matreshka/shared/types/web-mcp-tool-config";
 import { filter } from "rxjs";
 import type { Client } from "../core/client";
 import { currentClient } from "../core/client-context";
@@ -16,11 +13,7 @@ import {
   ComponentProperties,
   ServerComponentAction,
 } from "./component";
-import {
-  webMcpInputJsonSchema,
-  webMcpToolErrorText,
-  type WebMcpTool,
-} from "./webmcp/web-mcp-tool";
+import { dispatchWebMcpToolCall, type WebMcpTool } from "./webmcp/web-mcp-tool";
 
 /**
  * Конфигурация инициализации для EntryComponent без поля conditions
@@ -127,20 +120,7 @@ export abstract class EntryComponent<
     }
     return {
       ...result,
-      tools: this.registeredTools.map(
-        (tool): WebMcpToolConfig => ({
-          id: tool.id,
-          name: tool.name,
-          description: tool.description,
-          annotations: [...tool.annotations],
-          ...(tool.inputSchema
-            ? { inputSchema: webMcpInputJsonSchema(tool.inputSchema) }
-            : {}),
-          ...(tool.conditions.length > 0
-            ? { conditions: tool.conditions }
-            : {}),
-        }),
-      ),
+      tools: this.registeredTools.map((tool) => tool.serialize()),
     };
   }
 
@@ -166,7 +146,7 @@ export abstract class EntryComponent<
             if (!tool) {
               return;
             }
-            void this.runWebMcpTool(
+            void dispatchWebMcpToolCall(
               client,
               tool,
               message.id,
@@ -177,53 +157,6 @@ export abstract class EntryComponent<
           }),
         ),
     );
-  }
-
-  private async runWebMcpTool(
-    client: Client,
-    tool: WebMcpTool,
-    callId: string,
-    input: unknown,
-  ): Promise<void> {
-    let parsedInput: unknown;
-    if (tool.inputSchema) {
-      const parsed = tool.inputSchema.safeParse(input);
-      if (!parsed.success) {
-        client.outcomingMessage$.next(
-          new WebMcpToolErrorMessage(tool.id, {
-            message: parsed.error.message,
-            callId,
-          }),
-        );
-        return;
-      }
-      parsedInput = parsed.data;
-    }
-
-    try {
-      const result: unknown = tool.inputSchema
-        ? await tool.execute(parsedInput)
-        : await tool.execute();
-      if (typeof result !== "string") {
-        client.outcomingMessage$.next(
-          new WebMcpToolErrorMessage(tool.id, {
-            message: "WebMCP tool execute must resolve to a string",
-            callId,
-          }),
-        );
-        return;
-      }
-      client.outcomingMessage$.next(
-        new WebMcpToolResultMessage(tool.id, { result, callId }),
-      );
-    } catch (error) {
-      client.outcomingMessage$.next(
-        new WebMcpToolErrorMessage(tool.id, {
-          message: webMcpToolErrorText(error),
-          callId,
-        }),
-      );
-    }
   }
 
   /** Контекст сериализации дочерних компонентов без полной serialize entry. @internal */

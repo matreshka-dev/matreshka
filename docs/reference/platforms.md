@@ -364,6 +364,30 @@ const overlays = currentClientPlatform().getOverlays();
 
 Обычно это вспомогательный метод для серверной логики, которая управляет overlays.
 
+### `setTools(tools)`
+
+Устанавливает глобальные WebMCP-тулзы. Новый список заменяет предыдущий и переживает смену страницы. Пустой массив снимает глобальные тулзы. Тулзы entry не затрагиваются. `execute` остаётся на BFF.
+
+```ts
+await firstValueFrom(
+  currentClientPlatform().setTools([
+    webMcpTool({
+      name: "get_location",
+      description: "Запрашивает геолокацию устройства и возвращает координаты",
+      execute: async () => "55,37",
+    }),
+  ]),
+);
+```
+
+### `getTools()`
+
+Возвращает текущие глобальные WebMCP-тулзы.
+
+```ts
+const tools = currentClientPlatform().getTools();
+```
+
 ### `enumerateDevices()`
 
 Запрашивает у клиента список доступных media devices.

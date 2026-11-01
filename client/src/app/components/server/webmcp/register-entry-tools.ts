@@ -15,7 +15,7 @@ const emptyInputSchema = {
   properties: {},
 } as const;
 
-/** Имена, занятые сейчас в document.modelContext всеми entry. */
+/** Имена, занятые сейчас в document.modelContext. */
 const registeredToolNames = new Set<string>();
 
 type ToolRegistration = {
@@ -34,7 +34,7 @@ export type WebMcpToolAvailability = {
   replacePlaceholders?: (key: string) => string;
 };
 
-export function registerEntryWebMcpTools(
+export function registerWebMcpTools(
   documentRef: Document,
   tools: readonly WebMcpToolConfig[] | undefined,
   postman: ToolTransport,

@@ -18,15 +18,18 @@ import {
 import type { PlatformSetColorSchemeMode } from '@shared/messages/bff-to-client/platforms/platform-set-color-scheme-message';
 import { PlatformSetColorSchemeMessage } from '@shared/messages/bff-to-client/platforms/platform-set-color-scheme-message';
 import { PlatformSetOverlaysMessage } from '@shared/messages/bff-to-client/platforms/platform-set-overlays-message';
+import { PlatformSetToolsMessage } from '@shared/messages/bff-to-client/platforms/platform-set-tools-message';
 import { PlatformShowNativePickerMessage } from '@shared/messages/bff-to-client/platforms/platform-show-native-picker-message';
 import { AppClientStateMessage } from '@shared/messages/client-to-bff/app';
 import { ClientState } from '@shared/types/client-state';
+import type { WebMcpToolConfig } from '@shared/types/web-mcp-tool-config';
 import { filter, firstValueFrom, take } from 'rxjs';
 import { ServerComponent } from '../components/server/server-component';
 import type {
   Overlay,
   ServerComponentConfig,
 } from '../components/server/server-component-config';
+import { registerWebMcpTools } from '../components/server/webmcp/register-entry-tools';
 import { ComponentHubService } from '../services/component-hub.service';
 import { ContextHubService } from '../services/context-hub.service';
 import { FontRegistryService } from '../services/font-registry.service';
@@ -62,6 +65,7 @@ export abstract class Platform {
 
   /** Конфиги платформенных оверлеев (вне страницы, переживают навигацию). */
   readonly platformOverlays = signal<Overlay[]>([]);
+  private unregisterPlatformTools: () => void = () => undefined;
   private readonly defaultColorClasses = new Set<string>();
   serverInstanceId?: string;
   router = inject(Router);
@@ -137,6 +141,12 @@ export abstract class Platform {
       if (message instanceof PlatformSetOverlaysMessage) {
         this.runPlatformAction(message.target, () => {
           this.applyPlatformOverlays(message.payload.overlays as Overlay[]);
+        });
+        return;
+      }
+      if (message instanceof PlatformSetToolsMessage) {
+        this.runPlatformAction(message.target, () => {
+          this.applyPlatformTools(message.payload.tools);
         });
         return;
       }
@@ -280,6 +290,21 @@ export abstract class Platform {
       this.componentHub.registerConfig(o.component);
     }
     this.platformOverlays.set(next);
+  }
+
+  private applyPlatformTools(tools: readonly WebMcpToolConfig[]): void {
+    this.unregisterPlatformTools();
+    this.unregisterPlatformTools = registerWebMcpTools(
+      this.document,
+      tools,
+      this.postman,
+      {
+        conditionsMet: (conditions) =>
+          this.componentHub.conditionsMet(conditions),
+        contextChange$: this.contextHub.change$,
+        replacePlaceholders: (key) => this.contextHub.replacePlaceholders(key),
+      },
+    );
   }
 
   private showNativePickerAsync(

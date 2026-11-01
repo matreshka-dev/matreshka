@@ -9,7 +9,7 @@ import { Subject } from 'rxjs';
 import { describe, expect, it, vi } from 'vitest';
 import { TestPostmanService } from '../../../services/tests/test-postman.service';
 import type { ContextChangeEvent } from '../../../types/context-change-event';
-import { registerEntryWebMcpTools } from './register-entry-tools';
+import { registerWebMcpTools } from './register-entry-tools';
 
 const tool: WebMcpToolConfig = {
   id: 'tool-1',
@@ -40,11 +40,11 @@ function documentWith(registerTool: RegisterTool): Document {
   return { modelContext: { registerTool } } as unknown as Document;
 }
 
-describe('registerEntryWebMcpTools', () => {
+describe('registerWebMcpTools', () => {
   it('регистрирует тулз и снимает его через abort', async () => {
     const registerTool = vi.fn<RegisterTool>().mockResolvedValue(undefined);
     const postman = new TestPostmanService();
-    const unregister = registerEntryWebMcpTools(
+    const unregister = registerWebMcpTools(
       documentWith(registerTool),
       [tool],
       postman,
@@ -94,7 +94,7 @@ describe('registerEntryWebMcpTools', () => {
   it('отклоняет execute текстом ошибки', async () => {
     const registerTool = vi.fn<RegisterTool>().mockResolvedValue(undefined);
     const postman = new TestPostmanService();
-    const unregister = registerEntryWebMcpTools(
+    const unregister = registerWebMcpTools(
       documentWith(registerTool),
       [tool],
       postman,
@@ -130,7 +130,7 @@ describe('registerEntryWebMcpTools', () => {
     };
     const registerTool = vi.fn<RegisterTool>().mockResolvedValue(undefined);
     const postman = new TestPostmanService();
-    const unregister = registerEntryWebMcpTools(
+    const unregister = registerWebMcpTools(
       documentWith(registerTool),
       [{ ...tool, inputSchema }],
       postman,
@@ -158,14 +158,12 @@ describe('registerEntryWebMcpTools', () => {
 
   it('не регистрирует тулзы без modelContext и глотает отказ registerTool', async () => {
     const postman = new TestPostmanService();
-    expect(() =>
-      registerEntryWebMcpTools(document, [tool], postman),
-    ).not.toThrow();
+    expect(() => registerWebMcpTools(document, [tool], postman)).not.toThrow();
 
     const registerTool = vi
       .fn<RegisterTool>()
       .mockRejectedValue(new Error('duplicate'));
-    const unregister = registerEntryWebMcpTools(
+    const unregister = registerWebMcpTools(
       documentWith(registerTool),
       [tool],
       postman,
@@ -188,7 +186,7 @@ describe('registerEntryWebMcpTools', () => {
     const contextChange$ = new Subject<ContextChangeEvent>();
     const registerTool = vi.fn<RegisterTool>().mockResolvedValue(undefined);
     const postman = new TestPostmanService();
-    const unregister = registerEntryWebMcpTools(
+    const unregister = registerWebMcpTools(
       documentWith(registerTool),
       [{ ...tool, conditions }],
       postman,
@@ -228,12 +226,12 @@ describe('registerEntryWebMcpTools', () => {
   it('добавляет суффикс к занятому имени и освобождает его после снятия', () => {
     const registerTool = vi.fn<RegisterTool>().mockResolvedValue(undefined);
     const postman = new TestPostmanService();
-    const first = registerEntryWebMcpTools(
+    const first = registerWebMcpTools(
       documentWith(registerTool),
       [{ ...tool, id: 'save-a', name: 'save' }],
       postman,
     );
-    const second = registerEntryWebMcpTools(
+    const second = registerWebMcpTools(
       documentWith(registerTool),
       [{ ...tool, id: 'save-b', name: 'save' }],
       postman,
@@ -245,7 +243,7 @@ describe('registerEntryWebMcpTools', () => {
     ]);
 
     first();
-    const third = registerEntryWebMcpTools(
+    const third = registerWebMcpTools(
       documentWith(registerTool),
       [{ ...tool, id: 'save-c', name: 'save' }],
       postman,

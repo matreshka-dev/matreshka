@@ -2,7 +2,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { inject, PLATFORM_ID } from '@angular/core';
 import type { EntryServerComponentConfig } from '@shared/types/entry-server-component-config';
 import { ServerComponent } from './server-component';
-import { registerEntryWebMcpTools } from './webmcp/register-entry-tools';
+import { registerWebMcpTools } from './webmcp/register-entry-tools';
 
 export abstract class EntryServerComponent<
   T extends EntryServerComponentConfig,
@@ -15,7 +15,7 @@ export abstract class EntryServerComponent<
     if (!isPlatformBrowser(this.platformId)) {
       return;
     }
-    this.unregisterWebMcpTools = registerEntryWebMcpTools(
+    this.unregisterWebMcpTools = registerWebMcpTools(
       this.document,
       this._configSignal()?.tools,
       this.postman,

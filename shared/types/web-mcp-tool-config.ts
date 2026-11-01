@@ -1,7 +1,7 @@
 import type { WebMcpToolAnnotation } from "../enums/web-mcp-tool-annotation";
 import type { Condition } from "./condition";
 
-/** Метаданные WebMCP-тулза в config entry. Функция execute остаётся на BFF. */
+/** Метаданные WebMCP-тулза в config entry или в списке платформы. Функция execute остаётся на BFF. */
 export type WebMcpToolConfig = {
   id: string;
   name: string;

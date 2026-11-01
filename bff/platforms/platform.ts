@@ -5,16 +5,23 @@ import { EnablePrivacyModeMessage } from "@matreshka/shared/messages/bff-to-clie
 import { PlatformEnumerateDevicesMessage } from "@matreshka/shared/messages/bff-to-client/platforms/platform-enumerate-devices-message";
 import { PlatformSetColorSchemeMessage } from "@matreshka/shared/messages/bff-to-client/platforms/platform-set-color-scheme-message";
 import { PlatformSetOverlaysMessage } from "@matreshka/shared/messages/bff-to-client/platforms/platform-set-overlays-message";
+import { PlatformSetToolsMessage } from "@matreshka/shared/messages/bff-to-client/platforms/platform-set-tools-message";
 import {
   PlatformNativePickerInputType,
   PlatformShowNativePickerMessage,
 } from "@matreshka/shared/messages/bff-to-client/platforms/platform-show-native-picker-message";
 import type { PlatformEnumeratedDevice } from "@matreshka/shared/messages/client-to-bff/platforms/platform-enumerate-devices-success-message";
 import { PlatformEnumerateDevicesSuccessMessage } from "@matreshka/shared/messages/client-to-bff/platforms/platform-enumerate-devices-success-message";
-import type { Observable } from "rxjs";
+import { WebMcpToolCallMessage } from "@matreshka/shared/messages/client-to-bff/webmcp/web-mcp-tool-call-message";
+import type { Observable, Subscription } from "rxjs";
+import { filter } from "rxjs";
 import { z } from "zod/v4";
 import { Dialog, Popover } from "../components";
 import { Overlay } from "../components/types/container-overlay";
+import {
+  dispatchWebMcpToolCall,
+  type WebMcpTool,
+} from "../components/webmcp/web-mcp-tool";
 import {
   Client,
   Componentable,
@@ -23,6 +30,7 @@ import {
   runWithEntry,
   serializeOverlays,
 } from "../core";
+import { incomingMessageObserver } from "../core/utils/incoming-message-observer";
 import {
   isPopoverShowPlacement,
   type PopoverShowComponent,
@@ -52,6 +60,8 @@ const enumeratedDeviceSchema = z.strictObject({
  */
 export abstract class Platform {
   private platformOverlays: Overlay[] = [];
+  private platformTools: WebMcpTool[] = [];
+  private platformToolsSubscription?: Subscription;
 
   /**
    * Активный клиент, связанный с платформой.
@@ -198,6 +208,63 @@ export abstract class Platform {
           inputType,
           ref: ref.toJSON(),
         }),
+    });
+  }
+
+  /**
+   * Задаёт платформенные WebMCP-тулзы. Новый список заменяет предыдущий.
+   * Пустой массив снимает глобальные тулзы. Тулзы страницы не затрагиваются.
+   * Вызов execute остаётся на BFF.
+   */
+  setTools(tools: readonly WebMcpTool[]): Observable<void> {
+    this.platformTools = [...tools];
+    this.ensurePlatformToolsListener();
+    return targetedClientPlatformAction(this.client, {
+      outgoingMessage: (scope) =>
+        new PlatformSetToolsMessage(scope, {
+          tools: this.platformTools.map((tool) => tool.serialize()),
+        }),
+    });
+  }
+
+  /** Текущие платформенные WebMCP-тулзы. */
+  getTools(): readonly WebMcpTool[] {
+    return this.platformTools;
+  }
+
+  private ensurePlatformToolsListener(): void {
+    if (this.platformToolsSubscription) {
+      return;
+    }
+    const subscription = this.client.incomingMessage$
+      .pipe(
+        filter(
+          (message): message is WebMcpToolCallMessage =>
+            message instanceof WebMcpToolCallMessage,
+        ),
+      )
+      .subscribe(
+        incomingMessageObserver(this.client, (message) => {
+          const tool = this.platformTools.find(
+            (item) => item.id === message.target,
+          );
+          if (!tool) {
+            return;
+          }
+          void dispatchWebMcpToolCall(
+            this.client,
+            tool,
+            message.id,
+            message.payload?.input,
+          ).catch((error) => {
+            this.client.error$.next(error);
+          });
+        }),
+      );
+    this.platformToolsSubscription = subscription;
+    this.client.destroy$.subscribe(() => {
+      subscription.unsubscribe();
+      this.platformToolsSubscription = undefined;
     });
   }
 

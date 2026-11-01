@@ -45,6 +45,7 @@ import { EnablePrivacyModeMessage } from "./platforms/enable-privacy-mode-messag
 import { PlatformEnumerateDevicesMessage } from "./platforms/platform-enumerate-devices-message";
 import { PlatformSetColorSchemeMessage } from "./platforms/platform-set-color-scheme-message";
 import { PlatformSetOverlaysMessage } from "./platforms/platform-set-overlays-message";
+import { PlatformSetToolsMessage } from "./platforms/platform-set-tools-message";
 import { PlatformShowNativePickerMessage } from "./platforms/platform-show-native-picker-message";
 import { PlatformWebAuthnCreateCredentialMessage } from "./platforms/platform-webauthn-create-credential-message";
 import { PlatformWebAuthnGetCredentialMessage } from "./platforms/platform-webauthn-get-credential-message";
@@ -99,6 +100,7 @@ export function registerCommonBffToClientMessages() {
   bffToClientMessageRegistry.register(PlatformWebAuthnCreateCredentialMessage);
   bffToClientMessageRegistry.register(PlatformWebAuthnGetCredentialMessage);
   bffToClientMessageRegistry.register(PlatformSetOverlaysMessage);
+  bffToClientMessageRegistry.register(PlatformSetToolsMessage);
   bffToClientMessageRegistry.register(PlatformShowNativePickerMessage);
   bffToClientMessageRegistry.register(PlatformSetColorSchemeMessage);
   bffToClientMessageRegistry.register(WebMcpToolResultMessage);
