@@ -64,10 +64,14 @@ export * from "./map";
 export * from "./popover";
 export * from "./stack";
 export { isStandaloneComponentLike } from "./utils/component-factory-shared";
-export { WebMcpToolAnnotation, webMcpTool } from "./webmcp/web-mcp-tool";
-export type {
-  RegisteredWebMcpTool,
+export {
   WebMcpTool,
+  WebMcpToolAnnotation,
+  webMcpTool,
+} from "./webmcp/web-mcp-tool";
+export type {
   WebMcpToolExecute,
+  WebMcpToolInit,
   WebMcpToolWithInput,
+  WebMcpToolWithoutInput,
 } from "./webmcp/web-mcp-tool";

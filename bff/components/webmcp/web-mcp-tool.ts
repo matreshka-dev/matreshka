@@ -18,31 +18,23 @@ type WebMcpToolBase = {
   conditions?: WebMcpToolConditions;
 };
 
-/** Тулз в списке entry. `execute` бивариантен, чтобы схема не терялась при возврате из `tools()`. */
-type ListedWebMcpToolExecute = {
-  bivarianceHack(input?: any): Promise<string>;
-}["bivarianceHack"];
-
-export type WebMcpTool = WebMcpToolBase & {
-  inputSchema?: z.ZodType;
-  execute: ListedWebMcpToolExecute;
-};
-
+/** Тулз со схемой аргументов. Тип `execute` выводится из схемы. */
 export type WebMcpToolWithInput<TSchema extends z.ZodType> = WebMcpToolBase & {
   inputSchema: TSchema;
   execute: (input: z.output<TSchema>) => Promise<string>;
 };
 
-/** Объявление после сохранения на entry: id выдаёт сервер. */
-export type RegisteredWebMcpTool = {
-  id: string;
-  name: string;
-  description: string;
-  execute: (input?: unknown) => Promise<string>;
-  annotations: readonly WebMcpToolAnnotation[];
-  inputSchema?: z.ZodType;
-  conditions: SerializedCondition[];
+/** Тулз без аргументов. */
+export type WebMcpToolWithoutInput = WebMcpToolBase & {
+  inputSchema?: undefined;
+  execute: WebMcpToolExecute;
 };
+
+/** Аргумент `webMcpTool()` и `new WebMcpTool()`. */
+export type WebMcpToolInit<TSchema extends z.ZodType | undefined = undefined> =
+  TSchema extends z.ZodType
+    ? WebMcpToolWithInput<TSchema>
+    : WebMcpToolWithoutInput;
 
 const webMcpToolSchema = z3.object({
   name: z3.string().trim().min(1),
@@ -56,28 +48,47 @@ const webMcpToolSchema = z3.object({
     .default([]),
 });
 
-/** Сохраняет схему и выводит тип аргумента execute из неё. */
-export function webMcpTool<TSchema extends z.ZodType>(
-  tool: WebMcpToolWithInput<TSchema>,
-): WebMcpToolWithInput<TSchema> {
-  return tool;
+type StoredExecute = (input?: unknown) => Promise<string>;
+
+/**
+ * WebMCP-тулз entry.
+ * `webMcpTool({ ... })` и `new WebMcpTool({ ... })` создают один и тот же класс.
+ * id назначается при создании, автор его не задаёт.
+ * По `inputSchema` TypeScript выводит тип аргумента `execute`.
+ *
+ * Параметр схемы по умолчанию `any`, чтобы тулз с конкретной схемой
+ * можно было положить в `WebMcpTool[]`.
+ */
+export class WebMcpTool<TSchema extends z.ZodType | undefined = any> {
+  readonly id: string;
+  readonly name: string;
+  readonly description: string;
+  readonly annotations: readonly WebMcpToolAnnotation[];
+  readonly execute: StoredExecute;
+  readonly inputSchema?: z.ZodType;
+  readonly conditions: SerializedCondition[];
+
+  constructor(init: WebMcpToolInit<TSchema>) {
+    const parsed = webMcpToolSchema.parse({
+      name: init.name,
+      description: init.description,
+      annotations: init.annotations,
+    });
+    this.id = crypto.randomUUID();
+    this.name = parsed.name;
+    this.description = parsed.description;
+    this.annotations = parsed.annotations;
+    this.execute = init.execute;
+    this.inputSchema = init.inputSchema;
+    this.conditions = resolveWebMcpToolConditions(init.conditions);
+  }
 }
 
-export function acceptWebMcpTool(tool: WebMcpTool): RegisteredWebMcpTool {
-  const parsed = webMcpToolSchema.parse({
-    name: tool.name,
-    description: tool.description,
-    annotations: tool.annotations,
-  });
-  return {
-    id: crypto.randomUUID(),
-    name: parsed.name,
-    description: parsed.description,
-    execute: tool.execute as RegisteredWebMcpTool["execute"],
-    annotations: parsed.annotations,
-    inputSchema: tool.inputSchema,
-    conditions: resolveWebMcpToolConditions(tool.conditions),
-  };
+/** Функциональный вызов {@link WebMcpTool}. */
+export function webMcpTool<TSchema extends z.ZodType | undefined = undefined>(
+  init: WebMcpToolInit<TSchema>,
+): WebMcpTool<TSchema> {
+  return new WebMcpTool(init);
 }
 
 function resolveWebMcpToolConditions(

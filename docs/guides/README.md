@@ -25,6 +25,7 @@
 
 ## Дополнительно
 
+- [WebMCP](webmcp.md) — тулзы для браузерного агента на странице, в диалоге и popover
 - [Advanced: component instances](../advanced/component-instance.md)
 - [Advanced: сценарии уничтожения Context](../advanced/context-destroy-scenarios.md)
 

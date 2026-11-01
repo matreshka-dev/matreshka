@@ -17,10 +17,8 @@ import {
   ServerComponentAction,
 } from "./component";
 import {
-  acceptWebMcpTool,
   webMcpInputJsonSchema,
   webMcpToolErrorText,
-  type RegisteredWebMcpTool,
   type WebMcpTool,
 } from "./webmcp/web-mcp-tool";
 
@@ -62,7 +60,7 @@ export abstract class EntryComponent<
   InitConfigType extends EntryComponentInitConfig<any> = DefaultInitConfigType,
   PropertiesType extends EntryComponentProperties = EntryComponentProperties,
 > extends Component<InitConfigType, PropertiesType> {
-  private readonly registeredTools: RegisteredWebMcpTool[] = [];
+  private readonly registeredTools: WebMcpTool[] = [];
 
   constructor(config: InitConfigType) {
     super(config);
@@ -86,7 +84,7 @@ export abstract class EntryComponent<
   }
 
   /** Сохранённые WebMCP-тулзы. execute не сериализуется и не вызывается до сообщения вызова. */
-  get entryTools(): readonly RegisteredWebMcpTool[] {
+  get entryTools(): readonly WebMcpTool[] {
     return this.registeredTools;
   }
 
@@ -94,9 +92,7 @@ export abstract class EntryComponent<
     if (!tools) {
       return;
     }
-    for (const tool of tools) {
-      this.registeredTools.push(acceptWebMcpTool(tool));
-    }
+    this.registeredTools.push(...tools);
   }
 
   override serialize(instance?: ComponentInstance<this>) {
@@ -185,7 +181,7 @@ export abstract class EntryComponent<
 
   private async runWebMcpTool(
     client: Client,
-    tool: RegisteredWebMcpTool,
+    tool: WebMcpTool,
     callId: string,
     input: unknown,
   ): Promise<void> {

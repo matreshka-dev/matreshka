@@ -10,8 +10,12 @@ import { Client, runWithClient } from "../../core";
 import { desktopDevice } from "../../core/conditions/desktop-device";
 import { dialog } from "../dialog";
 import { Page } from "../page";
-import type { WebMcpTool, WebMcpToolExecute } from "./web-mcp-tool";
-import { webMcpTool } from "./web-mcp-tool";
+import {
+  WebMcpTool,
+  webMcpTool,
+  type WebMcpToolExecute,
+  type WebMcpToolWithoutInput,
+} from "./web-mcp-tool";
 
 class ToolsPage extends Page {
   calls = 0;
@@ -26,7 +30,7 @@ class ToolsPage extends Page {
 
   protected override tools(): WebMcpTool[] {
     return [
-      {
+      webMcpTool({
         name: "  get_order_status  ",
         description: "  Статус заказа  ",
         annotations: [WebMcpToolAnnotation.ReadOnlyHint],
@@ -34,7 +38,7 @@ class ToolsPage extends Page {
           this.calls += 1;
           return "pending";
         },
-      },
+      }),
     ];
   }
 }
@@ -50,16 +54,16 @@ class SameNamePage extends Page {
 
   protected override tools(): WebMcpTool[] {
     return [
-      {
+      webMcpTool({
         name: "status",
         description: "First",
         execute: async () => "first",
-      },
-      {
+      }),
+      webMcpTool({
         name: "status",
         description: "Second",
         execute: async () => "second",
-      },
+      }),
     ];
   }
 }
@@ -77,12 +81,12 @@ class LateFieldPage extends Page {
 
   protected override tools(): WebMcpTool[] {
     return [
-      {
+      webMcpTool({
         name: this.label,
         description: "Поле наследника уже есть",
         conditions: [desktopDevice()],
         execute: async () => "ok",
-      },
+      }),
     ];
   }
 }
@@ -108,13 +112,13 @@ class RejectingPage extends Page {
 
   protected override tools(): WebMcpTool[] {
     return [
-      {
+      webMcpTool({
         name: "fail",
         description: "Fails",
         execute: async () => {
           throw new Error("boom");
         },
-      },
+      }),
     ];
   }
 }
@@ -130,11 +134,11 @@ class NonStringPage extends Page {
 
   protected override tools(): WebMcpTool[] {
     return [
-      {
+      webMcpTool({
         name: "bad-result",
         description: "Returns a number",
         execute: (async () => 1) as unknown as WebMcpToolExecute,
-      },
+      }),
     ];
   }
 }
@@ -158,44 +162,81 @@ class SchemaPage extends Page {
         description: "Добавляет задачу",
         inputSchema: z.object({ text: z.string() }),
         execute: async (input) => {
+          const typed: { text: string } = input;
+          // @ts-expect-error у входа нет лишнего поля
+          const extra: { nope: string } = input;
+          void extra;
           this.calls += 1;
           this.received = input;
-          return input.text;
+          return typed.text;
         },
       }),
     ];
   }
 }
 
-function tool(overrides: Partial<WebMcpTool> = {}): WebMcpTool {
-  return {
+function tool(overrides: Partial<WebMcpToolWithoutInput> = {}): WebMcpTool {
+  return webMcpTool({
     name: "confirm",
     description: "Подтверждает действие",
     execute: async () => "ok",
     ...overrides,
-  };
+  });
 }
+
+function typedConstructor(): WebMcpTool {
+  return new WebMcpTool({
+    name: "add_todo",
+    description: "Добавляет задачу",
+    inputSchema: z.object({ text: z.string() }),
+    execute: async (input) => {
+      const typed: { text: string } = input;
+      // @ts-expect-error у входа нет лишнего поля
+      const extra: { nope: string } = input;
+      void extra;
+      return typed.text;
+    },
+  });
+}
+
+void typedConstructor;
 
 async function flushMicrotasks(): Promise<void> {
   await new Promise((resolve) => setTimeout(resolve, 0));
 }
 
 describe("WebMCP tools", () => {
+  it("создаётся и вызовом, и через new", () => {
+    const called = webMcpTool({
+      name: "called",
+      description: "Вызов",
+      execute: async () => "ok",
+    });
+    const constructed = new WebMcpTool({
+      name: "constructed",
+      description: "Конструктор",
+      execute: async () => "ok",
+    });
+
+    expect(called).toBeInstanceOf(WebMcpTool);
+    expect(constructed).toBeInstanceOf(WebMcpTool);
+    expect(called.id).not.toBe(constructed.id);
+  });
+
   it("сохраняет тулзы страницы и диалога и не вызывает execute до вызова", () => {
     const page = new ToolsPage();
-    const dialogTool = tool({
-      annotations: [WebMcpToolAnnotation.ConsequentialHint],
-    });
     let dialogCalls = 0;
     const dlg = dialog({
       tools: [
-        {
-          ...dialogTool,
+        webMcpTool({
+          name: "confirm",
+          description: "Подтверждает действие",
+          annotations: [WebMcpToolAnnotation.ConsequentialHint],
           execute: async () => {
             dialogCalls += 1;
             return "ok";
           },
-        },
+        }),
       ],
       content: [],
     });
