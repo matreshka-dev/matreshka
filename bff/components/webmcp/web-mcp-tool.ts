@@ -4,7 +4,7 @@ import { WebMcpToolResultMessage } from "@matreshka/shared/messages/bff-to-clien
 import type { Condition as SerializedCondition } from "@matreshka/shared/types/condition";
 import type { WebMcpToolConfig } from "@matreshka/shared/types/web-mcp-tool-config";
 import * as crypto from "node:crypto";
-import { z } from "zod/v4";
+import { z } from "zod";
 import type { Client } from "../../core/client";
 import { Condition } from "../../core/conditions/condition";
 

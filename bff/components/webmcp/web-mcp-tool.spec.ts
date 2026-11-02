@@ -4,7 +4,7 @@ import { WebMcpToolErrorMessage } from "@matreshka/shared/messages/bff-to-client
 import { WebMcpToolResultMessage } from "@matreshka/shared/messages/bff-to-client/webmcp/web-mcp-tool-result-message";
 import { WebMcpToolCallMessage } from "@matreshka/shared/messages/client-to-bff/webmcp/web-mcp-tool-call-message";
 import { describe, expect, it } from "vitest";
-import { z, ZodError } from "zod/v4";
+import { z, ZodError } from "zod";
 import { Client, runWithClient } from "../../core";
 import { desktopDevice } from "../../core/conditions/desktop-device";
 import { dialog } from "../dialog";

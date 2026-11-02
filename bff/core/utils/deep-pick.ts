@@ -1,4 +1,4 @@
-import { z } from "zod/v4";
+import { z } from "zod";
 
 function isZodObject(schema: z.ZodTypeAny): schema is z.ZodObject {
   return schema instanceof z.ZodObject;

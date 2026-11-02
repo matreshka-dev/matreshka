@@ -92,13 +92,13 @@ function finishSubmit(loadingRef: ContextValueRef<boolean | undefined>) {
 
 Кратко, чем пользоваться в коде страницы и сервисов:
 
-| Задача                             | Метод                                                                            |
-| ---------------------------------- | -------------------------------------------------------------------------------- |
-| Прочитать поле по пути             | `context.get("path")` или `ref.get()`                                            |
+| Задача                             | Метод                                                                                             |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------- |
+| Прочитать поле по пути             | `context.get("path")` или `ref.get()`                                                             |
 | Обновить одно или несколько полей  | `context.set({ … })` — ключи с dotted-путями, hot `Observable<ContextUpdateDelivery>`             |
 | Заменить всё состояние целиком     | `context.replace(data)` — после load или готового снимка, hot `Observable<ContextUpdateDelivery>` |
-| Скопировать всё `T` на время async | `context.snapshot()`                                                             |
-| Подписаться на изменения           | `context.watch()`                                                                |
+| Скопировать всё `T` на время async | `context.snapshot()`                                                                              |
+| Подписаться на изменения           | `context.watch()`                                                                                 |
 
 Примеры:
 
@@ -237,7 +237,7 @@ class ProfilePage extends Page {
 Если клиент может менять данные, полезно сразу задавать схему:
 
 ```ts
-import { z } from "zod/v4";
+import { z } from "zod";
 
 context = new Context({
   schema: z.strictObject({

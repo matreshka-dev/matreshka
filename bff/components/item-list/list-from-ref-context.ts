@@ -1,5 +1,5 @@
 import { BehaviorSubject } from "rxjs";
-import { z } from "zod/v4";
+import { z } from "zod";
 import { Context, type JsonObject } from "../../core";
 
 type ItemListIndexContext = Record<string, { index: `${number}` }>;

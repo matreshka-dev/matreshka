@@ -21,7 +21,7 @@ import {
   take,
 } from "rxjs";
 import { Paths, PathValue } from "ts-essentials";
-import { z, ZodObject } from "zod/v4";
+import { z, ZodObject } from "zod";
 import { ActionConfig } from "../actions/action";
 import { decContextValue } from "../actions/dec-context-value";
 import { incContextValue, NumberValueRef } from "../actions/inc-context-value";

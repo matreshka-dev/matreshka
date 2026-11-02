@@ -79,7 +79,7 @@ await firstValueFrom(
 Если агент должен передать данные, укажите `inputSchema` — схему Zod 4. TypeScript выведет тип аргумента `execute` из этой схемы.
 
 ```ts
-import { z } from "zod/v4";
+import { z } from "zod";
 
 webMcpTool({
   name: "add_todo",
@@ -147,7 +147,7 @@ BFF при вызове эти условия ещё раз не проверя�
 
 ```ts
 import { Context, Page, textInput, textarea, webMcpTool } from "@matreshka/bff";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 type NoteState = {
   title: string;
@@ -213,7 +213,7 @@ export class NotePage extends Page {
 ```ts
 import { button, text, textInput, textarea, webMcpTool } from "@matreshka/bff";
 import { lastValueFrom } from "rxjs";
-import { z } from "zod/v4";
+import { z } from "zod";
 
 protected content() {
   return [

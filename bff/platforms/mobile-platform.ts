@@ -29,7 +29,7 @@ import {
   takeUntil,
   tap,
 } from "rxjs";
-import { z } from "zod/v4";
+import { z } from "zod";
 import { Client } from "../core";
 import { incomingMessageObserver } from "../core/utils/incoming-message-observer";
 import { ClientPlatform } from "./client-platform";

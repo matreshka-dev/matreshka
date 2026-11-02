@@ -4,7 +4,7 @@ import { ForEachSyncComponentsMessage } from "@matreshka/shared/messages/bff-to-
 import type { ForEachConfig } from "@matreshka/shared/types/for-each-config";
 import { BehaviorSubject, skip, Subscription } from "rxjs";
 import { Paths, PathValue } from "ts-essentials";
-import { z } from "zod/v4";
+import { z } from "zod";
 import {
   calculateComponents,
   ComponentInstance,

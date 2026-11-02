@@ -15,7 +15,7 @@ import { PlatformEnumerateDevicesSuccessMessage } from "@matreshka/shared/messag
 import { WebMcpToolCallMessage } from "@matreshka/shared/messages/client-to-bff/webmcp/web-mcp-tool-call-message";
 import type { Observable, Subscription } from "rxjs";
 import { filter } from "rxjs";
-import { z } from "zod/v4";
+import { z } from "zod";
 import { Dialog, Popover } from "../components";
 import { Overlay } from "../components/types/container-overlay";
 import {

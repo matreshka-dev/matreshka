@@ -4,7 +4,7 @@ import { AnyClientToBffMessage } from "@matreshka/shared/messages/client-to-bff/
 import { ErrorMessage } from "@matreshka/shared/messages/client-to-bff/error-message";
 import { isTargetedMessage } from "@matreshka/shared/messages/targeted-message";
 import { filter, Observable, Subject } from "rxjs";
-import { z } from "zod/v4";
+import { z } from "zod";
 import { Client } from "../../core";
 import { incomingMessageObserver } from "../../core/utils/incoming-message-observer";
 

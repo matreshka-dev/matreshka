@@ -3,7 +3,7 @@ import { AnyClientToBffMessage } from "@matreshka/shared/messages/client-to-bff/
 import { ErrorMessage } from "@matreshka/shared/messages/client-to-bff/error-message";
 import { isTargetedMessage } from "@matreshka/shared/messages/targeted-message";
 import { filter, take } from "rxjs";
-import { z } from "zod/v4";
+import { z } from "zod";
 import { Client } from "../client";
 import { incomingMessageObserver } from "./incoming-message-observer";
 

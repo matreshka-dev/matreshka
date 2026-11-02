@@ -18,7 +18,7 @@ import type {
   RegistrationResponseJSON,
 } from "@simplewebauthn/types";
 import type { Observable } from "rxjs";
-import { z } from "zod/v4";
+import { z } from "zod";
 import { targetedClientPlatformAction } from "./utils/targeted-client-platform-action";
 import { WebPlatform } from "./web-platform";
 

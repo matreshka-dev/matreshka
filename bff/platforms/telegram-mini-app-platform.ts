@@ -7,7 +7,7 @@ import { TelegramMiniAppRequestContactActionCancelMessage } from "@matreshka/sha
 import { TelegramMiniAppRequestContactActionSuccessMessage } from "@matreshka/shared/messages/client-to-bff/platforms/telegram-mini-app/telegram-mini-app-request-contact-action-success-message";
 import crypto from "crypto";
 import type { Observable } from "rxjs";
-import { z } from "zod/v4";
+import { z } from "zod";
 import { targetedClientPlatformAction } from "./utils/targeted-client-platform-action";
 import { WebPlatform } from "./web-platform";
 

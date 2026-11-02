@@ -29,7 +29,7 @@ import {
   Subject,
   Subscription,
 } from "rxjs";
-import { z } from "zod/v4";
+import { z } from "zod";
 import { Page } from "../components";
 import { App } from "../components/app";
 import { Component } from "../components/component";
