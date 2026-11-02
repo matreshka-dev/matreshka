@@ -1,4 +1,4 @@
-import { ContextInitMessage } from "@matreshka/shared/messages/bff-to-client/context/context-init-message";
+import { ContextInitMessage } from "@matreshka/protocol/messages/bff-to-client/context/context-init-message";
 import { describe, expect, it } from "vitest";
 import { Client, Context, runWithClient } from "../core";
 import { board, itemList } from "./board";

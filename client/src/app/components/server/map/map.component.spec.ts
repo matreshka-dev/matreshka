@@ -1,8 +1,8 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ServerComponentClass } from '@shared/enums/server-component-class';
-import type { NestedItemsSyncPayload } from '@shared/messages/bff-to-client/components/nested-items/nested-items-sync-message';
-import { NestedItemsSyncMessage } from '@shared/messages/bff-to-client/components/nested-items/nested-items-sync-message';
-import type { MapConfig, SerializedMapMarker } from '@shared/types/map-config';
+import { ServerComponentClass } from '@protocol/enums/server-component-class';
+import type { NestedItemsSyncPayload } from '@protocol/messages/bff-to-client/components/nested-items/nested-items-sync-message';
+import { NestedItemsSyncMessage } from '@protocol/messages/bff-to-client/components/nested-items/nested-items-sync-message';
+import type { MapConfig, SerializedMapMarker } from '@protocol/types/map-config';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { PLATFORM } from '../../../platforms/platform';
 import { TestPlatform } from '../../../platforms/tests/test-platform';

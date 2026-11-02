@@ -1,6 +1,6 @@
-import { PlatformWebAuthnCreateCredentialMessage } from '@shared/messages/bff-to-client/platforms/platform-webauthn-create-credential-message';
-import { ErrorMessage } from '@shared/messages/client-to-bff/error-message';
-import { PlatformWebAuthnCreateCredentialSuccessMessage } from '@shared/messages/client-to-bff/platforms/platform-webauthn-create-credential-success-message';
+import { PlatformWebAuthnCreateCredentialMessage } from '@protocol/messages/bff-to-client/platforms/platform-webauthn-create-credential-message';
+import { ErrorMessage } from '@protocol/messages/client-to-bff/error-message';
+import { PlatformWebAuthnCreateCredentialSuccessMessage } from '@protocol/messages/client-to-bff/platforms/platform-webauthn-create-credential-success-message';
 import { Subject } from 'rxjs';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {

@@ -1,4 +1,4 @@
-import type { ForEachConfig } from '@shared/types/for-each-config';
+import type { ForEachConfig } from '@protocol/types/for-each-config';
 import {
   ComponentDependencies,
   getNestedConfigsByPropertyKey,

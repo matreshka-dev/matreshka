@@ -1,4 +1,4 @@
-import type { NumberInputConfig } from '@shared/types/number-input-config';
+import type { NumberInputConfig } from '@protocol/types/number-input-config';
 import { InputDependencies } from '../input-config';
 
 export const NumberInputDependencies = {

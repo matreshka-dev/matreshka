@@ -1,6 +1,6 @@
-import { ServerComponentClass } from "@matreshka/shared/enums/server-component-class";
-import type { ComponentScrollPayload } from "@matreshka/shared/messages/client-to-bff/components/component-scroll-message";
-import type { PageConfig } from "@matreshka/shared/types/page-config";
+import { ServerComponentClass } from "@matreshka/protocol/enums/server-component-class";
+import type { ComponentScrollPayload } from "@matreshka/protocol/messages/client-to-bff/components/component-scroll-message";
+import type { PageConfig } from "@matreshka/protocol/types/page-config";
 import {
   Componentable,
   ComponentTreeNode,

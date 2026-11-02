@@ -1,17 +1,17 @@
-import { ServerComponentClass } from "@matreshka/shared/enums/server-component-class";
-import { BoardSetCenterMessage } from "@matreshka/shared/messages/bff-to-client/components/board/board-set-center-message";
-import { BoardSetZoomMessage } from "@matreshka/shared/messages/bff-to-client/components/board/board-set-zoom-message";
-import { BoardZoomInMessage } from "@matreshka/shared/messages/bff-to-client/components/board/board-zoom-in-message";
-import { BoardZoomOutMessage } from "@matreshka/shared/messages/bff-to-client/components/board/board-zoom-out-message";
+import { ServerComponentClass } from "@matreshka/protocol/enums/server-component-class";
+import { BoardSetCenterMessage } from "@matreshka/protocol/messages/bff-to-client/components/board/board-set-center-message";
+import { BoardSetZoomMessage } from "@matreshka/protocol/messages/bff-to-client/components/board/board-set-zoom-message";
+import { BoardZoomInMessage } from "@matreshka/protocol/messages/bff-to-client/components/board/board-zoom-in-message";
+import { BoardZoomOutMessage } from "@matreshka/protocol/messages/bff-to-client/components/board/board-zoom-out-message";
 import type {
   BoardConfig,
   BoardPoint,
-} from "@matreshka/shared/types/board-config";
+} from "@matreshka/protocol/types/board-config";
 import {
   normalizeFlexItem,
   type FlexItemSpec,
-} from "@matreshka/shared/types/flex-item";
-import type { NestedItemBase } from "@matreshka/shared/types/nested-item-base";
+} from "@matreshka/protocol/types/flex-item";
+import type { NestedItemBase } from "@matreshka/protocol/types/nested-item-base";
 import {
   Componentable,
   ComponentInstance,

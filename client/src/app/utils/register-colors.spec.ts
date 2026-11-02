@@ -1,6 +1,6 @@
-import { ColorRole } from '@shared/enums/color-role';
-import { ColorTokenMaskType } from '@shared/enums/color-token-mask-type';
-import { TimingFunction } from '@shared/enums/timing-function';
+import { ColorRole } from '@protocol/enums/color-role';
+import { ColorTokenMaskType } from '@protocol/enums/color-token-mask-type';
+import { TimingFunction } from '@protocol/enums/timing-function';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { registerColorRole, registerColors } from './register-colors';
 

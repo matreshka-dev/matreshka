@@ -1,4 +1,4 @@
-import type { StackConfig } from '@shared/types/stack-config';
+import type { StackConfig } from '@protocol/types/stack-config';
 import {
   ComponentDependencies,
   getNestedConfigsByPropertyKey,

@@ -1,4 +1,4 @@
-import { ContextValuesMessage as ClientToBffContextValuesMessage } from "@matreshka/shared/messages/client-to-bff/context/index";
+import { ContextValuesMessage as ClientToBffContextValuesMessage } from "@matreshka/protocol/messages/client-to-bff/context/index";
 import { BehaviorSubject, Subject } from "rxjs";
 import { describe, expect, it, vi } from "vitest";
 import type { Client } from "../client";

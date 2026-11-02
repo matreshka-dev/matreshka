@@ -10,7 +10,7 @@
 2. Клиент выполняет действие (диалог, API браузера, нативный вызов).
 3. Клиент **всегда** отвечает одним targeted-сообщением с **тем же** `target`:
    - **результат** — success-сообщение с payload (координаты, subscription Web Push, credential JSON и т.п.);
-   - **успех без данных** — общее сообщение завершения без payload ([`ActionCompletedMessage`](../../shared/messages/client-to-bff/action-completed-message.ts), тип `action-completed`; то же для [component-action](component-actions.md));
+   - **успех без данных** — общее сообщение завершения без payload ([`ActionCompletedMessage`](../../protocol/messages/client-to-bff/action-completed-message.ts), тип `action-completed`; то же для [component-action](component-actions.md));
    - **ошибка или отмена** — `ErrorMessage` с текстом для пользователя или лога.
 
 Не допускается сценарий, в котором клиент молча выполнил действие, а BFF об этом не узнал. Иначе на сервере нельзя надёжно построить ни UX (loading, toast), ни бизнес-логику после шага (verify WebAuthn, сохранить файл в БД, перейти дальше по сценарию).

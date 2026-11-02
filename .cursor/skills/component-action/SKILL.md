@@ -67,7 +67,7 @@ this.componentCommandMessages$.subscribe((message) => {
 
 ## Чеклист новой команды
 
-- [ ] `shared/messages/bff-to-client/components/...`: класс extends `PingableComponentCommandMessage`, конструктор `(target, payload)` с `ComponentCommandActionPayload`; register.
+- [ ] `protocol/messages/bff-to-client/components/...`: класс extends `PingableComponentCommandMessage`, конструктор `(target, payload)` с `ComponentCommandActionPayload`; register.
 - [ ] `bff/components/*.ts`: публичный метод → `return this.dispatchComponentCommand(...)`, не `broadcast` / `outcomingMessage$.next` без Observable.
 - [ ] `client/.../server/**/*.component.ts`: ветка в `componentCommandMessages$` + `runComponentCommand`.
 - [ ] `docs/reference/components-list.md` (+ `component-actions.md` при новой семантике завершения).

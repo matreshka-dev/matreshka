@@ -5,8 +5,8 @@ import {
   ViewEncapsulation,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { FormSubmitMessage } from '@shared/messages/client-to-bff/components/form/form-submit-message';
-import type { FormConfig } from '@shared/types/form-config';
+import { FormSubmitMessage } from '@protocol/messages/client-to-bff/components/form/form-submit-message';
+import type { FormConfig } from '@protocol/types/form-config';
 import { ServerComponent } from '../server-component';
 import { ServerComponentsListComponent } from '../server-components-list/server-components-list.component';
 import { renderRootFromFirstNestedInstance } from '../utils/render-root-from-nested-content';

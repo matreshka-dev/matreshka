@@ -14,11 +14,11 @@ import {
   ViewEncapsulation,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FileUploadAreaCompleteMessage } from '@shared/messages/client-to-bff/components/file-upload-area/file-upload-area-complete-message';
-import { FileUploadAreaErrorMessage } from '@shared/messages/client-to-bff/components/file-upload-area/file-upload-area-error-message';
-import { FileUploadAreaProgressMessage } from '@shared/messages/client-to-bff/components/file-upload-area/file-upload-area-progress-message';
-import { FileUploadAreaStartMessage } from '@shared/messages/client-to-bff/components/file-upload-area/file-upload-area-start-message';
-import type { FileUploadAreaConfig } from '@shared/types/file-upload-area-config';
+import { FileUploadAreaCompleteMessage } from '@protocol/messages/client-to-bff/components/file-upload-area/file-upload-area-complete-message';
+import { FileUploadAreaErrorMessage } from '@protocol/messages/client-to-bff/components/file-upload-area/file-upload-area-error-message';
+import { FileUploadAreaProgressMessage } from '@protocol/messages/client-to-bff/components/file-upload-area/file-upload-area-progress-message';
+import { FileUploadAreaStartMessage } from '@protocol/messages/client-to-bff/components/file-upload-area/file-upload-area-start-message';
+import type { FileUploadAreaConfig } from '@protocol/types/file-upload-area-config';
 import { Subscription } from 'rxjs';
 import { randomString } from '../../../utils/random-string';
 import { ServerComponent } from '../server-component';

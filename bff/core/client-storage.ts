@@ -1,4 +1,4 @@
-import { AppStorageValueMessage } from "@matreshka/shared/messages/bff-to-client/app/index";
+import { AppStorageValueMessage } from "@matreshka/protocol/messages/bff-to-client/app/index";
 import { fetchFromObject } from "@matreshka/shared/utils/fetch-from-object";
 import { setObjectProperty } from "@matreshka/shared/utils/set-object-property";
 import type { Client } from "./client";

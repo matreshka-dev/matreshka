@@ -1,4 +1,4 @@
-import { ServerComponentClass } from "@matreshka/shared/enums/server-component-class";
+import { ServerComponentClass } from "@matreshka/protocol/enums/server-component-class";
 import { Componentable, ContextRef } from "../../core";
 import {
   InputComponent,

@@ -9,10 +9,10 @@ import {
   PLATFORM_ID,
 } from '@angular/core';
 import { NavigationStart, Router } from '@angular/router';
-import { DialogShowMessage } from '@shared/messages/bff-to-client/components/dialog/dialog-show-message';
-import { PopoverShowMessage } from '@shared/messages/bff-to-client/components/popover/popover-show-message';
-import type { DialogConfig } from '@shared/types/dialog-config';
-import type { PopoverConfig } from '@shared/types/popover-config';
+import { DialogShowMessage } from '@protocol/messages/bff-to-client/components/dialog/dialog-show-message';
+import { PopoverShowMessage } from '@protocol/messages/bff-to-client/components/popover/popover-show-message';
+import type { DialogConfig } from '@protocol/types/dialog-config';
+import type { PopoverConfig } from '@protocol/types/popover-config';
 import { Subject, take } from 'rxjs';
 import { ServerComponent } from '../components/server/server-component';
 import { ServerComponentWrapperComponent } from '../components/server/server-component-wrapper/server-component-wrapper.component';

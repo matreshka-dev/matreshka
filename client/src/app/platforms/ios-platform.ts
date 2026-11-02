@@ -1,4 +1,4 @@
-import { PlatformId } from '@shared/enums/platform-id';
+import { PlatformId } from '@protocol/enums/platform-id';
 import { MobilePlatform } from './mobile-platform';
 
 export class IosPlatform extends MobilePlatform {

@@ -1,8 +1,8 @@
-import { TimingFunction } from '@shared/enums/timing-function';
+import { TimingFunction } from '@protocol/enums/timing-function';
 import type {
   ColorTokenTransition,
   ColorTokenTransitions,
-} from '@shared/types/color-token';
+} from '@protocol/types/color-token';
 
 export const COLOR_TOKEN_STATES = [
   'default',

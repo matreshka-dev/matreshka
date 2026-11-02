@@ -2,8 +2,8 @@ import type {
   Json,
   JsonObject,
   JsonPrimitive,
-} from "@matreshka/shared/types/json";
-import type { SerializedOperand } from "@matreshka/shared/types/serialized-operand";
+} from "@matreshka/protocol/types/json";
+import type { SerializedOperand } from "@matreshka/protocol/types/serialized-operand";
 import { Paths, PathValue } from "ts-essentials";
 import { ContextRef, ContextRefValue } from "../context/context-ref";
 import type { CompatibleContextValueRef } from "../types/context-value-ref";

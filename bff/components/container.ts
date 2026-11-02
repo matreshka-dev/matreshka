@@ -1,5 +1,5 @@
-import { ServerComponentClass } from "@matreshka/shared/enums/server-component-class";
-import type { ContainerConfig } from "@matreshka/shared/types/container-config";
+import { ServerComponentClass } from "@matreshka/protocol/enums/server-component-class";
+import type { ContainerConfig } from "@matreshka/protocol/types/container-config";
 import {
   calculateComponents,
   Componentable,

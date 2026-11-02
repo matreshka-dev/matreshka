@@ -56,7 +56,7 @@ type ClientSettings = {
 
 ```ts
 import type { ClientSettings } from "@matreshka/bff/core/types/client-settings";
-import { ColorRole } from "@matreshka/shared/enums/color-role";
+import { ColorRole } from "@matreshka/protocol/enums/color-role";
 import { appFonts } from "./font-tokens";
 import { selectBackgroundColorToken } from "./color-tokens/select-background";
 
@@ -317,7 +317,7 @@ stacks: {
 Ниже реальный паттерн:
 
 ```ts
-import { AppFontsConfig, FontFaceStyle } from "@matreshka/shared/types/fonts";
+import { AppFontsConfig, FontFaceStyle } from "@matreshka/protocol/types/fonts";
 
 export const appFonts: AppFontsConfig = {
   faces: {
@@ -468,7 +468,7 @@ const accentColorToken: ColorToken = {
 `transition` живет на корне токена — одинаково для `light` и `dark`.
 
 ```ts
-import { TimingFunction } from "@matreshka/shared/enums/timing-function";
+import { TimingFunction } from "@matreshka/protocol/enums/timing-function";
 
 // все состояния
 transition: { duration: 300, timingFunction: TimingFunction.EaseInOut }
@@ -504,7 +504,7 @@ const selectBackgroundColorToken: ColorToken = {
 Направление — `direction` в **градусах** (как в CSS `linear-gradient(Ndeg, …)`). Stop’ы: `color` и опционально `at` (0–100, проценты). Без `direction` и без `at` получается shorthand вроде `linear-gradient(black, black, transparent)`.
 
 ```ts
-import { ColorTokenMaskType } from "@matreshka/shared/enums/color-token-mask-type";
+import { ColorTokenMaskType } from "@matreshka/protocol/enums/color-token-mask-type";
 
 const frostedHeaderColorToken: ColorToken = {
   light: { default: "rgba(236, 238, 244, 0.72)" },
@@ -655,7 +655,7 @@ stack(
 
 ```ts
 import type { ClientSettings } from "@matreshka/bff/core/types/client-settings";
-import { ColorRole } from "@matreshka/shared/enums/color-role";
+import { ColorRole } from "@matreshka/protocol/enums/color-role";
 import { appFonts } from "./font-tokens";
 import { selectBackgroundColorToken } from "./color-tokens/select-background";
 

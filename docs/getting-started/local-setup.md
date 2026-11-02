@@ -9,7 +9,7 @@
 В **своём** BFF-проекте:
 
 ```bash
-npm install @matreshka/bff @matreshka/shared
+npm install @matreshka/bff @matreshka/protocol
 ```
 
 Сборка пакетов из репозитория Matreshka не нужна — версии берутся с npm.

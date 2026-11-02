@@ -1,4 +1,4 @@
-import { ColorRole } from '@shared/enums/color-role';
+import { ColorRole } from '@protocol/enums/color-role';
 import { registerColorRole } from './register-colors';
 
 export function syncConfigColorsToElement(

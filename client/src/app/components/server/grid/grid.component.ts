@@ -6,8 +6,8 @@ import {
   signal,
   ViewEncapsulation,
 } from '@angular/core';
-import { GridTemplateColumns } from '@shared/enums/grid-template-columns';
-import type { GridConfig } from '@shared/types/grid-config';
+import { GridTemplateColumns } from '@protocol/enums/grid-template-columns';
+import type { GridConfig } from '@protocol/types/grid-config';
 import { rem } from '../../../utils/rem';
 import { ServerComponent } from '../server-component';
 import { ServerComponentsListComponent } from '../server-components-list/server-components-list.component';

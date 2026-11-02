@@ -1,5 +1,5 @@
-import { ColorRole } from "@matreshka/shared/enums/color-role";
-import { OverlayAnchor } from "@matreshka/shared/types/container-overlay";
+import { ColorRole } from "@matreshka/protocol/enums/color-role";
+import { OverlayAnchor } from "@matreshka/protocol/types/container-overlay";
 import { describe, expect, it } from "vitest";
 import {
   Client,

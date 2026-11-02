@@ -1,6 +1,6 @@
-import { HandshakeMessage as BffHandshakeMessage } from "@matreshka/shared/messages/bff-to-client/app/handshake-message";
-import { parseBffToClientMessage } from "@matreshka/shared/messages/bff-to-client/parse-bff-to-client-message";
-import type { MessageData } from "@matreshka/shared/messages/message";
+import { HandshakeMessage as BffHandshakeMessage } from "@matreshka/protocol/messages/bff-to-client/app/handshake-message";
+import { parseBffToClientMessage } from "@matreshka/protocol/messages/bff-to-client/parse-bff-to-client-message";
+import type { MessageData } from "@matreshka/protocol/messages/message";
 import { ensureGatewayMessagesRegistered } from "./register-messages";
 
 /**

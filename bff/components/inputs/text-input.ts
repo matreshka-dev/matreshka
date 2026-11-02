@@ -1,5 +1,5 @@
-import { ServerComponentClass } from "@matreshka/shared/enums/server-component-class";
-import { TextInputKind } from "@matreshka/shared/enums/text-input-kind";
+import { ServerComponentClass } from "@matreshka/protocol/enums/server-component-class";
+import { TextInputKind } from "@matreshka/protocol/enums/text-input-kind";
 import { Componentable, ContextRef } from "../../core";
 import {
   InputComponent,

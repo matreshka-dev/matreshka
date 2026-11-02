@@ -1,4 +1,4 @@
-import { JsonObject } from "@matreshka/shared/types/json";
+import { JsonObject } from "@matreshka/protocol/types/json";
 import {
   toSerializedOperand,
   UntypedActionOperand,

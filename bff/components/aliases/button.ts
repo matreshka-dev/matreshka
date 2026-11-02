@@ -1,4 +1,4 @@
-import { StackDirection } from "@matreshka/shared/enums/stack-direction";
+import { StackDirection } from "@matreshka/protocol/enums/stack-direction";
 import type { ComponentTreeNode } from "../../core/types/component-tree-node";
 import { isComponentTreeNodeLike } from "../../core/types/component-tree-node";
 import type { MixedWithCallbacksArray } from "../../core/types/mixed-with-callbacks-array";

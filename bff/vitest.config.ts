@@ -4,6 +4,7 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   resolve: {
     alias: {
+      "@matreshka/protocol": path.resolve(__dirname, "../protocol"),
       "@matreshka/shared": path.resolve(__dirname, "../shared"),
     },
   },
@@ -14,7 +15,7 @@ export default defineConfig({
       "components/**/*.spec.ts",
       "platforms/**/*.spec.ts",
       "webauthn/**/*.spec.ts",
-      "../shared/messages/platform-webauthn-messages.spec.ts",
+      "../protocol/messages/platform-webauthn-messages.spec.ts",
       "../shared/utils/**/*.spec.ts",
     ],
     coverage: {

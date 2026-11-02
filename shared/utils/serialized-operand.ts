@@ -1,4 +1,4 @@
-import type { SerializedOperand } from "../types/serialized-operand";
+import type { SerializedOperand } from "@matreshka/protocol/types/serialized-operand";
 
 export function isSerializedOperand(
   value: unknown,

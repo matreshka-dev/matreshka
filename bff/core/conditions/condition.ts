@@ -1,5 +1,5 @@
-import { ConditionType } from "@matreshka/shared/enums/condition-type";
-import type { Condition as SerializedCondition } from "@matreshka/shared/types/condition";
+import { ConditionType } from "@matreshka/protocol/enums/condition-type";
+import type { Condition as SerializedCondition } from "@matreshka/protocol/types/condition";
 
 /**
  * Абстрактный класс, представляющий условие с типом и дополнительными данными.

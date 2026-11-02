@@ -35,7 +35,7 @@ Gateway понимает только несколько вещей:
 
 ## Служебные сообщения gateway ↔ BFF
 
-Типы для будущего транспорта — как у client ↔ BFF, в `@matreshka/shared/messages/gateway-to-bff` и `bff-to-gateway`:
+Типы для будущего транспорта — как у client ↔ BFF, в `@matreshka/protocol/messages/gateway-to-bff` и `bff-to-gateway`:
 
 | Класс                 | type             | Направление   |
 | --------------------- | ---------------- | ------------- |
@@ -52,8 +52,8 @@ Gateway понимает только несколько вещей:
 import {
   ConnectedMessage,
   parseGatewayToBffMessage,
-} from "@matreshka/shared/messages/gateway-to-bff";
-import { registerGatewayMessages } from "@matreshka/shared/messages/register-gateway-messages";
+} from "@matreshka/protocol/messages/gateway-to-bff";
+import { registerGatewayMessages } from "@matreshka/protocol/messages/register-gateway-messages";
 
 registerGatewayMessages();
 

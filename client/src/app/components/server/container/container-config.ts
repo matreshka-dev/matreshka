@@ -1,4 +1,4 @@
-import type { ContainerConfig } from '@shared/types/container-config';
+import type { ContainerConfig } from '@protocol/types/container-config';
 import {
   ComponentDependencies,
   getNestedConfigsByPropertyKey,

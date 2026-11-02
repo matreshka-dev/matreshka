@@ -1,24 +1,24 @@
-import { FlexWrap } from "@matreshka/shared/enums/flex-wrap";
-import { ComponentOutline } from "@matreshka/shared/enums/outline-type";
-import { Overflow } from "@matreshka/shared/enums/overflow";
-import { SafeAreaSide } from "@matreshka/shared/enums/safe-area-side";
-import { ScrollToPosition } from "@matreshka/shared/enums/scroll-to-position";
-import { ServerComponentClass } from "@matreshka/shared/enums/server-component-class";
+import { FlexWrap } from "@matreshka/protocol/enums/flex-wrap";
+import { ComponentOutline } from "@matreshka/protocol/enums/outline-type";
+import { Overflow } from "@matreshka/protocol/enums/overflow";
+import { SafeAreaSide } from "@matreshka/protocol/enums/safe-area-side";
+import { ScrollToPosition } from "@matreshka/protocol/enums/scroll-to-position";
+import { ServerComponentClass } from "@matreshka/protocol/enums/server-component-class";
 import {
   StackCrossAxisAlign,
   StackMainAxisAlign,
-} from "@matreshka/shared/enums/stack-align";
-import { StackDirection } from "@matreshka/shared/enums/stack-direction";
-import { ComponentScrollToMessage } from "@matreshka/shared/messages/bff-to-client/components/component-scroll-to-message";
-import type { ComponentScrollPayload } from "@matreshka/shared/messages/client-to-bff/components/component-scroll-message";
+} from "@matreshka/protocol/enums/stack-align";
+import { StackDirection } from "@matreshka/protocol/enums/stack-direction";
+import { ComponentScrollToMessage } from "@matreshka/protocol/messages/bff-to-client/components/component-scroll-to-message";
+import type { ComponentScrollPayload } from "@matreshka/protocol/messages/client-to-bff/components/component-scroll-message";
 import {
   normalizeFlexItem,
   type FlexItemSpec,
-} from "@matreshka/shared/types/flex-item";
-import type { PaddingPx } from "@matreshka/shared/types/padding-px";
-import type { RadiusPx } from "@matreshka/shared/types/radius-px";
-import type { StackConfig } from "@matreshka/shared/types/stack-config";
-import type { StackScroll } from "@matreshka/shared/types/stack-scroll";
+} from "@matreshka/protocol/types/flex-item";
+import type { PaddingPx } from "@matreshka/protocol/types/padding-px";
+import type { RadiusPx } from "@matreshka/protocol/types/radius-px";
+import type { StackConfig } from "@matreshka/protocol/types/stack-config";
+import type { StackScroll } from "@matreshka/protocol/types/stack-scroll";
 import {
   calculateComponents,
   Componentable,
@@ -37,20 +37,20 @@ import {
   ServerComponentAction,
 } from "./component";
 
-export { DimensionalUnit } from "@matreshka/shared/enums/dimensional-unit";
-export { FlexWrap } from "@matreshka/shared/enums/flex-wrap";
-export { Overflow } from "@matreshka/shared/enums/overflow";
-export { SafeAreaSide } from "@matreshka/shared/enums/safe-area-side";
-export { ScrollToPosition } from "@matreshka/shared/enums/scroll-to-position";
+export { DimensionalUnit } from "@matreshka/protocol/enums/dimensional-unit";
+export { FlexWrap } from "@matreshka/protocol/enums/flex-wrap";
+export { Overflow } from "@matreshka/protocol/enums/overflow";
+export { SafeAreaSide } from "@matreshka/protocol/enums/safe-area-side";
+export { ScrollToPosition } from "@matreshka/protocol/enums/scroll-to-position";
 export {
   StackCrossAxisAlign,
   StackMainAxisAlign,
-} from "@matreshka/shared/enums/stack-align";
-export { StackDirection } from "@matreshka/shared/enums/stack-direction";
-export type { ComponentScrollPayload } from "@matreshka/shared/messages/client-to-bff/components/component-scroll-message";
-export type { DimensionalValue } from "@matreshka/shared/types/dimensional-value";
-export type { FlexItemSpec } from "@matreshka/shared/types/flex-item";
-export type { StackScroll } from "@matreshka/shared/types/stack-scroll";
+} from "@matreshka/protocol/enums/stack-align";
+export { StackDirection } from "@matreshka/protocol/enums/stack-direction";
+export type { ComponentScrollPayload } from "@matreshka/protocol/messages/client-to-bff/components/component-scroll-message";
+export type { DimensionalValue } from "@matreshka/protocol/types/dimensional-value";
+export type { FlexItemSpec } from "@matreshka/protocol/types/flex-item";
+export type { StackScroll } from "@matreshka/protocol/types/stack-scroll";
 
 export type StackProperties = {
   content: ComponentTreeNode[];

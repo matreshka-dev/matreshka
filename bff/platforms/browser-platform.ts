@@ -1,16 +1,16 @@
-import { BrowserAddEventToCalendarMessage } from "@matreshka/shared/messages/bff-to-client/platforms/browser/browser-add-event-to-calendar-message";
-import { BrowserDownloadCsvContentMessage } from "@matreshka/shared/messages/bff-to-client/platforms/browser/browser-download-csv-content-message";
-import { BrowserDownloadFileMessage } from "@matreshka/shared/messages/bff-to-client/platforms/browser/browser-download-file-message";
-import { BrowserGetGeolocationMessage } from "@matreshka/shared/messages/bff-to-client/platforms/browser/browser-get-geolocation-message";
-import { BrowserOpenFileMessage } from "@matreshka/shared/messages/bff-to-client/platforms/browser/browser-open-file-message";
-import { BrowserRequestPushNotificationsMessage } from "@matreshka/shared/messages/bff-to-client/platforms/browser/browser-request-push-notifications-message";
-import { BrowserShareMessage } from "@matreshka/shared/messages/bff-to-client/platforms/browser/browser-share-message";
-import { PlatformWebAuthnCreateCredentialMessage } from "@matreshka/shared/messages/bff-to-client/platforms/platform-webauthn-create-credential-message";
-import { PlatformWebAuthnGetCredentialMessage } from "@matreshka/shared/messages/bff-to-client/platforms/platform-webauthn-get-credential-message";
-import { BrowserGetGeolocationSuccessMessage } from "@matreshka/shared/messages/client-to-bff/platforms/browser/browser-get-geolocation-success-message";
-import { BrowserRequestPushNotificationsActionGrantedMessage } from "@matreshka/shared/messages/client-to-bff/platforms/browser/browser-request-push-notifications-action-granted-message";
-import { PlatformWebAuthnCreateCredentialSuccessMessage } from "@matreshka/shared/messages/client-to-bff/platforms/platform-webauthn-create-credential-success-message";
-import { PlatformWebAuthnGetCredentialSuccessMessage } from "@matreshka/shared/messages/client-to-bff/platforms/platform-webauthn-get-credential-success-message";
+import { BrowserAddEventToCalendarMessage } from "@matreshka/protocol/messages/bff-to-client/platforms/browser/browser-add-event-to-calendar-message";
+import { BrowserDownloadCsvContentMessage } from "@matreshka/protocol/messages/bff-to-client/platforms/browser/browser-download-csv-content-message";
+import { BrowserDownloadFileMessage } from "@matreshka/protocol/messages/bff-to-client/platforms/browser/browser-download-file-message";
+import { BrowserGetGeolocationMessage } from "@matreshka/protocol/messages/bff-to-client/platforms/browser/browser-get-geolocation-message";
+import { BrowserOpenFileMessage } from "@matreshka/protocol/messages/bff-to-client/platforms/browser/browser-open-file-message";
+import { BrowserRequestPushNotificationsMessage } from "@matreshka/protocol/messages/bff-to-client/platforms/browser/browser-request-push-notifications-message";
+import { BrowserShareMessage } from "@matreshka/protocol/messages/bff-to-client/platforms/browser/browser-share-message";
+import { PlatformWebAuthnCreateCredentialMessage } from "@matreshka/protocol/messages/bff-to-client/platforms/platform-webauthn-create-credential-message";
+import { PlatformWebAuthnGetCredentialMessage } from "@matreshka/protocol/messages/bff-to-client/platforms/platform-webauthn-get-credential-message";
+import { BrowserGetGeolocationSuccessMessage } from "@matreshka/protocol/messages/client-to-bff/platforms/browser/browser-get-geolocation-success-message";
+import { BrowserRequestPushNotificationsActionGrantedMessage } from "@matreshka/protocol/messages/client-to-bff/platforms/browser/browser-request-push-notifications-action-granted-message";
+import { PlatformWebAuthnCreateCredentialSuccessMessage } from "@matreshka/protocol/messages/client-to-bff/platforms/platform-webauthn-create-credential-success-message";
+import { PlatformWebAuthnGetCredentialSuccessMessage } from "@matreshka/protocol/messages/client-to-bff/platforms/platform-webauthn-get-credential-success-message";
 import type {
   AuthenticationResponseJSON,
   PublicKeyCredentialCreationOptionsJSON,

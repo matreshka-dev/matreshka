@@ -63,8 +63,8 @@
                   "with": "src/app/android.platform-provider.ts"
                 },
                 {
-                  "replace": "../shared/messages/bff-to-client/register-messages.ts",
-                  "with": "../shared/messages/bff-to-client/register-messages.mobile.ts"
+                  "replace": "../protocol/messages/bff-to-client/register-messages.ts",
+                  "with": "../protocol/messages/bff-to-client/register-messages.mobile.ts"
                 }
               ]
             },
@@ -75,8 +75,8 @@
                   "with": "src/app/ios.platform-provider.ts"
                 },
                 {
-                  "replace": "../shared/messages/bff-to-client/register-messages.ts",
-                  "with": "../shared/messages/bff-to-client/register-messages.mobile.ts"
+                  "replace": "../protocol/messages/bff-to-client/register-messages.ts",
+                  "with": "../protocol/messages/bff-to-client/register-messages.mobile.ts"
                 }
               ]
             },
@@ -87,8 +87,8 @@
                   "with": "src/app/telegram.platform-provider.ts"
                 },
                 {
-                  "replace": "../shared/messages/bff-to-client/register-messages.ts",
-                  "with": "../shared/messages/bff-to-client/register-messages.telegram.ts"
+                  "replace": "../protocol/messages/bff-to-client/register-messages.ts",
+                  "with": "../protocol/messages/bff-to-client/register-messages.telegram.ts"
                 }
               ]
             },
@@ -99,8 +99,8 @@
                   "with": "src/app/max.platform-provider.ts"
                 },
                 {
-                  "replace": "../shared/messages/bff-to-client/register-messages.ts",
-                  "with": "../shared/messages/bff-to-client/register-messages.max.ts"
+                  "replace": "../protocol/messages/bff-to-client/register-messages.ts",
+                  "with": "../protocol/messages/bff-to-client/register-messages.max.ts"
                 }
               ]
             },
@@ -111,8 +111,8 @@
                   "with": "src/app/browser.platform-provider.ts"
                 },
                 {
-                  "replace": "../shared/messages/bff-to-client/register-messages.ts",
-                  "with": "../shared/messages/bff-to-client/register-messages.browser.ts"
+                  "replace": "../protocol/messages/bff-to-client/register-messages.ts",
+                  "with": "../protocol/messages/bff-to-client/register-messages.browser.ts"
                 }
               ],
               "serviceWorker": "ngsw-config.json",

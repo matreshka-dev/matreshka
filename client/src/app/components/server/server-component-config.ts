@@ -1,8 +1,8 @@
-import type { Overlay as OverlayShape } from '@shared/types/container-overlay';
+import type { Overlay as OverlayShape } from '@protocol/types/container-overlay';
 import type {
   ServerComponentConfig,
   ServerComponentRule,
-} from '@shared/types/server-component-config';
+} from '@protocol/types/server-component-config';
 import { fetchFromObject } from '@shared/utils/fetch-from-object';
 
 export type { ServerComponentConfig, ServerComponentRule };

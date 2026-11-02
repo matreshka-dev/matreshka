@@ -1,9 +1,9 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { ServerComponentClass } from '@shared/enums/server-component-class';
-import { FormSubmitMessage } from '@shared/messages/client-to-bff/components/form/form-submit-message';
-import type { FormConfig } from '@shared/types/form-config';
+import { ServerComponentClass } from '@protocol/enums/server-component-class';
+import { FormSubmitMessage } from '@protocol/messages/client-to-bff/components/form/form-submit-message';
+import type { FormConfig } from '@protocol/types/form-config';
 import { PLATFORM } from '../../../platforms/platform';
 import { TestPlatform } from '../../../platforms/tests/test-platform';
 import { ComponentHubService } from '../../../services/component-hub.service';

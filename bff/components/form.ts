@@ -1,5 +1,5 @@
-import { ServerComponentClass } from "@matreshka/shared/enums/server-component-class";
-import type { FormConfig } from "@matreshka/shared/types/form-config";
+import { ServerComponentClass } from "@matreshka/protocol/enums/server-component-class";
+import type { FormConfig } from "@matreshka/protocol/types/form-config";
 import {
   calculateComponents,
   Componentable,

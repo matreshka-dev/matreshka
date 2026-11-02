@@ -1,5 +1,5 @@
 import { Injectable, signal } from '@angular/core';
-import { AppFontsConfig, type FontStackToken } from '@shared/types/fonts';
+import { AppFontsConfig, type FontStackToken } from '@protocol/types/fonts';
 import {
   buildFontFamilyValue,
   buildFontStackCssProperties,

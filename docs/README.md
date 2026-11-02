@@ -41,11 +41,12 @@ layout и overlays. Только после этого маршрут ведёт
 ## Пакеты в монорепозитории
 
 - `bff/` — `@matreshka/bff`
+- `protocol/` — `@matreshka/protocol`
 - `shared/` — `@matreshka/shared`
 - `gateway/` — `@matreshka/gateway`
 - `client/` — универсальный Angular-клиент
 
-Корневая сборка: `npm run build` (shared → gateway → bff).
+Корневая сборка: `npm run build` (protocol → shared → gateway → bff).
 
 ## Agent Skills
 

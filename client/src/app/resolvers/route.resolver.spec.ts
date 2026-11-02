@@ -2,8 +2,8 @@ import { TestBed } from '@angular/core/testing';
 import { firstValueFrom, Observable, Subject } from 'rxjs';
 import { beforeEach, describe, expect, it } from 'vitest';
 
-import { AppPageMessage } from '@shared/messages/bff-to-client/app';
-import type { PageConfig } from '@shared/types/page-config';
+import { AppPageMessage } from '@protocol/messages/bff-to-client/app';
+import type { PageConfig } from '@protocol/types/page-config';
 import { PostmanService } from '../services/postman.service';
 import { routeResolver } from './route.resolver';
 

@@ -1,8 +1,8 @@
-import { ServerComponentClass } from "@matreshka/shared/enums/server-component-class";
-import { VideoFacingMode } from "@matreshka/shared/enums/video-facing-mode";
-import { CameraSwitchMessage } from "@matreshka/shared/messages/bff-to-client/components/camera/camera-switch-message";
-import { ErrorMessagePayload } from "@matreshka/shared/messages/client-to-bff/error-message";
-import type { CameraConfig } from "@matreshka/shared/types/camera-config";
+import { ServerComponentClass } from "@matreshka/protocol/enums/server-component-class";
+import { VideoFacingMode } from "@matreshka/protocol/enums/video-facing-mode";
+import { CameraSwitchMessage } from "@matreshka/protocol/messages/bff-to-client/components/camera/camera-switch-message";
+import { ErrorMessagePayload } from "@matreshka/protocol/messages/client-to-bff/error-message";
+import type { CameraConfig } from "@matreshka/protocol/types/camera-config";
 import {
   calculateComponents,
   Componentable,
@@ -21,7 +21,7 @@ import {
   ComponentProperties,
   ServerComponentAction,
 } from "./component";
-export { VideoFacingMode } from "@matreshka/shared/enums/video-facing-mode";
+export { VideoFacingMode } from "@matreshka/protocol/enums/video-facing-mode";
 
 export type CameraProperties = {
   content: ComponentTreeNode[];

@@ -1,1 +1,1 @@
-export { TextareaResize } from "@matreshka/shared/enums/textarea-resize";
+export { TextareaResize } from "@matreshka/protocol/enums/textarea-resize";

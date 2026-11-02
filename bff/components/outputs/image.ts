@@ -1,10 +1,10 @@
-import { RatioMode } from "@matreshka/shared/enums/ratio-mode";
-import { ServerComponentClass } from "@matreshka/shared/enums/server-component-class";
+import { RatioMode } from "@matreshka/protocol/enums/ratio-mode";
+import { ServerComponentClass } from "@matreshka/protocol/enums/server-component-class";
 import {
   normalizeFlexItem,
   type FlexItemSpec,
-} from "@matreshka/shared/types/flex-item";
-import type { RadiusPx } from "@matreshka/shared/types/radius-px";
+} from "@matreshka/protocol/types/flex-item";
+import type { RadiusPx } from "@matreshka/protocol/types/radius-px";
 import { Componentable, ContextRef, StandaloneComponent } from "../../core";
 import { ServerComponentAction } from "../component";
 import {
@@ -15,9 +15,9 @@ import {
   StringOutputContextRef,
   outputValueRefToConfig,
 } from "./output-component";
-export { RatioMode } from "@matreshka/shared/enums/ratio-mode";
+export { RatioMode } from "@matreshka/protocol/enums/ratio-mode";
 /** @deprecated Use RatioMode instead */
-export { RatioMode as ImageMode } from "@matreshka/shared/enums/ratio-mode";
+export { RatioMode as ImageMode } from "@matreshka/protocol/enums/ratio-mode";
 
 /**
  * Свойства компонента вывода изображения.

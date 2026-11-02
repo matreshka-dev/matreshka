@@ -1,4 +1,4 @@
-import { ScrollToPosition } from '@shared/enums/scroll-to-position';
+import { ScrollToPosition } from '@protocol/enums/scroll-to-position';
 import { describe, expect, it } from 'vitest';
 import { resolveScrollToOffset } from '../../../utils/resolve-scroll-to-offset';
 

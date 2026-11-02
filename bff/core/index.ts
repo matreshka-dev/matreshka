@@ -12,7 +12,7 @@ export * from "./conditions";
 export * from "./context/context";
 export * from "./context/context-ref";
 
-export type { DimensionalValue } from "@matreshka/shared/types/dimensional-value";
+export type { DimensionalValue } from "@matreshka/protocol/types/dimensional-value";
 export {
   ComponentAnimationEffect,
   DimensionalUnit,
@@ -33,7 +33,7 @@ export * from "./utils/color-roles-to-ids";
 export * from "./utils/color-token-id";
 export * from "./utils/serialize-component-tree";
 
-export * from "@matreshka/shared/types/json";
+export * from "@matreshka/protocol/types/json";
 export * from "./types/component-instance";
 export * from "./types/component-tree-node";
 export * from "./types/componentable";

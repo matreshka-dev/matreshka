@@ -1,16 +1,16 @@
 import { componentBaseId } from "@matreshka/shared";
-import { ColorRole } from "@matreshka/shared/enums/color-role";
-import { ServerComponentClass } from "@matreshka/shared/enums/server-component-class";
-import { TextAlign } from "@matreshka/shared/enums/text-align";
-import { TextDecoration } from "@matreshka/shared/enums/text-decoration";
-import { ComponentCommandMessage } from "@matreshka/shared/messages/bff-to-client/component-command-message";
-import { ComponentInteractionMessage } from "@matreshka/shared/messages/client-to-bff/components/component-interaction-message";
-import { ColorToken } from "@matreshka/shared/types/color-token";
-import type { Overlay as ClientOverlayShape } from "@matreshka/shared/types/container-overlay";
-import type { FontStackToken } from "@matreshka/shared/types/fonts";
-import type { GridItem } from "@matreshka/shared/types/grid-item";
-import type { ServerComponentConfig } from "@matreshka/shared/types/server-component-config";
-import type { ServerComponentInteraction } from "@matreshka/shared/types/server-component-interaction";
+import { ColorRole } from "@matreshka/protocol/enums/color-role";
+import { ServerComponentClass } from "@matreshka/protocol/enums/server-component-class";
+import { TextAlign } from "@matreshka/protocol/enums/text-align";
+import { TextDecoration } from "@matreshka/protocol/enums/text-decoration";
+import { ComponentCommandMessage } from "@matreshka/protocol/messages/bff-to-client/component-command-message";
+import { ComponentInteractionMessage } from "@matreshka/protocol/messages/client-to-bff/components/component-interaction-message";
+import { ColorToken } from "@matreshka/protocol/types/color-token";
+import type { Overlay as ClientOverlayShape } from "@matreshka/protocol/types/container-overlay";
+import type { FontStackToken } from "@matreshka/protocol/types/fonts";
+import type { GridItem } from "@matreshka/protocol/types/grid-item";
+import type { ServerComponentConfig } from "@matreshka/protocol/types/server-component-config";
+import type { ServerComponentInteraction } from "@matreshka/protocol/types/server-component-interaction";
 import * as crypto from "node:crypto";
 import {
   filter,

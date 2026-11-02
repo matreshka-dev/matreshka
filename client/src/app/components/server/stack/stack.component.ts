@@ -7,16 +7,16 @@ import {
   viewChild,
   ViewEncapsulation,
 } from '@angular/core';
-import { ComponentOutline, OutlineType } from '@shared/enums/outline-type';
-import { Overflow } from '@shared/enums/overflow';
-import { SafeAreaSide } from '@shared/enums/safe-area-side';
-import { ScrollToPosition } from '@shared/enums/scroll-to-position';
-import { StackDirection } from '@shared/enums/stack-direction';
-import { ComponentScrollToMessage } from '@shared/messages/bff-to-client/components/component-scroll-to-message';
-import { ComponentClickMessage } from '@shared/messages/client-to-bff/components/component-click-message';
-import { ComponentKeyDownMessage } from '@shared/messages/client-to-bff/components/component-keydown-message';
-import type { ServerComponentInteraction } from '@shared/types/server-component-interaction';
-import type { StackConfig } from '@shared/types/stack-config';
+import { ComponentOutline, OutlineType } from '@protocol/enums/outline-type';
+import { Overflow } from '@protocol/enums/overflow';
+import { SafeAreaSide } from '@protocol/enums/safe-area-side';
+import { ScrollToPosition } from '@protocol/enums/scroll-to-position';
+import { StackDirection } from '@protocol/enums/stack-direction';
+import { ComponentScrollToMessage } from '@protocol/messages/bff-to-client/components/component-scroll-to-message';
+import { ComponentClickMessage } from '@protocol/messages/client-to-bff/components/component-click-message';
+import { ComponentKeyDownMessage } from '@protocol/messages/client-to-bff/components/component-keydown-message';
+import type { ServerComponentInteraction } from '@protocol/types/server-component-interaction';
+import type { StackConfig } from '@protocol/types/stack-config';
 import { WINDOW } from '../../../tokens/window';
 import {
   normalizePaddingPx,

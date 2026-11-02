@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { DimensionalUnit } from '@shared/enums/dimensional-unit';
+import { DimensionalUnit } from '@protocol/enums/dimensional-unit';
 import {
   calculateGridItemStyles,
   calculateIconStyles,

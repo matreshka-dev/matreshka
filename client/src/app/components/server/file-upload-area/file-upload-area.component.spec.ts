@@ -8,12 +8,12 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { Subject } from 'rxjs';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { ServerComponentClass } from '@shared/enums/server-component-class';
-import { FileUploadAreaCompleteMessage } from '@shared/messages/client-to-bff/components/file-upload-area/file-upload-area-complete-message';
-import { FileUploadAreaErrorMessage } from '@shared/messages/client-to-bff/components/file-upload-area/file-upload-area-error-message';
-import { FileUploadAreaProgressMessage } from '@shared/messages/client-to-bff/components/file-upload-area/file-upload-area-progress-message';
-import { FileUploadAreaStartMessage } from '@shared/messages/client-to-bff/components/file-upload-area/file-upload-area-start-message';
-import type { FileUploadAreaConfig } from '@shared/types/file-upload-area-config';
+import { ServerComponentClass } from '@protocol/enums/server-component-class';
+import { FileUploadAreaCompleteMessage } from '@protocol/messages/client-to-bff/components/file-upload-area/file-upload-area-complete-message';
+import { FileUploadAreaErrorMessage } from '@protocol/messages/client-to-bff/components/file-upload-area/file-upload-area-error-message';
+import { FileUploadAreaProgressMessage } from '@protocol/messages/client-to-bff/components/file-upload-area/file-upload-area-progress-message';
+import { FileUploadAreaStartMessage } from '@protocol/messages/client-to-bff/components/file-upload-area/file-upload-area-start-message';
+import type { FileUploadAreaConfig } from '@protocol/types/file-upload-area-config';
 import { TestPlatform } from '../../../../app/platforms/tests/test-platform';
 import { PLATFORM } from '../../../platforms/platform';
 import { ComponentHubService } from '../../../services/component-hub.service';

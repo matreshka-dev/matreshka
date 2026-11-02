@@ -1,4 +1,4 @@
-import type { PaddingPxWire } from '@shared/types/padding-px';
+import type { PaddingPxWire } from '@protocol/types/padding-px';
 
 export type PaddingPxResult = {
   top: number;

@@ -1,4 +1,4 @@
-import type { QrCodeConfig } from '@shared/types/qr-code-config';
+import type { QrCodeConfig } from '@protocol/types/qr-code-config';
 import { OutputDependencies } from '../output-config';
 
 export const QrCodeDependencies = {

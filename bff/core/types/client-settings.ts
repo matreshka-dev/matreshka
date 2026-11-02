@@ -1,6 +1,6 @@
-import { ColorRole } from "@matreshka/shared/enums/color-role";
-import { ColorToken } from "@matreshka/shared/types/color-token";
-import { AppFontsConfig } from "@matreshka/shared/types/fonts";
+import { ColorRole } from "@matreshka/protocol/enums/color-role";
+import { ColorToken } from "@matreshka/protocol/types/color-token";
+import { AppFontsConfig } from "@matreshka/protocol/types/fonts";
 
 export type ClientSettingsColors = {
   /** Реестр определений токенов для handshake и резолва id в UI. */

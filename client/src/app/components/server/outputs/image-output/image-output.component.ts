@@ -4,8 +4,8 @@ import {
   signal,
   ViewEncapsulation,
 } from '@angular/core';
-import { ComponentClickMessage } from '@shared/messages/client-to-bff/components/component-click-message';
-import type { ImageOutputConfig } from '@shared/types/image-output-config';
+import { ComponentClickMessage } from '@protocol/messages/client-to-bff/components/component-click-message';
+import type { ImageOutputConfig } from '@protocol/types/image-output-config';
 import { normalizeRadiusPx } from '../../../../utils/normalize-radius-px';
 import { rem } from '../../../../utils/rem';
 import { ServerOutputComponent } from '../server-output-component';

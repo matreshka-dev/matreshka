@@ -1,4 +1,4 @@
-import { ConditionType } from "@matreshka/shared/enums/condition-type";
+import { ConditionType } from "@matreshka/protocol/enums/condition-type";
 import { ContextRef } from "../context/context-ref";
 import { Condition } from "./condition";
 import { ConditionOperand, toWireOperand } from "./condition-operand";

@@ -2,10 +2,10 @@ import { inject, Injectable } from '@angular/core';
 import {
   ContextDestroyMessage,
   ContextValuesMessage,
-} from '@shared/messages/bff-to-client/context';
-import { ContextInitMessage as BffToClientContextInitMessage } from '@shared/messages/bff-to-client/context/context-init-message';
-import { ContextInitMessage as ClientToBffContextInitMessage } from '@shared/messages/client-to-bff/context/context-init-message';
-import { ContextValuesMessage as ClientToBffContextValuesMessage } from '@shared/messages/client-to-bff/context/context-values-message';
+} from '@protocol/messages/bff-to-client/context';
+import { ContextInitMessage as BffToClientContextInitMessage } from '@protocol/messages/bff-to-client/context/context-init-message';
+import { ContextInitMessage as ClientToBffContextInitMessage } from '@protocol/messages/client-to-bff/context/context-init-message';
+import { ContextValuesMessage as ClientToBffContextValuesMessage } from '@protocol/messages/client-to-bff/context/context-values-message';
 import { fetchFromObject } from '@shared/utils/fetch-from-object';
 import { parseContextPath } from '@shared/utils/parse-context-path';
 import { replaceContextPlaceholders } from '@shared/utils/replace-context-placeholders';

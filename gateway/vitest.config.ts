@@ -4,6 +4,7 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   resolve: {
     alias: {
+      "@matreshka/protocol": path.resolve(__dirname, "../protocol"),
       "@matreshka/shared": path.resolve(__dirname, "../shared"),
     },
   },

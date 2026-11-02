@@ -1,6 +1,6 @@
-import { PlatformWebAuthnCreateCredentialMessage } from "@matreshka/shared/messages/bff-to-client/platforms/platform-webauthn-create-credential-message";
-import { ErrorMessage } from "@matreshka/shared/messages/client-to-bff/error-message";
-import { PlatformWebAuthnCreateCredentialSuccessMessage } from "@matreshka/shared/messages/client-to-bff/platforms/platform-webauthn-create-credential-success-message";
+import { PlatformWebAuthnCreateCredentialMessage } from "@matreshka/protocol/messages/bff-to-client/platforms/platform-webauthn-create-credential-message";
+import { ErrorMessage } from "@matreshka/protocol/messages/client-to-bff/error-message";
+import { PlatformWebAuthnCreateCredentialSuccessMessage } from "@matreshka/protocol/messages/client-to-bff/platforms/platform-webauthn-create-credential-success-message";
 import { firstValueFrom } from "rxjs";
 import { describe, expect, it } from "vitest";
 import { Client } from "../core/client";

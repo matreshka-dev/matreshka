@@ -16,29 +16,29 @@ import {
 } from '@capacitor/push-notifications';
 import { Share } from '@capacitor/share';
 import { StatusBar, Style } from '@capacitor/status-bar';
-import { DisablePrivacyModeMessage } from '@shared/messages/bff-to-client/platforms/disable-privacy-mode-message';
-import { EnablePrivacyModeMessage } from '@shared/messages/bff-to-client/platforms/enable-privacy-mode-message';
-import { MobileAddEventToCalendarMessage } from '@shared/messages/bff-to-client/platforms/mobile/mobile-add-event-to-calendar-message';
-import { MobileConnectToBleDeviceMessage } from '@shared/messages/bff-to-client/platforms/mobile/mobile-connect-to-ble-device-message';
-import { MobileDisconnectMessage } from '@shared/messages/bff-to-client/platforms/mobile/mobile-disconnect-message';
-import { MobileDiscoverBleServicesMessage } from '@shared/messages/bff-to-client/platforms/mobile/mobile-discover-ble-services-message';
-import { MobileDownloadCsvContentMessage } from '@shared/messages/bff-to-client/platforms/mobile/mobile-download-csv-content-message';
-import { MobileDownloadFileMessage } from '@shared/messages/bff-to-client/platforms/mobile/mobile-download-file-message';
-import { MobileGetBleServicesMessage } from '@shared/messages/bff-to-client/platforms/mobile/mobile-get-ble-services-message';
-import { MobileGetGeolocationMessage } from '@shared/messages/bff-to-client/platforms/mobile/mobile-get-geolocation-message';
-import { MobileReadBleCharacteristicMessage } from '@shared/messages/bff-to-client/platforms/mobile/mobile-read-ble-characteristic-message';
-import { MobileRequestBleScanMessage } from '@shared/messages/bff-to-client/platforms/mobile/mobile-request-ble-scan-message';
-import { MobileRequestPushNotificationsMessage } from '@shared/messages/bff-to-client/platforms/mobile/mobile-request-push-notifications-message';
-import { MobileShareMessage } from '@shared/messages/bff-to-client/platforms/mobile/mobile-share-message';
-import { MobileStopMessage } from '@shared/messages/bff-to-client/platforms/mobile/mobile-stop-message';
-import { ErrorMessage } from '@shared/messages/client-to-bff/error-message';
-import { MobileBleDisconnectMessage } from '@shared/messages/client-to-bff/platforms/mobile/mobile-ble-disconnect-message';
-import { MobileBleReceiveMessage } from '@shared/messages/client-to-bff/platforms/mobile/mobile-ble-receive-message';
-import { MobileBleServicesMessage } from '@shared/messages/client-to-bff/platforms/mobile/mobile-ble-services-message';
-import { MobileBleValueMessage } from '@shared/messages/client-to-bff/platforms/mobile/mobile-ble-value-message';
-import { MobileGetGeolocationSuccessMessage } from '@shared/messages/client-to-bff/platforms/mobile/mobile-get-geolocation-success-message';
-import { MobileRequestPushNotificationsActionGrantedMessage } from '@shared/messages/client-to-bff/platforms/mobile/mobile-request-push-notifications-action-granted-message';
-import { isTargetedMessage } from '@shared/messages/targeted-message';
+import { DisablePrivacyModeMessage } from '@protocol/messages/bff-to-client/platforms/disable-privacy-mode-message';
+import { EnablePrivacyModeMessage } from '@protocol/messages/bff-to-client/platforms/enable-privacy-mode-message';
+import { MobileAddEventToCalendarMessage } from '@protocol/messages/bff-to-client/platforms/mobile/mobile-add-event-to-calendar-message';
+import { MobileConnectToBleDeviceMessage } from '@protocol/messages/bff-to-client/platforms/mobile/mobile-connect-to-ble-device-message';
+import { MobileDisconnectMessage } from '@protocol/messages/bff-to-client/platforms/mobile/mobile-disconnect-message';
+import { MobileDiscoverBleServicesMessage } from '@protocol/messages/bff-to-client/platforms/mobile/mobile-discover-ble-services-message';
+import { MobileDownloadCsvContentMessage } from '@protocol/messages/bff-to-client/platforms/mobile/mobile-download-csv-content-message';
+import { MobileDownloadFileMessage } from '@protocol/messages/bff-to-client/platforms/mobile/mobile-download-file-message';
+import { MobileGetBleServicesMessage } from '@protocol/messages/bff-to-client/platforms/mobile/mobile-get-ble-services-message';
+import { MobileGetGeolocationMessage } from '@protocol/messages/bff-to-client/platforms/mobile/mobile-get-geolocation-message';
+import { MobileReadBleCharacteristicMessage } from '@protocol/messages/bff-to-client/platforms/mobile/mobile-read-ble-characteristic-message';
+import { MobileRequestBleScanMessage } from '@protocol/messages/bff-to-client/platforms/mobile/mobile-request-ble-scan-message';
+import { MobileRequestPushNotificationsMessage } from '@protocol/messages/bff-to-client/platforms/mobile/mobile-request-push-notifications-message';
+import { MobileShareMessage } from '@protocol/messages/bff-to-client/platforms/mobile/mobile-share-message';
+import { MobileStopMessage } from '@protocol/messages/bff-to-client/platforms/mobile/mobile-stop-message';
+import { ErrorMessage } from '@protocol/messages/client-to-bff/error-message';
+import { MobileBleDisconnectMessage } from '@protocol/messages/client-to-bff/platforms/mobile/mobile-ble-disconnect-message';
+import { MobileBleReceiveMessage } from '@protocol/messages/client-to-bff/platforms/mobile/mobile-ble-receive-message';
+import { MobileBleServicesMessage } from '@protocol/messages/client-to-bff/platforms/mobile/mobile-ble-services-message';
+import { MobileBleValueMessage } from '@protocol/messages/client-to-bff/platforms/mobile/mobile-ble-value-message';
+import { MobileGetGeolocationSuccessMessage } from '@protocol/messages/client-to-bff/platforms/mobile/mobile-get-geolocation-success-message';
+import { MobileRequestPushNotificationsActionGrantedMessage } from '@protocol/messages/client-to-bff/platforms/mobile/mobile-request-push-notifications-action-granted-message';
+import { TargetedMessage } from '@protocol/messages/targeted-message';
 import { setObjectProperty } from '@shared/utils/set-object-property';
 import { SafeArea } from 'capacitor-plugin-safe-area';
 import { filter, Subject, take } from 'rxjs';
@@ -185,7 +185,9 @@ export abstract class MobilePlatform extends ClientPlatform {
       await this.initBleClient();
       this.postman.incomingMessage$
         .pipe(
-          filter((m) => isTargetedMessage(m) && m.target === message.target),
+          filter(
+            (m) => m instanceof TargetedMessage && m.target === message.target,
+          ),
           take(1),
         )
         .subscribe((incoming) => {

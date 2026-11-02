@@ -1,5 +1,5 @@
-import { IframeAllow } from "@matreshka/shared/enums/iframe-allow";
-import { ServerComponentClass } from "@matreshka/shared/enums/server-component-class";
+import { IframeAllow } from "@matreshka/protocol/enums/iframe-allow";
+import { ServerComponentClass } from "@matreshka/protocol/enums/server-component-class";
 import { Componentable, ContextRef } from "../../core";
 import {
   CompatibleOutputRef,
@@ -10,7 +10,7 @@ import {
   outputValueRefToConfig,
 } from "./output-component";
 
-export { IframeAllow } from "@matreshka/shared/enums/iframe-allow";
+export { IframeAllow } from "@matreshka/protocol/enums/iframe-allow";
 
 /**
  * Свойства компонента вывода iframe.

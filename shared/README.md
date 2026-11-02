@@ -1,21 +1,26 @@
 # @matreshka/shared
 
-Общие типы, enum-ы и контракты сообщений между BFF Matreshka и клиентом.
+Утилиты рантайма Matreshka, общие для BFF и клиента (контекст, условия, вложенные элементы).
+
+Контракт обмена сообщениями и сериализуемые типы UI — в пакете [`@matreshka/protocol`](../protocol/README.md).
 
 ## Установка
 
 ```bash
+# В прикладном BFF-проекте обычно достаточно `@matreshka/bff` — shared подтягивается транзитивно.
 npm install @matreshka/shared
 ```
 
 ## Пример
 
 ```typescript
-import type { ClientState } from "@matreshka/shared/types/client-state";
-import { HandshakeMessage } from "@matreshka/shared/messages/bff-to-client/app/handshake-message";
+import { evaluateConditions } from "@matreshka/shared";
+import type { SerializedOperand } from "@matreshka/shared";
+import type { ClientState } from "@matreshka/protocol/types/client-state";
+import { HandshakeMessage } from "@matreshka/protocol/messages/bff-to-client/app/handshake-message";
 ```
 
-Subpath-импорты (`@matreshka/shared/enums/...`, `@matreshka/shared/messages/...`, `@matreshka/shared/types/...`) соответствуют структуре каталогов в `dist/`.
+Subpath-импорты утилит: `@matreshka/shared/utils/...`. Типы и сообщения протокола — только через `@matreshka/protocol/...`.
 
 ## Документация
 

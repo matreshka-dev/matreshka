@@ -1,4 +1,4 @@
-import type { ChartConfig } from '@shared/types/chart-config';
+import type { ChartConfig } from '@protocol/types/chart-config';
 import {
   ComponentDependencies,
   ServerComponentDependencies,

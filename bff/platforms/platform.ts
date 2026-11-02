@@ -1,18 +1,18 @@
-import { DialogShowMessage } from "@matreshka/shared/messages/bff-to-client/components/dialog/dialog-show-message";
-import { PopoverShowMessage } from "@matreshka/shared/messages/bff-to-client/components/popover/popover-show-message";
-import { DisablePrivacyModeMessage } from "@matreshka/shared/messages/bff-to-client/platforms/disable-privacy-mode-message";
-import { EnablePrivacyModeMessage } from "@matreshka/shared/messages/bff-to-client/platforms/enable-privacy-mode-message";
-import { PlatformEnumerateDevicesMessage } from "@matreshka/shared/messages/bff-to-client/platforms/platform-enumerate-devices-message";
-import { PlatformSetColorSchemeMessage } from "@matreshka/shared/messages/bff-to-client/platforms/platform-set-color-scheme-message";
-import { PlatformSetOverlaysMessage } from "@matreshka/shared/messages/bff-to-client/platforms/platform-set-overlays-message";
-import { PlatformSetToolsMessage } from "@matreshka/shared/messages/bff-to-client/platforms/platform-set-tools-message";
+import { DialogShowMessage } from "@matreshka/protocol/messages/bff-to-client/components/dialog/dialog-show-message";
+import { PopoverShowMessage } from "@matreshka/protocol/messages/bff-to-client/components/popover/popover-show-message";
+import { DisablePrivacyModeMessage } from "@matreshka/protocol/messages/bff-to-client/platforms/disable-privacy-mode-message";
+import { EnablePrivacyModeMessage } from "@matreshka/protocol/messages/bff-to-client/platforms/enable-privacy-mode-message";
+import { PlatformEnumerateDevicesMessage } from "@matreshka/protocol/messages/bff-to-client/platforms/platform-enumerate-devices-message";
+import { PlatformSetColorSchemeMessage } from "@matreshka/protocol/messages/bff-to-client/platforms/platform-set-color-scheme-message";
+import { PlatformSetOverlaysMessage } from "@matreshka/protocol/messages/bff-to-client/platforms/platform-set-overlays-message";
+import { PlatformSetToolsMessage } from "@matreshka/protocol/messages/bff-to-client/platforms/platform-set-tools-message";
 import {
   PlatformNativePickerInputType,
   PlatformShowNativePickerMessage,
-} from "@matreshka/shared/messages/bff-to-client/platforms/platform-show-native-picker-message";
-import type { PlatformEnumeratedDevice } from "@matreshka/shared/messages/client-to-bff/platforms/platform-enumerate-devices-success-message";
-import { PlatformEnumerateDevicesSuccessMessage } from "@matreshka/shared/messages/client-to-bff/platforms/platform-enumerate-devices-success-message";
-import { WebMcpToolCallMessage } from "@matreshka/shared/messages/client-to-bff/webmcp/web-mcp-tool-call-message";
+} from "@matreshka/protocol/messages/bff-to-client/platforms/platform-show-native-picker-message";
+import type { PlatformEnumeratedDevice } from "@matreshka/protocol/messages/client-to-bff/platforms/platform-enumerate-devices-success-message";
+import { PlatformEnumerateDevicesSuccessMessage } from "@matreshka/protocol/messages/client-to-bff/platforms/platform-enumerate-devices-success-message";
+import { WebMcpToolCallMessage } from "@matreshka/protocol/messages/client-to-bff/webmcp/web-mcp-tool-call-message";
 import type { Observable, Subscription } from "rxjs";
 import { filter } from "rxjs";
 import { z } from "zod";

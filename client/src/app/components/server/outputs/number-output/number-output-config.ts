@@ -1,4 +1,4 @@
-import type { NumberOutputConfig } from '@shared/types/number-output-config';
+import type { NumberOutputConfig } from '@protocol/types/number-output-config';
 import { OutputDependencies } from '../output-config';
 
 export const NumberOutputDependencies = {

@@ -18,7 +18,7 @@ export function flattenNestedItems<
   TItem extends NestedItemTreeNode,
   TSerialized extends TItem & {
     id: string;
-    component: import("@matreshka/shared/types/server-component-config").ServerComponentConfig;
+    component: import("@matreshka/protocol/types/server-component-config").ServerComponentConfig;
   },
 >(
   source: (TItem | ItemList<any, TItem>)[] | undefined,

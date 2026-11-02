@@ -1,4 +1,4 @@
-import type { GridConfig } from '@shared/types/grid-config';
+import type { GridConfig } from '@protocol/types/grid-config';
 import {
   ComponentDependencies,
   getNestedConfigsByPropertyKey,

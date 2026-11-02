@@ -1,5 +1,5 @@
-import { ChartType } from "@matreshka/shared/enums/chart-type";
-import { ServerComponentClass } from "@matreshka/shared/enums/server-component-class";
+import { ChartType } from "@matreshka/protocol/enums/chart-type";
+import { ServerComponentClass } from "@matreshka/protocol/enums/server-component-class";
 import type { Componentable } from "../../core/types/componentable";
 import { StandaloneComponent } from "../../core/types/standalone-component";
 import {
@@ -7,7 +7,7 @@ import {
   ComponentInitConfig,
   ComponentProperties,
 } from "../component";
-export { ChartType } from "@matreshka/shared/enums/chart-type";
+export { ChartType } from "@matreshka/protocol/enums/chart-type";
 
 /**
  * Описание набора данных для графика.

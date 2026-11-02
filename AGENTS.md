@@ -5,7 +5,8 @@
 - `client/` — Angular-клиент.
 - `bff/` — BFF runtime и DSL компонентов.
 - `gateway/` — транспортный шлюз.
-- `shared/` — общие типы, enum-ы и контракты сообщений.
+- `protocol/` — wire-контракт client ↔ BFF (`@matreshka/protocol`).
+- `shared/` — утилиты рантайма для BFF и клиента.
 - `docs/` — документация проекта.
 - `.cursor/skills/` — скиллы для агентов (platform-action — платформенные команды; component-action — imperative-команды BFF-компонентов на клиент).
 
@@ -19,14 +20,14 @@
 ## Форматирование
 
 После изменения исходного кода запусти `npm run format` в каждом затронутом
-пакете: `client`, `bff`, `gateway` или `shared`.
+пакете: `client`, `bff`, `gateway`, `protocol` или `shared`.
 
 Для правок только в Markdown и конфигурации запускать форматирование не нужно.
 
 ## Проверка
 
 - Запускай релевантные тесты после изменения логики.
-- Для `client`, `gateway` и `shared` запускай `npm run lint`.
+- Для `client`, `gateway`, `protocol` и `shared` запускай `npm run lint`.
 - Для `bff` запускай `npx eslint .`.
 - Для общей сборки пакетов используй `npm run build` из корня репозитория.
 - Не исправляй посторонние ошибки, не связанные с текущей задачей.

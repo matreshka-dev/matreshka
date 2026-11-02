@@ -1,10 +1,10 @@
-import { TelegramMiniAppDownloadFileMessage } from "@matreshka/shared/messages/bff-to-client/platforms/telegram-mini-app/telegram-mini-app-download-file-message";
-import { TelegramMiniAppGetGeolocationMessage } from "@matreshka/shared/messages/bff-to-client/platforms/telegram-mini-app/telegram-mini-app-get-geolocation-message";
-import { TelegramMiniAppRequestContactMessage } from "@matreshka/shared/messages/bff-to-client/platforms/telegram-mini-app/telegram-mini-app-request-contact-message";
-import { TelegramMiniAppShareMessage } from "@matreshka/shared/messages/bff-to-client/platforms/telegram-mini-app/telegram-mini-app-share-message";
-import { TelegramMiniAppGetGeolocationSuccessMessage } from "@matreshka/shared/messages/client-to-bff/platforms/telegram-mini-app/telegram-mini-app-get-geolocation-success-message";
-import { TelegramMiniAppRequestContactActionCancelMessage } from "@matreshka/shared/messages/client-to-bff/platforms/telegram-mini-app/telegram-mini-app-request-contact-action-cancel-message";
-import { TelegramMiniAppRequestContactActionSuccessMessage } from "@matreshka/shared/messages/client-to-bff/platforms/telegram-mini-app/telegram-mini-app-request-contact-action-success-message";
+import { TelegramMiniAppDownloadFileMessage } from "@matreshka/protocol/messages/bff-to-client/platforms/telegram-mini-app/telegram-mini-app-download-file-message";
+import { TelegramMiniAppGetGeolocationMessage } from "@matreshka/protocol/messages/bff-to-client/platforms/telegram-mini-app/telegram-mini-app-get-geolocation-message";
+import { TelegramMiniAppRequestContactMessage } from "@matreshka/protocol/messages/bff-to-client/platforms/telegram-mini-app/telegram-mini-app-request-contact-message";
+import { TelegramMiniAppShareMessage } from "@matreshka/protocol/messages/bff-to-client/platforms/telegram-mini-app/telegram-mini-app-share-message";
+import { TelegramMiniAppGetGeolocationSuccessMessage } from "@matreshka/protocol/messages/client-to-bff/platforms/telegram-mini-app/telegram-mini-app-get-geolocation-success-message";
+import { TelegramMiniAppRequestContactActionCancelMessage } from "@matreshka/protocol/messages/client-to-bff/platforms/telegram-mini-app/telegram-mini-app-request-contact-action-cancel-message";
+import { TelegramMiniAppRequestContactActionSuccessMessage } from "@matreshka/protocol/messages/client-to-bff/platforms/telegram-mini-app/telegram-mini-app-request-contact-action-success-message";
 import crypto from "crypto";
 import type { Observable } from "rxjs";
 import { z } from "zod";

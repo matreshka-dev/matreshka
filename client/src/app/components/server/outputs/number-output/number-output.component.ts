@@ -3,7 +3,7 @@ import {
   Component,
   ViewEncapsulation,
 } from '@angular/core';
-import type { NumberOutputConfig } from '@shared/types/number-output-config';
+import type { NumberOutputConfig } from '@protocol/types/number-output-config';
 import { ServerOutputComponent } from '../server-output-component';
 
 @Component({

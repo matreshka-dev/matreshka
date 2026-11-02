@@ -1,5 +1,5 @@
-import { HandshakeMessage as BffHandshakeMessage } from "@matreshka/shared/messages/bff-to-client/app/handshake-message";
-import { HandshakeMessage as ClientHandshakeMessage } from "@matreshka/shared/messages/client-to-bff/app/handshake-message";
+import { HandshakeMessage as BffHandshakeMessage } from "@matreshka/protocol/messages/bff-to-client/app/handshake-message";
+import { HandshakeMessage as ClientHandshakeMessage } from "@matreshka/protocol/messages/client-to-bff/app/handshake-message";
 
 /** Сериализует client handshake так же, как это делает клиент. */
 export function serializeClientHandshake(applicationId: string): string {

@@ -1,5 +1,5 @@
-import { WebMcpToolCallMessage } from "@matreshka/shared/messages/client-to-bff/webmcp/web-mcp-tool-call-message";
-import type { EntryServerComponentConfig } from "@matreshka/shared/types/entry-server-component-config";
+import { WebMcpToolCallMessage } from "@matreshka/protocol/messages/client-to-bff/webmcp/web-mcp-tool-call-message";
+import type { EntryServerComponentConfig } from "@matreshka/protocol/types/entry-server-component-config";
 import { filter } from "rxjs";
 import type { Client } from "../core/client";
 import { currentClient } from "../core/client-context";

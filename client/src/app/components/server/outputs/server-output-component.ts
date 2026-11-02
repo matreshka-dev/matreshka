@@ -5,7 +5,7 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import type { OutputConfig } from '@shared/types/output-config';
+import type { OutputConfig } from '@protocol/types/output-config';
 import { filter, takeUntil } from 'rxjs';
 import { contextChangeAffectsRef } from '../../../utils/collect-context-ref-dependencies';
 import { ServerComponent } from '../server-component';

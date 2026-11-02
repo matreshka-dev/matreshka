@@ -1,8 +1,8 @@
-import type { BffToClientMessage } from "@matreshka/shared/messages/bff-to-client/bff-to-client-message";
-import { PlatformSetToolsMessage } from "@matreshka/shared/messages/bff-to-client/platforms/platform-set-tools-message";
-import { WebMcpToolResultMessage } from "@matreshka/shared/messages/bff-to-client/webmcp/web-mcp-tool-result-message";
-import { ActionCompletedMessage } from "@matreshka/shared/messages/client-to-bff/action-completed-message";
-import { WebMcpToolCallMessage } from "@matreshka/shared/messages/client-to-bff/webmcp/web-mcp-tool-call-message";
+import type { BffToClientMessage } from "@matreshka/protocol/messages/bff-to-client/bff-to-client-message";
+import { PlatformSetToolsMessage } from "@matreshka/protocol/messages/bff-to-client/platforms/platform-set-tools-message";
+import { WebMcpToolResultMessage } from "@matreshka/protocol/messages/bff-to-client/webmcp/web-mcp-tool-result-message";
+import { ActionCompletedMessage } from "@matreshka/protocol/messages/client-to-bff/action-completed-message";
+import { WebMcpToolCallMessage } from "@matreshka/protocol/messages/client-to-bff/webmcp/web-mcp-tool-call-message";
 import { firstValueFrom } from "rxjs";
 import { describe, expect, it } from "vitest";
 import { webMcpTool } from "../components/webmcp/web-mcp-tool";

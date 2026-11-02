@@ -1,4 +1,4 @@
-import type { ProgressSpinnerConfig } from '@shared/types/progress-spinner-config';
+import type { ProgressSpinnerConfig } from '@protocol/types/progress-spinner-config';
 import { OutputDependencies } from '../output-config';
 
 export const ProgressSpinnerDependencies = {

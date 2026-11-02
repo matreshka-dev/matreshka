@@ -2,13 +2,13 @@ import {
   ContextValuesMessage as BffToClientContextValuesMessage,
   ContextDestroyMessage,
   ContextInitMessage,
-} from "@matreshka/shared/messages/bff-to-client/context/index";
+} from "@matreshka/protocol/messages/bff-to-client/context/index";
 import {
   ContextInitMessage as ClientToBffContextInitMessage,
   ContextValuesMessage as ClientToBffContextValuesMessage,
-} from "@matreshka/shared/messages/client-to-bff/context/index";
-import { isTargetedMessage } from "@matreshka/shared/messages/targeted-message";
-import { JsonObject } from "@matreshka/shared/types/json";
+} from "@matreshka/protocol/messages/client-to-bff/context/index";
+import { TargetedMessage } from "@matreshka/protocol/messages/targeted-message";
+import { JsonObject } from "@matreshka/protocol/types/json";
 import { fetchFromObject } from "@matreshka/shared/utils/fetch-from-object";
 import { setObjectProperty } from "@matreshka/shared/utils/set-object-property";
 import {
@@ -311,7 +311,7 @@ export class Context<T extends JsonObject> {
         .pipe(
           filter(
             (unsafeMessage) =>
-              isTargetedMessage(unsafeMessage) &&
+              unsafeMessage instanceof TargetedMessage &&
               unsafeMessage.target === this.id,
           ),
         )

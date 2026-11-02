@@ -3,17 +3,17 @@ import {
   componentIdMatchesInstance,
   hasComponentInstanceSuffix,
 } from "@matreshka/shared";
-import { PlatformId } from "@matreshka/shared/enums/platform-id";
-import { ServerComponentClass } from "@matreshka/shared/enums/server-component-class";
-import { ForEachSyncComponentsMessage } from "@matreshka/shared/messages/bff-to-client/components/for-each/for-each-sync-components-message";
-import { ComponentClickMessage } from "@matreshka/shared/messages/client-to-bff/components/component-click-message";
-import { ComponentEnterMessage } from "@matreshka/shared/messages/client-to-bff/components/component-enter-message";
-import { ComponentHideMessage } from "@matreshka/shared/messages/client-to-bff/components/component-hide-message";
-import { ComponentLeaveMessage } from "@matreshka/shared/messages/client-to-bff/components/component-leave-message";
-import { ComponentShowMessage } from "@matreshka/shared/messages/client-to-bff/components/component-show-message";
-import { registerCommonClientToBffMessages } from "@matreshka/shared/messages/client-to-bff/register-common-messages";
-import type { ForEachConfig } from "@matreshka/shared/types/for-each-config";
-import type { PageConfig } from "@matreshka/shared/types/page-config";
+import { PlatformId } from "@matreshka/protocol/enums/platform-id";
+import { ServerComponentClass } from "@matreshka/protocol/enums/server-component-class";
+import { ForEachSyncComponentsMessage } from "@matreshka/protocol/messages/bff-to-client/components/for-each/for-each-sync-components-message";
+import { ComponentClickMessage } from "@matreshka/protocol/messages/client-to-bff/components/component-click-message";
+import { ComponentEnterMessage } from "@matreshka/protocol/messages/client-to-bff/components/component-enter-message";
+import { ComponentHideMessage } from "@matreshka/protocol/messages/client-to-bff/components/component-hide-message";
+import { ComponentLeaveMessage } from "@matreshka/protocol/messages/client-to-bff/components/component-leave-message";
+import { ComponentShowMessage } from "@matreshka/protocol/messages/client-to-bff/components/component-show-message";
+import { registerCommonClientToBffMessages } from "@matreshka/protocol/messages/client-to-bff/register-common-messages";
+import type { ForEachConfig } from "@matreshka/protocol/types/for-each-config";
+import type { PageConfig } from "@matreshka/protocol/types/page-config";
 import { beforeAll, describe, expect, it } from "vitest";
 import {
   Client,

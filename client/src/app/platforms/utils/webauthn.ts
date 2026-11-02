@@ -1,9 +1,9 @@
-import { PlatformWebAuthnCreateCredentialMessage } from '@shared/messages/bff-to-client/platforms/platform-webauthn-create-credential-message';
-import { PlatformWebAuthnGetCredentialMessage } from '@shared/messages/bff-to-client/platforms/platform-webauthn-get-credential-message';
-import type { ClientToBffMessage } from '@shared/messages/client-to-bff/client-to-bff-message';
-import { ErrorMessage } from '@shared/messages/client-to-bff/error-message';
-import { PlatformWebAuthnCreateCredentialSuccessMessage } from '@shared/messages/client-to-bff/platforms/platform-webauthn-create-credential-success-message';
-import { PlatformWebAuthnGetCredentialSuccessMessage } from '@shared/messages/client-to-bff/platforms/platform-webauthn-get-credential-success-message';
+import { PlatformWebAuthnCreateCredentialMessage } from '@protocol/messages/bff-to-client/platforms/platform-webauthn-create-credential-message';
+import { PlatformWebAuthnGetCredentialMessage } from '@protocol/messages/bff-to-client/platforms/platform-webauthn-get-credential-message';
+import type { ClientToBffMessage } from '@protocol/messages/client-to-bff/client-to-bff-message';
+import { ErrorMessage } from '@protocol/messages/client-to-bff/error-message';
+import { PlatformWebAuthnCreateCredentialSuccessMessage } from '@protocol/messages/client-to-bff/platforms/platform-webauthn-create-credential-success-message';
+import { PlatformWebAuthnGetCredentialSuccessMessage } from '@protocol/messages/client-to-bff/platforms/platform-webauthn-get-credential-success-message';
 import {
   startAuthentication,
   startRegistration,

@@ -1,6 +1,6 @@
 export * from "./actions/server-action";
 
-export { OverlayAnchor } from "@matreshka/shared/types/container-overlay";
+export { OverlayAnchor } from "@matreshka/protocol/types/container-overlay";
 export * from "./aliases/button";
 export * from "./aliases/column";
 export * from "./aliases/row";

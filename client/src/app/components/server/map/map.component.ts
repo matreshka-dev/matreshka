@@ -8,16 +8,16 @@ import {
   viewChildren,
   ViewEncapsulation,
 } from '@angular/core';
-import { MapMarkerHorizontalAnchor } from '@shared/enums/map-marker-horizontal-anchor';
-import { MapMarkerVerticalAnchor } from '@shared/enums/map-marker-vertical-anchor';
-import { MapSetCenterMessage } from '@shared/messages/bff-to-client/components/map/map-set-center-message';
-import { MapSetZoomMessage } from '@shared/messages/bff-to-client/components/map/map-set-zoom-message';
-import { MapZoomInMessage } from '@shared/messages/bff-to-client/components/map/map-zoom-in-message';
-import { MapZoomOutMessage } from '@shared/messages/bff-to-client/components/map/map-zoom-out-message';
-import { MapCenterChangeMessage } from '@shared/messages/client-to-bff/components/map/map-center-change-message';
-import { MapZoomChangeMessage } from '@shared/messages/client-to-bff/components/map/map-zoom-change-message';
-import type { MapConfig, SerializedMapMarker } from '@shared/types/map-config';
-import type { ServerComponentInteraction } from '@shared/types/server-component-interaction';
+import { MapMarkerHorizontalAnchor } from '@protocol/enums/map-marker-horizontal-anchor';
+import { MapMarkerVerticalAnchor } from '@protocol/enums/map-marker-vertical-anchor';
+import { MapSetCenterMessage } from '@protocol/messages/bff-to-client/components/map/map-set-center-message';
+import { MapSetZoomMessage } from '@protocol/messages/bff-to-client/components/map/map-set-zoom-message';
+import { MapZoomInMessage } from '@protocol/messages/bff-to-client/components/map/map-zoom-in-message';
+import { MapZoomOutMessage } from '@protocol/messages/bff-to-client/components/map/map-zoom-out-message';
+import { MapCenterChangeMessage } from '@protocol/messages/client-to-bff/components/map/map-center-change-message';
+import { MapZoomChangeMessage } from '@protocol/messages/client-to-bff/components/map/map-zoom-change-message';
+import type { MapConfig, SerializedMapMarker } from '@protocol/types/map-config';
+import type { ServerComponentInteraction } from '@protocol/types/server-component-interaction';
 import type { NestedItemsDiff } from '@shared/utils/diff-nested-items';
 import { BehaviorSubject, filter } from 'rxjs';
 import { type LngLat, type YMapLocationRequest } from 'ymaps3';

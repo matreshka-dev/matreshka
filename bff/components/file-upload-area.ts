@@ -1,5 +1,5 @@
-import { ServerComponentClass } from "@matreshka/shared/enums/server-component-class";
-import type { FileUploadAreaConfig } from "@matreshka/shared/types/file-upload-area-config";
+import { ServerComponentClass } from "@matreshka/protocol/enums/server-component-class";
+import type { FileUploadAreaConfig } from "@matreshka/protocol/types/file-upload-area-config";
 import { z } from "zod";
 import {
   calculateComponents,

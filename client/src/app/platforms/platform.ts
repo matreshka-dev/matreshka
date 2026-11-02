@@ -6,7 +6,7 @@ import {
   NavigationStart,
   Router,
 } from '@angular/router';
-import { PlatformId } from '@shared/enums/platform-id';
+import { PlatformId } from '@protocol/enums/platform-id';
 import {
   AppBackMessage,
   AppNavigateMessage,
@@ -14,15 +14,15 @@ import {
   AppReloadMessage,
   AppStorageValueMessage,
   HandshakeMessage as BffHandshakeMessage,
-} from '@shared/messages/bff-to-client/app';
-import type { PlatformSetColorSchemeMode } from '@shared/messages/bff-to-client/platforms/platform-set-color-scheme-message';
-import { PlatformSetColorSchemeMessage } from '@shared/messages/bff-to-client/platforms/platform-set-color-scheme-message';
-import { PlatformSetOverlaysMessage } from '@shared/messages/bff-to-client/platforms/platform-set-overlays-message';
-import { PlatformSetToolsMessage } from '@shared/messages/bff-to-client/platforms/platform-set-tools-message';
-import { PlatformShowNativePickerMessage } from '@shared/messages/bff-to-client/platforms/platform-show-native-picker-message';
-import { AppClientStateMessage } from '@shared/messages/client-to-bff/app';
-import { ClientState } from '@shared/types/client-state';
-import type { WebMcpToolConfig } from '@shared/types/web-mcp-tool-config';
+} from '@protocol/messages/bff-to-client/app';
+import type { PlatformSetColorSchemeMode } from '@protocol/messages/bff-to-client/platforms/platform-set-color-scheme-message';
+import { PlatformSetColorSchemeMessage } from '@protocol/messages/bff-to-client/platforms/platform-set-color-scheme-message';
+import { PlatformSetOverlaysMessage } from '@protocol/messages/bff-to-client/platforms/platform-set-overlays-message';
+import { PlatformSetToolsMessage } from '@protocol/messages/bff-to-client/platforms/platform-set-tools-message';
+import { PlatformShowNativePickerMessage } from '@protocol/messages/bff-to-client/platforms/platform-show-native-picker-message';
+import { AppClientStateMessage } from '@protocol/messages/client-to-bff/app';
+import { ClientState } from '@protocol/types/client-state';
+import type { WebMcpToolConfig } from '@protocol/types/web-mcp-tool-config';
 import { parseContextPath } from '@shared/utils/parse-context-path';
 import { filter, firstValueFrom, take } from 'rxjs';
 import { ServerComponent } from '../components/server/server-component';

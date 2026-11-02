@@ -1,0 +1,21 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.ConditionType = void 0;
+var ConditionType;
+(function (ConditionType) {
+    ConditionType["ContextValueEqual"] = "context-value-equal";
+    ConditionType["ContextValueNotEqual"] = "context-value-not-equal";
+    ConditionType["ContextValueIn"] = "context-value-in";
+    ConditionType["ContextValueDefined"] = "context-value-defined";
+    ConditionType["ContextValueUndefined"] = "context-value-undefined";
+    ConditionType["ContextArrayLength"] = "context-array-length";
+    ConditionType["ContextArrayIncludes"] = "context-array-includes";
+    ConditionType["ContextArrayNotIncludes"] = "context-array-not-includes";
+    ConditionType["MobileDevice"] = "mobile-device";
+    ConditionType["TabletDevice"] = "tablet-device";
+    ConditionType["DesktopDevice"] = "desktop-device";
+    ConditionType["NotTabletDevice"] = "not-tablet-device";
+    ConditionType["NotMobileDevice"] = "not-mobile-device";
+    ConditionType["NotDesktopDevice"] = "not-desktop-device";
+    ConditionType["Group"] = "condition-group";
+})(ConditionType || (exports.ConditionType = ConditionType = {}));

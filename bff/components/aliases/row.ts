@@ -1,4 +1,4 @@
-import { StackDirection } from "@matreshka/shared/enums/stack-direction";
+import { StackDirection } from "@matreshka/protocol/enums/stack-direction";
 import { Stack, StackInitConfig } from "../stack";
 
 export type RowInitConfig = Omit<StackInitConfig<Row>, "direction">;

@@ -1,6 +1,6 @@
 import { DOCUMENT } from '@angular/common';
 import { inject, Injectable } from '@angular/core';
-import type { Condition } from '@shared/types/condition';
+import type { Condition } from '@protocol/types/condition';
 import { Observable } from 'rxjs';
 import { ServerComponent } from '../components/server/server-component';
 import { ServerComponentConfig } from '../components/server/server-component-config';

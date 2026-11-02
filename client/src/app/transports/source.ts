@@ -1,9 +1,9 @@
 import { DOCUMENT } from '@angular/common';
 import { inject } from '@angular/core';
-import { HandshakeMessage as BffHandshakeMessage } from '@shared/messages/bff-to-client/app/handshake-message';
-import { HandshakeMessage as ClientHandshakeMessage } from '@shared/messages/client-to-bff/app/handshake-message';
-import { ClientToBffMessage } from '@shared/messages/client-to-bff/client-to-bff-message';
-import { MessageData } from '@shared/messages/message';
+import { HandshakeMessage as BffHandshakeMessage } from '@protocol/messages/bff-to-client/app/handshake-message';
+import { HandshakeMessage as ClientHandshakeMessage } from '@protocol/messages/client-to-bff/app/handshake-message';
+import { ClientToBffMessage } from '@protocol/messages/client-to-bff/client-to-bff-message';
+import { MessageData } from '@protocol/messages/message';
 import { filter, Subject } from 'rxjs';
 import { PLATFORM } from '../platforms/platform';
 import { WINDOW } from '../tokens/window';

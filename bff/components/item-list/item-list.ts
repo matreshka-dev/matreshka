@@ -1,4 +1,4 @@
-import type { ServerComponentConfig } from "@matreshka/shared/types/server-component-config";
+import type { ServerComponentConfig } from "@matreshka/protocol/types/server-component-config";
 import { skip, Subscription } from "rxjs";
 import {
   ComponentInstance,

@@ -1,8 +1,8 @@
-import { PlatformId } from '@shared/enums/platform-id';
-import { DisablePrivacyModeMessage } from '@shared/messages/bff-to-client/platforms/disable-privacy-mode-message';
-import { EnablePrivacyModeMessage } from '@shared/messages/bff-to-client/platforms/enable-privacy-mode-message';
-import { MaxMiniAppRequestContactMessage } from '@shared/messages/bff-to-client/platforms/max-mini-app/max-mini-app-request-contact-message';
-import { MaxMiniAppRequestContactActionSuccessMessage } from '@shared/messages/client-to-bff/platforms/max-mini-app/max-mini-app-request-contact-action-success-message';
+import { PlatformId } from '@protocol/enums/platform-id';
+import { DisablePrivacyModeMessage } from '@protocol/messages/bff-to-client/platforms/disable-privacy-mode-message';
+import { EnablePrivacyModeMessage } from '@protocol/messages/bff-to-client/platforms/enable-privacy-mode-message';
+import { MaxMiniAppRequestContactMessage } from '@protocol/messages/bff-to-client/platforms/max-mini-app/max-mini-app-request-contact-message';
+import { MaxMiniAppRequestContactActionSuccessMessage } from '@protocol/messages/client-to-bff/platforms/max-mini-app/max-mini-app-request-contact-action-success-message';
 import { loadScript } from '../utils/load-script';
 import { BrowserStorage } from './shared/browser-storage';
 import { WebPlatform } from './web-platform';

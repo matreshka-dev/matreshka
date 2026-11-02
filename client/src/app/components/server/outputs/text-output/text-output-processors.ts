@@ -1,10 +1,10 @@
-import { TextOutputAutolinkScheme } from '@shared/enums/text-output-autolink-scheme';
-import { TextOutputAutolinkTarget } from '@shared/enums/text-output-autolink-target';
-import { TextOutputProcessor } from '@shared/enums/text-output-processor';
+import { TextOutputAutolinkScheme } from '@protocol/enums/text-output-autolink-scheme';
+import { TextOutputAutolinkTarget } from '@protocol/enums/text-output-autolink-target';
+import { TextOutputProcessor } from '@protocol/enums/text-output-processor';
 import type {
   TextOutputProcessorAutolinkConfig,
   TextOutputProcessorConfig,
-} from '@shared/types/text-output-processor-config';
+} from '@protocol/types/text-output-processor-config';
 
 export type TextOutputSegment =
   | { kind: 'text'; text: string }

@@ -1,5 +1,5 @@
 import { inject, PLATFORM_ID } from '@angular/core';
-import { PlatformId } from '@shared/enums/platform-id';
+import { PlatformId } from '@protocol/enums/platform-id';
 import { Platform } from './platform';
 
 export class ServerPlatform extends Platform {

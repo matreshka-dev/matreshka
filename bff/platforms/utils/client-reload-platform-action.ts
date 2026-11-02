@@ -1,4 +1,4 @@
-import { AppReloadMessage } from "@matreshka/shared/messages/bff-to-client/app/app-reload-message";
+import { AppReloadMessage } from "@matreshka/protocol/messages/bff-to-client/app/app-reload-message";
 import { Observable, ReplaySubject, take } from "rxjs";
 import { Client } from "../../core";
 

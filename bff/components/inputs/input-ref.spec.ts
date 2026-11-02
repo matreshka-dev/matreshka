@@ -1,4 +1,4 @@
-import { TextInputKind } from "@matreshka/shared/enums/text-input-kind";
+import { TextInputKind } from "@matreshka/protocol/enums/text-input-kind";
 import { describe, it } from "vitest";
 import { Context } from "../../core/context/context";
 import { numberInput } from "./number-input";

@@ -1,4 +1,4 @@
-import type { Condition } from '@shared/types/condition';
+import type { Condition } from '@protocol/types/condition';
 import { fetchFromObject } from '@shared/utils/fetch-from-object';
 import { findContextKeys } from '@shared/utils/find-context-keys';
 import { parseContextPath } from '@shared/utils/parse-context-path';

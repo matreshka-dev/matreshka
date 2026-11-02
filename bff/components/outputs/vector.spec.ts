@@ -1,5 +1,5 @@
-import { RatioMode } from "@matreshka/shared/enums/ratio-mode";
-import { VectorMode } from "@matreshka/shared/enums/vector-mode";
+import { RatioMode } from "@matreshka/protocol/enums/ratio-mode";
+import { VectorMode } from "@matreshka/protocol/enums/vector-mode";
 import { describe, expect, it } from "vitest";
 import { Client, runWithClient } from "../../core";
 import { vector } from "./vector";

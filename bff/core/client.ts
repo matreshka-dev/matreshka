@@ -2,26 +2,26 @@ import {
   getDeviceTypeFromUserAgent,
   getOsNameFromUserAgent,
 } from "@matreshka/shared";
-import { BrowserEngine } from "@matreshka/shared/enums/browser-engine";
-import { BrowserName } from "@matreshka/shared/enums/browser-name";
-import { DeviceType } from "@matreshka/shared/enums/device-type";
-import { OsName } from "@matreshka/shared/enums/os-name";
-import { PlatformId } from "@matreshka/shared/enums/platform-id";
+import { BrowserEngine } from "@matreshka/protocol/enums/browser-engine";
+import { BrowserName } from "@matreshka/protocol/enums/browser-name";
+import { DeviceType } from "@matreshka/protocol/enums/device-type";
+import { OsName } from "@matreshka/protocol/enums/os-name";
+import { PlatformId } from "@matreshka/protocol/enums/platform-id";
 import {
   AnyBffToClientMessage,
   BffToClientMessage,
-} from "@matreshka/shared/messages/bff-to-client/bff-to-client-message";
-import { BffToClientMessageReceivedMessage } from "@matreshka/shared/messages/bff-to-client/message-received-message";
-import { AppClientStateMessage } from "@matreshka/shared/messages/client-to-bff/app/app-client-state-message";
-import { HandshakeMessage as ClientHandshakeMessage } from "@matreshka/shared/messages/client-to-bff/app/handshake-message";
+} from "@matreshka/protocol/messages/bff-to-client/bff-to-client-message";
+import { BffToClientMessageReceivedMessage } from "@matreshka/protocol/messages/bff-to-client/message-received-message";
+import { AppClientStateMessage } from "@matreshka/protocol/messages/client-to-bff/app/app-client-state-message";
+import { HandshakeMessage as ClientHandshakeMessage } from "@matreshka/protocol/messages/client-to-bff/app/handshake-message";
 import {
   AnyClientToBffMessage,
   ClientToBffMessage,
-} from "@matreshka/shared/messages/client-to-bff/client-to-bff-message";
-import { ClientToBffMessageReceivedMessage } from "@matreshka/shared/messages/client-to-bff/message-received-message";
-import { parseClientToBffMessage } from "@matreshka/shared/messages/client-to-bff/parse-client-to-bff-message";
-import { ReliableDelivery } from "@matreshka/shared/messages/reliable-delivery";
-import { ClientState } from "@matreshka/shared/types/client-state";
+} from "@matreshka/protocol/messages/client-to-bff/client-to-bff-message";
+import { ClientToBffMessageReceivedMessage } from "@matreshka/protocol/messages/client-to-bff/message-received-message";
+import { parseClientToBffMessage } from "@matreshka/protocol/messages/client-to-bff/parse-client-to-bff-message";
+import { ReliableDelivery } from "@matreshka/protocol/messages/reliable-delivery";
+import { ClientState } from "@matreshka/protocol/types/client-state";
 import {
   BehaviorSubject,
   filter,

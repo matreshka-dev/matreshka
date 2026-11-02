@@ -1,9 +1,9 @@
-import { ServerComponentClass } from "@matreshka/shared/enums/server-component-class";
-import { DialogCloseMessage } from "@matreshka/shared/messages/bff-to-client/components/dialog/dialog-close-message";
-import { OverlayAnchor } from "@matreshka/shared/types/container-overlay";
-import type { DialogBackdropConfig } from "@matreshka/shared/types/dialog-backdrop-config";
-import type { DialogConfig } from "@matreshka/shared/types/dialog-config";
-import type { ServerComponentInteraction } from "@matreshka/shared/types/server-component-interaction";
+import { ServerComponentClass } from "@matreshka/protocol/enums/server-component-class";
+import { DialogCloseMessage } from "@matreshka/protocol/messages/bff-to-client/components/dialog/dialog-close-message";
+import { OverlayAnchor } from "@matreshka/protocol/types/container-overlay";
+import type { DialogBackdropConfig } from "@matreshka/protocol/types/dialog-backdrop-config";
+import type { DialogConfig } from "@matreshka/protocol/types/dialog-config";
+import type { ServerComponentInteraction } from "@matreshka/protocol/types/server-component-interaction";
 import {
   calculateComponents,
   Componentable,

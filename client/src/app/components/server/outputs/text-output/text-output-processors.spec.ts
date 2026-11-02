@@ -1,6 +1,6 @@
-import { TextOutputAutolinkScheme } from '@shared/enums/text-output-autolink-scheme';
-import { TextOutputAutolinkTarget } from '@shared/enums/text-output-autolink-target';
-import { TextOutputProcessor } from '@shared/enums/text-output-processor';
+import { TextOutputAutolinkScheme } from '@protocol/enums/text-output-autolink-scheme';
+import { TextOutputAutolinkTarget } from '@protocol/enums/text-output-autolink-target';
+import { TextOutputProcessor } from '@protocol/enums/text-output-processor';
 import { describe, expect, it } from 'vitest';
 import { applyTextOutputProcessors } from './text-output-processors';
 

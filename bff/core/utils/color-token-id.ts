@@ -1,4 +1,4 @@
-import { ColorToken } from "@matreshka/shared/types/color-token";
+import { ColorToken } from "@matreshka/protocol/types/color-token";
 import { createHash } from "node:crypto";
 
 const cache = new WeakMap<ColorToken, string>();

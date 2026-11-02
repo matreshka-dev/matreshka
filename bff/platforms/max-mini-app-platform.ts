@@ -1,5 +1,5 @@
-import { MaxMiniAppRequestContactMessage } from "@matreshka/shared/messages/bff-to-client/platforms/max-mini-app/max-mini-app-request-contact-message";
-import { MaxMiniAppRequestContactActionSuccessMessage } from "@matreshka/shared/messages/client-to-bff/platforms/max-mini-app/max-mini-app-request-contact-action-success-message";
+import { MaxMiniAppRequestContactMessage } from "@matreshka/protocol/messages/bff-to-client/platforms/max-mini-app/max-mini-app-request-contact-message";
+import { MaxMiniAppRequestContactActionSuccessMessage } from "@matreshka/protocol/messages/client-to-bff/platforms/max-mini-app/max-mini-app-request-contact-action-success-message";
 import crypto from "crypto";
 import type { Observable } from "rxjs";
 import { z } from "zod";

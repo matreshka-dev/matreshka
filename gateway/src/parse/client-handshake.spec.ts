@@ -1,4 +1,4 @@
-import { registerCommonClientToBffMessages } from "@matreshka/shared/messages/client-to-bff/register-common-messages";
+import { registerCommonClientToBffMessages } from "@matreshka/protocol/messages/client-to-bff/register-common-messages";
 import { describe, expect, it } from "vitest";
 import {
   serializeBffHandshake,

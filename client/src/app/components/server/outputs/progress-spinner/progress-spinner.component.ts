@@ -3,7 +3,7 @@ import {
   Component,
   ViewEncapsulation,
 } from '@angular/core';
-import type { ProgressSpinnerConfig } from '@shared/types/progress-spinner-config';
+import type { ProgressSpinnerConfig } from '@protocol/types/progress-spinner-config';
 import { LocalProgressSpinnerComponent } from '../../../local/progress-spinner/local-progress-spinner.component';
 import { ServerOutputComponent } from '../server-output-component';
 

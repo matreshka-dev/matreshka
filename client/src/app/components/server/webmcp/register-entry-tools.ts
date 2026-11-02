@@ -1,10 +1,10 @@
-import { WebMcpToolAnnotation } from '@shared/enums/web-mcp-tool-annotation';
-import { BffToClientMessage } from '@shared/messages/bff-to-client/bff-to-client-message';
-import { WebMcpToolErrorMessage } from '@shared/messages/bff-to-client/webmcp/web-mcp-tool-error-message';
-import { WebMcpToolResultMessage } from '@shared/messages/bff-to-client/webmcp/web-mcp-tool-result-message';
-import { WebMcpToolCallMessage } from '@shared/messages/client-to-bff/webmcp/web-mcp-tool-call-message';
-import type { Condition } from '@shared/types/condition';
-import type { WebMcpToolConfig } from '@shared/types/web-mcp-tool-config';
+import { WebMcpToolAnnotation } from '@protocol/enums/web-mcp-tool-annotation';
+import { BffToClientMessage } from '@protocol/messages/bff-to-client/bff-to-client-message';
+import { WebMcpToolErrorMessage } from '@protocol/messages/bff-to-client/webmcp/web-mcp-tool-error-message';
+import { WebMcpToolResultMessage } from '@protocol/messages/bff-to-client/webmcp/web-mcp-tool-result-message';
+import { WebMcpToolCallMessage } from '@protocol/messages/client-to-bff/webmcp/web-mcp-tool-call-message';
+import type { Condition } from '@protocol/types/condition';
+import type { WebMcpToolConfig } from '@protocol/types/web-mcp-tool-config';
 import { collectConditionPayloadRefs } from '@shared/utils/serialized-operand';
 import { filter, firstValueFrom, Observable, Subscription, take } from 'rxjs';
 import type { ContextChangeEvent } from '../../../types/context-change-event';

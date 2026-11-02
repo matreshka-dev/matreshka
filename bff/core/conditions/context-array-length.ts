@@ -1,5 +1,5 @@
-import { ArrayLengthCompare } from "@matreshka/shared/enums/array-length-compare";
-import { ConditionType } from "@matreshka/shared/enums/condition-type";
+import { ArrayLengthCompare } from "@matreshka/protocol/enums/array-length-compare";
+import { ConditionType } from "@matreshka/protocol/enums/condition-type";
 import { ContextRef } from "../context/context-ref";
 import { Condition } from "./condition";
 import {

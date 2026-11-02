@@ -1,7 +1,7 @@
-import { ArrayLengthCompare } from "@matreshka/shared/enums/array-length-compare";
-import { ConditionGroupOperator } from "@matreshka/shared/enums/condition-group-operator";
-import { ConditionType } from "@matreshka/shared/enums/condition-type";
-import { DeviceType } from "@matreshka/shared/enums/device-type";
+import { ArrayLengthCompare } from "@matreshka/protocol/enums/array-length-compare";
+import { ConditionGroupOperator } from "@matreshka/protocol/enums/condition-group-operator";
+import { ConditionType } from "@matreshka/protocol/enums/condition-type";
+import { DeviceType } from "@matreshka/protocol/enums/device-type";
 import {
   evaluateConditions,
   type EvaluatableCondition,

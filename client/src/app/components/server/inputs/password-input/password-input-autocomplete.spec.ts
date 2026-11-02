@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { PasswordInputKind } from '@shared/enums/password-input-kind';
+import { PasswordInputKind } from '@protocol/enums/password-input-kind';
 import { passwordInputAutocomplete } from '../../../../utils/password-input-autocomplete';
 
 describe('passwordInputAutocomplete', () => {

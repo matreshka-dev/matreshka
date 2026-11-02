@@ -3,7 +3,7 @@ import {
   Component,
   ViewEncapsulation,
 } from '@angular/core';
-import type { ProgressBarConfig } from '@shared/types/progress-bar-config';
+import type { ProgressBarConfig } from '@protocol/types/progress-bar-config';
 import { ServerOutputComponent } from '../server-output-component';
 
 @Component({

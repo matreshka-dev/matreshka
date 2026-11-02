@@ -1,4 +1,4 @@
-import { AppBackMessage } from "@matreshka/shared/messages/bff-to-client/app/app-back-message";
+import { AppBackMessage } from "@matreshka/protocol/messages/bff-to-client/app/app-back-message";
 import { map, Observable, ReplaySubject, Subscription, switchMap } from "rxjs";
 import { Client } from "../../core";
 import {

@@ -1,7 +1,7 @@
 import { inject } from '@angular/core';
 import { ResolveFn } from '@angular/router';
-import { AppPageMessage } from '@shared/messages/bff-to-client/app';
-import type { PageConfig } from '@shared/types/page-config';
+import { AppPageMessage } from '@protocol/messages/bff-to-client/app';
+import type { PageConfig } from '@protocol/types/page-config';
 import { filter, map } from 'rxjs';
 import { PostmanService } from '../services/postman.service';
 

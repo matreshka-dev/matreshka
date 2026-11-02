@@ -1,5 +1,5 @@
-import { AppPageMessage } from "@matreshka/shared/messages/bff-to-client/app/index";
-import { ClientState } from "@matreshka/shared/types/client-state";
+import { AppPageMessage } from "@matreshka/protocol/messages/bff-to-client/app/index";
+import { ClientState } from "@matreshka/protocol/types/client-state";
 import { pairwise } from "rxjs";
 import { Client, Matreshka, runWithClient } from "../core";
 import { Page } from "./page";

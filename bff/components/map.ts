@@ -1,16 +1,16 @@
-import { MapMarkerHorizontalAnchor } from "@matreshka/shared/enums/map-marker-horizontal-anchor";
-import { MapMarkerVerticalAnchor } from "@matreshka/shared/enums/map-marker-vertical-anchor";
-import { ServerComponentClass } from "@matreshka/shared/enums/server-component-class";
-import { MapSetCenterMessage } from "@matreshka/shared/messages/bff-to-client/components/map/map-set-center-message";
-import { MapSetZoomMessage } from "@matreshka/shared/messages/bff-to-client/components/map/map-set-zoom-message";
-import { MapZoomInMessage } from "@matreshka/shared/messages/bff-to-client/components/map/map-zoom-in-message";
-import { MapZoomOutMessage } from "@matreshka/shared/messages/bff-to-client/components/map/map-zoom-out-message";
+import { MapMarkerHorizontalAnchor } from "@matreshka/protocol/enums/map-marker-horizontal-anchor";
+import { MapMarkerVerticalAnchor } from "@matreshka/protocol/enums/map-marker-vertical-anchor";
+import { ServerComponentClass } from "@matreshka/protocol/enums/server-component-class";
+import { MapSetCenterMessage } from "@matreshka/protocol/messages/bff-to-client/components/map/map-set-center-message";
+import { MapSetZoomMessage } from "@matreshka/protocol/messages/bff-to-client/components/map/map-set-zoom-message";
+import { MapZoomInMessage } from "@matreshka/protocol/messages/bff-to-client/components/map/map-zoom-in-message";
+import { MapZoomOutMessage } from "@matreshka/protocol/messages/bff-to-client/components/map/map-zoom-out-message";
 import {
   normalizeFlexItem,
   type FlexItemSpec,
-} from "@matreshka/shared/types/flex-item";
-import type { MapConfig } from "@matreshka/shared/types/map-config";
-import type { NestedItemBase } from "@matreshka/shared/types/nested-item-base";
+} from "@matreshka/protocol/types/flex-item";
+import type { MapConfig } from "@matreshka/protocol/types/map-config";
+import type { NestedItemBase } from "@matreshka/protocol/types/nested-item-base";
 import {
   Componentable,
   ComponentInstance,

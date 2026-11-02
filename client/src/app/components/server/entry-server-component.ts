@@ -5,7 +5,7 @@ import {
   inject,
   PLATFORM_ID,
 } from '@angular/core';
-import type { EntryServerComponentConfig } from '@shared/types/entry-server-component-config';
+import type { EntryServerComponentConfig } from '@protocol/types/entry-server-component-config';
 import { ServerComponent } from './server-component';
 import { registerWebMcpTools } from './webmcp/register-entry-tools';
 

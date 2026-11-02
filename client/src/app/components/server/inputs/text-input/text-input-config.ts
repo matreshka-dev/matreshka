@@ -1,4 +1,4 @@
-import type { TextInputConfig } from '@shared/types/text-input-config';
+import type { TextInputConfig } from '@protocol/types/text-input-config';
 import { InputDependencies } from '../input-config';
 
 export const TextInputDependencies = {

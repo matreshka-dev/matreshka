@@ -67,7 +67,7 @@ export function invalidateCatalogContext() {
 
 ```ts
 import type { Context } from "@matreshka/bff/core";
-import type { JsonObject } from "@matreshka/shared/types/json";
+import type { JsonObject } from "@matreshka/protocol/types/json";
 import type { Observable } from "rxjs";
 
 function destroyContextWithEntry<T extends JsonObject>(

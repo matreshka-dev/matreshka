@@ -1,7 +1,7 @@
-import { ActionCompletedMessage } from "@matreshka/shared/messages/client-to-bff/action-completed-message";
-import { AnyClientToBffMessage } from "@matreshka/shared/messages/client-to-bff/client-to-bff-message";
-import { ErrorMessage } from "@matreshka/shared/messages/client-to-bff/error-message";
-import { isTargetedMessage } from "@matreshka/shared/messages/targeted-message";
+import { ActionCompletedMessage } from "@matreshka/protocol/messages/client-to-bff/action-completed-message";
+import { AnyClientToBffMessage } from "@matreshka/protocol/messages/client-to-bff/client-to-bff-message";
+import { ErrorMessage } from "@matreshka/protocol/messages/client-to-bff/error-message";
+import { TargetedMessage } from "@matreshka/protocol/messages/targeted-message";
 import { filter, take } from "rxjs";
 import { z } from "zod";
 import { Client } from "../client";
@@ -55,7 +55,8 @@ export function startTargetedClientAction<T>(
     .pipe(
       filter(
         (unsafeMessage) =>
-          isTargetedMessage(unsafeMessage) && unsafeMessage.target === scope,
+          unsafeMessage instanceof TargetedMessage &&
+          unsafeMessage.target === scope,
       ),
       take(1),
     )

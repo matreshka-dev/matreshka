@@ -1,4 +1,4 @@
-import type { RadiusPx } from '@shared/types/radius-px';
+import type { RadiusPx } from '@protocol/types/radius-px';
 
 export type RadiusPxResult = {
   topStart: number | undefined;

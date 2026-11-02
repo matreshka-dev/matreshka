@@ -1,4 +1,4 @@
-import { TimingFunction } from '@shared/enums/timing-function';
+import { TimingFunction } from '@protocol/enums/timing-function';
 import { describe, expect, it } from 'vitest';
 import { resolveColorTokenTransitions } from './resolve-color-token-transitions';
 

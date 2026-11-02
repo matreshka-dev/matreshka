@@ -1,4 +1,4 @@
-import { ConditionType } from "@matreshka/shared/enums/condition-type";
+import { ConditionType } from "@matreshka/protocol/enums/condition-type";
 import { evaluateConditions } from "@matreshka/shared/utils/evaluate-conditions";
 import { describe, expect, it } from "vitest";
 

@@ -1,4 +1,4 @@
-import type { FileUploadAreaConfig } from '@shared/types/file-upload-area-config';
+import type { FileUploadAreaConfig } from '@protocol/types/file-upload-area-config';
 import {
   getNestedConfigsByPropertyKey,
   ServerComponentDependencies,

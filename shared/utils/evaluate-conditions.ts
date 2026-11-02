@@ -1,8 +1,8 @@
-import { ArrayLengthCompare } from "../enums/array-length-compare";
-import { ConditionGroupOperator } from "../enums/condition-group-operator";
-import { ConditionType } from "../enums/condition-type";
-import { DeviceType } from "../enums/device-type";
-import type { SerializedOperand } from "../types/serialized-operand";
+import { ArrayLengthCompare } from "@matreshka/protocol/enums/array-length-compare";
+import { ConditionGroupOperator } from "@matreshka/protocol/enums/condition-group-operator";
+import { ConditionType } from "@matreshka/protocol/enums/condition-type";
+import { DeviceType } from "@matreshka/protocol/enums/device-type";
+import type { SerializedOperand } from "@matreshka/protocol/types/serialized-operand";
 import { fetchFromObject } from "./fetch-from-object";
 import { resolveSerializedOperand } from "./serialized-operand";
 

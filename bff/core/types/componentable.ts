@@ -1,5 +1,5 @@
-import type { Condition as SerializedCondition } from "@matreshka/shared/types/condition";
-import type { ServerComponentConfig } from "@matreshka/shared/types/server-component-config";
+import type { Condition as SerializedCondition } from "@matreshka/protocol/types/condition";
+import type { ServerComponentConfig } from "@matreshka/protocol/types/server-component-config";
 
 export type SerializedComponentRule<
   TOverrides extends Record<string, unknown> = Record<string, unknown>,

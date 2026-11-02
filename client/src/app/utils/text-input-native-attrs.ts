@@ -1,4 +1,4 @@
-import { TextInputKind } from '@shared/enums/text-input-kind';
+import { TextInputKind } from '@protocol/enums/text-input-kind';
 
 export type TextInputNativeAttrs = {
   inputMode: string | undefined;

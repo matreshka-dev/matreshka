@@ -15,17 +15,17 @@ Transport в matreshka может быть разным: `WS`, `WSS`, `SSE` и �
 
 ## Где находится реализация
 
-- `shared/messages/reliable-delivery.ts` — общий алгоритм retry, подтверждений, дедупликации и RTT.
-- `shared/messages/reliable-message.ts` — общие типы reliable-сообщений.
-- `shared/messages/bff-to-client/reliable-bff-to-client-message.ts` — базовый класс reliable-сообщений BFF -> client.
-- `shared/messages/client-to-bff/reliable-client-to-bff-message.ts` — базовый класс reliable-сообщений client -> BFF.
-- `shared/messages/bff-to-client/component-command-message.ts` — общий type guard `isComponentCommandMessage` для команд компоненту.
-- `shared/messages/bff-to-client/pingable-component-command-message.ts` — лёгкие команды компоненту (pingable).
-- `shared/messages/bff-to-client/reliable-component-command-message.ts` — тяжёлые команды компоненту без расчёта RTT.
-- `shared/messages/bff-to-client/pingable-bff-to-client-message.ts` — marker-base для лёгких BFF -> client сообщений, пригодных для RTT.
-- `shared/messages/client-to-bff/pingable-client-to-bff-message.ts` — marker-base для лёгких client -> BFF сообщений, пригодных для RTT.
-- `shared/messages/bff-to-client/message-received-message.ts` — подтверждение получения от BFF.
-- `shared/messages/client-to-bff/message-received-message.ts` — подтверждение получения от клиента.
+- `protocol/messages/reliable-delivery.ts` — общий алгоритм retry, подтверждений, дедупликации и RTT.
+- `protocol/messages/reliable-message.ts` — общие типы reliable-сообщений.
+- `protocol/messages/bff-to-client/reliable-bff-to-client-message.ts` — базовый класс reliable-сообщений BFF -> client.
+- `protocol/messages/client-to-bff/reliable-client-to-bff-message.ts` — базовый класс reliable-сообщений client -> BFF.
+- `protocol/messages/bff-to-client/component-command-message.ts` — общий type guard `isComponentCommandMessage` для команд компоненту.
+- `protocol/messages/bff-to-client/pingable-component-command-message.ts` — лёгкие команды компоненту (pingable).
+- `protocol/messages/bff-to-client/reliable-component-command-message.ts` — тяжёлые команды компоненту без расчёта RTT.
+- `protocol/messages/bff-to-client/pingable-bff-to-client-message.ts` — marker-base для лёгких BFF -> client сообщений, пригодных для RTT.
+- `protocol/messages/client-to-bff/pingable-client-to-bff-message.ts` — marker-base для лёгких client -> BFF сообщений, пригодных для RTT.
+- `protocol/messages/bff-to-client/message-received-message.ts` — подтверждение получения от BFF.
+- `protocol/messages/client-to-bff/message-received-message.ts` — подтверждение получения от клиента.
 - `client/src/app/services/postman.service.ts` — встраивание алгоритма на стороне клиента.
 - `bff/core/client.ts` — встраивание алгоритма на стороне BFF.
 

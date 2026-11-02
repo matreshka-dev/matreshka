@@ -1,8 +1,8 @@
-import { WebMcpToolAnnotation } from "@matreshka/shared/enums/web-mcp-tool-annotation";
-import type { BffToClientMessage } from "@matreshka/shared/messages/bff-to-client/bff-to-client-message";
-import { WebMcpToolErrorMessage } from "@matreshka/shared/messages/bff-to-client/webmcp/web-mcp-tool-error-message";
-import { WebMcpToolResultMessage } from "@matreshka/shared/messages/bff-to-client/webmcp/web-mcp-tool-result-message";
-import { WebMcpToolCallMessage } from "@matreshka/shared/messages/client-to-bff/webmcp/web-mcp-tool-call-message";
+import { WebMcpToolAnnotation } from "@matreshka/protocol/enums/web-mcp-tool-annotation";
+import type { BffToClientMessage } from "@matreshka/protocol/messages/bff-to-client/bff-to-client-message";
+import { WebMcpToolErrorMessage } from "@matreshka/protocol/messages/bff-to-client/webmcp/web-mcp-tool-error-message";
+import { WebMcpToolResultMessage } from "@matreshka/protocol/messages/bff-to-client/webmcp/web-mcp-tool-result-message";
+import { WebMcpToolCallMessage } from "@matreshka/protocol/messages/client-to-bff/webmcp/web-mcp-tool-call-message";
 import { describe, expect, it } from "vitest";
 import { z, ZodError } from "zod";
 import { Client, runWithClient } from "../../core";

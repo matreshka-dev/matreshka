@@ -1,4 +1,4 @@
-import { ColorRole } from '@shared/enums/color-role';
+import { ColorRole } from '@protocol/enums/color-role';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { registerColors } from './register-colors';
 import { syncConfigColorsToElement } from './sync-config-colors-to-element';

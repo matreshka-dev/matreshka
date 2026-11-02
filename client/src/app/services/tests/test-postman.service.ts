@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { BffToClientMessage } from '@shared/messages/bff-to-client/bff-to-client-message';
-import { ClientToBffMessage } from '@shared/messages/client-to-bff/client-to-bff-message';
+import { BffToClientMessage } from '@protocol/messages/bff-to-client/bff-to-client-message';
+import { ClientToBffMessage } from '@protocol/messages/client-to-bff/client-to-bff-message';
 import { Subject } from 'rxjs';
 import { SourceConfig } from '../../types/source-config';
 

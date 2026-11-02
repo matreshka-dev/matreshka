@@ -1,4 +1,4 @@
-import type { BoardConfig } from '@shared/types/board-config';
+import type { BoardConfig } from '@protocol/types/board-config';
 import {
   ComponentDependencies,
   getNestedConfigsByPropertyKey,

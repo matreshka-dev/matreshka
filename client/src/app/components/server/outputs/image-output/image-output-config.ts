@@ -1,4 +1,4 @@
-import type { ImageOutputConfig } from '@shared/types/image-output-config';
+import type { ImageOutputConfig } from '@protocol/types/image-output-config';
 import { OutputDependencies } from '../output-config';
 
 export const ImageOutputDependencies = {

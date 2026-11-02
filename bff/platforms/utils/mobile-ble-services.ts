@@ -1,6 +1,6 @@
 import { z } from "zod";
 
-import type { MobileBleService } from "@matreshka/shared/types/mobile-ble-services";
+import type { MobileBleService } from "@matreshka/protocol/types/mobile-ble-services";
 
 export const mobileBleServicesSchema: z.ZodType<MobileBleService[]> = z.array(
   z

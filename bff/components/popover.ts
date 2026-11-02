@@ -1,6 +1,6 @@
-import { ServerComponentClass } from "@matreshka/shared/enums/server-component-class";
-import { PopoverCloseMessage } from "@matreshka/shared/messages/bff-to-client/components/popover/popover-close-message";
-import type { PopoverConfig } from "@matreshka/shared/types/popover-config";
+import { ServerComponentClass } from "@matreshka/protocol/enums/server-component-class";
+import { PopoverCloseMessage } from "@matreshka/protocol/messages/bff-to-client/components/popover/popover-close-message";
+import type { PopoverConfig } from "@matreshka/protocol/types/popover-config";
 import {
   calculateComponents,
   Componentable,

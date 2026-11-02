@@ -1,16 +1,16 @@
-import { ComponentAnimationEffect } from "@matreshka/shared/enums/component-animation-effect";
-import { TimingFunction } from "@matreshka/shared/enums/timing-function";
-import type { ComponentAnimationEffects } from "@matreshka/shared/types/component-animation";
+import { ComponentAnimationEffect } from "@matreshka/protocol/enums/component-animation-effect";
+import { TimingFunction } from "@matreshka/protocol/enums/timing-function";
+import type { ComponentAnimationEffects } from "@matreshka/protocol/types/component-animation";
 import { ActionConditions } from "./action";
 import { LocalAction } from "./local-action";
 
-export { DimensionalUnit } from "@matreshka/shared/enums/dimensional-unit";
+export { DimensionalUnit } from "@matreshka/protocol/enums/dimensional-unit";
 export type {
   ComponentAnimationEffects,
   DimensionalKeyframeStops,
   OpacityKeyframeStops,
-} from "@matreshka/shared/types/component-animation";
-export type { DimensionalValue } from "@matreshka/shared/types/dimensional-value";
+} from "@matreshka/protocol/types/component-animation";
+export type { DimensionalValue } from "@matreshka/protocol/types/dimensional-value";
 export { ComponentAnimationEffect, TimingFunction };
 
 /**

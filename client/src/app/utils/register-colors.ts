@@ -1,5 +1,5 @@
-import { ColorRole } from '@shared/enums/color-role';
-import { ColorToken } from '@shared/types/color-token';
+import { ColorRole } from '@protocol/enums/color-role';
+import { ColorToken } from '@protocol/types/color-token';
 import {
   COLOR_TOKEN_STATES,
   resolveColorTokenTransitions,

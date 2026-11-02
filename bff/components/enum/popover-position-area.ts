@@ -1,1 +1,1 @@
-export { PopoverPositionArea } from "@matreshka/shared/enums/popover-position-area";
+export { PopoverPositionArea } from "@matreshka/protocol/enums/popover-position-area";

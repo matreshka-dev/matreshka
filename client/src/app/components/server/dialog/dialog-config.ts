@@ -1,4 +1,4 @@
-import type { DialogConfig } from '@shared/types/dialog-config';
+import type { DialogConfig } from '@protocol/types/dialog-config';
 import {
   ComponentDependencies,
   getNestedConfigsByPropertyKey,

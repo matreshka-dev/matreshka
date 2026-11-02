@@ -1,5 +1,5 @@
-import { ColorTokenMaskType } from '@shared/enums/color-token-mask-type';
-import type { ColorTokenMask } from '@shared/types/color-token';
+import { ColorTokenMaskType } from '@protocol/enums/color-token-mask-type';
+import type { ColorTokenMask } from '@protocol/types/color-token';
 import { serializeColorTokenLinearGradientMask } from './serialize-color-token-linear-gradient-mask';
 
 /**

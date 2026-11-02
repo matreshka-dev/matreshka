@@ -1,6 +1,6 @@
-import { AppPageMessage } from "@matreshka/shared/messages/bff-to-client/app/app-page-message";
-import { ClientToBffMessageReceivedMessage } from "@matreshka/shared/messages/client-to-bff/message-received-message";
-import type { ClientState } from "@matreshka/shared/types/client-state";
+import { AppPageMessage } from "@matreshka/protocol/messages/bff-to-client/app/app-page-message";
+import { ClientToBffMessageReceivedMessage } from "@matreshka/protocol/messages/client-to-bff/message-received-message";
+import type { ClientState } from "@matreshka/protocol/types/client-state";
 import { filter, map, Observable, switchMap, take } from "rxjs";
 import { Client } from "../../core";
 

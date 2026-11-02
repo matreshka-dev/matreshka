@@ -1,10 +1,10 @@
-import { RatioMode } from "@matreshka/shared/enums/ratio-mode";
-import { ServerComponentClass } from "@matreshka/shared/enums/server-component-class";
-import { VectorMode } from "@matreshka/shared/enums/vector-mode";
+import { RatioMode } from "@matreshka/protocol/enums/ratio-mode";
+import { ServerComponentClass } from "@matreshka/protocol/enums/server-component-class";
+import { VectorMode } from "@matreshka/protocol/enums/vector-mode";
 import {
   normalizeFlexItem,
   type FlexItemSpec,
-} from "@matreshka/shared/types/flex-item";
+} from "@matreshka/protocol/types/flex-item";
 import { Componentable, ContextRef, StandaloneComponent } from "../../core";
 import {
   CompatibleOutputRef,
@@ -15,10 +15,10 @@ import {
   outputValueRefToConfig,
 } from "./output-component";
 
-export { RatioMode } from "@matreshka/shared/enums/ratio-mode";
+export { RatioMode } from "@matreshka/protocol/enums/ratio-mode";
 /** @deprecated Use RatioMode instead */
-export { RatioMode as ImageMode } from "@matreshka/shared/enums/ratio-mode";
-export { VectorMode } from "@matreshka/shared/enums/vector-mode";
+export { RatioMode as ImageMode } from "@matreshka/protocol/enums/ratio-mode";
+export { VectorMode } from "@matreshka/protocol/enums/vector-mode";
 
 type VectorValue = string;
 

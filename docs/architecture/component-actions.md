@@ -9,7 +9,7 @@
 1. BFF вызывает метод компонента → hot **`Observable<void>`** (запрос уходит при вызове).
 2. На wire: `PingableComponentCommandMessage` с **`target`** = instance id; **`payload.actionScope`** = `component-action-<uuid>` (correlation id). Базовый тип payload — `ComponentCommandActionPayload` (может расширяться полями команды).
 3. Клиент выполняет команду в `runComponentCommand` и отвечает с **тем же** `actionScope`:
-   - успех без данных — [`ActionCompletedMessage`](../shared/messages/client-to-bff/action-completed-message.ts) (`action-completed`);
+   - успех без данных — [`ActionCompletedMessage`](../protocol/messages/client-to-bff/action-completed-message.ts) (`action-completed`);
    - ошибка — `ErrorMessage` с текстом.
 
 Reliable sync (`ForEachSyncComponentsMessage`, `NestedItemsSyncMessage`) — отдельный контракт без component-action ack.
