@@ -6,7 +6,7 @@ import {
   NavigationStart,
   Router,
 } from '@angular/router';
-import { PlatformId } from '@protocol/enums/platform-id';
+import { PlatformId } from '@client-bff-protocol/enums/platform-id';
 import {
   AppBackMessage,
   AppNavigateMessage,
@@ -14,15 +14,15 @@ import {
   AppReloadMessage,
   AppStorageValueMessage,
   HandshakeMessage as BffHandshakeMessage,
-} from '@protocol/messages/bff-to-client/app';
-import type { PlatformSetColorSchemeMode } from '@protocol/messages/bff-to-client/platforms/platform-set-color-scheme-message';
-import { PlatformSetColorSchemeMessage } from '@protocol/messages/bff-to-client/platforms/platform-set-color-scheme-message';
-import { PlatformSetOverlaysMessage } from '@protocol/messages/bff-to-client/platforms/platform-set-overlays-message';
-import { PlatformSetToolsMessage } from '@protocol/messages/bff-to-client/platforms/platform-set-tools-message';
-import { PlatformShowNativePickerMessage } from '@protocol/messages/bff-to-client/platforms/platform-show-native-picker-message';
-import { AppClientStateMessage } from '@protocol/messages/client-to-bff/app';
-import { ClientState } from '@protocol/types/client-state';
-import type { WebMcpToolConfig } from '@protocol/types/web-mcp-tool-config';
+} from '@client-bff-protocol/messages/bff-to-client/app';
+import type { PlatformSetColorSchemeMode } from '@client-bff-protocol/messages/bff-to-client/platforms/platform-set-color-scheme-message';
+import { PlatformSetColorSchemeMessage } from '@client-bff-protocol/messages/bff-to-client/platforms/platform-set-color-scheme-message';
+import { PlatformSetOverlaysMessage } from '@client-bff-protocol/messages/bff-to-client/platforms/platform-set-overlays-message';
+import { PlatformSetToolsMessage } from '@client-bff-protocol/messages/bff-to-client/platforms/platform-set-tools-message';
+import { PlatformShowNativePickerMessage } from '@client-bff-protocol/messages/bff-to-client/platforms/platform-show-native-picker-message';
+import { AppClientStateMessage } from '@client-bff-protocol/messages/client-to-bff/app';
+import { ClientState } from '@client-bff-protocol/types/client-state';
+import type { WebMcpToolConfig } from '@client-bff-protocol/types/web-mcp-tool-config';
 import { parseContextPath } from '@shared/utils/parse-context-path';
 import { filter, firstValueFrom, take } from 'rxjs';
 import { ServerComponent } from '../components/server/server-component';

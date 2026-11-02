@@ -1,4 +1,4 @@
-import { ColorRole } from "@matreshka/protocol/enums/color-role";
+import { ColorRole } from "@matreshka/client-bff-protocol/enums/color-role";
 import { describe, expect, it } from "vitest";
 import { serializeClientSettingsColorsForHandshake } from "./serialize-client-settings-colors-for-handshake";
 

@@ -1,4 +1,4 @@
-import type { ComponentScrollPayload } from "@matreshka/protocol/messages/client-to-bff/components/component-scroll-message";
+import type { ComponentScrollPayload } from "@matreshka/client-bff-protocol/messages/client-to-bff/components/component-scroll-message";
 
 /** Расстояние до конца контента по оси скролла (логика как в {@link ComponentScrollPayload}). */
 export function scrollDistanceToEnd(payload: ComponentScrollPayload): number {

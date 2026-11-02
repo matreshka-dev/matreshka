@@ -4,7 +4,7 @@ import {
   forwardRef,
   ViewEncapsulation,
 } from '@angular/core';
-import type { ContainerConfig } from '@protocol/types/container-config';
+import type { ContainerConfig } from '@client-bff-protocol/types/container-config';
 import { ServerComponent } from '../server-component';
 import { ServerComponentsListComponent } from '../server-components-list/server-components-list.component';
 import { renderRootFromFirstNestedInstance } from '../utils/render-root-from-nested-content';

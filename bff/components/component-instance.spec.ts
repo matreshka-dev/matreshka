@@ -1,19 +1,19 @@
+import { PlatformId } from "@matreshka/client-bff-protocol/enums/platform-id";
+import { ServerComponentClass } from "@matreshka/client-bff-protocol/enums/server-component-class";
+import { ForEachSyncComponentsMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/components/for-each/for-each-sync-components-message";
+import { ComponentClickMessage } from "@matreshka/client-bff-protocol/messages/client-to-bff/components/component-click-message";
+import { ComponentEnterMessage } from "@matreshka/client-bff-protocol/messages/client-to-bff/components/component-enter-message";
+import { ComponentHideMessage } from "@matreshka/client-bff-protocol/messages/client-to-bff/components/component-hide-message";
+import { ComponentLeaveMessage } from "@matreshka/client-bff-protocol/messages/client-to-bff/components/component-leave-message";
+import { ComponentShowMessage } from "@matreshka/client-bff-protocol/messages/client-to-bff/components/component-show-message";
+import { registerCommonClientToBffMessages } from "@matreshka/client-bff-protocol/messages/client-to-bff/register-common-messages";
+import type { ForEachConfig } from "@matreshka/client-bff-protocol/types/for-each-config";
+import type { PageConfig } from "@matreshka/client-bff-protocol/types/page-config";
 import {
   componentBaseId,
   componentIdMatchesInstance,
   hasComponentInstanceSuffix,
 } from "@matreshka/shared";
-import { PlatformId } from "@matreshka/protocol/enums/platform-id";
-import { ServerComponentClass } from "@matreshka/protocol/enums/server-component-class";
-import { ForEachSyncComponentsMessage } from "@matreshka/protocol/messages/bff-to-client/components/for-each/for-each-sync-components-message";
-import { ComponentClickMessage } from "@matreshka/protocol/messages/client-to-bff/components/component-click-message";
-import { ComponentEnterMessage } from "@matreshka/protocol/messages/client-to-bff/components/component-enter-message";
-import { ComponentHideMessage } from "@matreshka/protocol/messages/client-to-bff/components/component-hide-message";
-import { ComponentLeaveMessage } from "@matreshka/protocol/messages/client-to-bff/components/component-leave-message";
-import { ComponentShowMessage } from "@matreshka/protocol/messages/client-to-bff/components/component-show-message";
-import { registerCommonClientToBffMessages } from "@matreshka/protocol/messages/client-to-bff/register-common-messages";
-import type { ForEachConfig } from "@matreshka/protocol/types/for-each-config";
-import type { PageConfig } from "@matreshka/protocol/types/page-config";
 import { beforeAll, describe, expect, it } from "vitest";
 import {
   Client,

@@ -1,5 +1,5 @@
 {
-  "name": "@matreshka/protocol",
+  "name": "@matreshka/client-bff-protocol",
   "version": "0.1.0",
   "description": "Wire protocol between Matreshka client and BFF: messages, serializable types, and enums",
   "main": "./dist/index.js",
@@ -28,12 +28,12 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/matreshka-dev/matreshka.git",
-    "directory": "protocol"
+    "directory": "protocols/client-bff-protocol"
   },
   "bugs": {
     "url": "https://github.com/matreshka-dev/matreshka/issues"
   },
-  "homepage": "https://github.com/matreshka-dev/matreshka/tree/main/protocol",
+  "homepage": "https://github.com/matreshka-dev/matreshka/tree/main/protocols/client-bff-protocol",
   "publishConfig": {
     "access": "public"
   },

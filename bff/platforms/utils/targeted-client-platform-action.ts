@@ -1,5 +1,5 @@
-import { AnyBffToClientMessage } from "@matreshka/protocol/messages/bff-to-client/bff-to-client-message";
-import { AnyClientToBffMessage } from "@matreshka/protocol/messages/client-to-bff/client-to-bff-message";
+import { AnyBffToClientMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/bff-to-client-message";
+import { AnyClientToBffMessage } from "@matreshka/client-bff-protocol/messages/client-to-bff/client-to-bff-message";
 import { Observable, ReplaySubject } from "rxjs";
 import { Client } from "../../core";
 import { startTargetedClientAction } from "../../core/utils/targeted-client-action";

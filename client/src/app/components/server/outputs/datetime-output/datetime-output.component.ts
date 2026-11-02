@@ -3,7 +3,7 @@ import {
   Component,
   ViewEncapsulation,
 } from '@angular/core';
-import type { DatetimeOutputConfig } from '@protocol/types/datetime-output-config';
+import type { DatetimeOutputConfig } from '@client-bff-protocol/types/datetime-output-config';
 import { DatetimePipe } from '../../../../pipes/datetime.pipe';
 import { ServerOutputComponent } from '../server-output-component';
 

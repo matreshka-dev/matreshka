@@ -1,13 +1,13 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { ServerComponentClass } from '@protocol/enums/server-component-class';
-import { ForEachSyncComponentsMessage } from '@protocol/messages/bff-to-client/components/for-each/for-each-sync-components-message';
+import { ServerComponentClass } from '@client-bff-protocol/enums/server-component-class';
+import { ForEachSyncComponentsMessage } from '@client-bff-protocol/messages/bff-to-client/components/for-each/for-each-sync-components-message';
 import {
   ContextInitMessage as BffContextInitMessage,
   ContextValuesMessage as BffContextValuesMessage,
-} from '@protocol/messages/bff-to-client/context';
-import type { ForEachConfig } from '@protocol/types/for-each-config';
+} from '@client-bff-protocol/messages/bff-to-client/context';
+import type { ForEachConfig } from '@client-bff-protocol/types/for-each-config';
 import { PLATFORM } from '../../../platforms/platform';
 import { TestPlatform } from '../../../platforms/tests/test-platform';
 import { ComponentHubService } from '../../../services/component-hub.service';

@@ -1,4 +1,4 @@
-import type { PasswordInputConfig } from '@protocol/types/password-input-config';
+import type { PasswordInputConfig } from '@client-bff-protocol/types/password-input-config';
 import { InputDependencies } from '../input-config';
 
 export const PasswordInputDependencies = {

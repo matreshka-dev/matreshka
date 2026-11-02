@@ -1,10 +1,10 @@
-import { ConditionType } from '@protocol/enums/condition-type';
-import { WebMcpToolAnnotation } from '@protocol/enums/web-mcp-tool-annotation';
-import { WebMcpToolErrorMessage } from '@protocol/messages/bff-to-client/webmcp/web-mcp-tool-error-message';
-import { WebMcpToolResultMessage } from '@protocol/messages/bff-to-client/webmcp/web-mcp-tool-result-message';
-import { WebMcpToolCallMessage } from '@protocol/messages/client-to-bff/webmcp/web-mcp-tool-call-message';
-import type { Condition } from '@protocol/types/condition';
-import type { WebMcpToolConfig } from '@protocol/types/web-mcp-tool-config';
+import { ConditionType } from '@client-bff-protocol/enums/condition-type';
+import { WebMcpToolAnnotation } from '@client-bff-protocol/enums/web-mcp-tool-annotation';
+import { WebMcpToolErrorMessage } from '@client-bff-protocol/messages/bff-to-client/webmcp/web-mcp-tool-error-message';
+import { WebMcpToolResultMessage } from '@client-bff-protocol/messages/bff-to-client/webmcp/web-mcp-tool-result-message';
+import { WebMcpToolCallMessage } from '@client-bff-protocol/messages/client-to-bff/webmcp/web-mcp-tool-call-message';
+import type { Condition } from '@client-bff-protocol/types/condition';
+import type { WebMcpToolConfig } from '@client-bff-protocol/types/web-mcp-tool-config';
 import { Subject } from 'rxjs';
 import { describe, expect, it, vi } from 'vitest';
 import { TestPostmanService } from '../../../services/tests/test-postman.service';

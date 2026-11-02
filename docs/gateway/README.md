@@ -35,7 +35,7 @@ Gateway понимает только несколько вещей:
 
 ## Служебные сообщения gateway ↔ BFF
 
-Типы для будущего транспорта — как у client ↔ BFF, в `@matreshka/protocol/messages/gateway-to-bff` и `bff-to-gateway`:
+Типы для транспорта gateway ↔ BFF — в `@matreshka/gateway-bff-protocol` (`messages/gateway-to-bff`, `messages/bff-to-gateway`). Semver этого пакета **независим** от `@matreshka/client-bff-protocol` (UI-сообщения client ↔ BFF).
 
 | Класс                 | type             | Направление   |
 | --------------------- | ---------------- | ------------- |
@@ -52,8 +52,8 @@ Gateway понимает только несколько вещей:
 import {
   ConnectedMessage,
   parseGatewayToBffMessage,
-} from "@matreshka/protocol/messages/gateway-to-bff";
-import { registerGatewayMessages } from "@matreshka/protocol/messages/register-gateway-messages";
+} from "@matreshka/gateway-bff-protocol/messages/gateway-to-bff";
+import { registerGatewayMessages } from "@matreshka/gateway-bff-protocol/messages/register-gateway-messages";
 
 registerGatewayMessages();
 
@@ -152,7 +152,7 @@ socket.on("close", () => {
 }
 ```
 
-Код Angular, обработчики сообщений и логика handshake менять не нужно. Протокол matreshka тот же — см. [`../architecture/protocol.md`](../architecture/protocol.md).
+Код Angular, обработчики сообщений и логика handshake менять не нужно. Протокол matreshka тот же — см. [`../architecture/client-bff-protocol.md`](../architecture/client-bff-protocol.md).
 
 ## Документы раздела
 

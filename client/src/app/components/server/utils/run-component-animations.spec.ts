@@ -1,4 +1,4 @@
-import { ComponentAnimationEffect } from '@protocol/enums/component-animation-effect';
+import { ComponentAnimationEffect } from '@client-bff-protocol/enums/component-animation-effect';
 import { describe, expect, it, vi } from 'vitest';
 import {
   getActiveAnimationsTowardHidden,

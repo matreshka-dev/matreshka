@@ -1,4 +1,4 @@
-import type { TextOutputConfig } from '@protocol/types/text-output-config';
+import type { TextOutputConfig } from '@client-bff-protocol/types/text-output-config';
 import { OutputDependencies } from '../output-config';
 
 export const TextOutputDependencies = {

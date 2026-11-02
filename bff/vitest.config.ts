@@ -4,7 +4,14 @@ import { defineConfig } from "vitest/config";
 export default defineConfig({
   resolve: {
     alias: {
-      "@matreshka/protocol": path.resolve(__dirname, "../protocol"),
+      "@matreshka/client-bff-protocol": path.resolve(
+        __dirname,
+        "../protocols/client-bff-protocol",
+      ),
+      "@matreshka/gateway-bff-protocol": path.resolve(
+        __dirname,
+        "../protocols/gateway-bff-protocol",
+      ),
       "@matreshka/shared": path.resolve(__dirname, "../shared"),
     },
   },
@@ -15,7 +22,7 @@ export default defineConfig({
       "components/**/*.spec.ts",
       "platforms/**/*.spec.ts",
       "webauthn/**/*.spec.ts",
-      "../protocol/messages/platform-webauthn-messages.spec.ts",
+      "../protocols/client-bff-protocol/messages/platform-webauthn-messages.spec.ts",
       "../shared/utils/**/*.spec.ts",
     ],
     coverage: {

@@ -1,16 +1,16 @@
-import { AppBackMessage } from "@matreshka/protocol/messages/bff-to-client/app/app-back-message";
-import { bffToClientMessageRegistry } from "@matreshka/protocol/messages/bff-to-client/bff-to-client-message-registry";
-import { isComponentCommandMessage } from "@matreshka/protocol/messages/bff-to-client/component-command-message";
-import { DialogCloseMessage } from "@matreshka/protocol/messages/bff-to-client/components/dialog/dialog-close-message";
-import { ForEachSyncComponentsMessage } from "@matreshka/protocol/messages/bff-to-client/components/for-each/for-each-sync-components-message";
-import { parseBffToClientMessage } from "@matreshka/protocol/messages/bff-to-client/parse-bff-to-client-message";
-import { PingableComponentCommandMessage } from "@matreshka/protocol/messages/bff-to-client/pingable-component-command-message";
-import { registerBffToClientMessages } from "@matreshka/protocol/messages/bff-to-client/register-messages";
-import { ReliableComponentCommandMessage } from "@matreshka/protocol/messages/bff-to-client/reliable-component-command-message";
+import { AppBackMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/app/app-back-message";
+import { bffToClientMessageRegistry } from "@matreshka/client-bff-protocol/messages/bff-to-client/bff-to-client-message-registry";
+import { isComponentCommandMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/component-command-message";
+import { DialogCloseMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/components/dialog/dialog-close-message";
+import { ForEachSyncComponentsMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/components/for-each/for-each-sync-components-message";
+import { parseBffToClientMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/parse-bff-to-client-message";
+import { PingableComponentCommandMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/pingable-component-command-message";
+import { registerBffToClientMessages } from "@matreshka/client-bff-protocol/messages/bff-to-client/register-messages";
+import { ReliableComponentCommandMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/reliable-component-command-message";
 import {
   isPingableMessage,
   isReliableMessage,
-} from "@matreshka/protocol/messages/reliable-delivery";
+} from "@matreshka/client-bff-protocol/messages/reliable-delivery";
 import { beforeAll, describe, expect, it } from "vitest";
 
 describe("Component command messages", () => {

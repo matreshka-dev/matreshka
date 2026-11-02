@@ -1,4 +1,4 @@
-import { ConditionType } from '@protocol/enums/condition-type';
+import { ConditionType } from '@client-bff-protocol/enums/condition-type';
 import { describe, expect, it } from 'vitest';
 import { evaluateConditions } from './evaluate-conditions';
 

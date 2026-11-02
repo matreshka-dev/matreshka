@@ -2,7 +2,7 @@
 
 Утилиты рантайма Matreshka, общие для BFF и клиента (контекст, условия, вложенные элементы).
 
-Контракт обмена сообщениями и сериализуемые типы UI — в пакете [`@matreshka/protocol`](../protocol/README.md).
+Контракт обмена сообщениями и сериализуемые типы UI — в пакете [`@matreshka/client-bff-protocol`](../protocols/client-bff-protocol/README.md).
 
 ## Установка
 
@@ -15,16 +15,16 @@ npm install @matreshka/shared
 
 ```typescript
 import { fetchFromObject } from "@matreshka/shared/utils/fetch-from-object";
-import type { ClientState } from "@matreshka/protocol/types/client-state";
-import { HandshakeMessage } from "@matreshka/protocol/messages/bff-to-client/app/handshake-message";
+import type { ClientState } from "@matreshka/client-bff-protocol/types/client-state";
+import { HandshakeMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/app/handshake-message";
 ```
 
-Subpath-импорты утилит: `@matreshka/shared/utils/...`. Типы и сообщения протокола — только через `@matreshka/protocol/...`.
+Subpath-импорты утилит: `@matreshka/shared/utils/...`. Типы и сообщения протокола — только через `@matreshka/client-bff-protocol/...`.
 
 ## Документация
 
 - [Документация Matreshka](https://github.com/matreshka-dev/matreshka/tree/main/docs/README.md)
-- [Протокол и сообщения](https://github.com/matreshka-dev/matreshka/tree/main/docs/architecture/protocol.md)
+- [Протокол и сообщения](https://github.com/matreshka-dev/matreshka/tree/main/docs/architecture/client-bff-protocol.md)
 
 ## Лицензия
 

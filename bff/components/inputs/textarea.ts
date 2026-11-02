@@ -1,5 +1,5 @@
-import { ServerComponentClass } from "@matreshka/protocol/enums/server-component-class";
-import { TextareaResize } from "@matreshka/protocol/enums/textarea-resize";
+import { ServerComponentClass } from "@matreshka/client-bff-protocol/enums/server-component-class";
+import { TextareaResize } from "@matreshka/client-bff-protocol/enums/textarea-resize";
 import { Componentable, ContextRef } from "../../core";
 import {
   InputComponent,

@@ -1,4 +1,4 @@
-export type { SerializedOperand } from "@matreshka/protocol/types/serialized-operand";
+export type { SerializedOperand } from "@matreshka/client-bff-protocol/types/serialized-operand";
 export * from "./utils/component-id";
 export * from "./utils/diff-nested-items";
 export * from "./utils/fetch-from-object";

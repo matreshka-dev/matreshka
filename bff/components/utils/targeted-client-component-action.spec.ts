@@ -1,6 +1,6 @@
-import { DialogCloseMessage } from "@matreshka/protocol/messages/bff-to-client/components/dialog/dialog-close-message";
-import { ActionCompletedMessage } from "@matreshka/protocol/messages/client-to-bff/action-completed-message";
-import { ErrorMessage } from "@matreshka/protocol/messages/client-to-bff/error-message";
+import { DialogCloseMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/components/dialog/dialog-close-message";
+import { ActionCompletedMessage } from "@matreshka/client-bff-protocol/messages/client-to-bff/action-completed-message";
+import { ErrorMessage } from "@matreshka/client-bff-protocol/messages/client-to-bff/error-message";
 import { describe, expect, it } from "vitest";
 import { Client } from "../../core";
 import { targetedClientComponentAction } from "./targeted-client-component-action";

@@ -1,4 +1,4 @@
-import type { PageConfig } from "@matreshka/protocol/types/page-config";
+import type { PageConfig } from "@matreshka/client-bff-protocol/types/page-config";
 import { Componentable } from "./componentable";
 import StatusCode from "./status-code";
 

@@ -1,4 +1,4 @@
-import type { ChartConfig } from '@protocol/types/chart-config';
+import type { ChartConfig } from '@client-bff-protocol/types/chart-config';
 import {
   ComponentDependencies,
   ServerComponentDependencies,

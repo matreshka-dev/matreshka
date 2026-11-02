@@ -10,27 +10,27 @@ import {
   viewChild,
   ViewEncapsulation,
 } from '@angular/core';
-import type { TextEditorConfig } from '@protocol/types/text-editor-config';
+import type { TextEditorConfig } from '@client-bff-protocol/types/text-editor-config';
 import { ServerInputComponent } from '../server-input-component';
 
 import { WINDOW } from '../../../../tokens/window';
 
-import { TextEditorFormatBlockMessage } from '@protocol/messages/bff-to-client/components/text-editor/text-editor-format-block-message';
-import { TextEditorInsertHtmlMessage } from '@protocol/messages/bff-to-client/components/text-editor/text-editor-insert-html-message';
-import { TextEditorInsertOrderedListMessage } from '@protocol/messages/bff-to-client/components/text-editor/text-editor-insert-ordered-list-message';
-import { TextEditorInsertUnorderedListMessage } from '@protocol/messages/bff-to-client/components/text-editor/text-editor-insert-unordered-list-message';
-import { TextEditorJustifyCenterMessage } from '@protocol/messages/bff-to-client/components/text-editor/text-editor-justify-center-message';
-import { TextEditorJustifyFullMessage } from '@protocol/messages/bff-to-client/components/text-editor/text-editor-justify-full-message';
-import { TextEditorJustifyLeftMessage } from '@protocol/messages/bff-to-client/components/text-editor/text-editor-justify-left-message';
-import { TextEditorJustifyRightMessage } from '@protocol/messages/bff-to-client/components/text-editor/text-editor-justify-right-message';
-import { TextEditorRedoMessage } from '@protocol/messages/bff-to-client/components/text-editor/text-editor-redo-message';
-import { TextEditorSuperscriptMessage } from '@protocol/messages/bff-to-client/components/text-editor/text-editor-superscript-message';
-import { TextEditorToggleBoldMessage } from '@protocol/messages/bff-to-client/components/text-editor/text-editor-toggle-bold-message';
-import { TextEditorToggleItalicMessage } from '@protocol/messages/bff-to-client/components/text-editor/text-editor-toggle-italic-message';
-import { TextEditorToggleUnderlineMessage } from '@protocol/messages/bff-to-client/components/text-editor/text-editor-toggle-underline-message';
-import { TextEditorUndoMessage } from '@protocol/messages/bff-to-client/components/text-editor/text-editor-undo-message';
-import { TextEditorSelectionChangeMessage } from '@protocol/messages/client-to-bff/components/text-editor/text-editor-selection-change-message';
-import type { ServerComponentInteraction } from '@protocol/types/server-component-interaction';
+import { TextEditorFormatBlockMessage } from '@client-bff-protocol/messages/bff-to-client/components/text-editor/text-editor-format-block-message';
+import { TextEditorInsertHtmlMessage } from '@client-bff-protocol/messages/bff-to-client/components/text-editor/text-editor-insert-html-message';
+import { TextEditorInsertOrderedListMessage } from '@client-bff-protocol/messages/bff-to-client/components/text-editor/text-editor-insert-ordered-list-message';
+import { TextEditorInsertUnorderedListMessage } from '@client-bff-protocol/messages/bff-to-client/components/text-editor/text-editor-insert-unordered-list-message';
+import { TextEditorJustifyCenterMessage } from '@client-bff-protocol/messages/bff-to-client/components/text-editor/text-editor-justify-center-message';
+import { TextEditorJustifyFullMessage } from '@client-bff-protocol/messages/bff-to-client/components/text-editor/text-editor-justify-full-message';
+import { TextEditorJustifyLeftMessage } from '@client-bff-protocol/messages/bff-to-client/components/text-editor/text-editor-justify-left-message';
+import { TextEditorJustifyRightMessage } from '@client-bff-protocol/messages/bff-to-client/components/text-editor/text-editor-justify-right-message';
+import { TextEditorRedoMessage } from '@client-bff-protocol/messages/bff-to-client/components/text-editor/text-editor-redo-message';
+import { TextEditorSuperscriptMessage } from '@client-bff-protocol/messages/bff-to-client/components/text-editor/text-editor-superscript-message';
+import { TextEditorToggleBoldMessage } from '@client-bff-protocol/messages/bff-to-client/components/text-editor/text-editor-toggle-bold-message';
+import { TextEditorToggleItalicMessage } from '@client-bff-protocol/messages/bff-to-client/components/text-editor/text-editor-toggle-italic-message';
+import { TextEditorToggleUnderlineMessage } from '@client-bff-protocol/messages/bff-to-client/components/text-editor/text-editor-toggle-underline-message';
+import { TextEditorUndoMessage } from '@client-bff-protocol/messages/bff-to-client/components/text-editor/text-editor-undo-message';
+import { TextEditorSelectionChangeMessage } from '@client-bff-protocol/messages/client-to-bff/components/text-editor/text-editor-selection-change-message';
+import type { ServerComponentInteraction } from '@client-bff-protocol/types/server-component-interaction';
 
 @Component({
   selector: 'app-text-editor',

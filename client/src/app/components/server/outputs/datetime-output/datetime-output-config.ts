@@ -1,4 +1,4 @@
-import type { DatetimeOutputConfig } from '@protocol/types/datetime-output-config';
+import type { DatetimeOutputConfig } from '@client-bff-protocol/types/datetime-output-config';
 import { OutputDependencies } from '../output-config';
 
 export const DatetimeOutputDependencies = {

@@ -11,7 +11,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '@shared': resolve(__dirname, '../shared'),
-      '@protocol': resolve(__dirname, '../protocol'),
+      '@client-bff-protocol': resolve(__dirname, '../protocols/client-bff-protocol'),
     },
   },
 });

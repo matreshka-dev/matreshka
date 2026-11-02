@@ -8,5 +8,3 @@ projects/*/tmp
 /node_modules
 **/.tsbuildinfo
 /shared/dist
-/gateway/node_modules
-/gateway/dist

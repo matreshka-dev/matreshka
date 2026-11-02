@@ -1,4 +1,4 @@
-import { AppNavigateMessage } from "@matreshka/protocol/messages/bff-to-client/app/app-navigate-message";
+import { AppNavigateMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/app/app-navigate-message";
 import { map, Observable, ReplaySubject, Subscription, switchMap } from "rxjs";
 import { Client } from "../../core";
 import {

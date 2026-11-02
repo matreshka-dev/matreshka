@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { RatioMode } from '@protocol/enums/ratio-mode';
+import { RatioMode } from '@client-bff-protocol/enums/ratio-mode';
 
 import {
   getVectorCssMask,

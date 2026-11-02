@@ -2,13 +2,13 @@ import {
   ContextValuesMessage as BffToClientContextValuesMessage,
   ContextDestroyMessage,
   ContextInitMessage,
-} from "@matreshka/protocol/messages/bff-to-client/context/index";
+} from "@matreshka/client-bff-protocol/messages/bff-to-client/context/index";
 import {
   ContextInitMessage as ClientToBffContextInitMessage,
   ContextValuesMessage as ClientToBffContextValuesMessage,
-} from "@matreshka/protocol/messages/client-to-bff/context/index";
-import { TargetedMessage } from "@matreshka/protocol/messages/targeted-message";
-import { JsonObject } from "@matreshka/protocol/types/json";
+} from "@matreshka/client-bff-protocol/messages/client-to-bff/context/index";
+import { TargetedMessage } from "@matreshka/client-bff-protocol/messages/targeted-message";
+import { JsonObject } from "@matreshka/client-bff-protocol/types/json";
 import { fetchFromObject } from "@matreshka/shared/utils/fetch-from-object";
 import { setObjectProperty } from "@matreshka/shared/utils/set-object-property";
 import {

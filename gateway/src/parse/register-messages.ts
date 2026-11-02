@@ -1,9 +1,9 @@
-import { HandshakeMessage as BffHandshakeMessage } from "@matreshka/protocol/messages/bff-to-client/app/handshake-message";
-import { bffToClientMessageRegistry } from "@matreshka/protocol/messages/bff-to-client/bff-to-client-message-registry";
-import { registerCommonBffToClientMessages } from "@matreshka/protocol/messages/bff-to-client/register-common-messages";
-import { HandshakeMessage as ClientHandshakeMessage } from "@matreshka/protocol/messages/client-to-bff/app/handshake-message";
-import { clientToBffMessageRegistry } from "@matreshka/protocol/messages/client-to-bff/client-to-bff-message-registry";
-import { registerCommonClientToBffMessages } from "@matreshka/protocol/messages/client-to-bff/register-common-messages";
+import { HandshakeMessage as BffHandshakeMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/app/handshake-message";
+import { bffToClientMessageRegistry } from "@matreshka/client-bff-protocol/messages/bff-to-client/bff-to-client-message-registry";
+import { registerCommonBffToClientMessages } from "@matreshka/client-bff-protocol/messages/bff-to-client/register-common-messages";
+import { HandshakeMessage as ClientHandshakeMessage } from "@matreshka/client-bff-protocol/messages/client-to-bff/app/handshake-message";
+import { clientToBffMessageRegistry } from "@matreshka/client-bff-protocol/messages/client-to-bff/client-to-bff-message-registry";
+import { registerCommonClientToBffMessages } from "@matreshka/client-bff-protocol/messages/client-to-bff/register-common-messages";
 
 let registered = false;
 

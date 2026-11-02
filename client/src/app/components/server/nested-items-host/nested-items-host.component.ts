@@ -5,9 +5,9 @@ import {
   ViewEncapsulation,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { NestedItemsSyncMessage } from '@protocol/messages/bff-to-client/components/nested-items/nested-items-sync-message';
-import type { NestedItemBase } from '@protocol/types/nested-item-base';
-import type { ServerComponentConfig } from '@protocol/types/server-component-config';
+import { NestedItemsSyncMessage } from '@client-bff-protocol/messages/bff-to-client/components/nested-items/nested-items-sync-message';
+import type { NestedItemBase } from '@client-bff-protocol/types/nested-item-base';
+import type { ServerComponentConfig } from '@client-bff-protocol/types/server-component-config';
 import {
   diffNestedItems,
   type NestedItemsDiff,

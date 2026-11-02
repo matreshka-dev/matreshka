@@ -1,5 +1,5 @@
-import { ServerComponentClass } from "@matreshka/protocol/enums/server-component-class";
-import { OverlayAnchor } from "@matreshka/protocol/types/container-overlay";
+import { ServerComponentClass } from "@matreshka/client-bff-protocol/enums/server-component-class";
+import { OverlayAnchor } from "@matreshka/client-bff-protocol/types/container-overlay";
 import { describe, expect, it } from "vitest";
 import { Client, runWithClient } from "../core";
 import { stack, text } from "./index";

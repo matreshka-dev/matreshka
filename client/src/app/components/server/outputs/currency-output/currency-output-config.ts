@@ -1,4 +1,4 @@
-import type { CurrencyOutputConfig } from '@protocol/types/currency-output-config';
+import type { CurrencyOutputConfig } from '@client-bff-protocol/types/currency-output-config';
 import { OutputDependencies } from '../output-config';
 
 export const CurrencyOutputDependencies = {

@@ -4,7 +4,7 @@ import {
   Component,
   ViewEncapsulation,
 } from '@angular/core';
-import type { QrCodeConfig } from '@protocol/types/qr-code-config';
+import type { QrCodeConfig } from '@client-bff-protocol/types/qr-code-config';
 import { PreparePipe } from '../../../../pipes/prepare.pipe';
 import { QrCodePipe } from '../../../../pipes/qr-code.pipe';
 import { ServerOutputComponent } from '../server-output-component';

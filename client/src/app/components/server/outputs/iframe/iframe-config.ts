@@ -1,4 +1,4 @@
-import type { IframeConfig } from '@protocol/types/iframe-config';
+import type { IframeConfig } from '@client-bff-protocol/types/iframe-config';
 import { OutputDependencies } from '../output-config';
 
 export const IframeDependencies = {

@@ -1,5 +1,5 @@
-import { PlatformId } from "@matreshka/protocol/enums/platform-id";
-import { AppStorageValueMessage } from "@matreshka/protocol/messages/bff-to-client/app/app-storage-value-message";
+import { PlatformId } from "@matreshka/client-bff-protocol/enums/platform-id";
+import { AppStorageValueMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/app/app-storage-value-message";
 import { describe, expect, it } from "vitest";
 import { Client } from "./client";
 

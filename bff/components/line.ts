@@ -1,4 +1,4 @@
-import { ServerComponentClass } from "@matreshka/protocol/enums/server-component-class";
+import { ServerComponentClass } from "@matreshka/client-bff-protocol/enums/server-component-class";
 import { Componentable, StandaloneComponent } from "../core";
 import {
   ComponentInitConfig as BaseComponentInitConfig,

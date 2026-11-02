@@ -1,16 +1,16 @@
+import { ColorRole } from "@matreshka/client-bff-protocol/enums/color-role";
+import { ServerComponentClass } from "@matreshka/client-bff-protocol/enums/server-component-class";
+import { TextAlign } from "@matreshka/client-bff-protocol/enums/text-align";
+import { TextDecoration } from "@matreshka/client-bff-protocol/enums/text-decoration";
+import { ComponentCommandMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/component-command-message";
+import { ComponentInteractionMessage } from "@matreshka/client-bff-protocol/messages/client-to-bff/components/component-interaction-message";
+import { ColorToken } from "@matreshka/client-bff-protocol/types/color-token";
+import type { Overlay as ClientOverlayShape } from "@matreshka/client-bff-protocol/types/container-overlay";
+import type { FontStackToken } from "@matreshka/client-bff-protocol/types/fonts";
+import type { GridItem } from "@matreshka/client-bff-protocol/types/grid-item";
+import type { ServerComponentConfig } from "@matreshka/client-bff-protocol/types/server-component-config";
+import type { ServerComponentInteraction } from "@matreshka/client-bff-protocol/types/server-component-interaction";
 import { componentBaseId } from "@matreshka/shared";
-import { ColorRole } from "@matreshka/protocol/enums/color-role";
-import { ServerComponentClass } from "@matreshka/protocol/enums/server-component-class";
-import { TextAlign } from "@matreshka/protocol/enums/text-align";
-import { TextDecoration } from "@matreshka/protocol/enums/text-decoration";
-import { ComponentCommandMessage } from "@matreshka/protocol/messages/bff-to-client/component-command-message";
-import { ComponentInteractionMessage } from "@matreshka/protocol/messages/client-to-bff/components/component-interaction-message";
-import { ColorToken } from "@matreshka/protocol/types/color-token";
-import type { Overlay as ClientOverlayShape } from "@matreshka/protocol/types/container-overlay";
-import type { FontStackToken } from "@matreshka/protocol/types/fonts";
-import type { GridItem } from "@matreshka/protocol/types/grid-item";
-import type { ServerComponentConfig } from "@matreshka/protocol/types/server-component-config";
-import type { ServerComponentInteraction } from "@matreshka/protocol/types/server-component-interaction";
 import * as crypto from "node:crypto";
 import {
   filter,

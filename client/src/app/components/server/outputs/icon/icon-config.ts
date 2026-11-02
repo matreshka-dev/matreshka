@@ -1,4 +1,4 @@
-import type { IconConfig } from '@protocol/types/icon-config';
+import type { IconConfig } from '@client-bff-protocol/types/icon-config';
 import { OutputDependencies } from '../output-config';
 
 export const IconDependencies = {

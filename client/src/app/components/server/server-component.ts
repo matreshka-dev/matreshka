@@ -18,25 +18,25 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { DimensionalUnit } from '@protocol/enums/dimensional-unit';
+import { DimensionalUnit } from '@client-bff-protocol/enums/dimensional-unit';
 import {
   ComponentCommandMessage,
   isComponentCommandMessage,
   PingableComponentCommandMessage,
-} from '@protocol/messages/bff-to-client/component-command-message';
-import { ClientToBffMessage } from '@protocol/messages/client-to-bff/client-to-bff-message';
-import { ComponentEnterMessage } from '@protocol/messages/client-to-bff/components/component-enter-message';
-import { ComponentHideMessage } from '@protocol/messages/client-to-bff/components/component-hide-message';
-import { ComponentInteractionMessage } from '@protocol/messages/client-to-bff/components/component-interaction-message';
-import { ComponentLeaveMessage } from '@protocol/messages/client-to-bff/components/component-leave-message';
-import { ComponentMouseEnterMessage } from '@protocol/messages/client-to-bff/components/component-mouseenter-message';
-import { ComponentMouseLeaveMessage } from '@protocol/messages/client-to-bff/components/component-mouseleave-message';
+} from '@client-bff-protocol/messages/bff-to-client/component-command-message';
+import { ClientToBffMessage } from '@client-bff-protocol/messages/client-to-bff/client-to-bff-message';
+import { ComponentEnterMessage } from '@client-bff-protocol/messages/client-to-bff/components/component-enter-message';
+import { ComponentHideMessage } from '@client-bff-protocol/messages/client-to-bff/components/component-hide-message';
+import { ComponentInteractionMessage } from '@client-bff-protocol/messages/client-to-bff/components/component-interaction-message';
+import { ComponentLeaveMessage } from '@client-bff-protocol/messages/client-to-bff/components/component-leave-message';
+import { ComponentMouseEnterMessage } from '@client-bff-protocol/messages/client-to-bff/components/component-mouseenter-message';
+import { ComponentMouseLeaveMessage } from '@client-bff-protocol/messages/client-to-bff/components/component-mouseleave-message';
 import {
   ComponentScrollMessage,
   type ComponentScrollPayload,
-} from '@protocol/messages/client-to-bff/components/component-scroll-message';
-import { ComponentShowMessage } from '@protocol/messages/client-to-bff/components/component-show-message';
-import type { ServerComponentInteraction } from '@protocol/types/server-component-interaction';
+} from '@client-bff-protocol/messages/client-to-bff/components/component-scroll-message';
+import { ComponentShowMessage } from '@client-bff-protocol/messages/client-to-bff/components/component-show-message';
+import type { ServerComponentInteraction } from '@client-bff-protocol/types/server-component-interaction';
 import { filter, Observable, Subject } from 'rxjs';
 import { ComponentHubService } from '../../services/component-hub.service';
 import { ContextHubService } from '../../services/context-hub.service';

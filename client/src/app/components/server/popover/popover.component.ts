@@ -9,8 +9,8 @@ import {
   ViewEncapsulation,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { PopoverCloseMessage } from '@protocol/messages/bff-to-client/components/popover/popover-close-message';
-import type { PopoverConfig } from '@protocol/types/popover-config';
+import { PopoverCloseMessage } from '@client-bff-protocol/messages/bff-to-client/components/popover/popover-close-message';
+import type { PopoverConfig } from '@client-bff-protocol/types/popover-config';
 import { filter } from 'rxjs';
 import { OverlaysComponent } from '../../local/overlays/overlays.component';
 import { EntryServerComponent } from '../entry-server-component';

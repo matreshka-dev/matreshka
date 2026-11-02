@@ -1,4 +1,4 @@
-import type { ForEachConfig } from '@protocol/types/for-each-config';
+import type { ForEachConfig } from '@client-bff-protocol/types/for-each-config';
 import {
   ComponentDependencies,
   getNestedConfigsByPropertyKey,

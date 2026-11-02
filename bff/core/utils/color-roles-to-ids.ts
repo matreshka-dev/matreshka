@@ -1,5 +1,5 @@
-import { ColorRole } from "@matreshka/protocol/enums/color-role";
-import { ColorToken } from "@matreshka/protocol/types/color-token";
+import { ColorRole } from "@matreshka/client-bff-protocol/enums/color-role";
+import { ColorToken } from "@matreshka/client-bff-protocol/types/color-token";
 import { colorTokenId } from "./color-token-id";
 
 export function resolvePartialColorsToIds(

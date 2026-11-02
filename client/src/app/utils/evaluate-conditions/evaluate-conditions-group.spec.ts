@@ -1,8 +1,8 @@
-import { ArrayLengthCompare } from '@protocol/enums/array-length-compare';
-import { ConditionGroupOperator } from '@protocol/enums/condition-group-operator';
-import { ConditionType } from '@protocol/enums/condition-type';
-import { DeviceType } from '@protocol/enums/device-type';
-import type { Condition } from '@protocol/types/condition';
+import { ArrayLengthCompare } from '@client-bff-protocol/enums/array-length-compare';
+import { ConditionGroupOperator } from '@client-bff-protocol/enums/condition-group-operator';
+import { ConditionType } from '@client-bff-protocol/enums/condition-type';
+import { DeviceType } from '@client-bff-protocol/enums/device-type';
+import type { Condition } from '@client-bff-protocol/types/condition';
 import { describe, expect, it } from 'vitest';
 import { evaluateConditions } from './evaluate-conditions';
 

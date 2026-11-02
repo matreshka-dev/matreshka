@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
-import { BffToClientMessage } from '@protocol/messages/bff-to-client/bff-to-client-message';
-import { BffToClientMessageReceivedMessage } from '@protocol/messages/bff-to-client/message-received-message';
-import { parseBffToClientMessage } from '@protocol/messages/bff-to-client/parse-bff-to-client-message';
-import { ClientToBffMessage } from '@protocol/messages/client-to-bff/client-to-bff-message';
-import { ClientToBffMessageReceivedMessage } from '@protocol/messages/client-to-bff/message-received-message';
-import { ReliableDelivery } from '@protocol/messages/reliable-delivery';
+import { BffToClientMessage } from '@client-bff-protocol/messages/bff-to-client/bff-to-client-message';
+import { BffToClientMessageReceivedMessage } from '@client-bff-protocol/messages/bff-to-client/message-received-message';
+import { parseBffToClientMessage } from '@client-bff-protocol/messages/bff-to-client/parse-bff-to-client-message';
+import { ClientToBffMessage } from '@client-bff-protocol/messages/client-to-bff/client-to-bff-message';
+import { ClientToBffMessageReceivedMessage } from '@client-bff-protocol/messages/client-to-bff/message-received-message';
+import { ReliableDelivery } from '@client-bff-protocol/messages/reliable-delivery';
 import { BehaviorSubject, Observable, Subject, takeUntil } from 'rxjs';
 import { ServerSentEventsSource } from '../transports/server-sent-events-source';
 import { Source } from '../transports/source';

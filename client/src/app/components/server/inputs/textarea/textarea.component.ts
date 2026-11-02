@@ -5,7 +5,7 @@ import {
   ViewEncapsulation,
   viewChild,
 } from '@angular/core';
-import type { TextareaConfig } from '@protocol/types/textarea-config';
+import type { TextareaConfig } from '@client-bff-protocol/types/textarea-config';
 import { PreparePipe } from '../../../../pipes/prepare.pipe';
 import { ServerInputComponent } from '../server-input-component';
 

@@ -1,5 +1,5 @@
-import { DeviceType } from "@matreshka/protocol/enums/device-type";
-import { OsName } from "@matreshka/protocol/enums/os-name";
+import { DeviceType } from "@matreshka/client-bff-protocol/enums/device-type";
+import { OsName } from "@matreshka/client-bff-protocol/enums/os-name";
 
 export function getOsNameFromUserAgent(userAgent: string): OsName {
   if (

@@ -2,8 +2,8 @@ import {
   AppReconnectInfoMessage,
   AppReloadMessage,
   HandshakeMessage,
-} from "@matreshka/protocol/messages/bff-to-client/app/index";
-import { HandshakeMessage as ClientHandshakeMessage } from "@matreshka/protocol/messages/client-to-bff/app/handshake-message";
+} from "@matreshka/client-bff-protocol/messages/bff-to-client/app/index";
+import { HandshakeMessage as ClientHandshakeMessage } from "@matreshka/client-bff-protocol/messages/client-to-bff/app/handshake-message";
 import * as crypto from "crypto";
 import { filter, Subject, Subscription, take } from "rxjs";
 import { Client } from "./client";

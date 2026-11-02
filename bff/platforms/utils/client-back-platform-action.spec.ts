@@ -1,8 +1,8 @@
-import { PlatformId } from "@matreshka/protocol/enums/platform-id";
-import { AppBackMessage } from "@matreshka/protocol/messages/bff-to-client/app/app-back-message";
-import { AppPageMessage } from "@matreshka/protocol/messages/bff-to-client/app/app-page-message";
-import { ClientToBffMessageReceivedMessage } from "@matreshka/protocol/messages/client-to-bff/message-received-message";
-import type { ClientState } from "@matreshka/protocol/types/client-state";
+import { PlatformId } from "@matreshka/client-bff-protocol/enums/platform-id";
+import { AppBackMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/app/app-back-message";
+import { AppPageMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/app/app-page-message";
+import { ClientToBffMessageReceivedMessage } from "@matreshka/client-bff-protocol/messages/client-to-bff/message-received-message";
+import type { ClientState } from "@matreshka/client-bff-protocol/types/client-state";
 import { BehaviorSubject, firstValueFrom, Subject, take } from "rxjs";
 import { describe, expect, it } from "vitest";
 import { Client } from "../../core";

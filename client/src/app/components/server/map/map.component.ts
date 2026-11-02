@@ -8,19 +8,19 @@ import {
   viewChildren,
   ViewEncapsulation,
 } from '@angular/core';
-import { MapMarkerHorizontalAnchor } from '@protocol/enums/map-marker-horizontal-anchor';
-import { MapMarkerVerticalAnchor } from '@protocol/enums/map-marker-vertical-anchor';
-import { MapSetCenterMessage } from '@protocol/messages/bff-to-client/components/map/map-set-center-message';
-import { MapSetZoomMessage } from '@protocol/messages/bff-to-client/components/map/map-set-zoom-message';
-import { MapZoomInMessage } from '@protocol/messages/bff-to-client/components/map/map-zoom-in-message';
-import { MapZoomOutMessage } from '@protocol/messages/bff-to-client/components/map/map-zoom-out-message';
-import { MapCenterChangeMessage } from '@protocol/messages/client-to-bff/components/map/map-center-change-message';
-import { MapZoomChangeMessage } from '@protocol/messages/client-to-bff/components/map/map-zoom-change-message';
+import { MapMarkerHorizontalAnchor } from '@client-bff-protocol/enums/map-marker-horizontal-anchor';
+import { MapMarkerVerticalAnchor } from '@client-bff-protocol/enums/map-marker-vertical-anchor';
+import { MapSetCenterMessage } from '@client-bff-protocol/messages/bff-to-client/components/map/map-set-center-message';
+import { MapSetZoomMessage } from '@client-bff-protocol/messages/bff-to-client/components/map/map-set-zoom-message';
+import { MapZoomInMessage } from '@client-bff-protocol/messages/bff-to-client/components/map/map-zoom-in-message';
+import { MapZoomOutMessage } from '@client-bff-protocol/messages/bff-to-client/components/map/map-zoom-out-message';
+import { MapCenterChangeMessage } from '@client-bff-protocol/messages/client-to-bff/components/map/map-center-change-message';
+import { MapZoomChangeMessage } from '@client-bff-protocol/messages/client-to-bff/components/map/map-zoom-change-message';
 import type {
   MapConfig,
   SerializedMapMarker,
-} from '@protocol/types/map-config';
-import type { ServerComponentInteraction } from '@protocol/types/server-component-interaction';
+} from '@client-bff-protocol/types/map-config';
+import type { ServerComponentInteraction } from '@client-bff-protocol/types/server-component-interaction';
 import type { NestedItemsDiff } from '@shared/utils/diff-nested-items';
 import { BehaviorSubject, filter } from 'rxjs';
 import { type LngLat, type YMapLocationRequest } from 'ymaps3';

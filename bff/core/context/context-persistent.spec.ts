@@ -1,4 +1,4 @@
-import { ContextInitMessage } from "@matreshka/protocol/messages/bff-to-client/context/index";
+import { ContextInitMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/context/index";
 import { Subject } from "rxjs";
 import { describe, expect, it } from "vitest";
 import { Context } from "./context";

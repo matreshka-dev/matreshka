@@ -1,4 +1,4 @@
-import { JsonObject } from "@matreshka/protocol/types/json";
+import { JsonObject } from "@matreshka/client-bff-protocol/types/json";
 import { Observable } from "rxjs";
 import { Paths, PathValue } from "ts-essentials";
 import { ActionConfig } from "../actions/action";

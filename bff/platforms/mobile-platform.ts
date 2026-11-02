@@ -1,24 +1,24 @@
-import { MobileAddEventToCalendarMessage } from "@matreshka/protocol/messages/bff-to-client/platforms/mobile/mobile-add-event-to-calendar-message";
-import { MobileConnectToBleDeviceMessage } from "@matreshka/protocol/messages/bff-to-client/platforms/mobile/mobile-connect-to-ble-device-message";
-import { MobileDisconnectMessage } from "@matreshka/protocol/messages/bff-to-client/platforms/mobile/mobile-disconnect-message";
-import { MobileDiscoverBleServicesMessage } from "@matreshka/protocol/messages/bff-to-client/platforms/mobile/mobile-discover-ble-services-message";
-import { MobileDownloadCsvContentMessage } from "@matreshka/protocol/messages/bff-to-client/platforms/mobile/mobile-download-csv-content-message";
-import { MobileDownloadFileMessage } from "@matreshka/protocol/messages/bff-to-client/platforms/mobile/mobile-download-file-message";
-import { MobileGetBleServicesMessage } from "@matreshka/protocol/messages/bff-to-client/platforms/mobile/mobile-get-ble-services-message";
-import { MobileGetGeolocationMessage } from "@matreshka/protocol/messages/bff-to-client/platforms/mobile/mobile-get-geolocation-message";
-import { MobileReadBleCharacteristicMessage } from "@matreshka/protocol/messages/bff-to-client/platforms/mobile/mobile-read-ble-characteristic-message";
-import { MobileRequestBleScanMessage } from "@matreshka/protocol/messages/bff-to-client/platforms/mobile/mobile-request-ble-scan-message";
-import { MobileRequestPushNotificationsMessage } from "@matreshka/protocol/messages/bff-to-client/platforms/mobile/mobile-request-push-notifications-message";
-import { MobileShareMessage } from "@matreshka/protocol/messages/bff-to-client/platforms/mobile/mobile-share-message";
-import { MobileStopMessage } from "@matreshka/protocol/messages/bff-to-client/platforms/mobile/mobile-stop-message";
-import { MobileBleDisconnectMessage } from "@matreshka/protocol/messages/client-to-bff/platforms/mobile/mobile-ble-disconnect-message";
-import { MobileBleReceiveMessage } from "@matreshka/protocol/messages/client-to-bff/platforms/mobile/mobile-ble-receive-message";
-import { MobileBleServicesMessage } from "@matreshka/protocol/messages/client-to-bff/platforms/mobile/mobile-ble-services-message";
-import { MobileBleValueMessage } from "@matreshka/protocol/messages/client-to-bff/platforms/mobile/mobile-ble-value-message";
-import { MobileGetGeolocationSuccessMessage } from "@matreshka/protocol/messages/client-to-bff/platforms/mobile/mobile-get-geolocation-success-message";
-import { MobileRequestPushNotificationsActionGrantedMessage } from "@matreshka/protocol/messages/client-to-bff/platforms/mobile/mobile-request-push-notifications-action-granted-message";
-import { TargetedMessage } from "@matreshka/protocol/messages/targeted-message";
-import type { MobileBleService } from "@matreshka/protocol/types/mobile-ble-services";
+import { MobileAddEventToCalendarMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/platforms/mobile/mobile-add-event-to-calendar-message";
+import { MobileConnectToBleDeviceMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/platforms/mobile/mobile-connect-to-ble-device-message";
+import { MobileDisconnectMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/platforms/mobile/mobile-disconnect-message";
+import { MobileDiscoverBleServicesMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/platforms/mobile/mobile-discover-ble-services-message";
+import { MobileDownloadCsvContentMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/platforms/mobile/mobile-download-csv-content-message";
+import { MobileDownloadFileMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/platforms/mobile/mobile-download-file-message";
+import { MobileGetBleServicesMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/platforms/mobile/mobile-get-ble-services-message";
+import { MobileGetGeolocationMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/platforms/mobile/mobile-get-geolocation-message";
+import { MobileReadBleCharacteristicMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/platforms/mobile/mobile-read-ble-characteristic-message";
+import { MobileRequestBleScanMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/platforms/mobile/mobile-request-ble-scan-message";
+import { MobileRequestPushNotificationsMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/platforms/mobile/mobile-request-push-notifications-message";
+import { MobileShareMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/platforms/mobile/mobile-share-message";
+import { MobileStopMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/platforms/mobile/mobile-stop-message";
+import { MobileBleDisconnectMessage } from "@matreshka/client-bff-protocol/messages/client-to-bff/platforms/mobile/mobile-ble-disconnect-message";
+import { MobileBleReceiveMessage } from "@matreshka/client-bff-protocol/messages/client-to-bff/platforms/mobile/mobile-ble-receive-message";
+import { MobileBleServicesMessage } from "@matreshka/client-bff-protocol/messages/client-to-bff/platforms/mobile/mobile-ble-services-message";
+import { MobileBleValueMessage } from "@matreshka/client-bff-protocol/messages/client-to-bff/platforms/mobile/mobile-ble-value-message";
+import { MobileGetGeolocationSuccessMessage } from "@matreshka/client-bff-protocol/messages/client-to-bff/platforms/mobile/mobile-get-geolocation-success-message";
+import { MobileRequestPushNotificationsActionGrantedMessage } from "@matreshka/client-bff-protocol/messages/client-to-bff/platforms/mobile/mobile-request-push-notifications-action-granted-message";
+import { TargetedMessage } from "@matreshka/client-bff-protocol/messages/targeted-message";
+import type { MobileBleService } from "@matreshka/client-bff-protocol/types/mobile-ble-services";
 import {
   filter,
   map,

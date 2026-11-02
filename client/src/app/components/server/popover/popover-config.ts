@@ -1,4 +1,4 @@
-import type { PopoverConfig } from '@protocol/types/popover-config';
+import type { PopoverConfig } from '@client-bff-protocol/types/popover-config';
 import {
   ComponentDependencies,
   getNestedConfigsByPropertyKey,

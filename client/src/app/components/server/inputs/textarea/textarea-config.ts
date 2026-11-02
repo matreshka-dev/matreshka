@@ -1,4 +1,4 @@
-import type { TextareaConfig } from '@protocol/types/textarea-config';
+import type { TextareaConfig } from '@client-bff-protocol/types/textarea-config';
 import { InputDependencies } from '../input-config';
 
 export const TextareaDependencies = {

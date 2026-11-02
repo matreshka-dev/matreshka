@@ -1,4 +1,4 @@
-import type { ProgressBarConfig } from '@protocol/types/progress-bar-config';
+import type { ProgressBarConfig } from '@client-bff-protocol/types/progress-bar-config';
 import { OutputDependencies } from '../output-config';
 
 export const ProgressBarDependencies = {

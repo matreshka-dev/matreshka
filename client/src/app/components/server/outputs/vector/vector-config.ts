@@ -1,4 +1,4 @@
-import type { VectorConfig } from '@protocol/types/vector-config';
+import type { VectorConfig } from '@client-bff-protocol/types/vector-config';
 import { OutputDependencies } from '../output-config';
 
 export const VectorDependencies = {

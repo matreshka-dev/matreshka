@@ -1,1 +1,1 @@
-export { TextInputKind } from "@matreshka/protocol/enums/text-input-kind";
+export { TextInputKind } from "@matreshka/client-bff-protocol/enums/text-input-kind";

@@ -1,4 +1,4 @@
-import { StackDirection } from "@matreshka/protocol/enums/stack-direction";
+import { StackDirection } from "@matreshka/client-bff-protocol/enums/stack-direction";
 import { Stack, StackInitConfig } from "../stack";
 
 export type ColumnInitConfig = Omit<StackInitConfig<Column>, "direction">;

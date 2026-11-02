@@ -12,10 +12,10 @@ import {
   ContextInitMessage as BffContextInitMessage,
   ContextValuesMessage as BffContextValuesMessage,
   ContextDestroyMessage,
-} from '@protocol/messages/bff-to-client/context';
-import { ClientToBffMessage } from '@protocol/messages/client-to-bff/client-to-bff-message';
-import { ContextInitMessage as ClientToBffContextInitMessage } from '@protocol/messages/client-to-bff/context/context-init-message';
-import { ContextValuesMessage as ClientToBffContextValuesMessage } from '@protocol/messages/client-to-bff/context/context-values-message';
+} from '@client-bff-protocol/messages/bff-to-client/context';
+import { ClientToBffMessage } from '@client-bff-protocol/messages/client-to-bff/client-to-bff-message';
+import { ContextInitMessage as ClientToBffContextInitMessage } from '@client-bff-protocol/messages/client-to-bff/context/context-init-message';
+import { ContextValuesMessage as ClientToBffContextValuesMessage } from '@client-bff-protocol/messages/client-to-bff/context/context-values-message';
 import { ContextChangeEvent } from '../types/context-change-event';
 
 describe('Контекст', () => {

@@ -1,29 +1,29 @@
 import { inject, PLATFORM_ID } from '@angular/core';
 import { SwPush } from '@angular/service-worker';
-import { PlatformId } from '@protocol/enums/platform-id';
+import { PlatformId } from '@client-bff-protocol/enums/platform-id';
 import {
   HandshakeMessage as BffHandshakeMessage,
   HandshakePayload,
-} from '@protocol/messages/bff-to-client/app/handshake-message';
-import { BrowserAddEventToCalendarMessage } from '@protocol/messages/bff-to-client/platforms/browser/browser-add-event-to-calendar-message';
-import { BrowserDownloadCsvContentMessage } from '@protocol/messages/bff-to-client/platforms/browser/browser-download-csv-content-message';
-import { BrowserDownloadFileMessage } from '@protocol/messages/bff-to-client/platforms/browser/browser-download-file-message';
-import { BrowserGetGeolocationMessage } from '@protocol/messages/bff-to-client/platforms/browser/browser-get-geolocation-message';
-import { BrowserOpenFileMessage } from '@protocol/messages/bff-to-client/platforms/browser/browser-open-file-message';
-import { BrowserRequestPushNotificationsMessage } from '@protocol/messages/bff-to-client/platforms/browser/browser-request-push-notifications-message';
-import { BrowserShareMessage } from '@protocol/messages/bff-to-client/platforms/browser/browser-share-message';
-import { DisablePrivacyModeMessage } from '@protocol/messages/bff-to-client/platforms/disable-privacy-mode-message';
-import { EnablePrivacyModeMessage } from '@protocol/messages/bff-to-client/platforms/enable-privacy-mode-message';
-import { PlatformEnumerateDevicesMessage } from '@protocol/messages/bff-to-client/platforms/platform-enumerate-devices-message';
-import { PlatformWebAuthnCreateCredentialMessage } from '@protocol/messages/bff-to-client/platforms/platform-webauthn-create-credential-message';
-import { PlatformWebAuthnGetCredentialMessage } from '@protocol/messages/bff-to-client/platforms/platform-webauthn-get-credential-message';
-import { ErrorMessage } from '@protocol/messages/client-to-bff/error-message';
-import { BrowserGetGeolocationSuccessMessage } from '@protocol/messages/client-to-bff/platforms/browser/browser-get-geolocation-success-message';
-import { BrowserRequestPushNotificationsActionGrantedMessage } from '@protocol/messages/client-to-bff/platforms/browser/browser-request-push-notifications-action-granted-message';
+} from '@client-bff-protocol/messages/bff-to-client/app/handshake-message';
+import { BrowserAddEventToCalendarMessage } from '@client-bff-protocol/messages/bff-to-client/platforms/browser/browser-add-event-to-calendar-message';
+import { BrowserDownloadCsvContentMessage } from '@client-bff-protocol/messages/bff-to-client/platforms/browser/browser-download-csv-content-message';
+import { BrowserDownloadFileMessage } from '@client-bff-protocol/messages/bff-to-client/platforms/browser/browser-download-file-message';
+import { BrowserGetGeolocationMessage } from '@client-bff-protocol/messages/bff-to-client/platforms/browser/browser-get-geolocation-message';
+import { BrowserOpenFileMessage } from '@client-bff-protocol/messages/bff-to-client/platforms/browser/browser-open-file-message';
+import { BrowserRequestPushNotificationsMessage } from '@client-bff-protocol/messages/bff-to-client/platforms/browser/browser-request-push-notifications-message';
+import { BrowserShareMessage } from '@client-bff-protocol/messages/bff-to-client/platforms/browser/browser-share-message';
+import { DisablePrivacyModeMessage } from '@client-bff-protocol/messages/bff-to-client/platforms/disable-privacy-mode-message';
+import { EnablePrivacyModeMessage } from '@client-bff-protocol/messages/bff-to-client/platforms/enable-privacy-mode-message';
+import { PlatformEnumerateDevicesMessage } from '@client-bff-protocol/messages/bff-to-client/platforms/platform-enumerate-devices-message';
+import { PlatformWebAuthnCreateCredentialMessage } from '@client-bff-protocol/messages/bff-to-client/platforms/platform-webauthn-create-credential-message';
+import { PlatformWebAuthnGetCredentialMessage } from '@client-bff-protocol/messages/bff-to-client/platforms/platform-webauthn-get-credential-message';
+import { ErrorMessage } from '@client-bff-protocol/messages/client-to-bff/error-message';
+import { BrowserGetGeolocationSuccessMessage } from '@client-bff-protocol/messages/client-to-bff/platforms/browser/browser-get-geolocation-success-message';
+import { BrowserRequestPushNotificationsActionGrantedMessage } from '@client-bff-protocol/messages/client-to-bff/platforms/browser/browser-request-push-notifications-action-granted-message';
 import {
   PlatformEnumeratedDevice,
   PlatformEnumerateDevicesSuccessMessage,
-} from '@protocol/messages/client-to-bff/platforms/platform-enumerate-devices-success-message';
+} from '@client-bff-protocol/messages/client-to-bff/platforms/platform-enumerate-devices-success-message';
 import {
   concat,
   defer,

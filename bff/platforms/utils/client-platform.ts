@@ -1,4 +1,4 @@
-import { PlatformId } from "@matreshka/protocol/enums/platform-id";
+import { PlatformId } from "@matreshka/client-bff-protocol/enums/platform-id";
 import { Client, currentClient } from "../../core";
 import { AndroidPlatform } from "../android-platform";
 import { BrowserPlatform } from "../browser-platform";

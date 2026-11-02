@@ -9,13 +9,13 @@ import {
   ViewEncapsulation,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import type { DialogConfig } from '@protocol/types/dialog-config';
+import type { DialogConfig } from '@client-bff-protocol/types/dialog-config';
 import { OverlaysComponent } from '../../local/overlays/overlays.component';
 import { ServerComponentsListComponent } from '../server-components-list/server-components-list.component';
 
-import { DialogCloseMessage } from '@protocol/messages/bff-to-client/components/dialog/dialog-close-message';
-import { OverlayAnchor } from '@protocol/types/container-overlay';
-import type { ServerComponentInteraction } from '@protocol/types/server-component-interaction';
+import { DialogCloseMessage } from '@client-bff-protocol/messages/bff-to-client/components/dialog/dialog-close-message';
+import { OverlayAnchor } from '@client-bff-protocol/types/container-overlay';
+import type { ServerComponentInteraction } from '@client-bff-protocol/types/server-component-interaction';
 import { filter } from 'rxjs';
 import { rem } from '../../../utils/rem';
 import { EntryServerComponent } from '../entry-server-component';

@@ -2,12 +2,12 @@ import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { ServerComponentClass } from '@protocol/enums/server-component-class';
+import { ServerComponentClass } from '@client-bff-protocol/enums/server-component-class';
 import {
   ContextInitMessage as BffContextInitMessage,
   ContextValuesMessage as BffContextValuesMessage,
-} from '@protocol/messages/bff-to-client/context';
-import type { OutputConfig } from '@protocol/types/output-config';
+} from '@client-bff-protocol/messages/bff-to-client/context';
+import type { OutputConfig } from '@client-bff-protocol/types/output-config';
 import { PreparePipe } from '../../../pipes/prepare.pipe';
 import { PLATFORM } from '../../../platforms/platform';
 import { TestPlatform } from '../../../platforms/tests/test-platform';

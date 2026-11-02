@@ -1,12 +1,12 @@
-import { ServerComponentClass } from "@matreshka/protocol/enums/server-component-class";
-import { TextOutputAutolinkScheme } from "@matreshka/protocol/enums/text-output-autolink-scheme";
-import { TextOutputAutolinkTarget } from "@matreshka/protocol/enums/text-output-autolink-target";
-import { TextOutputProcessor } from "@matreshka/protocol/enums/text-output-processor";
+import { ServerComponentClass } from "@matreshka/client-bff-protocol/enums/server-component-class";
+import { TextOutputAutolinkScheme } from "@matreshka/client-bff-protocol/enums/text-output-autolink-scheme";
+import { TextOutputAutolinkTarget } from "@matreshka/client-bff-protocol/enums/text-output-autolink-target";
+import { TextOutputProcessor } from "@matreshka/client-bff-protocol/enums/text-output-processor";
 import type {
   TextOutputProcessorAutolinkConfig,
   TextOutputProcessorConfig,
   TextOutputProcessorLineBreaksConfig,
-} from "@matreshka/protocol/types/text-output-processor-config";
+} from "@matreshka/client-bff-protocol/types/text-output-processor-config";
 import { Componentable, ContextRef, StandaloneComponent } from "../../core";
 import {
   CompatibleOutputRef,
@@ -17,9 +17,9 @@ import {
   outputValueRefToConfig,
 } from "./output-component";
 
-export { TextOutputAutolinkScheme } from "@matreshka/protocol/enums/text-output-autolink-scheme";
-export { TextOutputAutolinkTarget } from "@matreshka/protocol/enums/text-output-autolink-target";
-export { TextOutputProcessor } from "@matreshka/protocol/enums/text-output-processor";
+export { TextOutputAutolinkScheme } from "@matreshka/client-bff-protocol/enums/text-output-autolink-scheme";
+export { TextOutputAutolinkTarget } from "@matreshka/client-bff-protocol/enums/text-output-autolink-target";
+export { TextOutputProcessor } from "@matreshka/client-bff-protocol/enums/text-output-processor";
 
 const DEFAULT_AUTOLINK_SCHEMES = [
   TextOutputAutolinkScheme.Http,

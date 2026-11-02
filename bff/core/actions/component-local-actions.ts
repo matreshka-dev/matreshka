@@ -1,5 +1,5 @@
-import { ScrollToPosition } from "@matreshka/protocol/enums/scroll-to-position";
-import type { BoardPoint } from "@matreshka/protocol/types/board-config";
+import { ScrollToPosition } from "@matreshka/client-bff-protocol/enums/scroll-to-position";
+import type { BoardPoint } from "@matreshka/client-bff-protocol/types/board-config";
 import type { VideoInputDevice } from "../../platforms/platform";
 import type { Componentable } from "../types/componentable";
 import type { ActionConfig } from "./action";

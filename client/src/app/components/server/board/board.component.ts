@@ -10,18 +10,18 @@ import {
   ViewEncapsulation,
 } from '@angular/core';
 import type { PanzoomObject } from '@panzoom/panzoom';
-import { BoardSetCenterMessage } from '@protocol/messages/bff-to-client/components/board/board-set-center-message';
-import { BoardSetZoomMessage } from '@protocol/messages/bff-to-client/components/board/board-set-zoom-message';
-import { BoardZoomInMessage } from '@protocol/messages/bff-to-client/components/board/board-zoom-in-message';
-import { BoardZoomOutMessage } from '@protocol/messages/bff-to-client/components/board/board-zoom-out-message';
-import { BoardCenterChangeMessage } from '@protocol/messages/client-to-bff/components/board/board-center-change-message';
-import { BoardZoomChangeMessage } from '@protocol/messages/client-to-bff/components/board/board-zoom-change-message';
+import { BoardSetCenterMessage } from '@client-bff-protocol/messages/bff-to-client/components/board/board-set-center-message';
+import { BoardSetZoomMessage } from '@client-bff-protocol/messages/bff-to-client/components/board/board-set-zoom-message';
+import { BoardZoomInMessage } from '@client-bff-protocol/messages/bff-to-client/components/board/board-zoom-in-message';
+import { BoardZoomOutMessage } from '@client-bff-protocol/messages/bff-to-client/components/board/board-zoom-out-message';
+import { BoardCenterChangeMessage } from '@client-bff-protocol/messages/client-to-bff/components/board/board-center-change-message';
+import { BoardZoomChangeMessage } from '@client-bff-protocol/messages/client-to-bff/components/board/board-zoom-change-message';
 import type {
   BoardConfig,
   BoardPoint,
   SerializedBoardItem,
-} from '@protocol/types/board-config';
-import type { ServerComponentInteraction } from '@protocol/types/server-component-interaction';
+} from '@client-bff-protocol/types/board-config';
+import type { ServerComponentInteraction } from '@client-bff-protocol/types/server-component-interaction';
 import type { NestedItemsDiff } from '@shared/utils/diff-nested-items';
 import { rem } from '../../../utils/rem';
 import { NestedItemsHostComponent } from '../nested-items-host/nested-items-host.component';

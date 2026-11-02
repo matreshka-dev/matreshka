@@ -1,5 +1,5 @@
-import { PasswordInputKind } from "@matreshka/protocol/enums/password-input-kind";
-import { ServerComponentClass } from "@matreshka/protocol/enums/server-component-class";
+import { PasswordInputKind } from "@matreshka/client-bff-protocol/enums/password-input-kind";
+import { ServerComponentClass } from "@matreshka/client-bff-protocol/enums/server-component-class";
 import { Componentable, ContextRef } from "../../core";
 import {
   InputComponent,

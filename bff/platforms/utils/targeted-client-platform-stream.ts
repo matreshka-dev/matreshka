@@ -1,8 +1,8 @@
-import { AnyBffToClientMessage } from "@matreshka/protocol/messages/bff-to-client/bff-to-client-message";
-import { ActionCompletedMessage } from "@matreshka/protocol/messages/client-to-bff/action-completed-message";
-import { AnyClientToBffMessage } from "@matreshka/protocol/messages/client-to-bff/client-to-bff-message";
-import { ErrorMessage } from "@matreshka/protocol/messages/client-to-bff/error-message";
-import { TargetedMessage } from "@matreshka/protocol/messages/targeted-message";
+import { AnyBffToClientMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/bff-to-client-message";
+import { ActionCompletedMessage } from "@matreshka/client-bff-protocol/messages/client-to-bff/action-completed-message";
+import { AnyClientToBffMessage } from "@matreshka/client-bff-protocol/messages/client-to-bff/client-to-bff-message";
+import { ErrorMessage } from "@matreshka/client-bff-protocol/messages/client-to-bff/error-message";
+import { TargetedMessage } from "@matreshka/client-bff-protocol/messages/targeted-message";
 import { filter, Observable, Subject } from "rxjs";
 import { z } from "zod";
 import { Client } from "../../core";

@@ -1,8 +1,8 @@
 import { Component, input } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, provideRouter } from '@angular/router';
-import { ServerComponentClass } from '@protocol/enums/server-component-class';
-import type { PageConfig } from '@protocol/types/page-config';
+import { ServerComponentClass } from '@client-bff-protocol/enums/server-component-class';
+import type { PageConfig } from '@client-bff-protocol/types/page-config';
 import { BehaviorSubject } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ComponentHubService } from '../../../services/component-hub.service';

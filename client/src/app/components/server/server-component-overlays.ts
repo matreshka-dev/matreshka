@@ -1,4 +1,4 @@
-import { ServerComponentClass } from '@protocol/enums/server-component-class';
+import { ServerComponentClass } from '@client-bff-protocol/enums/server-component-class';
 import type { Overlay, ServerComponentConfig } from './server-component-config';
 
 /** Entry-компоненты рендерят overlays внутри своего корня (dialog, popover). */

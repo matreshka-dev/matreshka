@@ -67,7 +67,7 @@ export function invalidateCatalogContext() {
 
 ```ts
 import type { Context } from "@matreshka/bff/core";
-import type { JsonObject } from "@matreshka/protocol/types/json";
+import type { JsonObject } from "@matreshka/client-bff-protocol/types/json";
 import type { Observable } from "rxjs";
 
 function destroyContextWithEntry<T extends JsonObject>(
@@ -186,4 +186,4 @@ export class MyListWidget extends Component {
 
 - [Context (guide)](../guides/context.md) — `ref`, preload, подписки на `watch()`
 - [Жизненный цикл Context](../architecture/context-lifecycle.md) — BFF vs клиент, holds, антипаттерны teardown
-- [Протокол](../architecture/protocol.md) — `context-init`, `context-values`, `context-destroy`
+- [Протокол](../architecture/client-bff-protocol.md) — `context-init`, `context-values`, `context-destroy`

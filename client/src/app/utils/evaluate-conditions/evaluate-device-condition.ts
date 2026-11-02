@@ -1,6 +1,6 @@
-import { ConditionType } from '@protocol/enums/condition-type';
-import { DeviceType } from '@protocol/enums/device-type';
-import type { Condition } from '@protocol/types/condition';
+import { ConditionType } from '@client-bff-protocol/enums/condition-type';
+import { DeviceType } from '@client-bff-protocol/enums/device-type';
+import type { Condition } from '@client-bff-protocol/types/condition';
 
 export function evaluateDeviceCondition(
   condition: Condition,

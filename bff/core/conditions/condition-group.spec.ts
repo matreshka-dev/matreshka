@@ -1,5 +1,5 @@
-import { ConditionGroupOperator } from "@matreshka/protocol/enums/condition-group-operator";
-import { ConditionType } from "@matreshka/protocol/enums/condition-type";
+import { ConditionGroupOperator } from "@matreshka/client-bff-protocol/enums/condition-group-operator";
+import { ConditionType } from "@matreshka/client-bff-protocol/enums/condition-type";
 import { describe, expect, it } from "vitest";
 import { conditionAll, conditionAny } from "./condition-group";
 

@@ -1,1 +1,1 @@
-export { PasswordInputKind } from "@matreshka/protocol/enums/password-input-kind";
+export { PasswordInputKind } from "@matreshka/client-bff-protocol/enums/password-input-kind";

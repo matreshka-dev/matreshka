@@ -1,5 +1,5 @@
-import { ConditionGroupOperator } from '@protocol/enums/condition-group-operator';
-import type { Condition } from '@protocol/types/condition';
+import { ConditionGroupOperator } from '@client-bff-protocol/enums/condition-group-operator';
+import type { Condition } from '@client-bff-protocol/types/condition';
 import type { EvaluateConditionsOptions } from './evaluate-conditions-options';
 import { evaluateConditionList } from './evaluate-single-condition';
 

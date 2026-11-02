@@ -1,1 +1,1 @@
-export { ScrollToPosition } from "@matreshka/protocol/enums/scroll-to-position";
+export { ScrollToPosition } from "@matreshka/client-bff-protocol/enums/scroll-to-position";

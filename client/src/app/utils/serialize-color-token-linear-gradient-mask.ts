@@ -1,4 +1,4 @@
-import type { ColorTokenLinearGradientMask } from '@protocol/types/color-token';
+import type { ColorTokenLinearGradientMask } from '@client-bff-protocol/types/color-token';
 
 function formatStop(color: string, at?: number): string {
   return at === undefined ? color : `${color} ${at}%`;

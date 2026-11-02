@@ -4,7 +4,7 @@ import {
   OnInit,
   ViewEncapsulation,
 } from '@angular/core';
-import type { CurrencyOutputConfig } from '@protocol/types/currency-output-config';
+import type { CurrencyOutputConfig } from '@client-bff-protocol/types/currency-output-config';
 import { CurrencyPipe } from '../../../../pipes/currency.pipe';
 import { PreparePipe } from '../../../../pipes/prepare.pipe';
 import { ServerOutputComponent } from '../server-output-component';

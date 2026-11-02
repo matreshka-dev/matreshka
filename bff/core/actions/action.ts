@@ -1,4 +1,4 @@
-import type { Condition as SerializedCondition } from "@matreshka/protocol/types/condition";
+import type { Condition as SerializedCondition } from "@matreshka/client-bff-protocol/types/condition";
 import { Condition } from "../conditions/condition";
 
 export type ActionConditions = Condition[] | (() => Condition[]);

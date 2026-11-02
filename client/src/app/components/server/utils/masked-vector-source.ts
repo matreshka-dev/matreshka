@@ -1,4 +1,4 @@
-import { RatioMode } from '@protocol/enums/ratio-mode';
+import { RatioMode } from '@client-bff-protocol/enums/ratio-mode';
 
 export type VectorSourceType = 'url' | 'svg' | 'base64';
 

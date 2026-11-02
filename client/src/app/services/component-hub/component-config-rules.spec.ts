@@ -1,7 +1,7 @@
-import { ConditionType } from '@protocol/enums/condition-type';
-import { ServerComponentClass } from '@protocol/enums/server-component-class';
-import { ContextDestroyMessage } from '@protocol/messages/bff-to-client/context';
-import { ContextInitMessage as BffToClientContextInitMessage } from '@protocol/messages/bff-to-client/context/context-init-message';
+import { ConditionType } from '@client-bff-protocol/enums/condition-type';
+import { ServerComponentClass } from '@client-bff-protocol/enums/server-component-class';
+import { ContextDestroyMessage } from '@client-bff-protocol/messages/bff-to-client/context';
+import { ContextInitMessage as BffToClientContextInitMessage } from '@client-bff-protocol/messages/bff-to-client/context/context-init-message';
 import { firstValueFrom } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ServerComponent } from '../../components/server/server-component';

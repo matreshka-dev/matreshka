@@ -3,7 +3,7 @@ import {
   Component,
   ViewEncapsulation,
 } from '@angular/core';
-import type { IconConfig } from '@protocol/types/icon-config';
+import type { IconConfig } from '@client-bff-protocol/types/icon-config';
 import {
   calculateIconStyles,
   calculateScaleStyles,

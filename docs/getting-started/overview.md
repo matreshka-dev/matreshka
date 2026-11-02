@@ -26,17 +26,17 @@ Matreshka — **server-driven UI**: интерфейс собирается на
 Для **своего** BFF-приложения ставьте готовые пакеты с [npm](https://www.npmjs.com/org/matreshka):
 
 ```bash
-npm install @matreshka/bff @matreshka/protocol
+npm install @matreshka/bff @matreshka/client-bff-protocol
 # при необходимости нескольких BFF за одной точкой входа:
 npm install @matreshka/gateway
 ```
 
-`@matreshka/protocol` ставят явно, если в коде приложения импортируют типы сообщений или wire-типы (частый случай); версию держите в линейке с BFF и клиентом. `@matreshka/shared` — внутренние утилиты рантайма; для BFF-приложения **не нужен** отдельной зависимостью, он приходит транзитивно через `@matreshka/bff`. Подключайте `@matreshka/shared` только если сами импортируете его утилиты. Для **стороннего** клиента или BFF без `@matreshka/bff` достаточно `@matreshka/protocol`.
+`@matreshka/client-bff-protocol` ставят явно, если в коде приложения импортируют типы сообщений или wire-типы (частый случай); версию держите в линейке с BFF и клиентом. `@matreshka/shared` — внутренние утилиты рантайма; для BFF-приложения **не нужен** отдельной зависимостью, он приходит транзитивно через `@matreshka/bff`. Подключайте `@matreshka/shared` только если сами импортируете его утилиты. Для **стороннего** клиента или BFF без `@matreshka/bff` достаточно `@matreshka/client-bff-protocol`.
 
 | Пакет | Назначение |
 | ----- | ---------- |
 | `@matreshka/bff` | Runtime, DSL компонентов, роутинг, контексты |
-| `@matreshka/protocol` | Сообщения, типы и enum-ы wire-протокола client ↔ BFF |
+| `@matreshka/client-bff-protocol` | Сообщения, типы и enum-ы wire-протокола client ↔ BFF |
 | `@matreshka/shared` | Утилиты рантайма (транзитивно через BFF; явно — только при прямых импортах) |
 | `@matreshka/gateway` | Опционально: несколько BFF за одной точкой входа |
 
@@ -44,11 +44,11 @@ npm install @matreshka/gateway
 
 Универсальный Angular-клиент — отдельное приложение (в репозитории Matreshka каталог `client/`). Его подключают к вашему BFF по WebSocket/SSE; для типичного сценария клиентский код не форкают.
 
-**Важно:** версия клиента должна **совпадать** с версией `@matreshka/bff` и `@matreshka/protocol` в вашем BFF.
+**Важно:** версия клиента должна **совпадать** с версией `@matreshka/bff` и `@matreshka/client-bff-protocol` в вашем BFF.
 
 ### Если вы работаете с исходниками Matreshka
 
-Клонированный монорепозиторий нужен **контрибьюторам** и тем, кто разрабатывает сам runtime или клиент. Тогда из корня репозитория: `npm install` и `npm run build` (собирает `protocol`, `shared`, `gateway`, `bff`). Это не часть обычного onboarding прикладного BFF.
+Клонированный монорепозиторий нужен **контрибьюторам** и тем, кто разрабатывает сам runtime или клиент. Тогда из корня репозитория: `npm install` и `npm run build` (собирает `protocols/client-bff-protocol`, `protocols/gateway-bff-protocol`, `shared`, `gateway`, `bff`). Это не часть обычного onboarding прикладного BFF.
 
 ## Ключевые понятия
 

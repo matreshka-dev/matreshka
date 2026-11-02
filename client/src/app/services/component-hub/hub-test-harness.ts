@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { ServerComponentClass } from '@protocol/enums/server-component-class';
-import { ContextInitMessage as BffToClientContextInitMessage } from '@protocol/messages/bff-to-client/context/context-init-message';
+import { ServerComponentClass } from '@client-bff-protocol/enums/server-component-class';
+import { ContextInitMessage as BffToClientContextInitMessage } from '@client-bff-protocol/messages/bff-to-client/context/context-init-message';
 import { firstValueFrom } from 'rxjs';
 import { beforeEach, vi } from 'vitest';
 import { ComponentDependencies } from '../../components/server/server-component-config';

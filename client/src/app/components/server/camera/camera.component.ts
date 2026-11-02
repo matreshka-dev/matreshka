@@ -8,12 +8,12 @@ import {
   viewChild,
   ViewEncapsulation,
 } from '@angular/core';
-import { CameraSwitchMessage } from '@protocol/messages/bff-to-client/components/camera/camera-switch-message';
-import { CameraDeviceChangeMessage } from '@protocol/messages/client-to-bff/components/camera/camera-device-change-message';
-import { CameraQrCodeMessage } from '@protocol/messages/client-to-bff/components/camera/camera-qr-code-message';
-import { ErrorMessage } from '@protocol/messages/client-to-bff/error-message';
-import type { CameraConfig } from '@protocol/types/camera-config';
-import type { ServerComponentInteraction } from '@protocol/types/server-component-interaction';
+import { CameraSwitchMessage } from '@client-bff-protocol/messages/bff-to-client/components/camera/camera-switch-message';
+import { CameraDeviceChangeMessage } from '@client-bff-protocol/messages/client-to-bff/components/camera/camera-device-change-message';
+import { CameraQrCodeMessage } from '@client-bff-protocol/messages/client-to-bff/components/camera/camera-qr-code-message';
+import { ErrorMessage } from '@client-bff-protocol/messages/client-to-bff/error-message';
+import type { CameraConfig } from '@client-bff-protocol/types/camera-config';
+import type { ServerComponentInteraction } from '@client-bff-protocol/types/server-component-interaction';
 import { ServerComponent } from '../server-component';
 import { ServerComponentsListComponent } from '../server-components-list/server-components-list.component';
 

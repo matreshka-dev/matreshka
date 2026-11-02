@@ -1,4 +1,4 @@
-import { PlatformId } from '@protocol/enums/platform-id';
+import { PlatformId } from '@client-bff-protocol/enums/platform-id';
 import { Platform } from '../platform';
 
 export class TestPlatform extends Platform {

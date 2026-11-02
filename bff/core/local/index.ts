@@ -3,8 +3,8 @@ import { writeTextToClipboard } from "../actions/write-text-to-clipboard";
 
 export type { ActionConfig } from "../actions/action";
 
-export { DimensionalUnit } from "@matreshka/protocol/enums/dimensional-unit";
-export type { DimensionalValue } from "@matreshka/protocol/types/dimensional-value";
+export { DimensionalUnit } from "@matreshka/client-bff-protocol/enums/dimensional-unit";
+export type { DimensionalValue } from "@matreshka/client-bff-protocol/types/dimensional-value";
 export {
   animate,
   ComponentAnimationEffect,

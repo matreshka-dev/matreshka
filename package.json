@@ -3,12 +3,13 @@
   "private": true,
   "workspaces": [
     "bff",
-    "protocol",
+    "protocols/client-bff-protocol",
+    "protocols/gateway-bff-protocol",
     "shared",
     "gateway"
   ],
   "scripts": {
-    "build": "npm run build -w @matreshka/protocol && npm run build -w @matreshka/shared && npm run build -w @matreshka/gateway && npm run build -w @matreshka/bff",
+    "build": "npm run build -w @matreshka/client-bff-protocol && npm run build -w @matreshka/gateway-bff-protocol && npm run build -w @matreshka/shared && npm run build -w @matreshka/gateway && npm run build -w @matreshka/bff",
     "mcp:angular": "npm exec --prefix client -- ng mcp",
     "prepublish:packages": "npm run build && npm test -w @matreshka/bff -- --run && npm test -w @matreshka/gateway -- --run"
   },

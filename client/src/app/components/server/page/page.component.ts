@@ -6,7 +6,7 @@ import {
   ViewEncapsulation,
 } from '@angular/core';
 import { Title } from '@angular/platform-browser';
-import type { PageConfig } from '@protocol/types/page-config';
+import type { PageConfig } from '@client-bff-protocol/types/page-config';
 import { SsrService } from '../../../services/ssr.service';
 import { RESPONSE } from '../../../tokens/response';
 import { ServerComponentsListComponent } from '../server-components-list/server-components-list.component';

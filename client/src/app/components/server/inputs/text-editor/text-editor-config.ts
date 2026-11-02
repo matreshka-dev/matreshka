@@ -1,4 +1,4 @@
-import type { TextEditorConfig } from '@protocol/types/text-editor-config';
+import type { TextEditorConfig } from '@client-bff-protocol/types/text-editor-config';
 import { InputDependencies } from '../input-config';
 
 export const TextEditorDependencies = {

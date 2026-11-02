@@ -1,4 +1,4 @@
-import type { NestedItemBase } from "@matreshka/protocol/types/nested-item-base";
+import type { NestedItemBase } from "@matreshka/client-bff-protocol/types/nested-item-base";
 
 /** Host map/board, принимающий flat nested-items с wire. */
 export type ItemListHost = {

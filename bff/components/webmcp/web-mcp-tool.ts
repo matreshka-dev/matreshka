@@ -1,8 +1,8 @@
-import { WebMcpToolAnnotation } from "@matreshka/protocol/enums/web-mcp-tool-annotation";
-import { WebMcpToolErrorMessage } from "@matreshka/protocol/messages/bff-to-client/webmcp/web-mcp-tool-error-message";
-import { WebMcpToolResultMessage } from "@matreshka/protocol/messages/bff-to-client/webmcp/web-mcp-tool-result-message";
-import type { Condition as SerializedCondition } from "@matreshka/protocol/types/condition";
-import type { WebMcpToolConfig } from "@matreshka/protocol/types/web-mcp-tool-config";
+import { WebMcpToolAnnotation } from "@matreshka/client-bff-protocol/enums/web-mcp-tool-annotation";
+import { WebMcpToolErrorMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/webmcp/web-mcp-tool-error-message";
+import { WebMcpToolResultMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/webmcp/web-mcp-tool-result-message";
+import type { Condition as SerializedCondition } from "@matreshka/client-bff-protocol/types/condition";
+import type { WebMcpToolConfig } from "@matreshka/client-bff-protocol/types/web-mcp-tool-config";
 import * as crypto from "node:crypto";
 import { z } from "zod";
 import type { Client } from "../../core/client";

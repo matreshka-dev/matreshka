@@ -1,5 +1,5 @@
-import { NestedItemsSyncMessage } from "@matreshka/protocol/messages/bff-to-client/components/nested-items/nested-items-sync-message";
-import type { NestedItemBase } from "@matreshka/protocol/types/nested-item-base";
+import { NestedItemsSyncMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/components/nested-items/nested-items-sync-message";
+import type { NestedItemBase } from "@matreshka/client-bff-protocol/types/nested-item-base";
 import type { ComponentInstance } from "../../core";
 import type { ComponentInitConfig } from "../component";
 import { flattenNestedItems, isItemList } from "./flatten-nested-items";

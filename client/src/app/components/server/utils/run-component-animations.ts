@@ -1,10 +1,10 @@
-import { ComponentAnimationEffect } from '@protocol/enums/component-animation-effect';
-import { TimingFunction } from '@protocol/enums/timing-function';
+import { ComponentAnimationEffect } from '@client-bff-protocol/enums/component-animation-effect';
+import { TimingFunction } from '@client-bff-protocol/enums/timing-function';
 import type {
   ComponentAnimationEffects,
   DimensionalKeyframeStops,
-} from '@protocol/types/component-animation';
-import type { DimensionalValue } from '@protocol/types/dimensional-value';
+} from '@client-bff-protocol/types/component-animation';
+import type { DimensionalValue } from '@client-bff-protocol/types/dimensional-value';
 
 export type ComponentAnimationPayload = {
   /** Базовый id компонента или instance id — см. AnimateComponentConfig.componentId на BFF. */

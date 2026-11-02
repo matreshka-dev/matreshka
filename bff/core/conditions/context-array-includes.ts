@@ -1,4 +1,4 @@
-import { ConditionType } from "@matreshka/protocol/enums/condition-type";
+import { ConditionType } from "@matreshka/client-bff-protocol/enums/condition-type";
 import { Paths } from "ts-essentials";
 import { ContextRef } from "../context/context-ref";
 import { Condition } from "./condition";

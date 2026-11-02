@@ -1,4 +1,4 @@
-import type { FormConfig } from '@protocol/types/form-config';
+import type { FormConfig } from '@client-bff-protocol/types/form-config';
 import {
   ComponentDependencies,
   getNestedConfigsByPropertyKey,

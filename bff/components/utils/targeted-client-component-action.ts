@@ -1,4 +1,4 @@
-import { ComponentCommandMessage } from "@matreshka/protocol/messages/bff-to-client/component-command-message";
+import { ComponentCommandMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/component-command-message";
 import { Observable, ReplaySubject } from "rxjs";
 import { Client } from "../../core";
 import { startTargetedClientAction } from "../../core/utils/targeted-client-action";

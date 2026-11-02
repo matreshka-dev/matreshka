@@ -1,12 +1,12 @@
-import { GridColumnSize } from "@matreshka/protocol/enums/grid-column-size";
-import { GridTemplateColumns } from "@matreshka/protocol/enums/grid-template-columns";
-import { ServerComponentClass } from "@matreshka/protocol/enums/server-component-class";
+import { GridColumnSize } from "@matreshka/client-bff-protocol/enums/grid-column-size";
+import { GridTemplateColumns } from "@matreshka/client-bff-protocol/enums/grid-template-columns";
+import { ServerComponentClass } from "@matreshka/client-bff-protocol/enums/server-component-class";
 import {
   normalizeFlexItem,
   type FlexItemSpec,
-} from "@matreshka/protocol/types/flex-item";
-import type { GridConfig } from "@matreshka/protocol/types/grid-config";
-import type { GridGap } from "@matreshka/protocol/types/grid-gap";
+} from "@matreshka/client-bff-protocol/types/flex-item";
+import type { GridConfig } from "@matreshka/client-bff-protocol/types/grid-config";
+import type { GridGap } from "@matreshka/client-bff-protocol/types/grid-gap";
 import {
   calculateComponents,
   Componentable,

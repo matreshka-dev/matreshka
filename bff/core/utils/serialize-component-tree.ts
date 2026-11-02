@@ -1,5 +1,5 @@
-import type { Overlay as SharedOverlay } from "@matreshka/protocol/types/container-overlay";
-import type { ServerComponentConfig } from "@matreshka/protocol/types/server-component-config";
+import type { Overlay as SharedOverlay } from "@matreshka/client-bff-protocol/types/container-overlay";
+import type { ServerComponentConfig } from "@matreshka/client-bff-protocol/types/server-component-config";
 import type { Overlay } from "../../components/types/container-overlay";
 import { type ComponentTreeNode } from "../types/component-tree-node";
 

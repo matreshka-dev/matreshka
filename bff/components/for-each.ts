@@ -1,7 +1,7 @@
-import { ServerComponentClass } from "@matreshka/protocol/enums/server-component-class";
-import type { ForEachSyncComponentsPayload } from "@matreshka/protocol/messages/bff-to-client/components/for-each/for-each-sync-components-message";
-import { ForEachSyncComponentsMessage } from "@matreshka/protocol/messages/bff-to-client/components/for-each/for-each-sync-components-message";
-import type { ForEachConfig } from "@matreshka/protocol/types/for-each-config";
+import { ServerComponentClass } from "@matreshka/client-bff-protocol/enums/server-component-class";
+import type { ForEachSyncComponentsPayload } from "@matreshka/client-bff-protocol/messages/bff-to-client/components/for-each/for-each-sync-components-message";
+import { ForEachSyncComponentsMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/components/for-each/for-each-sync-components-message";
+import type { ForEachConfig } from "@matreshka/client-bff-protocol/types/for-each-config";
 import { BehaviorSubject, skip, Subscription } from "rxjs";
 import { Paths, PathValue } from "ts-essentials";
 import { z } from "zod";
