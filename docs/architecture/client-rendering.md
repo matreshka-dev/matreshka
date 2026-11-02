@@ -123,7 +123,7 @@ userCtx.cart.items.@{shopCtx.offers.0.id}
 - `getActiveRulesKey` — какие rule overrides применить;
 - interaction conditions — выполнять ли действие.
 
-Логика — `evaluateConditions()` из shared. Для каждого ref hub вызывает `conditionValue()`:
+Логика — `evaluateConditions()` на клиенте (`client/src/app/utils/evaluate-conditions/`). Для каждого ref hub вызывает `conditionValue()`:
 
 - контекст не loaded → `UNLOADED_CONTEXT_VALUE`;
 - ref с плейсхолдером, внутренний контекст не loaded → тоже `UNLOADED`;
@@ -243,4 +243,4 @@ registerConfig(card)
 | ComponentHub | `client/src/app/services/component-hub.service.ts` |
 | display$, шаблон | `client/src/app/components/server/server-components-list/` |
 | Плейсхолдеры в ref | `client/src/app/utils/collect-context-ref-dependencies.ts` |
-| evaluate conditions | `shared/utils/evaluate-conditions.ts` |
+| evaluate conditions | `client/src/app/utils/evaluate-conditions/` |

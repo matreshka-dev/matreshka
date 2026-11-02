@@ -16,7 +16,10 @@ import { MapZoomInMessage } from '@protocol/messages/bff-to-client/components/ma
 import { MapZoomOutMessage } from '@protocol/messages/bff-to-client/components/map/map-zoom-out-message';
 import { MapCenterChangeMessage } from '@protocol/messages/client-to-bff/components/map/map-center-change-message';
 import { MapZoomChangeMessage } from '@protocol/messages/client-to-bff/components/map/map-zoom-change-message';
-import type { MapConfig, SerializedMapMarker } from '@protocol/types/map-config';
+import type {
+  MapConfig,
+  SerializedMapMarker,
+} from '@protocol/types/map-config';
 import type { ServerComponentInteraction } from '@protocol/types/server-component-interaction';
 import type { NestedItemsDiff } from '@shared/utils/diff-nested-items';
 import { BehaviorSubject, filter } from 'rxjs';

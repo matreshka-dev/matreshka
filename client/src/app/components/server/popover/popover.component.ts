@@ -4,7 +4,6 @@ import {
   ChangeDetectionStrategy,
   Component,
   ElementRef,
-  inject,
   OnInit,
   viewChild,
   ViewEncapsulation,

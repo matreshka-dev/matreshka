@@ -2,7 +2,10 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ServerComponentClass } from '@protocol/enums/server-component-class';
 import type { NestedItemsSyncPayload } from '@protocol/messages/bff-to-client/components/nested-items/nested-items-sync-message';
 import { NestedItemsSyncMessage } from '@protocol/messages/bff-to-client/components/nested-items/nested-items-sync-message';
-import type { MapConfig, SerializedMapMarker } from '@protocol/types/map-config';
+import type {
+  MapConfig,
+  SerializedMapMarker,
+} from '@protocol/types/map-config';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { PLATFORM } from '../../../platforms/platform';
 import { TestPlatform } from '../../../platforms/tests/test-platform';

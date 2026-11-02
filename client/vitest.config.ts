@@ -10,8 +10,8 @@ export default defineConfig({
   },
   resolve: {
     alias: {
-      // Поддержка импортов вида @shared/...
       '@shared': resolve(__dirname, '../shared'),
+      '@protocol': resolve(__dirname, '../protocol'),
     },
   },
 });

@@ -1,7 +1,6 @@
 export type { SerializedOperand } from "@matreshka/protocol/types/serialized-operand";
 export * from "./utils/component-id";
 export * from "./utils/diff-nested-items";
-export * from "./utils/evaluate-conditions";
 export * from "./utils/fetch-from-object";
 export * from "./utils/find-context-keys";
 export * from "./utils/needs-more";

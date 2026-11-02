@@ -14,8 +14,7 @@ npm install @matreshka/shared
 ## Пример
 
 ```typescript
-import { evaluateConditions } from "@matreshka/shared";
-import type { SerializedOperand } from "@matreshka/shared";
+import { fetchFromObject } from "@matreshka/shared/utils/fetch-from-object";
 import type { ClientState } from "@matreshka/protocol/types/client-state";
 import { HandshakeMessage } from "@matreshka/protocol/messages/bff-to-client/app/handshake-message";
 ```

@@ -1,12 +1,12 @@
-import { ConditionType } from "@matreshka/protocol/enums/condition-type";
-import { evaluateConditions } from "@matreshka/shared/utils/evaluate-conditions";
-import { describe, expect, it } from "vitest";
+import { ConditionType } from '@protocol/enums/condition-type';
+import { describe, expect, it } from 'vitest';
+import { evaluateConditions } from './evaluate-conditions';
 
-const CART_REF = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee.cart";
-const OFFER_ID_REF = "11111111-2222-3333-4444-555555555555.offers.0.id";
+const CART_REF = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee.cart';
+const OFFER_ID_REF = '11111111-2222-3333-4444-555555555555.offers.0.id';
 
-describe("ContextArrayIncludes via evaluateConditions", () => {
-  it("true для литерала в SerializedOperand", () => {
+describe('ContextArrayIncludes via evaluateConditions', () => {
+  it('true для литерала в SerializedOperand', () => {
     const values: Record<string, unknown> = {
       [CART_REF]: [
         { offerId: 1, quantity: 2 },
@@ -21,17 +21,17 @@ describe("ContextArrayIncludes via evaluateConditions", () => {
             type: ConditionType.ContextArrayIncludes,
             payload: {
               ref: CART_REF,
-              itemPath: "offerId",
-              value: { kind: "literal", value: 3 },
+              itemPath: 'offerId',
+              value: { kind: 'literal', value: 3 },
             },
           },
         ],
-        { getContextValue: (ref) => values[ref as string] },
+        { getContextValue: (ref) => values[ref] },
       ),
     ).toBe(true);
   });
 
-  it("true для ref в SerializedOperand", () => {
+  it('true для ref в SerializedOperand', () => {
     const values: Record<string, unknown> = {
       [CART_REF]: [{ offerId: 7, quantity: 1 }],
       [OFFER_ID_REF]: 7,
@@ -44,17 +44,17 @@ describe("ContextArrayIncludes via evaluateConditions", () => {
             type: ConditionType.ContextArrayIncludes,
             payload: {
               ref: CART_REF,
-              itemPath: "offerId",
-              value: { kind: "ref", ref: OFFER_ID_REF },
+              itemPath: 'offerId',
+              value: { kind: 'ref', ref: OFFER_ID_REF },
             },
           },
         ],
-        { getContextValue: (ref) => values[ref as string] },
+        { getContextValue: (ref) => values[ref] },
       ),
     ).toBe(true);
   });
 
-  it("false, если элемента нет", () => {
+  it('false, если элемента нет', () => {
     const values: Record<string, unknown> = {
       [CART_REF]: [{ offerId: 1, quantity: 2 }],
     };
@@ -66,17 +66,17 @@ describe("ContextArrayIncludes via evaluateConditions", () => {
             type: ConditionType.ContextArrayIncludes,
             payload: {
               ref: CART_REF,
-              itemPath: "offerId",
-              value: { kind: "literal", value: 99 },
+              itemPath: 'offerId',
+              value: { kind: 'literal', value: 99 },
             },
           },
         ],
-        { getContextValue: (ref) => values[ref as string] },
+        { getContextValue: (ref) => values[ref] },
       ),
     ).toBe(false);
   });
 
-  it("с пустым itemPath сравнивает сам элемент массива", () => {
+  it('с пустым itemPath сравнивает сам элемент массива', () => {
     const values: Record<string, unknown> = {
       [CART_REF]: [1, 2, 3],
     };
@@ -88,19 +88,19 @@ describe("ContextArrayIncludes via evaluateConditions", () => {
             type: ConditionType.ContextArrayIncludes,
             payload: {
               ref: CART_REF,
-              itemPath: "",
-              value: { kind: "literal", value: 2 },
+              itemPath: '',
+              value: { kind: 'literal', value: 2 },
             },
           },
         ],
-        { getContextValue: (ref) => values[ref as string] },
+        { getContextValue: (ref) => values[ref] },
       ),
     ).toBe(true);
   });
 });
 
-describe("ContextArrayNotIncludes via evaluateConditions", () => {
-  it("true, если элемента нет", () => {
+describe('ContextArrayNotIncludes via evaluateConditions', () => {
+  it('true, если элемента нет', () => {
     const values: Record<string, unknown> = {
       [CART_REF]: [{ offerId: 1, quantity: 2 }],
     };
@@ -112,17 +112,17 @@ describe("ContextArrayNotIncludes via evaluateConditions", () => {
             type: ConditionType.ContextArrayNotIncludes,
             payload: {
               ref: CART_REF,
-              itemPath: "offerId",
-              value: { kind: "literal", value: 99 },
+              itemPath: 'offerId',
+              value: { kind: 'literal', value: 99 },
             },
           },
         ],
-        { getContextValue: (ref) => values[ref as string] },
+        { getContextValue: (ref) => values[ref] },
       ),
     ).toBe(true);
   });
 
-  it("false, если элемент есть", () => {
+  it('false, если элемент есть', () => {
     const values: Record<string, unknown> = {
       [CART_REF]: [
         { offerId: 1, quantity: 2 },
@@ -137,24 +137,24 @@ describe("ContextArrayNotIncludes via evaluateConditions", () => {
             type: ConditionType.ContextArrayNotIncludes,
             payload: {
               ref: CART_REF,
-              itemPath: "offerId",
-              value: { kind: "literal", value: 3 },
+              itemPath: 'offerId',
+              value: { kind: 'literal', value: 3 },
             },
           },
         ],
-        { getContextValue: (ref) => values[ref as string] },
+        { getContextValue: (ref) => values[ref] },
       ),
     ).toBe(false);
   });
 });
 
-describe("ContextValueEqual via evaluateConditions", () => {
-  const MODE_REF = "aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee.mode";
-  const OTHER_REF = "11111111-2222-3333-4444-555555555555.expected";
+describe('ContextValueEqual via evaluateConditions', () => {
+  const MODE_REF = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee.mode';
+  const OTHER_REF = '11111111-2222-3333-4444-555555555555.expected';
 
-  it("сравнивает с литералом", () => {
+  it('сравнивает с литералом', () => {
     const values: Record<string, unknown> = {
-      [MODE_REF]: "alt",
+      [MODE_REF]: 'alt',
     };
 
     expect(
@@ -164,19 +164,19 @@ describe("ContextValueEqual via evaluateConditions", () => {
             type: ConditionType.ContextValueEqual,
             payload: {
               ref: MODE_REF,
-              value: { kind: "literal", value: "alt" },
+              value: { kind: 'literal', value: 'alt' },
             },
           },
         ],
-        { getContextValue: (ref) => values[ref as string] },
+        { getContextValue: (ref) => values[ref] },
       ),
     ).toBe(true);
   });
 
-  it("сравнивает с другой ContextRef", () => {
+  it('сравнивает с другой ContextRef', () => {
     const values: Record<string, unknown> = {
-      [MODE_REF]: "alt",
-      [OTHER_REF]: "alt",
+      [MODE_REF]: 'alt',
+      [OTHER_REF]: 'alt',
     };
 
     expect(
@@ -186,11 +186,11 @@ describe("ContextValueEqual via evaluateConditions", () => {
             type: ConditionType.ContextValueEqual,
             payload: {
               ref: MODE_REF,
-              value: { kind: "ref", ref: OTHER_REF },
+              value: { kind: 'ref', ref: OTHER_REF },
             },
           },
         ],
-        { getContextValue: (ref) => values[ref as string] },
+        { getContextValue: (ref) => values[ref] },
       ),
     ).toBe(true);
   });
