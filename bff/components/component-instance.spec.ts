@@ -539,18 +539,25 @@ describe("Component instance: несколько entry", () => {
 });
 
 describe("Component instance: навигация страницы", () => {
-  it("switchPage снимает instances предыдущей страницы и её дочерних компонентов", () => {
+  it("switchPage не снимает instances предыдущей страницы до leave с клиента", () => {
     const client = createClient();
     const label = text("nav-child");
     const pageA = new TestPage([label]);
     const pageB = new TestPage([label]);
 
     serializePageWithSwitch(client, pageA);
+    const [pageAInstance] = pageA.getInstances({ client });
     const firstLabelInstance = label.getInstances({ client })[0];
     expect(pageA.getInstances({ client })).toHaveLength(1);
     expect(label.getInstances({ client })).toHaveLength(1);
 
     serializePageWithSwitch(client, pageB);
+
+    expect(pageA.getInstances({ client })).toHaveLength(1);
+    expect(pageB.getInstances({ client })).toHaveLength(1);
+    expect(label.getInstances({ client })).toHaveLength(2);
+
+    sendComponentLeave(client, pageAInstance.id);
 
     expect(pageA.getInstances({ client })).toHaveLength(0);
     expect(pageB.getInstances({ client })).toHaveLength(1);
@@ -678,11 +685,14 @@ describe("Component instance: ошибки interaction", () => {
     const clicked: string[] = [];
     const btn = button({ onClick: () => clicked.push("clicked") }, [text("x")]);
     const errors: unknown[] = [];
+    const pageA = new TestPage([btn]);
 
-    serializePageWithSwitch(client, new TestPage([btn]));
+    serializePageWithSwitch(client, pageA);
+    const [pageAInstance] = pageA.getInstances({ client });
     const instance = btn.getInstances({ client })[0];
 
     serializePageWithSwitch(client, new TestPage([]));
+    sendComponentLeave(client, pageAInstance.id);
     client.error$.subscribe((error) => errors.push(error));
     sendComponentClick(client, instance.id);
 
@@ -694,11 +704,14 @@ describe("Component instance: ошибки interaction", () => {
     const client = createClient();
     const btn = button({ onHide: () => {} }, [text("x")]);
     const errors: unknown[] = [];
+    const pageA = new TestPage([btn]);
 
-    serializePageWithSwitch(client, new TestPage([btn]));
+    serializePageWithSwitch(client, pageA);
+    const [pageAInstance] = pageA.getInstances({ client });
     const instance = btn.getInstances({ client })[0];
 
     serializePageWithSwitch(client, new TestPage([]));
+    sendComponentLeave(client, pageAInstance.id);
     client.error$.subscribe((error) => errors.push(error));
     sendComponentHide(client, instance.id);
 
@@ -739,11 +752,14 @@ describe("Component instance: startUsing$ / stopUsing$", () => {
     btn.startUsing$.subscribe(() => startCount++);
     btn.stopUsing$.subscribe(() => stopCount++);
 
-    serializePageWithSwitch(client, new TestPage([btn]));
+    const pageA = new TestPage([btn]);
+    serializePageWithSwitch(client, pageA);
+    const [pageAInstance] = pageA.getInstances({ client });
     expect(startCount).toBe(1);
     expect(stopCount).toBe(0);
 
     serializePageWithSwitch(client, new TestPage([]));
+    sendComponentLeave(client, pageAInstance.id);
     expect(stopCount).toBe(1);
   });
 });

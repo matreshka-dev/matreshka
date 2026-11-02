@@ -262,13 +262,10 @@ export class Client {
   }
 
   /**
-   * Переход на другую страницу: снимает обработчики с предыдущей страницы и запоминает id новой.
+   * Переход на другую страницу: запоминает id новой страницы.
+   * Предыдущий page instance снимается по interaction `leave` с клиента (см. EntryComponent.emitInteraction).
    */
   switchPage(newPageInstance: ComponentInstance<Page>): void {
-    // Вообще эта логика не обязательна, т.к. releaseInstances вызывается при получении leave interaction, это скорее защита от недобросовестных клиентов чтобы не копились лишние обработчики в памяти
-    this.currentPageInstance?.component.releaseInstances([
-      this.currentPageInstance,
-    ]);
     this.currentPageInstance = newPageInstance;
   }
 
