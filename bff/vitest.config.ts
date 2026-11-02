@@ -15,6 +15,7 @@ export default defineConfig({
       "platforms/**/*.spec.ts",
       "webauthn/**/*.spec.ts",
       "../shared/messages/platform-webauthn-messages.spec.ts",
+      "../shared/utils/**/*.spec.ts",
     ],
     coverage: {
       provider: "v8",

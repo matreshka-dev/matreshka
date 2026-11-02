@@ -10,10 +10,10 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ForEachSyncComponentsMessage } from '@shared/messages/bff-to-client/components/for-each/for-each-sync-components-message';
 import type { ForEachConfig } from '@shared/types/for-each-config';
+import { parseContextPath } from '@shared/utils/parse-context-path';
 import { filter, map, takeUntil } from 'rxjs';
 import { SsrService } from '../../../services/ssr.service';
 import { ContextChangeEvent } from '../../../types/context-change-event';
-import { parseContextPath } from '../../../utils/parse-context-path';
 import { ServerComponent } from '../server-component';
 import { ServerComponentConfig } from '../server-component-config';
 import { ServerComponentsListComponent } from '../server-components-list/server-components-list.component';

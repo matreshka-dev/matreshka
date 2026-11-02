@@ -10,10 +10,10 @@ import { TelegramMiniAppGetGeolocationSuccessMessage } from '@shared/messages/cl
 import { TelegramMiniAppRequestContactActionCancelMessage } from '@shared/messages/client-to-bff/platforms/telegram-mini-app/telegram-mini-app-request-contact-action-cancel-message';
 import { TelegramMiniAppRequestContactActionSuccessMessage } from '@shared/messages/client-to-bff/platforms/telegram-mini-app/telegram-mini-app-request-contact-action-success-message';
 import { fetchFromObject } from '@shared/utils/fetch-from-object';
+import { setObjectProperty } from '@shared/utils/set-object-property';
 import { timer } from 'rxjs';
 import type { LocationData, WebApp } from 'telegram-web-app';
 import { loadScript } from '../utils/load-script';
-import { objectSetValue } from '../utils/object-set-value';
 import { WebPlatform } from './web-platform';
 
 let webApp: WebApp;
@@ -48,7 +48,7 @@ class TelegramMiniAppStorage {
   }
 
   setItem(key: string, value: string) {
-    objectSetValue(this._values, key, value);
+    setObjectProperty(this._values, key, value);
     this.save();
   }
 

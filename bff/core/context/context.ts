@@ -10,6 +10,7 @@ import {
 import { isTargetedMessage } from "@matreshka/shared/messages/targeted-message";
 import { JsonObject } from "@matreshka/shared/types/json";
 import { fetchFromObject } from "@matreshka/shared/utils/fetch-from-object";
+import { setObjectProperty } from "@matreshka/shared/utils/set-object-property";
 import {
   BehaviorSubject,
   EMPTY,
@@ -41,7 +42,6 @@ import { zodDeepPick } from "../utils/deep-pick";
 import { incomingMessageObserver } from "../utils/incoming-message-observer";
 import { objectsDiff } from "../utils/objects-diff";
 import { replaceContextKeys } from "../utils/replace-context-keys";
-import { setObjectProperty } from "../utils/set-object-property";
 import { ContextRef } from "./context-ref";
 
 export type { ContextUpdateDelivery } from "../types/context-update-delivery";

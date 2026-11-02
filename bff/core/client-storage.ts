@@ -1,7 +1,7 @@
 import { AppStorageValueMessage } from "@matreshka/shared/messages/bff-to-client/app/index";
 import { fetchFromObject } from "@matreshka/shared/utils/fetch-from-object";
+import { setObjectProperty } from "@matreshka/shared/utils/set-object-property";
 import type { Client } from "./client";
-import { setObjectProperty } from "./utils/set-object-property";
 
 /**
  * Доступ к клиентскому key-value хранилищу из {@link ClientState.storage}.

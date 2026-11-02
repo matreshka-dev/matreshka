@@ -1,14 +1,21 @@
 import { Paths, PathValue } from "ts-essentials";
 
+/**
+ * Записывает значение по dotted-пути, создавая промежуточные объекты и массивы.
+ *
+ * Если следующий сегмент — целое число, промежуточное значение становится массивом.
+ * `undefined` в массиве удаляет элемент через `splice`.
+ */
 export function setObjectProperty<
   T extends Record<string, unknown>,
   K extends Paths<T>,
 >(object: T, key: K, value: PathValue<T, K>): void;
 export function setObjectProperty(
-  object: Record<string, unknown>,
+  object: object,
   key: string,
   value: unknown,
-) {
+): void;
+export function setObjectProperty(object: object, key: string, value: unknown) {
   const path = key.split(".");
   let target: Record<string, any> = object as Record<string, any>;
   path.forEach((part, index) => {
@@ -27,7 +34,7 @@ export function setObjectProperty(
       target = target[part];
     }
   });
-  target[path[path.length - 1]] = value as any;
+  target[path[path.length - 1]] = value;
   if (typeof value === "undefined" && Array.isArray(target)) {
     // На случай если элемент массива становится undefined, нужно его удалить из массива
     target.splice(parseInt(path[path.length - 1]), 1);

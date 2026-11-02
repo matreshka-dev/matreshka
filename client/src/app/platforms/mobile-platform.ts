@@ -39,12 +39,12 @@ import { MobileBleValueMessage } from '@shared/messages/client-to-bff/platforms/
 import { MobileGetGeolocationSuccessMessage } from '@shared/messages/client-to-bff/platforms/mobile/mobile-get-geolocation-success-message';
 import { MobileRequestPushNotificationsActionGrantedMessage } from '@shared/messages/client-to-bff/platforms/mobile/mobile-request-push-notifications-action-granted-message';
 import { isTargetedMessage } from '@shared/messages/targeted-message';
+import { setObjectProperty } from '@shared/utils/set-object-property';
 import { SafeArea } from 'capacitor-plugin-safe-area';
 import { filter, Subject, take } from 'rxjs';
 import { CalendarEventPayload } from '../types/calendar-event-payload';
 import { convertToCsv } from '../utils/convert-to-csv';
 import { generateCalendarEvent } from '../utils/generate-calendar-event';
-import { objectSetValue } from '../utils/object-set-value';
 import { ClientPlatform } from './client-platform';
 
 class MobileStorage {
@@ -71,7 +71,7 @@ class MobileStorage {
   }
 
   setItem(key: string, value: string) {
-    objectSetValue(this._values, key, value);
+    setObjectProperty(this._values, key, value);
     this.save();
   }
 

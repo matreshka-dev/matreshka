@@ -1,5 +1,5 @@
 import { fetchFromObject } from '@shared/utils/fetch-from-object';
-import { objectSetValue } from '../../utils/object-set-value';
+import { setObjectProperty } from '@shared/utils/set-object-property';
 
 export class BrowserStorage {
   private _values: Record<string, string> = {};
@@ -11,7 +11,7 @@ export class BrowserStorage {
   }
 
   setItem(key: string, value: string) {
-    objectSetValue(this._values, key, value);
+    setObjectProperty(this._values, key, value);
     this.save();
   }
 

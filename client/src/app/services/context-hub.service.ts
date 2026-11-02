@@ -7,6 +7,9 @@ import { ContextInitMessage as BffToClientContextInitMessage } from '@shared/mes
 import { ContextInitMessage as ClientToBffContextInitMessage } from '@shared/messages/client-to-bff/context/context-init-message';
 import { ContextValuesMessage as ClientToBffContextValuesMessage } from '@shared/messages/client-to-bff/context/context-values-message';
 import { fetchFromObject } from '@shared/utils/fetch-from-object';
+import { parseContextPath } from '@shared/utils/parse-context-path';
+import { replaceContextPlaceholders } from '@shared/utils/replace-context-placeholders';
+import { setObjectProperty } from '@shared/utils/set-object-property';
 import {
   BehaviorSubject,
   filter,
@@ -16,9 +19,6 @@ import {
   Subscription,
 } from 'rxjs';
 import { ContextChangeEvent } from '../types/context-change-event';
-import { findContextKeys } from '../utils/find-context-keys';
-import { objectSetValue } from '../utils/object-set-value';
-import { parseContextPath } from '../utils/parse-context-path';
 import { ComponentContextDependencyHolds } from './component-hub/component-context-dependency-holds';
 import { PostmanService } from './postman.service';
 import { SsrService } from './ssr.service';
@@ -107,7 +107,7 @@ class Context {
       }
     });
     changes.forEach((item) => {
-      objectSetValue(values, item.key, item.value);
+      setObjectProperty(values, item.key, item.value);
     });
     if (this.needSync && this.syncToBff && changes.length > 0) {
       this.postman.outcomingMessage$.next(
@@ -271,18 +271,6 @@ export class ContextHubService {
   }
 
   replacePlaceholders(str: string): string {
-    const contextKeys = findContextKeys(str);
-    for (const rule of contextKeys) {
-      const [path, defaultValue = ''] = rule.split('='); // Может быть значение по умолчанию, например @{name=Иван}
-      const value = this.value(path);
-      const replacement = value ?? defaultValue;
-      str = str.replaceAll(`@{${rule}}`, String(replacement));
-    }
-    const restContextKeys = findContextKeys(str);
-    if (restContextKeys.length) {
-      // После замены появились новые замены
-      return this.replacePlaceholders(str);
-    }
-    return str;
+    return replaceContextPlaceholders(str, (path) => this.value(path));
   }
 }

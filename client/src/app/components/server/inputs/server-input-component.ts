@@ -7,6 +7,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { InputConfig } from '@shared/types/input-config';
+import { parseContextPath } from '@shared/utils/parse-context-path';
 import {
   animationFrameScheduler,
   filter,
@@ -17,7 +18,6 @@ import {
   timer,
 } from 'rxjs';
 import { contextChangeAffectsRef } from '../../../utils/collect-context-ref-dependencies';
-import { parseContextPath } from '../../../utils/parse-context-path';
 import { ServerComponent } from '../server-component';
 
 @Component({

@@ -1,4 +1,5 @@
 import type { Condition } from '@shared/types/condition';
+import { parseContextPath } from '@shared/utils/parse-context-path';
 import { getDeviceTypeFromUserAgent } from '@shared/utils/user-agent';
 import { ServerComponentConfig } from '../../components/server/server-component-config';
 import {
@@ -6,7 +7,6 @@ import {
   UNLOADED_CONTEXT_VALUE,
 } from '../../utils/evaluate-conditions';
 import { mergeOverride } from '../../utils/merge-override';
-import { parseContextPath } from '../../utils/parse-context-path';
 import {
   ContextHubService,
   ContextNotLoadedError,

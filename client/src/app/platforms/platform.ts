@@ -23,6 +23,7 @@ import { PlatformShowNativePickerMessage } from '@shared/messages/bff-to-client/
 import { AppClientStateMessage } from '@shared/messages/client-to-bff/app';
 import { ClientState } from '@shared/types/client-state';
 import type { WebMcpToolConfig } from '@shared/types/web-mcp-tool-config';
+import { parseContextPath } from '@shared/utils/parse-context-path';
 import { filter, firstValueFrom, take } from 'rxjs';
 import { ServerComponent } from '../components/server/server-component';
 import type {
@@ -41,7 +42,6 @@ import {
   applyStoredColorSchemePreference,
   getStoredPrefersColorScheme,
 } from '../utils/apply-color-scheme-preference';
-import { parseContextPath } from '../utils/parse-context-path';
 import { registerColors } from '../utils/register-colors';
 import { stringIsExternalUrl } from '../utils/string-is-external-url';
 import { syncConfigColorsToElement } from '../utils/sync-config-colors-to-element';

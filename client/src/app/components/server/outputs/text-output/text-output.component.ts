@@ -7,8 +7,8 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { TextOutputConfig } from '@shared/types/text-output-config';
+import { findContextKeys } from '@shared/utils/find-context-keys';
 import { takeUntil } from 'rxjs';
-import { findContextKeys } from '../../../../utils/find-context-keys';
 import { prepareText } from '../../../../utils/prepare-text';
 import { ServerOutputComponent } from '../server-output-component';
 import {
