@@ -1,4 +1,4 @@
-import type { ColorTokenLinearGradientMask } from "../types/color-token";
+import type { ColorTokenLinearGradientMask } from '@shared/types/color-token';
 
 function formatStop(color: string, at?: number): string {
   return at === undefined ? color : `${color} ${at}%`;
@@ -16,5 +16,5 @@ export function serializeColorTokenLinearGradientMask(
   const args = [anglePart, ...stopParts].filter(
     (part): part is string => part !== undefined,
   );
-  return `linear-gradient(${args.join(", ")})`;
+  return `linear-gradient(${args.join(', ')})`;
 }

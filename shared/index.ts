@@ -1,5 +1,4 @@
 export * from "./types/serialized-operand";
-export * from "./utils/component-id";
 export * from "./utils/diff-nested-items";
 export * from "./utils/evaluate-conditions";
 export * from "./utils/fetch-from-object";
@@ -7,9 +6,6 @@ export * from "./utils/find-context-keys";
 export * from "./utils/needs-more";
 export * from "./utils/parse-context-path";
 export * from "./utils/replace-context-placeholders";
-export * from "./utils/resolve-color-token-transitions";
-export * from "./utils/serialize-color-token-linear-gradient-mask";
-export * from "./utils/serialize-color-token-mask";
 export * from "./utils/serialized-operand";
 export * from "./utils/set-object-property";
 export * from "./utils/user-agent";

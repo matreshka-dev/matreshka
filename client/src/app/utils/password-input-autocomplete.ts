@@ -1,15 +1,15 @@
-import { PasswordInputKind } from "../enums/password-input-kind";
+import { PasswordInputKind } from '@shared/enums/password-input-kind';
 
 export function passwordInputAutocomplete(
   kind?: PasswordInputKind,
 ): string | undefined {
   switch (kind) {
     case PasswordInputKind.CurrentPassword:
-      return "current-password";
+      return 'current-password';
     case PasswordInputKind.NewPassword:
-      return "new-password";
+      return 'new-password';
     case PasswordInputKind.Off:
-      return "off";
+      return 'off';
     default:
       return undefined;
   }

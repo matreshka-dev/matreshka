@@ -1,6 +1,6 @@
 import { ScrollToPosition } from '@shared/enums/scroll-to-position';
-import { resolveScrollToOffset } from '@shared/utils/resolve-scroll-to-offset';
 import { describe, expect, it } from 'vitest';
+import { resolveScrollToOffset } from '../../../utils/resolve-scroll-to-offset';
 
 describe('resolveScrollToOffset', () => {
   const metrics = { scrollSize: 1000, viewportSize: 200 };

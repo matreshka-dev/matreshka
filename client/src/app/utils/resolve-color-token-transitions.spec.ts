@@ -1,6 +1,6 @@
 import { TimingFunction } from '@shared/enums/timing-function';
-import { resolveColorTokenTransitions } from '@shared/utils/resolve-color-token-transitions';
 import { describe, expect, it } from 'vitest';
+import { resolveColorTokenTransitions } from './resolve-color-token-transitions';
 
 describe('resolveColorTokenTransitions', () => {
   it('возвращает пустой объект, если transition не задан', () => {

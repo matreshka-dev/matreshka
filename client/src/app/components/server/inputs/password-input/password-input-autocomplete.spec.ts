@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { PasswordInputKind } from '@shared/enums/password-input-kind';
-import { passwordInputAutocomplete } from '@shared/utils/password-input-autocomplete';
+import { passwordInputAutocomplete } from '../../../../utils/password-input-autocomplete';
 
 describe('passwordInputAutocomplete', () => {
   it('возвращает undefined по умолчанию', () => {

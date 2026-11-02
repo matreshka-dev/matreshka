@@ -1,4 +1,4 @@
-import { ScrollToPosition } from "../enums/scroll-to-position";
+import { ScrollToPosition } from '@shared/enums/scroll-to-position';
 
 export type ScrollAxisMetrics = {
   scrollSize: number;

@@ -1,7 +1,7 @@
 import { ColorTokenMaskType } from '@shared/enums/color-token-mask-type';
-import { serializeColorTokenLinearGradientMask } from '@shared/utils/serialize-color-token-linear-gradient-mask';
-import { serializeColorTokenMask } from '@shared/utils/serialize-color-token-mask';
 import { describe, expect, it } from 'vitest';
+import { serializeColorTokenLinearGradientMask } from './serialize-color-token-linear-gradient-mask';
+import { serializeColorTokenMask } from './serialize-color-token-mask';
 
 describe('serializeColorTokenLinearGradientMask', () => {
   it('мапит direction 180 и stops с at', () => {

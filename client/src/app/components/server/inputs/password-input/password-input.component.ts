@@ -4,8 +4,8 @@ import {
   ViewEncapsulation,
 } from '@angular/core';
 import type { PasswordInputConfig } from '@shared/types/password-input-config';
-import { passwordInputAutocomplete } from '@shared/utils/password-input-autocomplete';
 import { PreparePipe } from '../../../../pipes/prepare.pipe';
+import { passwordInputAutocomplete } from '../../../../utils/password-input-autocomplete';
 import { ServerInputComponent } from '../server-input-component';
 
 @Component({

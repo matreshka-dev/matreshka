@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 
 import { TextInputKind } from '@shared/enums/text-input-kind';
-import { textInputNativeAttrs } from '@shared/utils/text-input-native-attrs';
+import { textInputNativeAttrs } from '../../../../utils/text-input-native-attrs';
 
 describe('textInputNativeAttrs', () => {
   it('возвращает пустые атрибуты по умолчанию', () => {

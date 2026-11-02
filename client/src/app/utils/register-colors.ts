@@ -4,8 +4,8 @@ import {
   COLOR_TOKEN_STATES,
   resolveColorTokenTransitions,
   type ColorTokenState,
-} from '@shared/utils/resolve-color-token-transitions';
-import { serializeColorTokenMask } from '@shared/utils/serialize-color-token-mask';
+} from './resolve-color-token-transitions';
+import { serializeColorTokenMask } from './serialize-color-token-mask';
 
 let knownColors: Record<string, ColorToken> = {};
 const knownColorRoles = new Set<string>();

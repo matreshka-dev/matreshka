@@ -17,7 +17,6 @@ import { ComponentClickMessage } from '@shared/messages/client-to-bff/components
 import { ComponentKeyDownMessage } from '@shared/messages/client-to-bff/components/component-keydown-message';
 import type { ServerComponentInteraction } from '@shared/types/server-component-interaction';
 import type { StackConfig } from '@shared/types/stack-config';
-import { resolveScrollToOffset } from '@shared/utils/resolve-scroll-to-offset';
 import { WINDOW } from '../../../tokens/window';
 import {
   normalizePaddingPx,
@@ -25,6 +24,7 @@ import {
 } from '../../../utils/normalize-padding-px';
 import { normalizeRadiusPx } from '../../../utils/normalize-radius-px';
 import { rem } from '../../../utils/rem';
+import { resolveScrollToOffset } from '../../../utils/resolve-scroll-to-offset';
 import { ServerComponent } from '../server-component';
 import { ServerComponentsListComponent } from '../server-components-list/server-components-list.component';
 import {

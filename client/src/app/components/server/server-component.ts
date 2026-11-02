@@ -37,13 +37,13 @@ import {
 } from '@shared/messages/client-to-bff/components/component-scroll-message';
 import { ComponentShowMessage } from '@shared/messages/client-to-bff/components/component-show-message';
 import type { ServerComponentInteraction } from '@shared/types/server-component-interaction';
-import { componentIdMatchesInstance } from '@shared/utils/component-id';
 import { filter, Observable, Subject } from 'rxjs';
 import { ComponentHubService } from '../../services/component-hub.service';
 import { ContextHubService } from '../../services/context-hub.service';
 import { FontRegistryService } from '../../services/font-registry.service';
 import { PopupService } from '../../services/popup.service';
 import { PostmanService } from '../../services/postman.service';
+import { componentIdMatchesInstance } from '../../utils/component-id';
 import { runTargetedAction } from '../../utils/targeted-action';
 import type { Overlay } from './server-component-config';
 import { ServerComponentConfig } from './server-component-config';

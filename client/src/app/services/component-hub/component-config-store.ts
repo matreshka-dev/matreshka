@@ -1,13 +1,13 @@
-import {
-  componentBaseId,
-  hasComponentInstanceSuffix,
-} from '@shared/utils/component-id';
 import { BehaviorSubject, Subject, Subscription } from 'rxjs';
 import { ServerComponent } from '../../components/server/server-component';
 import {
   ComponentDependencies,
   ServerComponentConfig,
 } from '../../components/server/server-component-config';
+import {
+  componentBaseId,
+  hasComponentInstanceSuffix,
+} from '../../utils/component-id';
 import type { ConfigEntry } from './component-config-entry.types';
 
 type ServerComponentSettings = Record<

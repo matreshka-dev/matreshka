@@ -1,14 +1,14 @@
-import { TimingFunction } from "../enums/timing-function";
+import { TimingFunction } from '@shared/enums/timing-function';
 import type {
   ColorTokenTransition,
   ColorTokenTransitions,
-} from "../types/color-token";
+} from '@shared/types/color-token';
 
 export const COLOR_TOKEN_STATES = [
-  "default",
-  "hover",
-  "active",
-  "focus",
+  'default',
+  'hover',
+  'active',
+  'focus',
 ] as const;
 export type ColorTokenState = (typeof COLOR_TOKEN_STATES)[number];
 

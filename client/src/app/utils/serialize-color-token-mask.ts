@@ -1,6 +1,6 @@
-import { ColorTokenMaskType } from "../enums/color-token-mask-type";
-import type { ColorTokenMask } from "../types/color-token";
-import { serializeColorTokenLinearGradientMask } from "./serialize-color-token-linear-gradient-mask";
+import { ColorTokenMaskType } from '@shared/enums/color-token-mask-type';
+import type { ColorTokenMask } from '@shared/types/color-token';
+import { serializeColorTokenLinearGradientMask } from './serialize-color-token-linear-gradient-mask';
 
 /**
  * Сериализует mask color token в значение для CSS `mask-image`.

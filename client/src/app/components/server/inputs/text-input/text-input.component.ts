@@ -6,8 +6,8 @@ import {
   viewChild,
 } from '@angular/core';
 import type { TextInputConfig } from '@shared/types/text-input-config';
-import { textInputNativeAttrs } from '@shared/utils/text-input-native-attrs';
 import { PreparePipe } from '../../../../pipes/prepare.pipe';
+import { textInputNativeAttrs } from '../../../../utils/text-input-native-attrs';
 import { ServerInputComponent } from '../server-input-component';
 
 @Component({
