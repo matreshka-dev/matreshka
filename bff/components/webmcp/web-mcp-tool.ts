@@ -4,7 +4,6 @@ import { WebMcpToolResultMessage } from "@matreshka/shared/messages/bff-to-clien
 import type { Condition as SerializedCondition } from "@matreshka/shared/types/condition";
 import type { WebMcpToolConfig } from "@matreshka/shared/types/web-mcp-tool-config";
 import * as crypto from "node:crypto";
-import { z as z3 } from "zod";
 import { z } from "zod/v4";
 import type { Client } from "../../core/client";
 import { Condition } from "../../core/conditions/condition";
@@ -21,6 +20,9 @@ type WebMcpToolBase = {
   annotations?: readonly WebMcpToolAnnotation[];
   conditions?: WebMcpToolConditions;
 };
+
+/** MCP: латиница, цифры, `-`, `_` (после trim). */
+const WEB_MCP_TOOL_NAME_PATTERN = /^[A-Za-z0-9_-]+$/;
 
 /** Тулз со схемой аргументов. Тип `execute` выводится из схемы. */
 export type WebMcpToolWithInput<TSchema extends z.ZodType> = WebMcpToolBase & {
@@ -40,11 +42,14 @@ export type WebMcpToolInit<TSchema extends z.ZodType | undefined = undefined> =
     ? WebMcpToolWithInput<TSchema>
     : WebMcpToolWithoutInput;
 
-const webMcpToolSchema = z3.object({
-  name: z3.string().trim().min(1),
-  description: z3.string().trim().min(1),
-  annotations: z3
-    .array(z3.custom<WebMcpToolAnnotation>(() => true))
+const webMcpToolSchema = z.object({
+  name: z.string().trim().min(1).regex(WEB_MCP_TOOL_NAME_PATTERN, {
+    message:
+      "Tool name must contain only Latin letters, digits, hyphens (-), and underscores (_)",
+  }),
+  description: z.string().trim().min(1),
+  annotations: z
+    .array(z.enum(WebMcpToolAnnotation))
     .refine((items) => new Set(items).size === items.length, {
       message: "Annotations must be unique",
     })

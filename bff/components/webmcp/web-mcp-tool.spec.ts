@@ -4,8 +4,7 @@ import { WebMcpToolErrorMessage } from "@matreshka/shared/messages/bff-to-client
 import { WebMcpToolResultMessage } from "@matreshka/shared/messages/bff-to-client/webmcp/web-mcp-tool-result-message";
 import { WebMcpToolCallMessage } from "@matreshka/shared/messages/client-to-bff/webmcp/web-mcp-tool-call-message";
 import { describe, expect, it } from "vitest";
-import { ZodError } from "zod";
-import { z } from "zod/v4";
+import { z, ZodError } from "zod/v4";
 import { Client, runWithClient } from "../../core";
 import { desktopDevice } from "../../core/conditions/desktop-device";
 import { dialog } from "../dialog";
@@ -307,11 +306,29 @@ describe("WebMCP tools", () => {
     expect(page.entryTools[0]?.id).not.toBe(page.entryTools[1]?.id);
   });
 
-  it("бросает ZodError на пустое имя, пустое описание и повтор аннотации", () => {
+  it("бросает ZodError на пустое имя, недопустимые символы в имени, пустое описание и повтор аннотации", () => {
     expect(() =>
       dialog({
         content: [],
         tools: [tool({ name: "   " })],
+      }),
+    ).toThrow(ZodError);
+    expect(() =>
+      dialog({
+        content: [],
+        tools: [tool({ name: "bad name" })],
+      }),
+    ).toThrow(ZodError);
+    expect(() =>
+      dialog({
+        content: [],
+        tools: [tool({ name: "tool.name" })],
+      }),
+    ).toThrow(ZodError);
+    expect(() =>
+      dialog({
+        content: [],
+        tools: [tool({ name: "тулз" })],
       }),
     ).toThrow(ZodError);
     expect(() =>
