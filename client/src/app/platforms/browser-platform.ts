@@ -36,7 +36,6 @@ import {
   Subject,
   switchMap,
 } from 'rxjs';
-import { UpdateService } from '../services/update.service';
 import { NAVIGATOR } from '../tokens/navigator';
 import { convertToCsv } from '../utils/convert-to-csv';
 import { generateCalendarEvent } from '../utils/generate-calendar-event';
@@ -52,7 +51,6 @@ export class BrowserPlatform extends WebPlatform {
   storage = new BrowserStorage();
   platformId = inject(PLATFORM_ID);
   navigator = inject(NAVIGATOR);
-  updateService = inject(UpdateService); // Не удалять, проверка обновления для PWA
   id(): PlatformId {
     // https://stackoverflow.com/questions/41742390/javascript-to-check-if-pwa-or-mobile-web
     return this.isPWA() ? PlatformId.WebPwa : PlatformId.WebBrowser;

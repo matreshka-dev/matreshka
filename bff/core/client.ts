@@ -62,6 +62,7 @@ const resolveDeviceTypeFromUserAgent = getDeviceTypeFromUserAgent;
  */
 export const ClientHandshakePayloadSchema = z.strictObject({
   applicationId: z.string(),
+  protocolVersion: z.string(),
 });
 
 export const ClientStateSchema = z.strictObject({

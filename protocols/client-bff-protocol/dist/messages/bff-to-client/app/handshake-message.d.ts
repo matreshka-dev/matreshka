@@ -6,6 +6,7 @@ export type HandshakePayload = {
     serverInstanceId: string;
     token: string;
     clientDestroyTimeoutMs: number;
+    protocolVersion: string;
     settings: {
         appName: string;
         appShortName?: string;
@@ -29,8 +30,8 @@ export type HandshakePayload = {
         };
     };
 };
+export type HandshakeInput = Omit<HandshakePayload, "protocolVersion">;
 export declare class HandshakeMessage extends ReliableBffToClientMessage<HandshakePayload> {
-    readonly payload: HandshakePayload;
     static readonly type = "handshake";
-    constructor(payload: HandshakePayload);
+    constructor(input: HandshakeInput);
 }

@@ -29,7 +29,8 @@ Transport передаёт обычный JSON. Пример app-level сооб�
 {
   "type": "handshake",
   "payload": {
-    "applicationId": "localhost:4200"
+    "applicationId": "localhost:4200",
+    "protocolVersion": "0.2.0"
   }
 }
 ```
@@ -58,7 +59,7 @@ Transport передаёт обычный JSON. Пример app-level сооб�
 
 ### client -> BFF
 
-- `handshake` — applicationId (первое сообщение от клиента при новом подключении);
+- `handshake` — `applicationId` и `protocolVersion` (первое сообщение от клиента при новом подключении);
 - `client-state` — route, platform, storage, language, userAgent;
 - component interactions — click, submit, scroll, show/hide и специализированные события;
 - context messages — init и values;
@@ -117,10 +118,13 @@ Entry сериализует поле `tools` рядом с `properties`: `id`, 
   "type": "handshake",
   "target": "app",
   "payload": {
-    "applicationId": "localhost:4200"
+    "applicationId": "localhost:4200",
+    "protocolVersion": "0.2.0"
   }
 }
 ```
+
+`protocolVersion` — semver npm-пакета `@matreshka/client-bff-protocol`; класс `HandshakeMessage` на клиенте подставляет его автоматически, вручную в payload передавать не нужно.
 
 `applicationId` зависит от платформы: для браузера это `hostname:port`, для мобильного приложения — id пакета.
 
@@ -134,6 +138,7 @@ BFF отвечает своим `handshake`:
     "serverInstanceId": "3d65f509-0e49-4bcc-8ff4-b20ca8177dfb",
     "token": "f8bde652-1eb0-4d3e-9de8-d87ff7a871c3",
     "clientDestroyTimeoutMs": 900000,
+    "protocolVersion": "0.2.0",
     "settings": {
       "appName": "Delta",
       "fonts": {},
@@ -147,7 +152,10 @@ BFF отвечает своим `handshake`:
 
 - `token` нужен для reconnect;
 - `serverInstanceId` помогает клиенту понять, не сменился ли серверный instance;
+- `protocolVersion` на BFF подставляется конструктором `HandshakeMessage` из той же npm-версии protocol, что и у BFF;
 - `settings` задают общую конфигурацию приложения.
+
+Если `protocolVersion` в BFF handshake **не совпадает** с версией protocol у клиента, клиент не применяет settings: для PWA вызывается `SwUpdate.checkForUpdate()`; при доступном обновлении — reload после `VERSION_READY`; если обновления нет — `window.alert` с ошибкой несовместимости.
 
 При **reconnect** (`?token=...`) клиентский `handshake` не отправляется — BFF отвечает `app-reconnect-info` или `app-reload`.
 

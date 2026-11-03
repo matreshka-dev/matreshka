@@ -9,7 +9,6 @@ import {
   viewChildren,
   ViewEncapsulation,
 } from '@angular/core';
-import type { PanzoomObject } from '@panzoom/panzoom';
 import { BoardSetCenterMessage } from '@client-bff-protocol/messages/bff-to-client/components/board/board-set-center-message';
 import { BoardSetZoomMessage } from '@client-bff-protocol/messages/bff-to-client/components/board/board-set-zoom-message';
 import { BoardZoomInMessage } from '@client-bff-protocol/messages/bff-to-client/components/board/board-zoom-in-message';
@@ -22,6 +21,7 @@ import type {
   SerializedBoardItem,
 } from '@client-bff-protocol/types/board-config';
 import type { ServerComponentInteraction } from '@client-bff-protocol/types/server-component-interaction';
+import type { PanzoomObject } from '@panzoom/panzoom';
 import type { NestedItemsDiff } from '@shared/utils/diff-nested-items';
 import { rem } from '../../../utils/rem';
 import { NestedItemsHostComponent } from '../nested-items-host/nested-items-host.component';

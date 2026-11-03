@@ -1,6 +1,12 @@
 import { inject, Injectable, isDevMode } from '@angular/core';
-import { SwUpdate } from '@angular/service-worker';
+import { SwUpdate, VersionEvent } from '@angular/service-worker';
+import { filter, firstValueFrom } from 'rxjs';
+import { clientBffProtocolVersion } from '../client-bff-protocol-version';
 import { WINDOW } from '../tokens/window';
+
+const PROTOCOL_VERSION_SKEW_ALERT =
+  'Версия протокола приложения не совпадает с сервером, а обновление клиента недоступно. ' +
+  `Клиент: ${clientBffProtocolVersion}. Обновите страницу вручную или обратитесь к администратору.`;
 
 @Injectable({
   providedIn: 'root',
@@ -8,6 +14,7 @@ import { WINDOW } from '../tokens/window';
 export class UpdateService {
   private updates = inject(SwUpdate);
   private window = inject(WINDOW);
+
   constructor() {
     this.updates.versionUpdates.subscribe((evt) => {
       switch (evt.type) {
@@ -29,9 +36,45 @@ export class UpdateService {
       }
     });
   }
+
   checkForUpdate() {
     if (!isDevMode()) {
-      this.updates.checkForUpdate();
+      void this.updates.checkForUpdate();
+    }
+  }
+
+  /** Расхождение protocolVersion в handshake: сначала SW, иначе alert. */
+  async handleProtocolVersionSkew(
+    serverProtocolVersion: string,
+  ): Promise<void> {
+    if (isDevMode() || !this.updates.isEnabled) {
+      this.window.alert(
+        `${PROTOCOL_VERSION_SKEW_ALERT} Сервер: ${serverProtocolVersion}.`,
+      );
+      return;
+    }
+
+    const updateAvailable = await this.updates.checkForUpdate();
+    if (!updateAvailable) {
+      this.window.alert(
+        `${PROTOCOL_VERSION_SKEW_ALERT} Сервер: ${serverProtocolVersion}.`,
+      );
+      return;
+    }
+
+    const evt = await firstValueFrom(
+      this.updates.versionUpdates.pipe(
+        filter(
+          (event): event is VersionEvent =>
+            event.type === 'VERSION_READY' ||
+            event.type === 'VERSION_INSTALLATION_FAILED',
+        ),
+      ),
+    );
+    if (evt.type === 'VERSION_INSTALLATION_FAILED') {
+      this.window.alert(
+        `${PROTOCOL_VERSION_SKEW_ALERT} Сервер: ${serverProtocolVersion}.`,
+      );
     }
   }
 }

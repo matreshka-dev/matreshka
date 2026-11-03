@@ -25,6 +25,7 @@ import { ClientState } from '@client-bff-protocol/types/client-state';
 import type { WebMcpToolConfig } from '@client-bff-protocol/types/web-mcp-tool-config';
 import { parseContextPath } from '@shared/utils/parse-context-path';
 import { filter, firstValueFrom, take } from 'rxjs';
+import { clientBffProtocolVersion } from '../client-bff-protocol-version';
 import { ServerComponent } from '../components/server/server-component';
 import type {
   Overlay,
@@ -35,6 +36,7 @@ import { ComponentHubService } from '../services/component-hub.service';
 import { ContextHubService } from '../services/context-hub.service';
 import { FontRegistryService } from '../services/font-registry.service';
 import { PostmanService } from '../services/postman.service';
+import { UpdateService } from '../services/update.service';
 import { WINDOW } from '../tokens/window';
 import { applyFontsToDocument } from '../utils/app-fonts';
 import {
@@ -61,6 +63,7 @@ export abstract class Platform {
   protected componentHub = inject(ComponentHubService);
   private readonly contextHub = inject(ContextHubService);
   private readonly fontRegistry = inject(FontRegistryService);
+  protected readonly updateService = inject(UpdateService);
   private readonly nativePickerInputs = new Map<string, HTMLInputElement>();
 
   /** Конфиги платформенных оверлеев (вне страницы, переживают навигацию). */
@@ -88,6 +91,15 @@ export abstract class Platform {
       }
       if (message instanceof BffHandshakeMessage) {
         const payload = message.payload;
+        if (!payload) {
+          return;
+        }
+        if (payload.protocolVersion !== clientBffProtocolVersion) {
+          void this.updateService.handleProtocolVersionSkew(
+            payload.protocolVersion,
+          );
+          return;
+        }
         if (!this.serverInstanceId) {
           this.serverInstanceId = payload.serverInstanceId;
         } else if (this.serverInstanceId !== payload.serverInstanceId) {

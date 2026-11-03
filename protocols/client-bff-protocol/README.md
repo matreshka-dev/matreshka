@@ -21,6 +21,14 @@ import { ServerComponentClass } from "@matreshka/client-bff-protocol/enums/serve
 
 Subpath-импорты (`@matreshka/client-bff-protocol/messages/...`, `@matreshka/client-bff-protocol/types/...`, `@matreshka/client-bff-protocol/enums/...`) соответствуют структуре каталогов в `dist/`.
 
+Semver npm-пакета в рантайме (Node/BFF, поиск `package.json` вверх от `dist/version.js`, как в `@matreshka/bff`):
+
+```typescript
+import { version } from "@matreshka/client-bff-protocol/version";
+```
+
+В handshake поле `protocolVersion` подставляют конструкторы `HandshakeMessage` из `package.json` пакета (в бандле Angular — через инлайн JSON).
+
 ## Semver
 
 Breaking для этого пакета: новые или изменённые типы сообщений client ↔ BFF, типы/enums на проводе, контракт надёжной доставки. Переименование npm-пакета с `@matreshka/protocol` не считается breaking само по себе.

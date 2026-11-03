@@ -1,4 +1,5 @@
 import { ColorRole } from "../../../enums/color-role";
+import pkg from "../../../package.json";
 import { ColorToken } from "../../../types/color-token";
 import { AppFontsConfig } from "../../../types/fonts";
 import { ReliableBffToClientMessage } from "../reliable-bff-to-client-message";
@@ -7,6 +8,7 @@ export type HandshakePayload = {
   serverInstanceId: string;
   token: string;
   clientDestroyTimeoutMs: number;
+  protocolVersion: string;
   settings: {
     appName: string;
     appShortName?: string;
@@ -21,9 +23,11 @@ export type HandshakePayload = {
   };
 };
 
+export type HandshakeInput = Omit<HandshakePayload, "protocolVersion">;
+
 export class HandshakeMessage extends ReliableBffToClientMessage<HandshakePayload> {
   static readonly type = "handshake";
-  constructor(override readonly payload: HandshakePayload) {
-    super(payload);
+  constructor(input: HandshakeInput) {
+    super({ ...input, protocolVersion: pkg.version });
   }
 }

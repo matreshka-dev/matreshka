@@ -7,7 +7,10 @@ import {
   viewChild,
   ViewEncapsulation,
 } from '@angular/core';
-import { ComponentOutline, OutlineType } from '@client-bff-protocol/enums/outline-type';
+import {
+  ComponentOutline,
+  OutlineType,
+} from '@client-bff-protocol/enums/outline-type';
 import { Overflow } from '@client-bff-protocol/enums/overflow';
 import { SafeAreaSide } from '@client-bff-protocol/enums/safe-area-side';
 import { ScrollToPosition } from '@client-bff-protocol/enums/scroll-to-position';
