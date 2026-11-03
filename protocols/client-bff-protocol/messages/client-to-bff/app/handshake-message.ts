@@ -1,4 +1,4 @@
-import pkg from "../../../package.json";
+import { packageVersion } from "../../../package-version";
 import { ReliableClientToBffMessage } from "../reliable-client-to-bff-message";
 
 export type ClientHandshakePayload = {
@@ -15,6 +15,6 @@ export class HandshakeMessage extends ReliableClientToBffMessage<ClientHandshake
   static readonly type = "handshake";
   declare readonly payload: ClientHandshakePayload;
   constructor(input: ClientHandshakeInput) {
-    super({ ...input, protocolVersion: pkg.version });
+    super({ ...input, protocolVersion: packageVersion });
   }
 }

@@ -1,5 +1,5 @@
 import { ColorRole } from "../../../enums/color-role";
-import pkg from "../../../package.json";
+import { packageVersion } from "../../../package-version";
 import { ColorToken } from "../../../types/color-token";
 import { AppFontsConfig } from "../../../types/fonts";
 import { ReliableBffToClientMessage } from "../reliable-bff-to-client-message";
@@ -29,6 +29,6 @@ export class HandshakeMessage extends ReliableBffToClientMessage<HandshakePayloa
   static readonly type = "handshake";
   declare readonly payload: HandshakePayload;
   constructor(input: HandshakeInput) {
-    super({ ...input, protocolVersion: pkg.version });
+    super({ ...input, protocolVersion: packageVersion });
   }
 }
