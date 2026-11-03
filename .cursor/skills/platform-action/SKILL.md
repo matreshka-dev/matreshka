@@ -20,7 +20,7 @@ description: >-
 3. **Клиент** — все ответы с **тем же `target`**, что у исходной команды. Два типичных режима:
    - **One-shot** — после выполнения ровно **одно terminal-сообщение**: типизированный success с payload (`MobileGetGeolocationSuccessMessage`, …), либо `ActionCompletedMessage` (`action-completed`), либо `ErrorMessage` с **`payload.message`** (текст ошибки/отмены).
    - **Поток** (например `requestBLEScan`) — **много** промежуточных сообщений с тем же `target` (`MobileBleReceiveMessage`, …); observable на BFF эмитит `next` на каждое. **Завершение** потока: `ErrorMessage`, `ActionCompletedMessage`, `Client.destroy$`, или teardown на BFF (отписка всех observers → stop, как `MobileStopMessage` для BLE).
-4. **Shared** — зарегистрировать новые типы в registry; не ломать сгенерированные файлы.
+4. **Protocol** — зарегистрировать новые типы в `@matreshka/client-bff-protocol` registry; не ломать сгенерированные файлы.
 
 ### BFF: one-shot
 
@@ -69,7 +69,7 @@ return targetedClientPlatformStream(this.client, {
 
 ## Чеклист новой команды
 
-- [ ] `shared`: BffToClient (обычно `PingableTargetedBffToClientMessage`) + при необходимости ClientToBff success; register.
+- [ ] `protocols/client-bff-protocol`: BffToClient (обычно `PingableTargetedBffToClientMessage`) + при необходимости ClientToBff success; register.
 - [ ] `bff/platforms/*`: метод → hot `Observable`; утилита action/stream, не «fire-and-forget» в методе платформы.
 - [ ] `client/src/app/platforms/*`: обработчик входящего типа + ack/error по target.
 - [ ] Документация: `docs/reference/platforms.md` (+ `platform-actions.md`, если новая семантика завершения).

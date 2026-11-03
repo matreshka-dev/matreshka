@@ -24,7 +24,7 @@ description: >-
 3. **Wire (client→BFF)** — terminal с **`target === actionScope`**:
    - успех без payload — `ActionCompletedMessage` (`action-completed`);
    - ошибка — `ErrorMessage` с `payload.message`.
-4. **Shared** — payload extends `ComponentCommandActionPayload` (compile-time); register; на клиенте/BFF после parse — `instanceof PingableComponentCommandMessage`.
+4. **Protocol** — payload extends `ComponentCommandActionPayload` (compile-time); register в `@matreshka/client-bff-protocol`; на клиенте/BFF после parse — `instanceof PingableComponentCommandMessage`.
 
 ### BFF: dispatch из класса Component
 
@@ -67,7 +67,7 @@ this.componentCommandMessages$.subscribe((message) => {
 
 ## Чеклист новой команды
 
-- [ ] `protocol/messages/bff-to-client/components/...`: класс extends `PingableComponentCommandMessage`, конструктор `(target, payload)` с `ComponentCommandActionPayload`; register.
+- [ ] `protocols/client-bff-protocol/messages/bff-to-client/components/...`: класс extends `PingableComponentCommandMessage`, конструктор `(target, payload)` с `ComponentCommandActionPayload`; register.
 - [ ] `bff/components/*.ts`: публичный метод → `return this.dispatchComponentCommand(...)`, не `broadcast` / `outcomingMessage$.next` без Observable.
 - [ ] `client/.../server/**/*.component.ts`: ветка в `componentCommandMessages$` + `runComponentCommand`.
 - [ ] `docs/reference/components-list.md` (+ `component-actions.md` при новой семантике завершения).
