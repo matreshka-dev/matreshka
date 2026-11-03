@@ -1,6 +1,6 @@
 {
   "name": "@matreshka/client-bff-protocol",
-  "version": "0.2.0",
+  "version": "0.1.0",
   "description": "Wire protocol between Matreshka client and BFF: messages, serializable types, and enums",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

@@ -27,6 +27,7 @@ export type HandshakeInput = Omit<HandshakePayload, "protocolVersion">;
 
 export class HandshakeMessage extends ReliableBffToClientMessage<HandshakePayload> {
   static readonly type = "handshake";
+  declare readonly payload: HandshakePayload;
   constructor(input: HandshakeInput) {
     super({ ...input, protocolVersion: pkg.version });
   }
