@@ -1,6 +1,6 @@
 {
   "name": "@matreshka/shared",
-  "version": "0.23.0",
+  "version": "0.24.0",
   "description": "Shared runtime utilities for Matreshka BFF and client",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
