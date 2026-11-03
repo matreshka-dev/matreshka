@@ -2,13 +2,14 @@
   "name": "@matreshka/gateway-bff-protocol",
   "version": "0.1.0",
   "description": "Wire protocol between Matreshka gateway and BFF: session envelope and message relay",
-  "main": "./dist/index.js",
+  "main": "./dist/cjs/index.js",
+  "module": "./dist/esm/index.js",
   "types": "./dist/index.d.ts",
   "files": [
     "dist"
   ],
   "scripts": {
-    "build": "rm -rf dist && tsc -p tsconfig.build.json",
+    "build": "rm -rf dist && tsc -p tsconfig.build.types.json && tsc -p tsconfig.build.cjs.json && tsc -p tsconfig.build.esm.json && printf '{\"type\":\"module\"}\\n' > dist/esm/package.json",
     "prepublishOnly": "npm run build",
     "format": "prettier --write .",
     "lint": "eslint .",
@@ -54,11 +55,15 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "default": "./dist/index.js"
+      "import": "./dist/esm/index.js",
+      "require": "./dist/cjs/index.js",
+      "default": "./dist/cjs/index.js"
     },
     "./*": {
       "types": "./dist/*.d.ts",
-      "default": "./dist/*.js"
+      "import": "./dist/esm/*.js",
+      "require": "./dist/cjs/*.js",
+      "default": "./dist/cjs/*.js"
     }
   }
 }

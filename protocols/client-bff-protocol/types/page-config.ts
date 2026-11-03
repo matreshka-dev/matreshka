@@ -1,17 +1,20 @@
 import { ServerComponentClass } from "../enums/server-component-class";
-import type { Overlay } from "./container-overlay";
 import type { EntryServerComponentConfig } from "./entry-server-component-config";
-import type { ServerComponentConfig } from "./server-component-config";
+import type {
+  EntryServerComponentProperties,
+  ServerComponentConfig,
+} from "./server-component-config";
+
+export interface PageConfigProperties extends EntryServerComponentProperties {
+  title: string;
+  content: ServerComponentConfig[];
+  statusCode: number;
+}
 
 export type PageConfig = Omit<
   EntryServerComponentConfig,
   "class" | "properties"
 > & {
   class: ServerComponentClass.Page;
-  properties: {
-    title: string;
-    content: ServerComponentConfig[];
-    overlays?: Overlay<ServerComponentConfig>[];
-    statusCode: number;
-  };
+  properties: PageConfigProperties;
 };
