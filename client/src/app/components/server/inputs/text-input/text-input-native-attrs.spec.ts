@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { TextInputKind } from '@client-bff-protocol/enums/text-input-kind';
+import { TextInputKind } from '@matreshka/client-bff-protocol/enums/text-input-kind';
 import { textInputNativeAttrs } from '../../../../utils/text-input-native-attrs';
 
 describe('textInputNativeAttrs', () => {

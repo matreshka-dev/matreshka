@@ -1,5 +1,5 @@
-import { ActionCompletedMessage } from '@client-bff-protocol/messages/client-to-bff/action-completed-message';
-import { ErrorMessage } from '@client-bff-protocol/messages/client-to-bff/error-message';
+import { ActionCompletedMessage } from '@matreshka/client-bff-protocol/messages/client-to-bff/action-completed-message';
+import { ErrorMessage } from '@matreshka/client-bff-protocol/messages/client-to-bff/error-message';
 import { PostmanService } from '../services/postman.service';
 
 export function completeTargetedAction(

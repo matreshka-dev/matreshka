@@ -1,4 +1,4 @@
-import { ArrayLengthCompare } from '@client-bff-protocol/enums/array-length-compare';
+import { ArrayLengthCompare } from '@matreshka/client-bff-protocol/enums/array-length-compare';
 
 export function arrayLengthMatches(
   actual: number,

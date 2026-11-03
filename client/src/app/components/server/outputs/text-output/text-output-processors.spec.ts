@@ -1,6 +1,6 @@
-import { TextOutputAutolinkScheme } from '@client-bff-protocol/enums/text-output-autolink-scheme';
-import { TextOutputAutolinkTarget } from '@client-bff-protocol/enums/text-output-autolink-target';
-import { TextOutputProcessor } from '@client-bff-protocol/enums/text-output-processor';
+import { TextOutputAutolinkScheme } from '@matreshka/client-bff-protocol/enums/text-output-autolink-scheme';
+import { TextOutputAutolinkTarget } from '@matreshka/client-bff-protocol/enums/text-output-autolink-target';
+import { TextOutputProcessor } from '@matreshka/client-bff-protocol/enums/text-output-processor';
 import { describe, expect, it } from 'vitest';
 import { applyTextOutputProcessors } from './text-output-processors';
 

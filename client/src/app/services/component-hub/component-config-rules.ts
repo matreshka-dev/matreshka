@@ -1,6 +1,6 @@
-import type { Condition } from '@client-bff-protocol/types/condition';
-import { parseContextPath } from '@shared/utils/parse-context-path';
-import { getDeviceTypeFromUserAgent } from '@shared/utils/user-agent';
+import type { Condition } from '@matreshka/client-bff-protocol/types/condition';
+import { parseContextPath } from '@matreshka/shared/utils/parse-context-path';
+import { getDeviceTypeFromUserAgent } from '@matreshka/shared/utils/user-agent';
 import { ServerComponentConfig } from '../../components/server/server-component-config';
 import {
   evaluateConditions,

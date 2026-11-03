@@ -6,8 +6,8 @@ import {
   signal,
   ViewEncapsulation,
 } from '@angular/core';
-import { GridTemplateColumns } from '@client-bff-protocol/enums/grid-template-columns';
-import type { GridConfig } from '@client-bff-protocol/types/grid-config';
+import { GridTemplateColumns } from '@matreshka/client-bff-protocol/enums/grid-template-columns';
+import type { GridConfig } from '@matreshka/client-bff-protocol/types/grid-config';
 import { rem } from '../../../utils/rem';
 import { ServerComponent } from '../server-component';
 import { ServerComponentsListComponent } from '../server-components-list/server-components-list.component';

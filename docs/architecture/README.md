@@ -22,6 +22,7 @@
 - [`overlay-dom-order.md`](overlay-dom-order.md) — порядок overlays в DOM вокруг основного контента для корректной tab order без настроек на BFF.
 - [`message-delivery.md`](message-delivery.md) — детальная схема механизма надёжной отправки и обработки сообщений.
 - [`operations.md`](operations.md) — как ведёт себя runtime при disconnect, reconnect, рестарте процесса и multi-instance deployment.
+- [Политика версий пакетов](../reference/versioning.md) — semver, `protocolVersion`, каскад релизов (не wire-format, а релизная дисциплина).
 - [`notes.md`](notes.md) — **черновик**, не часть onboarding.
 
 ## Что не входит в этот раздел

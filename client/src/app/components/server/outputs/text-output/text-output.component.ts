@@ -6,8 +6,8 @@ import {
   ViewEncapsulation,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import type { TextOutputConfig } from '@client-bff-protocol/types/text-output-config';
-import { findContextKeys } from '@shared/utils/find-context-keys';
+import type { TextOutputConfig } from '@matreshka/client-bff-protocol/types/text-output-config';
+import { findContextKeys } from '@matreshka/shared/utils/find-context-keys';
 import { takeUntil } from 'rxjs';
 import { prepareText } from '../../../../utils/prepare-text';
 import { ServerOutputComponent } from '../server-output-component';

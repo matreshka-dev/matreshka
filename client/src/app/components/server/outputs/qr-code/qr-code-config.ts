@@ -1,4 +1,4 @@
-import type { QrCodeConfig } from '@client-bff-protocol/types/qr-code-config';
+import type { QrCodeConfig } from '@matreshka/client-bff-protocol/types/qr-code-config';
 import { OutputDependencies } from '../output-config';
 
 export const QrCodeDependencies = {

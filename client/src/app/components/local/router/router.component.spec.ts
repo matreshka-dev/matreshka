@@ -1,8 +1,8 @@
 import { Component, input } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, provideRouter } from '@angular/router';
-import { ServerComponentClass } from '@client-bff-protocol/enums/server-component-class';
-import type { PageConfig } from '@client-bff-protocol/types/page-config';
+import { ServerComponentClass } from '@matreshka/client-bff-protocol/enums/server-component-class';
+import type { PageConfig } from '@matreshka/client-bff-protocol/types/page-config';
 import { BehaviorSubject } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ComponentHubService } from '../../../services/component-hub.service';
@@ -32,9 +32,7 @@ describe('RouterComponent', () => {
     pathsWithPlaceholdersInTemplate: [],
     pathsWithPlaceholdersInCode: [],
     requiredContextsPaths: [],
-    getNestedConfigsPaths: vi.fn(
-      (config: PageConfig) => config.properties.content,
-    ),
+    getNestedConfigsPaths: vi.fn(() => []),
   };
 
   function createPageConfig(id: string): PageConfig {

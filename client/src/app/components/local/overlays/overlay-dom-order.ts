@@ -1,4 +1,4 @@
-import { OverlayAnchor } from '@client-bff-protocol/types/container-overlay';
+import { OverlayAnchor } from '@matreshka/client-bff-protocol/types/container-overlay';
 import type { Overlay } from '../../server/server-component-config';
 
 export type OverlayAnchorFlags = {

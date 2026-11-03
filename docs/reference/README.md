@@ -8,5 +8,6 @@
 | [client-settings.md](client-settings.md) | Шрифты, цвета, PWA, аналитика |
 | [platforms.md](platforms.md) | Platform tree и методы (web, mobile, …) |
 | [item-list.md](item-list.md) | Контракт `itemList` для map/board |
+| [versioning.md](versioning.md) | Semver пакетов и каскад релизов |
 
 Концептуальная карта компонентов без полного перечня props — [components-basics.md](../guides/components-basics.md).

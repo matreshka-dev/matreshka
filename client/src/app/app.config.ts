@@ -20,8 +20,7 @@ import {
   withNoIncrementalHydration,
 } from '@angular/platform-browser';
 import { provideServiceWorker } from '@angular/service-worker';
-import { ServerComponentClass } from '@client-bff-protocol/enums/server-component-class';
-import { registerBffToClientMessages } from '@client-bff-protocol/messages/bff-to-client/register-messages';
+import { ServerComponentClass } from '@matreshka/client-bff-protocol/enums/server-component-class';
 import { combineLatestWith } from 'rxjs';
 import { routes } from './app.routes';
 import { BoardDependencies } from './components/server/board/board-config';
@@ -90,6 +89,7 @@ import { platformProvider } from './platform-provider';
 import { AndroidPlatform } from './platforms/android-platform';
 import { IosPlatform } from './platforms/ios-platform';
 import { PLATFORM } from './platforms/platform';
+import { registerBffToClientMessages } from './register-bff-to-client-messages';
 import { EnvironmentService } from './services/environment.service';
 import { SERVER_COMPONENTS_LIST_COMPONENT } from './tokens/server-components-list-component';
 

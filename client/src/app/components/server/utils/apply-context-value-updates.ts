@@ -1,8 +1,8 @@
-import { parseContextPath } from '@shared/utils/parse-context-path';
+import { parseContextPath } from '@matreshka/shared/utils/parse-context-path';
 import {
   isSerializedOperand,
   resolveSerializedOperand,
-} from '@shared/utils/serialized-operand';
+} from '@matreshka/shared/utils/serialized-operand';
 import type { ContextHubService } from '../../../services/context-hub.service';
 
 export type ContextValueUpdate = { ref: string; value: unknown };

@@ -1,4 +1,4 @@
-import type { MapConfig } from '@client-bff-protocol/types/map-config';
+import type { MapConfig } from '@matreshka/client-bff-protocol/types/map-config';
 import {
   ComponentDependencies,
   getNestedConfigsByPropertyKey,

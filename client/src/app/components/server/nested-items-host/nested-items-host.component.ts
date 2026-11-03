@@ -5,13 +5,13 @@ import {
   ViewEncapsulation,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { NestedItemsSyncMessage } from '@client-bff-protocol/messages/bff-to-client/components/nested-items/nested-items-sync-message';
-import type { NestedItemBase } from '@client-bff-protocol/types/nested-item-base';
-import type { ServerComponentConfig } from '@client-bff-protocol/types/server-component-config';
+import { NestedItemsSyncMessage } from '@matreshka/client-bff-protocol/messages/bff-to-client/components/nested-items/nested-items-sync-message';
+import type { NestedItemBase } from '@matreshka/client-bff-protocol/types/nested-item-base';
+import type { ServerComponentConfig } from '@matreshka/client-bff-protocol/types/server-component-config';
 import {
   diffNestedItems,
   type NestedItemsDiff,
-} from '@shared/utils/diff-nested-items';
+} from '@matreshka/shared/utils/diff-nested-items';
 import { filter, map } from 'rxjs';
 import { ServerComponent } from '../server-component';
 import { syncNestedComponentHubs } from './sync-nested-component-configs';

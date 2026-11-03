@@ -10,7 +10,7 @@ import {
   ViewEncapsulation,
 } from '@angular/core';
 import { DomSanitizer } from '@angular/platform-browser';
-import type { IframeConfig } from '@client-bff-protocol/types/iframe-config';
+import type { IframeConfig } from '@matreshka/client-bff-protocol/types/iframe-config';
 import { PreparePipe } from '../../../../pipes/prepare.pipe';
 import { ServerOutputComponent } from '../server-output-component';
 

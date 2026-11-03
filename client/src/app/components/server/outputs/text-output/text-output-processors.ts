@@ -1,10 +1,10 @@
-import { TextOutputAutolinkScheme } from '@client-bff-protocol/enums/text-output-autolink-scheme';
-import { TextOutputAutolinkTarget } from '@client-bff-protocol/enums/text-output-autolink-target';
-import { TextOutputProcessor } from '@client-bff-protocol/enums/text-output-processor';
+import { TextOutputAutolinkScheme } from '@matreshka/client-bff-protocol/enums/text-output-autolink-scheme';
+import { TextOutputAutolinkTarget } from '@matreshka/client-bff-protocol/enums/text-output-autolink-target';
+import { TextOutputProcessor } from '@matreshka/client-bff-protocol/enums/text-output-processor';
 import type {
   TextOutputProcessorAutolinkConfig,
   TextOutputProcessorConfig,
-} from '@client-bff-protocol/types/text-output-processor-config';
+} from '@matreshka/client-bff-protocol/types/text-output-processor-config';
 
 export type TextOutputSegment =
   | { kind: 'text'; text: string }

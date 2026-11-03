@@ -1,8 +1,8 @@
-import { TimingFunction } from '@client-bff-protocol/enums/timing-function';
+import { TimingFunction } from '@matreshka/client-bff-protocol/enums/timing-function';
 import type {
   ColorTokenTransition,
   ColorTokenTransitions,
-} from '@client-bff-protocol/types/color-token';
+} from '@matreshka/client-bff-protocol/types/color-token';
 
 export const COLOR_TOKEN_STATES = [
   'default',

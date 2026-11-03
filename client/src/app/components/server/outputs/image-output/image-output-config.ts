@@ -1,4 +1,4 @@
-import type { ImageOutputConfig } from '@client-bff-protocol/types/image-output-config';
+import type { ImageOutputConfig } from '@matreshka/client-bff-protocol/types/image-output-config';
 import { OutputDependencies } from '../output-config';
 
 export const ImageOutputDependencies = {

@@ -27,6 +27,8 @@ npm run build
 
 ## 2. Клиент Angular (для локальной проверки)
 
+Клиент импортирует собранные `@matreshka/client-bff-protocol` и `@matreshka/shared`. Если пакеты ещё не собраны, из корня репозитория выполните `npm run build`.
+
 ```bash
 cd client
 npm install

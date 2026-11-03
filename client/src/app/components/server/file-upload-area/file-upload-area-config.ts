@@ -1,4 +1,4 @@
-import type { FileUploadAreaConfig } from '@client-bff-protocol/types/file-upload-area-config';
+import type { FileUploadAreaConfig } from '@matreshka/client-bff-protocol/types/file-upload-area-config';
 import {
   getNestedConfigsByPropertyKey,
   ServerComponentDependencies,

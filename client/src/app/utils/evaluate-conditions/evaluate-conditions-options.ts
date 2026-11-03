@@ -1,4 +1,4 @@
-import { DeviceType } from '@client-bff-protocol/enums/device-type';
+import { DeviceType } from '@matreshka/client-bff-protocol/enums/device-type';
 
 export type EvaluateConditionsOptions = {
   getContextValue: (ref: string) => unknown;

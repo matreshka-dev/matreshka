@@ -3,7 +3,10 @@ import type { Overlay } from "./container-overlay";
 import type { EntryServerComponentConfig } from "./entry-server-component-config";
 import type { ServerComponentConfig } from "./server-component-config";
 
-export type PageConfig = {
+export type PageConfig = Omit<
+  EntryServerComponentConfig,
+  "class" | "properties"
+> & {
   class: ServerComponentClass.Page;
   properties: {
     title: string;
@@ -11,4 +14,4 @@ export type PageConfig = {
     overlays?: Overlay<ServerComponentConfig>[];
     statusCode: number;
   };
-} & EntryServerComponentConfig;
+};

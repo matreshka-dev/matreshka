@@ -27,6 +27,12 @@ Semver npm-пакета в рантайме (Node/BFF, поиск `package.json`
 import { version } from "@matreshka/client-bff-protocol/version";
 ```
 
+В браузере `node:fs` недоступен, поэтому клиент читает semver через subpath `protocol-version` (инлайнится JSON из `package.json`):
+
+```typescript
+import { protocolVersion } from "@matreshka/client-bff-protocol/protocol-version";
+```
+
 В handshake поле `protocolVersion` подставляют конструкторы `HandshakeMessage` из `package.json` пакета (в бандле Angular — через инлайн JSON).
 
 ## Semver

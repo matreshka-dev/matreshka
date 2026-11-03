@@ -1,4 +1,4 @@
-import type { RadiusPx } from '@client-bff-protocol/types/radius-px';
+import type { RadiusPx } from '@matreshka/client-bff-protocol/types/radius-px';
 
 export type RadiusPxResult = {
   topStart: number | undefined;

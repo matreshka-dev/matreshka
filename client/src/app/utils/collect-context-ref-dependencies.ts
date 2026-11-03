@@ -1,5 +1,5 @@
-import { findContextKeys } from '@shared/utils/find-context-keys';
-import { parseContextPath } from '@shared/utils/parse-context-path';
+import { findContextKeys } from '@matreshka/shared/utils/find-context-keys';
+import { parseContextPath } from '@matreshka/shared/utils/parse-context-path';
 
 export type ContextRefDependency = {
   contextId: string;

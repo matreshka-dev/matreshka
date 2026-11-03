@@ -1,5 +1,5 @@
-import { fetchFromObject } from '@shared/utils/fetch-from-object';
-import { setObjectProperty } from '@shared/utils/set-object-property';
+import { fetchFromObject } from '@matreshka/shared/utils/fetch-from-object';
+import { setObjectProperty } from '@matreshka/shared/utils/set-object-property';
 
 export class BrowserStorage {
   private _values: Record<string, string> = {};

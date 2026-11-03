@@ -1,4 +1,4 @@
-import type { CameraConfig } from '@client-bff-protocol/types/camera-config';
+import type { CameraConfig } from '@matreshka/client-bff-protocol/types/camera-config';
 import {
   ComponentDependencies,
   getNestedConfigsByPropertyKey,

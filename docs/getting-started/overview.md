@@ -44,7 +44,7 @@ npm install @matreshka/gateway
 
 Универсальный Angular-клиент — отдельное приложение (в репозитории Matreshka каталог `client/`). Его подключают к вашему BFF по WebSocket/SSE; для типичного сценария клиентский код не форкают.
 
-**Важно:** версия клиента должна **совпадать** с версией `@matreshka/bff` и `@matreshka/client-bff-protocol` в вашем BFF.
+**Важно:** строка `@matreshka/client-bff-protocol` (поле `protocolVersion` в handshake) у универсального клиента и у BFF должна **совпадать**. Номера `@matreshka/client` и `@matreshka/bff` могут отличаться — см. [политику версий](../reference/versioning.md).
 
 ### Если вы работаете с исходниками Matreshka
 

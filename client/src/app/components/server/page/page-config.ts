@@ -1,4 +1,4 @@
-import type { PageConfig } from '@client-bff-protocol/types/page-config';
+import type { PageConfig } from '@matreshka/client-bff-protocol/types/page-config';
 import {
   ComponentDependencies,
   getNestedConfigsByPropertyKey,

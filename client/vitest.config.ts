@@ -1,4 +1,3 @@
-import { resolve } from 'node:path';
 import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
@@ -7,14 +6,5 @@ export default defineConfig({
     environment: 'jsdom',
     globals: false,
     // setupFiles: ['src/test-setup.ts'],
-  },
-  resolve: {
-    alias: {
-      '@shared': resolve(__dirname, '../shared'),
-      '@client-bff-protocol': resolve(
-        __dirname,
-        '../protocols/client-bff-protocol',
-      ),
-    },
   },
 });

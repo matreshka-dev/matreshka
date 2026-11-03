@@ -1,4 +1,7 @@
-import { needsMore, scrollDistanceToEnd } from '@shared/utils/needs-more';
+import {
+  needsMore,
+  scrollDistanceToEnd,
+} from '@matreshka/shared/utils/needs-more';
 import { describe, expect, it } from 'vitest';
 
 describe('needsMore', () => {

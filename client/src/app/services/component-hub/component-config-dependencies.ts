@@ -1,12 +1,12 @@
-import type { Condition } from '@client-bff-protocol/types/condition';
-import { fetchFromObject } from '@shared/utils/fetch-from-object';
-import { findContextKeys } from '@shared/utils/find-context-keys';
-import { parseContextPath } from '@shared/utils/parse-context-path';
+import type { Condition } from '@matreshka/client-bff-protocol/types/condition';
+import { fetchFromObject } from '@matreshka/shared/utils/fetch-from-object';
+import { findContextKeys } from '@matreshka/shared/utils/find-context-keys';
+import { parseContextPath } from '@matreshka/shared/utils/parse-context-path';
 import {
   collectConditionPayloadRefs,
   collectSerializedOperandRefs,
   isSerializedOperand,
-} from '@shared/utils/serialized-operand';
+} from '@matreshka/shared/utils/serialized-operand';
 import {
   ComponentDependencies,
   ServerComponentConfig,

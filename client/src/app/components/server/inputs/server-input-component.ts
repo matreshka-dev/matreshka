@@ -6,8 +6,8 @@ import {
   signal,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import type { InputConfig } from '@client-bff-protocol/types/input-config';
-import { parseContextPath } from '@shared/utils/parse-context-path';
+import type { InputConfig } from '@matreshka/client-bff-protocol/types/input-config';
+import { parseContextPath } from '@matreshka/shared/utils/parse-context-path';
 import {
   animationFrameScheduler,
   filter,

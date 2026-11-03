@@ -9,8 +9,8 @@ import {
   PLATFORM_ID,
   ViewEncapsulation,
 } from '@angular/core';
-import { ChartType } from '@client-bff-protocol/enums/chart-type';
-import type { ChartConfig } from '@client-bff-protocol/types/chart-config';
+import { ChartType } from '@matreshka/client-bff-protocol/enums/chart-type';
+import type { ChartConfig } from '@matreshka/client-bff-protocol/types/chart-config';
 import type { Chart } from 'chart.js';
 import { WINDOW } from '../../../tokens/window';
 import { randomString } from '../../../utils/random-string';

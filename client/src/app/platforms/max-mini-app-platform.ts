@@ -1,8 +1,8 @@
-import { PlatformId } from '@client-bff-protocol/enums/platform-id';
-import { DisablePrivacyModeMessage } from '@client-bff-protocol/messages/bff-to-client/platforms/disable-privacy-mode-message';
-import { EnablePrivacyModeMessage } from '@client-bff-protocol/messages/bff-to-client/platforms/enable-privacy-mode-message';
-import { MaxMiniAppRequestContactMessage } from '@client-bff-protocol/messages/bff-to-client/platforms/max-mini-app/max-mini-app-request-contact-message';
-import { MaxMiniAppRequestContactActionSuccessMessage } from '@client-bff-protocol/messages/client-to-bff/platforms/max-mini-app/max-mini-app-request-contact-action-success-message';
+import { PlatformId } from '@matreshka/client-bff-protocol/enums/platform-id';
+import { DisablePrivacyModeMessage } from '@matreshka/client-bff-protocol/messages/bff-to-client/platforms/disable-privacy-mode-message';
+import { EnablePrivacyModeMessage } from '@matreshka/client-bff-protocol/messages/bff-to-client/platforms/enable-privacy-mode-message';
+import { MaxMiniAppRequestContactMessage } from '@matreshka/client-bff-protocol/messages/bff-to-client/platforms/max-mini-app/max-mini-app-request-contact-message';
+import { MaxMiniAppRequestContactActionSuccessMessage } from '@matreshka/client-bff-protocol/messages/client-to-bff/platforms/max-mini-app/max-mini-app-request-contact-action-success-message';
 import { loadScript } from '../utils/load-script';
 import { BrowserStorage } from './shared/browser-storage';
 import { WebPlatform } from './web-platform';

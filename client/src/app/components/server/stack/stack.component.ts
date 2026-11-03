@@ -10,16 +10,16 @@ import {
 import {
   ComponentOutline,
   OutlineType,
-} from '@client-bff-protocol/enums/outline-type';
-import { Overflow } from '@client-bff-protocol/enums/overflow';
-import { SafeAreaSide } from '@client-bff-protocol/enums/safe-area-side';
-import { ScrollToPosition } from '@client-bff-protocol/enums/scroll-to-position';
-import { StackDirection } from '@client-bff-protocol/enums/stack-direction';
-import { ComponentScrollToMessage } from '@client-bff-protocol/messages/bff-to-client/components/component-scroll-to-message';
-import { ComponentClickMessage } from '@client-bff-protocol/messages/client-to-bff/components/component-click-message';
-import { ComponentKeyDownMessage } from '@client-bff-protocol/messages/client-to-bff/components/component-keydown-message';
-import type { ServerComponentInteraction } from '@client-bff-protocol/types/server-component-interaction';
-import type { StackConfig } from '@client-bff-protocol/types/stack-config';
+} from '@matreshka/client-bff-protocol/enums/outline-type';
+import { Overflow } from '@matreshka/client-bff-protocol/enums/overflow';
+import { SafeAreaSide } from '@matreshka/client-bff-protocol/enums/safe-area-side';
+import { ScrollToPosition } from '@matreshka/client-bff-protocol/enums/scroll-to-position';
+import { StackDirection } from '@matreshka/client-bff-protocol/enums/stack-direction';
+import { ComponentScrollToMessage } from '@matreshka/client-bff-protocol/messages/bff-to-client/components/component-scroll-to-message';
+import { ComponentClickMessage } from '@matreshka/client-bff-protocol/messages/client-to-bff/components/component-click-message';
+import { ComponentKeyDownMessage } from '@matreshka/client-bff-protocol/messages/client-to-bff/components/component-keydown-message';
+import type { ServerComponentInteraction } from '@matreshka/client-bff-protocol/types/server-component-interaction';
+import type { StackConfig } from '@matreshka/client-bff-protocol/types/stack-config';
 import { WINDOW } from '../../../tokens/window';
 import {
   normalizePaddingPx,

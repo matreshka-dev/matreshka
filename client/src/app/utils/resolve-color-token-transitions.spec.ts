@@ -1,4 +1,4 @@
-import { TimingFunction } from '@client-bff-protocol/enums/timing-function';
+import { TimingFunction } from '@matreshka/client-bff-protocol/enums/timing-function';
 import { describe, expect, it } from 'vitest';
 import { resolveColorTokenTransitions } from './resolve-color-token-transitions';
 

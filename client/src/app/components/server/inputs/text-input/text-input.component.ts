@@ -5,7 +5,7 @@ import {
   ViewEncapsulation,
   viewChild,
 } from '@angular/core';
-import type { TextInputConfig } from '@client-bff-protocol/types/text-input-config';
+import type { TextInputConfig } from '@matreshka/client-bff-protocol/types/text-input-config';
 import { PreparePipe } from '../../../../pipes/prepare.pipe';
 import { textInputNativeAttrs } from '../../../../utils/text-input-native-attrs';
 import { ServerInputComponent } from '../server-input-component';

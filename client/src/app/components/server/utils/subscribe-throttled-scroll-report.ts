@@ -1,6 +1,6 @@
 import { DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import type { ComponentScrollPayload } from '@client-bff-protocol/messages/client-to-bff/components/component-scroll-message';
+import type { ComponentScrollPayload } from '@matreshka/client-bff-protocol/messages/client-to-bff/components/component-scroll-message';
 import { asyncScheduler, fromEvent, merge, Observable } from 'rxjs';
 import { throttleTime } from 'rxjs/operators';
 

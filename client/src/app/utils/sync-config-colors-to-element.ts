@@ -1,4 +1,4 @@
-import { ColorRole } from '@client-bff-protocol/enums/color-role';
+import { ColorRole } from '@matreshka/client-bff-protocol/enums/color-role';
 import { registerColorRole } from './register-colors';
 
 export function syncConfigColorsToElement(

@@ -1,4 +1,4 @@
-import type { StackConfig } from '@client-bff-protocol/types/stack-config';
+import type { StackConfig } from '@matreshka/client-bff-protocol/types/stack-config';
 import {
   ComponentDependencies,
   getNestedConfigsByPropertyKey,

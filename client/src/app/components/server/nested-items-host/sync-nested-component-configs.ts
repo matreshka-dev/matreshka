@@ -1,5 +1,5 @@
-import type { ServerComponentConfig } from '@client-bff-protocol/types/server-component-config';
-import type { NestedItemsDiff } from '@shared/utils/diff-nested-items';
+import type { ServerComponentConfig } from '@matreshka/client-bff-protocol/types/server-component-config';
+import type { NestedItemsDiff } from '@matreshka/shared/utils/diff-nested-items';
 import type { ComponentHubService } from '../../../services/component-hub.service';
 import {
   reverseComponentAnimations,

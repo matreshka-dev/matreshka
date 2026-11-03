@@ -37,7 +37,7 @@ npm run build
 
 Собирает `@matreshka/shared`, `@matreshka/gateway` и `@matreshka/bff`.
 
-Клиент — отдельно: `cd client && npm install && ng serve`.
+Клиент — отдельно, после `npm run build`: `cd client && npm install && ng serve`.
 
 ## Angular MCP
 

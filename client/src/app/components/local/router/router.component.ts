@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute } from '@angular/router';
-import type { PageConfig } from '@client-bff-protocol/types/page-config';
+import type { PageConfig } from '@matreshka/client-bff-protocol/types/page-config';
 import { from, map, switchMap, take, timer } from 'rxjs';
 import { ComponentHubService } from '../../../services/component-hub.service';
 import { ServerComponentWrapperComponent } from '../../server/server-component-wrapper/server-component-wrapper.component';

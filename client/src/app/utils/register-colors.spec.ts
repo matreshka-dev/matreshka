@@ -1,6 +1,6 @@
-import { ColorRole } from '@client-bff-protocol/enums/color-role';
-import { ColorTokenMaskType } from '@client-bff-protocol/enums/color-token-mask-type';
-import { TimingFunction } from '@client-bff-protocol/enums/timing-function';
+import { ColorRole } from '@matreshka/client-bff-protocol/enums/color-role';
+import { ColorTokenMaskType } from '@matreshka/client-bff-protocol/enums/color-token-mask-type';
+import { TimingFunction } from '@matreshka/client-bff-protocol/enums/timing-function';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { registerColorRole, registerColors } from './register-colors';
 

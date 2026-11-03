@@ -1,4 +1,4 @@
-import { PlatformId } from '@client-bff-protocol/enums/platform-id';
+import { PlatformId } from '@matreshka/client-bff-protocol/enums/platform-id';
 import { MobilePlatform } from './mobile-platform';
 
 export class AndroidPlatform extends MobilePlatform {

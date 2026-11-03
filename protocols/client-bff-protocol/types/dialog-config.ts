@@ -4,7 +4,10 @@ import type { DialogBackdropConfig } from "./dialog-backdrop-config";
 import type { EntryServerComponentConfig } from "./entry-server-component-config";
 import type { ServerComponentConfig } from "./server-component-config";
 
-export type DialogConfig = {
+export type DialogConfig = Omit<
+  EntryServerComponentConfig,
+  "class" | "properties"
+> & {
   class: ServerComponentClass.Dialog;
   properties: {
     content: ServerComponentConfig[];
@@ -13,4 +16,4 @@ export type DialogConfig = {
     overlays?: Overlay<ServerComponentConfig>[];
     backdrop?: DialogBackdropConfig;
   };
-} & EntryServerComponentConfig;
+};

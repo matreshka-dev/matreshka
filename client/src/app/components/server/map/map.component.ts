@@ -8,20 +8,20 @@ import {
   viewChildren,
   ViewEncapsulation,
 } from '@angular/core';
-import { MapMarkerHorizontalAnchor } from '@client-bff-protocol/enums/map-marker-horizontal-anchor';
-import { MapMarkerVerticalAnchor } from '@client-bff-protocol/enums/map-marker-vertical-anchor';
-import { MapSetCenterMessage } from '@client-bff-protocol/messages/bff-to-client/components/map/map-set-center-message';
-import { MapSetZoomMessage } from '@client-bff-protocol/messages/bff-to-client/components/map/map-set-zoom-message';
-import { MapZoomInMessage } from '@client-bff-protocol/messages/bff-to-client/components/map/map-zoom-in-message';
-import { MapZoomOutMessage } from '@client-bff-protocol/messages/bff-to-client/components/map/map-zoom-out-message';
-import { MapCenterChangeMessage } from '@client-bff-protocol/messages/client-to-bff/components/map/map-center-change-message';
-import { MapZoomChangeMessage } from '@client-bff-protocol/messages/client-to-bff/components/map/map-zoom-change-message';
+import { MapMarkerHorizontalAnchor } from '@matreshka/client-bff-protocol/enums/map-marker-horizontal-anchor';
+import { MapMarkerVerticalAnchor } from '@matreshka/client-bff-protocol/enums/map-marker-vertical-anchor';
+import { MapSetCenterMessage } from '@matreshka/client-bff-protocol/messages/bff-to-client/components/map/map-set-center-message';
+import { MapSetZoomMessage } from '@matreshka/client-bff-protocol/messages/bff-to-client/components/map/map-set-zoom-message';
+import { MapZoomInMessage } from '@matreshka/client-bff-protocol/messages/bff-to-client/components/map/map-zoom-in-message';
+import { MapZoomOutMessage } from '@matreshka/client-bff-protocol/messages/bff-to-client/components/map/map-zoom-out-message';
+import { MapCenterChangeMessage } from '@matreshka/client-bff-protocol/messages/client-to-bff/components/map/map-center-change-message';
+import { MapZoomChangeMessage } from '@matreshka/client-bff-protocol/messages/client-to-bff/components/map/map-zoom-change-message';
 import type {
   MapConfig,
   SerializedMapMarker,
-} from '@client-bff-protocol/types/map-config';
-import type { ServerComponentInteraction } from '@client-bff-protocol/types/server-component-interaction';
-import type { NestedItemsDiff } from '@shared/utils/diff-nested-items';
+} from '@matreshka/client-bff-protocol/types/map-config';
+import type { ServerComponentInteraction } from '@matreshka/client-bff-protocol/types/server-component-interaction';
+import type { NestedItemsDiff } from '@matreshka/shared/utils/diff-nested-items';
 import { BehaviorSubject, filter } from 'rxjs';
 import { type LngLat, type YMapLocationRequest } from 'ymaps3';
 import { loadScript } from '../../../utils/load-script';

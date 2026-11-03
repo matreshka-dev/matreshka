@@ -1,9 +1,9 @@
-import { ConditionGroupOperator } from '@client-bff-protocol/enums/condition-group-operator';
-import { ConditionType } from '@client-bff-protocol/enums/condition-type';
-import type { Condition } from '@client-bff-protocol/types/condition';
-import type { SerializedOperand } from '@client-bff-protocol/types/serialized-operand';
-import { fetchFromObject } from '@shared/utils/fetch-from-object';
-import { resolveSerializedOperand } from '@shared/utils/serialized-operand';
+import { ConditionGroupOperator } from '@matreshka/client-bff-protocol/enums/condition-group-operator';
+import { ConditionType } from '@matreshka/client-bff-protocol/enums/condition-type';
+import type { Condition } from '@matreshka/client-bff-protocol/types/condition';
+import type { SerializedOperand } from '@matreshka/client-bff-protocol/types/serialized-operand';
+import { fetchFromObject } from '@matreshka/shared/utils/fetch-from-object';
+import { resolveSerializedOperand } from '@matreshka/shared/utils/serialized-operand';
 import { arrayLengthMatches } from './array-length-matches';
 import type { EvaluateConditionsOptions } from './evaluate-conditions-options';
 import { evaluateDeviceCondition } from './evaluate-device-condition';

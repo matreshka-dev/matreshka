@@ -1,4 +1,4 @@
-import type { ContainerConfig } from '@client-bff-protocol/types/container-config';
+import type { ContainerConfig } from '@matreshka/client-bff-protocol/types/container-config';
 import {
   ComponentDependencies,
   getNestedConfigsByPropertyKey,

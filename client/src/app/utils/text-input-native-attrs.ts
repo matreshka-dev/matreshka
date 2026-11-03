@@ -1,4 +1,4 @@
-import { TextInputKind } from '@client-bff-protocol/enums/text-input-kind';
+import { TextInputKind } from '@matreshka/client-bff-protocol/enums/text-input-kind';
 
 export type TextInputNativeAttrs = {
   inputMode: string | undefined;

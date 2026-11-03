@@ -4,7 +4,10 @@ import type { Overlay } from "./container-overlay";
 import type { EntryServerComponentConfig } from "./entry-server-component-config";
 import type { ServerComponentConfig } from "./server-component-config";
 
-export type PopoverConfig = {
+export type PopoverConfig = Omit<
+  EntryServerComponentConfig,
+  "class" | "properties"
+> & {
   class: ServerComponentClass.Popover;
   properties: {
     content: ServerComponentConfig[];
@@ -20,4 +23,4 @@ export type PopoverConfig = {
     size?: number;
     overlays?: Overlay<ServerComponentConfig>[];
   };
-} & EntryServerComponentConfig;
+};

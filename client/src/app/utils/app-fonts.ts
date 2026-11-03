@@ -4,7 +4,7 @@ import {
   FontFaceStyle,
   type FontFaceToken,
   type FontStackToken,
-} from '@client-bff-protocol/types/fonts';
+} from '@matreshka/client-bff-protocol/types/fonts';
 import { rem } from './rem';
 const FONT_FACE_STYLE_ELEMENT_SELECTOR = 'style[data-app-font-faces]';
 const FONT_STYLESHEET_SELECTOR = 'link[data-app-font-stylesheet]';

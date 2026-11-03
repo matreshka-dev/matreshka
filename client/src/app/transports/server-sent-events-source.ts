@@ -1,6 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { inject } from '@angular/core';
-import { BffToClientMessage } from '@client-bff-protocol/messages/bff-to-client/bff-to-client-message';
+import { BffToClientMessage } from '@matreshka/client-bff-protocol/messages/bff-to-client/bff-to-client-message';
 import { EVENT_SOURCE } from '../tokens/event-source';
 import { Source } from './source';
 

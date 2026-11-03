@@ -1,4 +1,4 @@
-import { PasswordInputKind } from '@client-bff-protocol/enums/password-input-kind';
+import { PasswordInputKind } from '@matreshka/client-bff-protocol/enums/password-input-kind';
 
 export function passwordInputAutocomplete(
   kind?: PasswordInputKind,

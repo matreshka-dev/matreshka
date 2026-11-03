@@ -1,4 +1,4 @@
-import type { NumberOutputConfig } from '@client-bff-protocol/types/number-output-config';
+import type { NumberOutputConfig } from '@matreshka/client-bff-protocol/types/number-output-config';
 import { OutputDependencies } from '../output-config';
 
 export const NumberOutputDependencies = {

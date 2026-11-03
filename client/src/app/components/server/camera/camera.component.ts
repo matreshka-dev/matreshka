@@ -8,12 +8,12 @@ import {
   viewChild,
   ViewEncapsulation,
 } from '@angular/core';
-import { CameraSwitchMessage } from '@client-bff-protocol/messages/bff-to-client/components/camera/camera-switch-message';
-import { CameraDeviceChangeMessage } from '@client-bff-protocol/messages/client-to-bff/components/camera/camera-device-change-message';
-import { CameraQrCodeMessage } from '@client-bff-protocol/messages/client-to-bff/components/camera/camera-qr-code-message';
-import { ErrorMessage } from '@client-bff-protocol/messages/client-to-bff/error-message';
-import type { CameraConfig } from '@client-bff-protocol/types/camera-config';
-import type { ServerComponentInteraction } from '@client-bff-protocol/types/server-component-interaction';
+import { CameraSwitchMessage } from '@matreshka/client-bff-protocol/messages/bff-to-client/components/camera/camera-switch-message';
+import { CameraDeviceChangeMessage } from '@matreshka/client-bff-protocol/messages/client-to-bff/components/camera/camera-device-change-message';
+import { CameraQrCodeMessage } from '@matreshka/client-bff-protocol/messages/client-to-bff/components/camera/camera-qr-code-message';
+import { ErrorMessage } from '@matreshka/client-bff-protocol/messages/client-to-bff/error-message';
+import type { CameraConfig } from '@matreshka/client-bff-protocol/types/camera-config';
+import type { ServerComponentInteraction } from '@matreshka/client-bff-protocol/types/server-component-interaction';
 import { ServerComponent } from '../server-component';
 import { ServerComponentsListComponent } from '../server-components-list/server-components-list.component';
 

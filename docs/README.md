@@ -49,6 +49,8 @@ layout и overlays. Только после этого маршрут ведёт
 
 Корневая сборка: `npm run build` (client-bff-protocol → gateway-bff-protocol → shared → gateway → bff).
 
+Semver и каскад релизов: [reference/versioning.md](reference/versioning.md).
+
 ## Agent Skills
 
 ```bash

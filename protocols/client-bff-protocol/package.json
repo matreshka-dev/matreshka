@@ -8,7 +8,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "rm -rf dist && tsc -p tsconfig.build.json",
+    "build": "rm -rf dist && tsc -p tsconfig.build.json && cp package.json dist/package.json",
     "prepublishOnly": "npm run build",
     "format": "prettier --write .",
     "lint": "eslint ."
@@ -58,6 +58,11 @@
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
     },
+    "./protocol-version": {
+      "types": "./dist/protocol-version.d.ts",
+      "default": "./dist/protocol-version.js"
+    },
+    "./package.json": "./package.json",
     "./*": {
       "types": "./dist/*.d.ts",
       "default": "./dist/*.js"

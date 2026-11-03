@@ -1,5 +1,5 @@
-import { ConditionType } from '@client-bff-protocol/enums/condition-type';
-import { ServerComponentClass } from '@client-bff-protocol/enums/server-component-class';
+import { ConditionType } from '@matreshka/client-bff-protocol/enums/condition-type';
+import { ServerComponentClass } from '@matreshka/client-bff-protocol/enums/server-component-class';
 import { firstValueFrom } from 'rxjs';
 import { describe, expect, it, vi } from 'vitest';
 import { ServerComponentConfig } from '../../components/server/server-component-config';

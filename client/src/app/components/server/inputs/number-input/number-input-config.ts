@@ -1,4 +1,4 @@
-import type { NumberInputConfig } from '@client-bff-protocol/types/number-input-config';
+import type { NumberInputConfig } from '@matreshka/client-bff-protocol/types/number-input-config';
 import { InputDependencies } from '../input-config';
 
 export const NumberInputDependencies = {

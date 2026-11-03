@@ -11,7 +11,7 @@ import {
   SimpleChanges,
   ViewEncapsulation,
 } from '@angular/core';
-import { collectConditionPayloadRefs } from '@shared/utils/serialized-operand';
+import { collectConditionPayloadRefs } from '@matreshka/shared/utils/serialized-operand';
 import {
   concat,
   distinctUntilChanged,

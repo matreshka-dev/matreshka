@@ -1,5 +1,5 @@
-import { ColorRole } from '@client-bff-protocol/enums/color-role';
-import { ColorToken } from '@client-bff-protocol/types/color-token';
+import { ColorRole } from '@matreshka/client-bff-protocol/enums/color-role';
+import { ColorToken } from '@matreshka/client-bff-protocol/types/color-token';
 import {
   COLOR_TOKEN_STATES,
   resolveColorTokenTransitions,

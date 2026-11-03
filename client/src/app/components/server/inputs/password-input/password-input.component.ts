@@ -3,7 +3,7 @@ import {
   Component,
   ViewEncapsulation,
 } from '@angular/core';
-import type { PasswordInputConfig } from '@client-bff-protocol/types/password-input-config';
+import type { PasswordInputConfig } from '@matreshka/client-bff-protocol/types/password-input-config';
 import { PreparePipe } from '../../../../pipes/prepare.pipe';
 import { passwordInputAutocomplete } from '../../../../utils/password-input-autocomplete';
 import { ServerInputComponent } from '../server-input-component';

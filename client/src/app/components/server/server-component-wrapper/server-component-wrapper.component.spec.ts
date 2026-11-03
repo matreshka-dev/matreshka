@@ -1,8 +1,8 @@
 import { Component, Input } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { ColorRole } from '@client-bff-protocol/enums/color-role';
-import { ServerComponentClass } from '@client-bff-protocol/enums/server-component-class';
-import { OverlayAnchor } from '@client-bff-protocol/types/container-overlay';
+import { ColorRole } from '@matreshka/client-bff-protocol/enums/color-role';
+import { ServerComponentClass } from '@matreshka/client-bff-protocol/enums/server-component-class';
+import { OverlayAnchor } from '@matreshka/client-bff-protocol/types/container-overlay';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { ComponentHubService } from '../../../services/component-hub.service';
 import { SERVER_COMPONENTS_LIST_COMPONENT } from '../../../tokens/server-components-list-component';

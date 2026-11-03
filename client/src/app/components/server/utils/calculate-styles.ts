@@ -1,11 +1,14 @@
-import { DimensionalUnit } from '@client-bff-protocol/enums/dimensional-unit';
-import type { DimensionalValue } from '@client-bff-protocol/types/dimensional-value';
+import { DimensionalUnit } from '@matreshka/client-bff-protocol/enums/dimensional-unit';
+import type { DimensionalValue } from '@matreshka/client-bff-protocol/types/dimensional-value';
 import {
   isDimensionalValue,
   type FlexItemSpec,
-} from '@client-bff-protocol/types/flex-item';
-import type { GridItem, GridLine } from '@client-bff-protocol/types/grid-item';
-import type { RadiusPx } from '@client-bff-protocol/types/radius-px';
+} from '@matreshka/client-bff-protocol/types/flex-item';
+import type {
+  GridItem,
+  GridLine,
+} from '@matreshka/client-bff-protocol/types/grid-item';
+import type { RadiusPx } from '@matreshka/client-bff-protocol/types/radius-px';
 import { rem } from '../../../utils/rem';
 
 function gridLineToCss(value: GridLine): string {

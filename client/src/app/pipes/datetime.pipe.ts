@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import type { DateTimeOutputOptions } from '@client-bff-protocol/types/datetime-output-config';
+import type { DateTimeOutputOptions } from '@matreshka/client-bff-protocol/types/datetime-output-config';
 
 @Pipe({
   name: 'datetime',

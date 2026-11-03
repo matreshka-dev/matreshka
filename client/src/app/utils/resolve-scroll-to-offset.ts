@@ -1,4 +1,4 @@
-import { ScrollToPosition } from '@client-bff-protocol/enums/scroll-to-position';
+import { ScrollToPosition } from '@matreshka/client-bff-protocol/enums/scroll-to-position';
 
 export type ScrollAxisMetrics = {
   scrollSize: number;

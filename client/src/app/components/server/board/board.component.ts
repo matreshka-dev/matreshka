@@ -9,20 +9,20 @@ import {
   viewChildren,
   ViewEncapsulation,
 } from '@angular/core';
-import { BoardSetCenterMessage } from '@client-bff-protocol/messages/bff-to-client/components/board/board-set-center-message';
-import { BoardSetZoomMessage } from '@client-bff-protocol/messages/bff-to-client/components/board/board-set-zoom-message';
-import { BoardZoomInMessage } from '@client-bff-protocol/messages/bff-to-client/components/board/board-zoom-in-message';
-import { BoardZoomOutMessage } from '@client-bff-protocol/messages/bff-to-client/components/board/board-zoom-out-message';
-import { BoardCenterChangeMessage } from '@client-bff-protocol/messages/client-to-bff/components/board/board-center-change-message';
-import { BoardZoomChangeMessage } from '@client-bff-protocol/messages/client-to-bff/components/board/board-zoom-change-message';
+import { BoardSetCenterMessage } from '@matreshka/client-bff-protocol/messages/bff-to-client/components/board/board-set-center-message';
+import { BoardSetZoomMessage } from '@matreshka/client-bff-protocol/messages/bff-to-client/components/board/board-set-zoom-message';
+import { BoardZoomInMessage } from '@matreshka/client-bff-protocol/messages/bff-to-client/components/board/board-zoom-in-message';
+import { BoardZoomOutMessage } from '@matreshka/client-bff-protocol/messages/bff-to-client/components/board/board-zoom-out-message';
+import { BoardCenterChangeMessage } from '@matreshka/client-bff-protocol/messages/client-to-bff/components/board/board-center-change-message';
+import { BoardZoomChangeMessage } from '@matreshka/client-bff-protocol/messages/client-to-bff/components/board/board-zoom-change-message';
 import type {
   BoardConfig,
   BoardPoint,
   SerializedBoardItem,
-} from '@client-bff-protocol/types/board-config';
-import type { ServerComponentInteraction } from '@client-bff-protocol/types/server-component-interaction';
+} from '@matreshka/client-bff-protocol/types/board-config';
+import type { ServerComponentInteraction } from '@matreshka/client-bff-protocol/types/server-component-interaction';
+import type { NestedItemsDiff } from '@matreshka/shared/utils/diff-nested-items';
 import type { PanzoomObject } from '@panzoom/panzoom';
-import type { NestedItemsDiff } from '@shared/utils/diff-nested-items';
 import { rem } from '../../../utils/rem';
 import { NestedItemsHostComponent } from '../nested-items-host/nested-items-host.component';
 import { ServerComponentsListComponent } from '../server-components-list/server-components-list.component';

@@ -1,6 +1,6 @@
-import { PlatformWebAuthnCreateCredentialMessage } from '@client-bff-protocol/messages/bff-to-client/platforms/platform-webauthn-create-credential-message';
-import { ErrorMessage } from '@client-bff-protocol/messages/client-to-bff/error-message';
-import { PlatformWebAuthnCreateCredentialSuccessMessage } from '@client-bff-protocol/messages/client-to-bff/platforms/platform-webauthn-create-credential-success-message';
+import { PlatformWebAuthnCreateCredentialMessage } from '@matreshka/client-bff-protocol/messages/bff-to-client/platforms/platform-webauthn-create-credential-message';
+import { ErrorMessage } from '@matreshka/client-bff-protocol/messages/client-to-bff/error-message';
+import { PlatformWebAuthnCreateCredentialSuccessMessage } from '@matreshka/client-bff-protocol/messages/client-to-bff/platforms/platform-webauthn-create-credential-success-message';
 import { Subject } from 'rxjs';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {

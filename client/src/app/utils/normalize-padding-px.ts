@@ -1,4 +1,4 @@
-import type { PaddingPxWire } from '@client-bff-protocol/types/padding-px';
+import type { PaddingPxWire } from '@matreshka/client-bff-protocol/types/padding-px';
 
 export type PaddingPxResult = {
   top: number;

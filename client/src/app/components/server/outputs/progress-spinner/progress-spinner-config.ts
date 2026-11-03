@@ -1,4 +1,4 @@
-import type { ProgressSpinnerConfig } from '@client-bff-protocol/types/progress-spinner-config';
+import type { ProgressSpinnerConfig } from '@matreshka/client-bff-protocol/types/progress-spinner-config';
 import { OutputDependencies } from '../output-config';
 
 export const ProgressSpinnerDependencies = {

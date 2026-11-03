@@ -8,9 +8,9 @@ import {
   ViewEncapsulation,
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ForEachSyncComponentsMessage } from '@client-bff-protocol/messages/bff-to-client/components/for-each/for-each-sync-components-message';
-import type { ForEachConfig } from '@client-bff-protocol/types/for-each-config';
-import { parseContextPath } from '@shared/utils/parse-context-path';
+import { ForEachSyncComponentsMessage } from '@matreshka/client-bff-protocol/messages/bff-to-client/components/for-each/for-each-sync-components-message';
+import type { ForEachConfig } from '@matreshka/client-bff-protocol/types/for-each-config';
+import { parseContextPath } from '@matreshka/shared/utils/parse-context-path';
 import { filter, map, takeUntil } from 'rxjs';
 import { SsrService } from '../../../services/ssr.service';
 import { ContextChangeEvent } from '../../../types/context-change-event';

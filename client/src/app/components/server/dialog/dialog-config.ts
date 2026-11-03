@@ -1,4 +1,4 @@
-import type { DialogConfig } from '@client-bff-protocol/types/dialog-config';
+import type { DialogConfig } from '@matreshka/client-bff-protocol/types/dialog-config';
 import {
   ComponentDependencies,
   getNestedConfigsByPropertyKey,

@@ -1,9 +1,9 @@
-import type { Overlay as OverlayShape } from '@client-bff-protocol/types/container-overlay';
+import type { Overlay as OverlayShape } from '@matreshka/client-bff-protocol/types/container-overlay';
 import type {
   ServerComponentConfig,
   ServerComponentRule,
-} from '@client-bff-protocol/types/server-component-config';
-import { fetchFromObject } from '@shared/utils/fetch-from-object';
+} from '@matreshka/client-bff-protocol/types/server-component-config';
+import { fetchFromObject } from '@matreshka/shared/utils/fetch-from-object';
 
 export type { ServerComponentConfig, ServerComponentRule };
 

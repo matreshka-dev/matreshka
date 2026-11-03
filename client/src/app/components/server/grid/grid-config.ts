@@ -1,4 +1,4 @@
-import type { GridConfig } from '@client-bff-protocol/types/grid-config';
+import type { GridConfig } from '@matreshka/client-bff-protocol/types/grid-config';
 import {
   ComponentDependencies,
   getNestedConfigsByPropertyKey,

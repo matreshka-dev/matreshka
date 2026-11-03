@@ -6,7 +6,7 @@ import {
   NavigationStart,
   Router,
 } from '@angular/router';
-import { PlatformId } from '@client-bff-protocol/enums/platform-id';
+import { PlatformId } from '@matreshka/client-bff-protocol/enums/platform-id';
 import {
   AppBackMessage,
   AppNavigateMessage,
@@ -14,16 +14,16 @@ import {
   AppReloadMessage,
   AppStorageValueMessage,
   HandshakeMessage as BffHandshakeMessage,
-} from '@client-bff-protocol/messages/bff-to-client/app';
-import type { PlatformSetColorSchemeMode } from '@client-bff-protocol/messages/bff-to-client/platforms/platform-set-color-scheme-message';
-import { PlatformSetColorSchemeMessage } from '@client-bff-protocol/messages/bff-to-client/platforms/platform-set-color-scheme-message';
-import { PlatformSetOverlaysMessage } from '@client-bff-protocol/messages/bff-to-client/platforms/platform-set-overlays-message';
-import { PlatformSetToolsMessage } from '@client-bff-protocol/messages/bff-to-client/platforms/platform-set-tools-message';
-import { PlatformShowNativePickerMessage } from '@client-bff-protocol/messages/bff-to-client/platforms/platform-show-native-picker-message';
-import { AppClientStateMessage } from '@client-bff-protocol/messages/client-to-bff/app';
-import { ClientState } from '@client-bff-protocol/types/client-state';
-import type { WebMcpToolConfig } from '@client-bff-protocol/types/web-mcp-tool-config';
-import { parseContextPath } from '@shared/utils/parse-context-path';
+} from '@matreshka/client-bff-protocol/messages/bff-to-client/app/index';
+import type { PlatformSetColorSchemeMode } from '@matreshka/client-bff-protocol/messages/bff-to-client/platforms/platform-set-color-scheme-message';
+import { PlatformSetColorSchemeMessage } from '@matreshka/client-bff-protocol/messages/bff-to-client/platforms/platform-set-color-scheme-message';
+import { PlatformSetOverlaysMessage } from '@matreshka/client-bff-protocol/messages/bff-to-client/platforms/platform-set-overlays-message';
+import { PlatformSetToolsMessage } from '@matreshka/client-bff-protocol/messages/bff-to-client/platforms/platform-set-tools-message';
+import { PlatformShowNativePickerMessage } from '@matreshka/client-bff-protocol/messages/bff-to-client/platforms/platform-show-native-picker-message';
+import { AppClientStateMessage } from '@matreshka/client-bff-protocol/messages/client-to-bff/app/index';
+import { ClientState } from '@matreshka/client-bff-protocol/types/client-state';
+import type { WebMcpToolConfig } from '@matreshka/client-bff-protocol/types/web-mcp-tool-config';
+import { parseContextPath } from '@matreshka/shared/utils/parse-context-path';
 import { filter, firstValueFrom, take } from 'rxjs';
 import { clientBffProtocolVersion } from '../client-bff-protocol-version';
 import { ServerComponent } from '../components/server/server-component';

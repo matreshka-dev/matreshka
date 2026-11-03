@@ -4,6 +4,8 @@
 
 ## Разработка
 
+Клиент зависит от собранных `@matreshka/client-bff-protocol` и `@matreshka/shared`. Из корня репозитория: `npm install && npm run build`, затем в `client/`:
+
 ```bash
 ng serve
 # или с автоматическим открытием браузера

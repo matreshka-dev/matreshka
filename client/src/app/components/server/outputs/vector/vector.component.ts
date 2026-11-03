@@ -3,8 +3,8 @@ import {
   Component,
   ViewEncapsulation,
 } from '@angular/core';
-import { VectorMode } from '@client-bff-protocol/enums/vector-mode';
-import type { VectorConfig } from '@client-bff-protocol/types/vector-config';
+import { VectorMode } from '@matreshka/client-bff-protocol/enums/vector-mode';
+import type { VectorConfig } from '@matreshka/client-bff-protocol/types/vector-config';
 import {
   getVectorCssMask,
   getVectorNativeSrc,

@@ -1,7 +1,7 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { of, Subject } from 'rxjs';
 
-import { ServerComponentClass } from '@client-bff-protocol/enums/server-component-class';
+import { ServerComponentClass } from '@matreshka/client-bff-protocol/enums/server-component-class';
 import { beforeEach, describe, expect, it } from 'vitest';
 import { ComponentHubService } from '../../../services/component-hub.service';
 import { ContextHubService } from '../../../services/context-hub.service';

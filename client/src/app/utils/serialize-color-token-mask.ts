@@ -1,5 +1,5 @@
-import { ColorTokenMaskType } from '@client-bff-protocol/enums/color-token-mask-type';
-import type { ColorTokenMask } from '@client-bff-protocol/types/color-token';
+import { ColorTokenMaskType } from '@matreshka/client-bff-protocol/enums/color-token-mask-type';
+import type { ColorTokenMask } from '@matreshka/client-bff-protocol/types/color-token';
 import { serializeColorTokenLinearGradientMask } from './serialize-color-token-linear-gradient-mask';
 
 /**
