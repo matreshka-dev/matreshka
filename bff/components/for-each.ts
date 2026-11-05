@@ -4,12 +4,13 @@ import { ForEachSyncComponentsMessage } from "@matreshka/client-bff-protocol/mes
 import type { ForEachConfig } from "@matreshka/client-bff-protocol/types/for-each-config";
 import { BehaviorSubject, skip, Subscription } from "rxjs";
 import { Paths, PathValue } from "ts-essentials";
-import { z } from "zod";
 import {
   calculateComponents,
   ComponentInstance,
   ComponentTreeNode,
   Context,
+  contextClientUpdatesForbiddenSchema,
+  type ContextClientUpdatesForbiddenSchema,
   ContextRef,
   ContextRefValue,
   JsonObject,
@@ -163,7 +164,10 @@ export type ForEachInitConfig<
   divider?: ComponentTreeNode | ComponentTreeNode[];
 } & ComponentInitConfig<ForEach<RefType, ComponentType>, PropertiesType>;
 
-class ForEachContext<T extends JsonObject> extends Context<T> {
+class ForEachContext<T extends JsonObject> extends Context<
+  T,
+  ContextClientUpdatesForbiddenSchema
+> {
   /**
    * Синхронно поднимает хранилище до async {@link init} (preload-сериализация индексов).
    * @returns Тот же экземпляр контекста.
@@ -186,7 +190,7 @@ class ForEachContext<T extends JsonObject> extends Context<T> {
     super({
       data: async () => ({}) as Promise<T>,
       preload: preload,
-      schema: z.strictObject({}), // Запрет изменения из внешних источников
+      schema: contextClientUpdatesForbiddenSchema, // Запрет изменения из внешних источников
     });
   }
 }

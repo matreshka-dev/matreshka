@@ -3,7 +3,7 @@ import { BehaviorSubject, Subject } from "rxjs";
 import { describe, expect, it, vi } from "vitest";
 import { z, ZodError } from "zod";
 import type { Client } from "../client";
-import { Context } from "./context";
+import { Context, context } from "./context";
 
 vi.mock("../client", () => {
   class FakeClient {
@@ -266,9 +266,9 @@ describe("Context.set", () => {
   });
 
   it("client-originated update шлёт diff только другим клиентам и без дубля", async () => {
-    const ctx = new Context<{ loading: boolean }>({
+    const ctx = context({
       schema: z.object({ loading: z.boolean() }),
-      data: async () => ({ loading: false }),
+      data: async () => ({ loading: false as boolean }),
     });
     const source = createDeliveryClient();
     const recipient = createDeliveryClient();
@@ -316,9 +316,9 @@ describe("Context.set", () => {
   });
 
   it("ключ вне schema отклоняется целиком, даже если рядом валидное поле", async () => {
-    const ctx = new Context<{ name: string; role: string }>({
+    const ctx = context({
       schema: z.object({ name: z.string() }),
-      data: async () => ({ name: "", role: "viewer" }),
+      data: async () => ({ name: "", role: "viewer" as string }),
     });
     const source = createDeliveryClient();
 
@@ -343,9 +343,9 @@ describe("Context.set", () => {
   });
 
   it("значение не того типа остаётся ZodError и не попадает в контекст", async () => {
-    const ctx = new Context<{ name: string }>({
+    const ctx = context({
       schema: z.object({ name: z.string() }),
-      data: async () => ({ name: "" }),
+      data: async () => ({ name: "" as string }),
     });
     const source = createDeliveryClient();
 

@@ -1,4 +1,5 @@
 import { JsonObject } from "@matreshka/client-bff-protocol/types/json";
+import { z } from "zod";
 import {
   toSerializedOperand,
   UntypedActionOperand,
@@ -17,7 +18,7 @@ export type LocalContextPathPatch<T extends JsonObject> = Partial<{
  */
 export class SetContext<T extends JsonObject> extends LocalAction {
   constructor(
-    private readonly context: Context<T>,
+    private readonly context: Context<T, z.ZodObject | undefined>,
     private readonly patch: LocalContextPathPatch<T>,
     config: ActionConfig = {},
   ) {
@@ -43,7 +44,7 @@ export class SetContext<T extends JsonObject> extends LocalAction {
 
 /** @internal */
 export function createSetContext<T extends JsonObject>(
-  context: Context<T>,
+  context: Context<T, z.ZodObject | undefined>,
   patch: LocalContextPathPatch<T>,
   config: ActionConfig = {},
 ): SetContext<T> {
