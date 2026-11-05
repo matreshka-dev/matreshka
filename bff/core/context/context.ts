@@ -193,6 +193,31 @@ export class Context<T extends JsonObject> {
     }
   }
 
+  /**
+   * Клиентское `context-values` разрешено только по ключам {@link schema}.
+   * Нет схемы или ключ вне неё — `Error`, patch не применяется.
+   * Несовпадение типа остаётся `ZodError` из `parse`.
+   */
+  private assertClientChangeAllowed(key: string, value: unknown): void {
+    if (!this.schema) {
+      throw new Error(
+        `Context ${this.id} rejected client update for "${key}": validation schema is not set`,
+      );
+    }
+
+    let keySchema;
+    try {
+      keySchema = zodDeepPick(this.schema, key);
+    } catch (cause) {
+      const reason = cause instanceof Error ? cause.message : String(cause);
+      throw new Error(
+        `Context ${this.id} rejected client update for "${key}": key is not described in the validation schema (${reason})`,
+      );
+    }
+
+    keySchema.parse(value);
+  }
+
   /** Ошибка загрузки initDataCallback — в error$ всех клиентов, привязанных к контексту. */
   private reportInitFailureToClients(error: unknown) {
     getRegistryEntry(this.id)?.clients.forEach((_, client) => {
@@ -337,14 +362,13 @@ export class Context<T extends JsonObject> {
                 z.strictObject({ key: z.string(), value: z.unknown() }),
               );
               const changes = payloadSchema.parse(unsafeMessage.payload);
+              for (const change of changes) {
+                this.assertClientChangeAllowed(change.key, change.value);
+              }
               const patch: Partial<Record<string, unknown>> = {};
-              changes.forEach((change) => {
-                if (this.schema) {
-                  const keySchema = zodDeepPick(this.schema, change.key);
-                  keySchema.parse(change.value);
-                }
+              for (const change of changes) {
                 patch[change.key] = change.value;
-              });
+              }
               this.dataChangedByClient = client;
               this.set(patch as ContextPathPatch<T>);
               return;

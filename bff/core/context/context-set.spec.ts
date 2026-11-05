@@ -1,6 +1,7 @@
 import { ContextValuesMessage as ClientToBffContextValuesMessage } from "@matreshka/client-bff-protocol/messages/client-to-bff/context/index";
 import { BehaviorSubject, Subject } from "rxjs";
 import { describe, expect, it, vi } from "vitest";
+import { z, ZodError } from "zod";
 import type { Client } from "../client";
 import { Context } from "./context";
 
@@ -22,6 +23,7 @@ describe("Context.set", () => {
   function createDeliveryClient() {
     const waiters: Subject<void>[] = [];
     const sentMessages: unknown[] = [];
+    const errors: unknown[] = [];
     const incomingMessage$ = new Subject<unknown>();
     const outcomingMessage$ = new Subject<unknown>();
     outcomingMessage$.subscribe((message) => sentMessages.push(message));
@@ -30,7 +32,7 @@ describe("Context.set", () => {
       destroy$: new Subject<void>(),
       outcomingMessage$,
       incomingMessage$,
-      error$: { next: () => undefined },
+      error$: { next: (error: unknown) => errors.push(error) },
       waitForDelivery: vi.fn(() => {
         const waiter = new Subject<void>();
         waiters.push(waiter);
@@ -43,6 +45,7 @@ describe("Context.set", () => {
       incomingMessage$,
       sentMessages,
       waiters,
+      errors,
     };
   }
 
@@ -264,6 +267,7 @@ describe("Context.set", () => {
 
   it("client-originated update шлёт diff только другим клиентам и без дубля", async () => {
     const ctx = new Context<{ loading: boolean }>({
+      schema: z.object({ loading: z.boolean() }),
       data: async () => ({ loading: false }),
     });
     const source = createDeliveryClient();
@@ -283,5 +287,78 @@ describe("Context.set", () => {
     expect(source.sentMessages).toHaveLength(0);
     expect(recipient.sentMessages).toHaveLength(1);
     expect(recipient.waiters).toHaveLength(1);
+    expect(source.errors).toEqual([]);
+  });
+
+  it("client update без schema уходит в error$ и не меняет данные", async () => {
+    const ctx = new Context<{ loading: boolean }>({
+      data: async () => ({ loading: false }),
+    });
+    const source = createDeliveryClient();
+
+    ctx.authorizeClient(source.client);
+    await ctx.init();
+
+    source.incomingMessage$.next(
+      new ClientToBffContextValuesMessage(ctx.id, [
+        { key: "loading", value: true },
+      ]),
+    );
+
+    expect(ctx.get("loading")).toBe(false);
+    expect(source.errors).toHaveLength(1);
+    expect(source.errors[0]).toBeInstanceOf(Error);
+    expect(source.errors[0]).not.toBeInstanceOf(ZodError);
+    expect((source.errors[0] as Error).message).toContain(
+      "validation schema is not set",
+    );
+    expect(source.sentMessages).toHaveLength(0);
+  });
+
+  it("ключ вне schema отклоняется целиком, даже если рядом валидное поле", async () => {
+    const ctx = new Context<{ name: string; role: string }>({
+      schema: z.object({ name: z.string() }),
+      data: async () => ({ name: "", role: "viewer" }),
+    });
+    const source = createDeliveryClient();
+
+    ctx.authorizeClient(source.client);
+    await ctx.init();
+
+    source.incomingMessage$.next(
+      new ClientToBffContextValuesMessage(ctx.id, [
+        { key: "name", value: "Анна" },
+        { key: "role", value: "admin" },
+      ]),
+    );
+
+    expect(ctx.get("name")).toBe("");
+    expect(ctx.get("role")).toBe("viewer");
+    expect(source.errors).toHaveLength(1);
+    expect(source.errors[0]).toBeInstanceOf(Error);
+    expect(source.errors[0]).not.toBeInstanceOf(ZodError);
+    expect((source.errors[0] as Error).message).toContain(
+      'client update for "role": key is not described in the validation schema',
+    );
+  });
+
+  it("значение не того типа остаётся ZodError и не попадает в контекст", async () => {
+    const ctx = new Context<{ name: string }>({
+      schema: z.object({ name: z.string() }),
+      data: async () => ({ name: "" }),
+    });
+    const source = createDeliveryClient();
+
+    ctx.authorizeClient(source.client);
+    await ctx.init();
+
+    source.incomingMessage$.next(
+      new ClientToBffContextValuesMessage(ctx.id, [
+        { key: "name", value: 123 },
+      ]),
+    );
+
+    expect(ctx.get("name")).toBe("");
+    expect(source.errors[0]).toBeInstanceOf(ZodError);
   });
 });
