@@ -94,14 +94,19 @@ button(
 Задача: хранить введенное значение в BFF-контексте.
 
 ```ts
+import { z } from "zod";
+
 context = new Context({
+  schema: z.object({
+    name: z.string(),
+  }),
   data: async () => ({ name: "" }),
 });
 
 textInput(this.context.ref("name"));
 ```
 
-Клиент будет отправлять `context-values`, а BFF будет обновлять `Context`.
+Клиент отправляет `context-values`, а BFF обновляет ключ, потому что `name` описан в `schema`. Ключ input или `context.local` / `ref.local` без схемы клиентским сообщением не меняется. Подробнее — [Context](../guides/context.md).
 
 ## Отобразить введенное значение
 
@@ -287,6 +292,8 @@ stack(
   [text("Наведи на меня")],
 );
 ```
+
+`hovered` меняет `context.local`, поэтому ключ описывают в `schema` контекста. Иначе BFF не применит это `context-values`.
 
 Для server-обработчика доступен `instance` — тот же инстанс, что и при `onClick`:
 
@@ -578,7 +585,7 @@ button(
 );
 ```
 
-Клиент сразу обновляет UI и отправляет `context-values` на BFF.
+Клиент сразу обновляет UI и отправляет `context-values` на BFF. Пути из этих действий (`loading`, `enabled`, `quantity`, `dirty`) описывают в `schema`. Ключ вне схемы клиентским сообщением не меняется. Подробнее — [Context](../guides/context.md).
 
 ## Переключение темы
 

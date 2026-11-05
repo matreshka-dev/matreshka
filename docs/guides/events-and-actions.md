@@ -208,6 +208,8 @@ button({
 
 Ссылка разрешается на клиенте в момент выполнения действия, поэтому используется её актуальное значение. **`toggle`** — только **`context.local.toggle(path)`** для boolean-полей. **`inc` / `dec`** — **`context.local.inc|dec(path, step?)`** и **`ref.local.inc|dec(step?)`** для числовых полей: клиент прибавляет или вычитает `step` (по умолчанию `1`), причём `step` также может быть числовым `ContextRef`.
 
+Каждый такой путь, как и `ref` input, обязан быть в `schema` контекста: локальная запись синхронизируется на BFF через `context-values`, и BFF применяет только ключи из схемы. Ключи, которые пишет только сервер, в схему не входят. Подробнее — [Context](context.md).
+
 ## Анимация как `LocalAction`
 
 Анимации тоже можно запускать как клиентское действие на событие. В примере
@@ -304,9 +306,15 @@ import {
 } from "@matreshka/bff/components";
 import { Context } from "@matreshka/bff/core";
 import { when } from "@matreshka/bff/core/conditions";
+import { z } from "zod";
 
 class SignInPage extends Page {
   context = new Context({
+    schema: z.object({
+      login: z.string(),
+      password: z.string(),
+      loading: z.boolean(),
+    }),
     data: async () => ({
       login: "",
       password: "",

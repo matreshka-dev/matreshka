@@ -14,8 +14,8 @@
 ## Этапы на BFF (общая схема)
 
 1. **Создание** — `new Context({ data, schema, … })`, регистрация id в registry.
-2. **Привязка клиента** — `authorizeClient` / сериализация ref в дереве компонентов; при необходимости `init()` и **`context-init`** (полный snapshot).
-3. **Работа** — изменения через `set` / `replace` / `ref.set`, исходящие **`context-values`** (diff) всем привязанным клиентам; входящие **`context-values`** от клиента (с валидацией schema). Семантика completion у server-side update описана отдельно в [context-update-delivery.md](context-update-delivery.md).
+2. **Привязка клиента** — `authorizeClient` / сериализация любой ссылки на контекст (компонент, condition, плейсхолдер, payload локального действия). Привязка открывает клиенту **весь** контекст: при необходимости `init()` и **`context-init`** (полный snapshot), а не отдельный ключ.
+3. **Работа** — изменения через `set` / `replace` / `ref.set`, исходящие **`context-values`** (diff) всем привязанным клиентам; входящие **`context-values`** от клиента только по ключам из `schema`. Семантика completion у server-side update описана отдельно в [context-update-delivery.md](context-update-delivery.md). Какие ключи описывать в схеме — в [guides/context.md](../guides/context.md).
 4. **Использование entry** — page/dialog держит instances; `stopUsing$` entry часто совпадает с моментом, когда контекст больше не нужен серверу (см. [сценарии destroy](../advanced/context-destroy-scenarios.md)).
 5. **Уничтожение на сервере** — `context.destroy()`:
    - контекст помечается destroyed, **недоступен** для `get`, `set`, `replace`, `watch`, новых ref в сериализации;

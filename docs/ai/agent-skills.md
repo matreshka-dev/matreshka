@@ -52,6 +52,7 @@ npx skills add matreshka-dev/agents--skill --skill context-init-in-boot prefer-c
 | JWT, tenant до построения страницы             | `storage-vs-context`, `route-guard-return-undefined`             |
 | Подписка на `watch()`                          | `context-subscribe-take-until-destroy`                           |
 | Zod на полях ввода                             | `context-zod-draft-not-live-strict`                              |
+| Zod для данных из недоверенных источников      | `context-validate-untrusted-sources`                             |
 
 ### UI, списки, entry
 

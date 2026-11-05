@@ -23,6 +23,7 @@
 import { Context } from "@matreshka/bff/core";
 import { when } from "@matreshka/bff/core/conditions";
 import { Page, button, form, text, textInput } from "@matreshka/bff/components";
+import { z } from "zod";
 
 type GreetState = {
   name: string;
@@ -31,6 +32,9 @@ type GreetState = {
 
 export class GreetPage extends Page {
   context = new Context<GreetState>({
+    schema: z.object({
+      name: z.string(),
+    }),
     data: async () => ({
       name: "",
       greeting: "",
@@ -86,7 +90,7 @@ export class GreetPage extends Page {
 
 ### Контекст и поле ввода
 
-`nameRef` и `greetingRef` передаются в UI как **`ContextRef`**, а не как готовые строки — клиент подписывается на изменения и обновляет поле и текст. В обработчике submit можно разово вызвать `this.context.get("name")` и записать результат через `this.context.set({ greeting: … })`.
+`nameRef` и `greetingRef` передаются в UI как **`ContextRef`**, а не как готовые строки — клиент подписывается на изменения и обновляет поле и текст. `name` пишет поле ввода, поэтому ключ есть в `schema`. `greeting` меняет только обработчик на BFF, поэтому в схеме его нет. В обработчике submit можно разово вызвать `this.context.get("name")` и записать результат через `this.context.set({ greeting: … })`.
 
 ### Форма и server `onClick`
 
