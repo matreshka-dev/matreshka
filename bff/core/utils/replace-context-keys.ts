@@ -1,7 +1,7 @@
 import { parseContextPath } from "@matreshka/shared/utils/parse-context-path";
 import { replaceContextPlaceholders } from "@matreshka/shared/utils/replace-context-placeholders";
 import { Paths } from "ts-essentials";
-import type { Context } from "../context/context";
+import type { AnyContext } from "../context/context";
 
 /**
  * Заменяет плейсхолдеры вида `@{ключ}` в строке значениями из объекта контекста.
@@ -15,7 +15,7 @@ import type { Context } from "../context/context";
  */
 export function replaceContextKeys(
   str: string,
-  resolveContext: (contextId: string) => Context<any> | undefined,
+  resolveContext: (contextId: string) => AnyContext | undefined,
 ) {
   return replaceContextPlaceholders(str, (path) => {
     const pathInfo = parseContextPath(path);

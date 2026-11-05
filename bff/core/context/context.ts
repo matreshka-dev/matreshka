@@ -22,7 +22,7 @@ import {
   take,
 } from "rxjs";
 import { Paths, PathValue } from "ts-essentials";
-import { z, ZodObject } from "zod";
+import { z } from "zod";
 import { ActionConfig } from "../actions/action";
 import { decContextValue } from "../actions/dec-context-value";
 import { incContextValue, NumberValueRef } from "../actions/inc-context-value";
@@ -51,6 +51,63 @@ export type ContextPathPatch<T extends JsonObject> = Partial<{
   [K in Paths<T>]: PathValue<T, K>;
 }>;
 
+/**
+ * Пустая strict-схема: клиент не может менять данные контекста через `context-values`.
+ * Используется во внутренних контекстах (ForEach, ItemList).
+ */
+export type ForbiddenUpdatesSchema = z.ZodObject<
+  Record<string, never>,
+  z.core.$strict
+> & {
+  readonly __forbiddenUpdatesSchema?: unique symbol;
+};
+
+/** @see ForbiddenUpdatesSchema */
+export const forbiddenUpdatesSchema = z.strictObject(
+  {},
+) as ForbiddenUpdatesSchema;
+
+/**
+ * Zod-схема для {@link Context}: описывает подмножество полей `T` без лишних ключей;
+ * типы полей согласованы с {@link z.input} схемы и `Partial<T>`.
+ */
+export type ContextSchema<T extends JsonObject, S extends z.ZodObject> = [
+  S,
+] extends [ForbiddenUpdatesSchema]
+  ? S
+  : Exclude<keyof z.input<S>, keyof T> extends never
+    ? z.input<S> extends Partial<T>
+      ? S
+      : never
+    : never;
+
+/** Конфиг {@link Context} без клиентской Zod-схемы. */
+export type ContextInitWithoutSchema<T extends JsonObject> = {
+  data: () => Promise<T>;
+  schema?: undefined;
+  preload?: boolean;
+  persistent?: boolean;
+};
+
+/** Конфиг {@link Context} с Zod-схемой клиентских изменений. */
+export type ContextInitWithSchema<
+  T extends JsonObject,
+  S extends z.ZodObject,
+> = {
+  data: () => Promise<T>;
+  schema: ContextSchema<T, S>;
+  preload?: boolean;
+  persistent?: boolean;
+};
+
+/** Конфигурация {@link Context} (один аргумент конструктора). */
+export type ContextInitConfig<
+  T extends JsonObject,
+  S extends z.ZodObject | undefined = undefined,
+> = S extends z.ZodObject
+  ? ContextInitWithSchema<T, S>
+  : ContextInitWithoutSchema<T>;
+
 /** Отделяет чтение через {@link Context.get} от живого дерева в хранилище. */
 function cloneGetResult(value: unknown): unknown {
   if (value !== null && typeof value === "object") {
@@ -64,15 +121,19 @@ type ContextClientBinding = {
   initSent: boolean;
 };
 
+/** Любой зарегистрированный контекст (с Zod-схемой или без). */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any -- erasure для реестра и ContextRef
+export type AnyContext = Context<any, any>;
+
 type ContextRegistryEntry = {
-  context: Context<any>;
+  context: AnyContext;
   clients: Map<Client, ContextClientBinding>;
 };
 
 /** Глобальный реестр контекстов: lookup по id, привязки к клиентам, учёт init. */
 const contextRegistry = new Map<string, ContextRegistryEntry>();
 
-function registerContext(context: Context<any>) {
+function registerContext(context: AnyContext) {
   contextRegistry.set(context.id, {
     context,
     clients: new Map(),
@@ -83,7 +144,7 @@ function unregisterContext(contextId: string) {
   contextRegistry.delete(contextId);
 }
 
-function getContextById(contextId: string): Context<any> | undefined {
+function getContextById(contextId: string): AnyContext | undefined {
   return contextRegistry.get(contextId)?.context;
 }
 
@@ -91,7 +152,7 @@ function getRegistryEntry(contextId: string) {
   return contextRegistry.get(contextId);
 }
 
-function bindClient(context: Context<any>, client: Client): boolean {
+function bindClient(context: AnyContext, client: Client): boolean {
   const entry = contextRegistry.get(context.id);
   if (!entry || entry.clients.has(client)) {
     return false;
@@ -126,14 +187,18 @@ function unbindClient(contextId: string, client: Client) {
  * а также для отслеживания ошибок валидации и управления реактивными изменениями.
  *
  * @template T Тип структуры данных контекста.
+ * @template S Zod-схема валидации клиентских изменений (см. {@link ContextSchema}).
  */
-export class Context<T extends JsonObject> {
+export class Context<
+  T extends JsonObject,
+  S extends z.ZodObject | undefined = undefined,
+> {
   /** Уникальный идентификатор контекста */
   readonly id = crypto.randomUUID();
   /** Реактивное хранилище данных контекста. */
   protected data$?: BehaviorSubject<T>;
   /** Схема валидации данных контекста */
-  readonly schema?: ZodObject;
+  readonly schema?: S extends z.ZodObject ? S : undefined;
   /** Флаг, указывающий, что контекст должен быть инициализирован при авторизации клиента */
   readonly preload: boolean;
   /**
@@ -231,14 +296,15 @@ export class Context<T extends JsonObject> {
    * Подписывается на входящие сообщения от клиента и ошибки, связанные с этим контекстом.
   
    */
-  constructor(config: {
-    data: () => Promise<T>;
-    schema?: ZodObject;
-    preload?: boolean;
-    persistent?: boolean;
-  }) {
-    this.schema = config.schema;
-    registerContext(this);
+  constructor(
+    config: S extends z.ZodObject
+      ? ContextInitWithSchema<T, S>
+      : ContextInitWithoutSchema<T>,
+  ) {
+    this.schema = (
+      "schema" in config ? config.schema : undefined
+    ) as S extends z.ZodObject ? S : undefined;
+    registerContext(this as unknown as AnyContext);
     this.initDataCallback = config.data;
     this.preload = config.preload ?? false;
     this.persistent = config.persistent ?? false;
@@ -305,7 +371,7 @@ export class Context<T extends JsonObject> {
 
   authorizeClient(client: Client) {
     this.assertNotDestroyed();
-    if (!bindClient(this, client)) {
+    if (!bindClient(this as unknown as AnyContext, client)) {
       return;
     }
     if (this.preload) {
@@ -697,7 +763,7 @@ export class Context<T extends JsonObject> {
    */
   ref<K extends Paths<T>>(path: K): ContextRef<T, K> {
     this.assertNotDestroyed();
-    return new ContextRef<T, K>(this, path);
+    return new ContextRef<T, K>(this as unknown as AnyContext, path);
   }
 
   /**
@@ -736,7 +802,7 @@ export class Context<T extends JsonObject> {
     return new ContextRef<
       T,
       PathValue<OtherContextType, OtherPathType> & Paths<T>
-    >(this, path);
+    >(this as unknown as AnyContext, path);
   }
 
   toJSON() {
