@@ -266,9 +266,9 @@ describe("Context.set", () => {
   });
 
   it("client-originated update шлёт diff только другим клиентам и без дубля", async () => {
-    const ctx = new Context({
+    const ctx = new Context<{ loading: boolean }>({
       schema: z.object({ loading: z.boolean() }),
-      data: async () => ({ loading: false as boolean }),
+      data: async () => ({ loading: false }),
     });
     const source = createDeliveryClient();
     const recipient = createDeliveryClient();
@@ -316,9 +316,9 @@ describe("Context.set", () => {
   });
 
   it("ключ вне schema отклоняется целиком, даже если рядом валидное поле", async () => {
-    const ctx = new Context({
+    const ctx = new Context<{ name: string; role: string }>({
       schema: z.object({ name: z.string() }),
-      data: async () => ({ name: "", role: "viewer" as string }),
+      data: async () => ({ name: "", role: "viewer" }),
     });
     const source = createDeliveryClient();
 
@@ -343,9 +343,9 @@ describe("Context.set", () => {
   });
 
   it("значение не того типа остаётся ZodError и не попадает в контекст", async () => {
-    const ctx = new Context({
+    const ctx = new Context<{ name: string }>({
       schema: z.object({ name: z.string() }),
-      data: async () => ({ name: "" as string }),
+      data: async () => ({ name: "" }),
     });
     const source = createDeliveryClient();
 

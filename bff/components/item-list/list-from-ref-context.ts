@@ -1,17 +1,13 @@
 import { BehaviorSubject } from "rxjs";
-import {
-  Context,
-  forbiddenUpdatesSchema,
-  type ForbiddenUpdatesSchema,
-  type JsonObject,
-} from "../../core";
+import { z } from "zod";
+import { Context, type JsonObject } from "../../core";
 
 type ItemListIndexContext = Record<string, { index: `${number}` }>;
 
 /** Контекст индексов элементов ItemList; данные не загружаются снаружи. */
 export class ItemListIndexStore<
   T extends JsonObject = ItemListIndexContext,
-> extends Context<T, ForbiddenUpdatesSchema> {
+> extends Context<T> {
   /**
    * Синхронно поднимает хранилище до async {@link init}, чтобы `replace` в serialize
    * не перезаписывался пустым `{}` из `initDataCallback`.
@@ -29,7 +25,7 @@ export class ItemListIndexStore<
     super({
       data: async () => ({}) as Promise<T>,
       preload,
-      schema: forbiddenUpdatesSchema,
+      schema: z.strictObject({}),
     });
   }
 }

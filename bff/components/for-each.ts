@@ -4,21 +4,19 @@ import { ForEachSyncComponentsMessage } from "@matreshka/client-bff-protocol/mes
 import type { ForEachConfig } from "@matreshka/client-bff-protocol/types/for-each-config";
 import { BehaviorSubject, skip, Subscription } from "rxjs";
 import { Paths, PathValue } from "ts-essentials";
+import { z } from "zod";
 import {
-  AnyContext,
   calculateComponents,
   ComponentInstance,
   ComponentTreeNode,
   Context,
   ContextRef,
   ContextRefValue,
-  forbiddenUpdatesSchema,
   JsonObject,
   runWithClient,
   runWithEntryContext,
   serializeComponentList,
   StandaloneComponent,
-  type ForbiddenUpdatesSchema,
 } from "../core";
 import { serializeForEachSlots } from "../core/utils/serialize-component-tree";
 import { runWithCreatedInstanceTracking } from "../core/utils/track-created-instances";
@@ -129,7 +127,7 @@ export type ForEachGeneratorProperties<
  */
 export type ForEachProperties = {
   ref: ContextRef;
-  componentContext: AnyContext;
+  componentContext: Context<any>;
   components?: (ComponentTreeNode | ComponentTreeNode[])[];
   divider?: ComponentTreeNode[];
 } & ComponentProperties;
@@ -165,10 +163,7 @@ export type ForEachInitConfig<
   divider?: ComponentTreeNode | ComponentTreeNode[];
 } & ComponentInitConfig<ForEach<RefType, ComponentType>, PropertiesType>;
 
-class ForEachContext<T extends JsonObject> extends Context<
-  T,
-  ForbiddenUpdatesSchema
-> {
+class ForEachContext<T extends JsonObject> extends Context<T> {
   /**
    * Синхронно поднимает хранилище до async {@link init} (preload-сериализация индексов).
    * @returns Тот же экземпляр контекста.
@@ -191,7 +186,7 @@ class ForEachContext<T extends JsonObject> extends Context<
     super({
       data: async () => ({}) as Promise<T>,
       preload: preload,
-      schema: forbiddenUpdatesSchema, // Запрет изменения из внешних источников
+      schema: z.strictObject({}), // Запрет изменения из внешних источников
     });
   }
 }

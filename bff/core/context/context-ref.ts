@@ -1,7 +1,6 @@
 import { JsonObject } from "@matreshka/client-bff-protocol/types/json";
 import { Observable } from "rxjs";
 import { Paths, PathValue } from "ts-essentials";
-import { z } from "zod";
 import { ActionConfig } from "../actions/action";
 import { decContextValue, DecContextValue } from "../actions/dec-context-value";
 import {
@@ -22,7 +21,7 @@ import {
 import { currentClient } from "../client-context";
 import type { ContextUpdateDelivery } from "../types/context-update-delivery";
 import { ContextValueOrRef } from "../types/context-value-ref";
-import { AnyContext, Context, ContextPathPatch } from "./context";
+import { Context } from "./context";
 
 type ContextRefLocalSet<
   ContextType extends JsonObject,
@@ -83,10 +82,7 @@ export class ContextRef<
         [this.path]: value,
       } as unknown as LocalContextPathPatch<ContextType>;
       return createSetContext(
-        this.context as unknown as Context<
-          ContextType,
-          z.ZodObject | undefined
-        >,
+        this.context as Context<ContextType>,
         patch,
         config,
       );
@@ -100,7 +96,7 @@ export class ContextRef<
   } as ContextRefLocalActions<ContextType, PathType>;
 
   constructor(
-    readonly context: AnyContext,
+    readonly context: Context<any>,
     readonly path: PathType,
   ) {}
 
@@ -188,11 +184,9 @@ export class ContextRef<
   set(
     value: PathValue<ContextType, PathType>,
   ): Observable<ContextUpdateDelivery> {
-    return (
-      this.context as unknown as Context<ContextType, z.ZodObject | undefined>
-    ).set({
+    return this.context.set({
       [this.path]: value,
-    } as unknown as ContextPathPatch<ContextType>);
+    });
   }
 
   toString() {
