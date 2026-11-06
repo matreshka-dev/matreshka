@@ -250,6 +250,16 @@ type ContextInitShape = {
   persistent?: boolean;
 };
 
+type ContextRuntimeInit<T extends JsonObject> = {
+  data: () => Promise<T>;
+
+  schema?: z.ZodObject;
+
+  preload?: boolean;
+
+  persistent?: boolean;
+};
+
 /** Тип данных `T` из поля `data` конфига. */
 export type ContextDataFromInit<C extends ContextInitShape> = Awaited<
   ReturnType<C["data"]>
@@ -263,10 +273,9 @@ export type ContextSchemaFromInit<C extends ContextInitShape> = C extends {
   : undefined;
 
 /** Экземпляр {@link Context} по форме конфига {@link createContext}. */
-export type ContextFromInit<C extends ContextInitShape> =
-  ContextSchemaFromInit<C> extends z.ZodObject
-    ? Context<ContextDataFromInit<C>, ContextSchemaFromInit<C>>
-    : Context<ContextDataFromInit<C>, undefined>;
+export type ContextFromInit<C extends ContextInitShape> = Context<
+  ContextDataFromInit<C>
+>;
 
 type ValidatedContextInit<C extends ContextInitShape> = ContextInitConfig<
   ContextDataFromInit<C>,
@@ -288,17 +297,15 @@ type ContextClientBinding = {
   initSent: boolean;
 };
 
-type StoredContext = Context<JsonObject, z.ZodObject | undefined>;
-
 type ContextRegistryEntry = {
-  context: StoredContext;
+  context: AnyContext;
   clients: Map<Client, ContextClientBinding>;
 };
 
 /** Глобальный реестр контекстов: lookup по id, привязки к клиентам, учёт init. */
 const contextRegistry = new Map<string, ContextRegistryEntry>();
 
-function registerContext(context: StoredContext) {
+function registerContext(context: AnyContext) {
   contextRegistry.set(context.id, {
     context,
     clients: new Map(),
@@ -309,7 +316,7 @@ function unregisterContext(contextId: string) {
   contextRegistry.delete(contextId);
 }
 
-function getContextById(contextId: string): StoredContext | undefined {
+function getContextById(contextId: string): AnyContext | undefined {
   return contextRegistry.get(contextId)?.context;
 }
 
@@ -317,7 +324,7 @@ function getRegistryEntry(contextId: string) {
   return contextRegistry.get(contextId);
 }
 
-function bindClient(context: StoredContext, client: Client): boolean {
+function bindClient(context: AnyContext, client: Client): boolean {
   const entry = contextRegistry.get(context.id);
   if (!entry || entry.clients.has(client)) {
     return false;
@@ -355,18 +362,17 @@ function isClientBound(contextId: string, client: Client): boolean {
  * @internal Создавайте экземпляры через {@link createContext}.
  *
  * @template T Тип структуры данных контекста.
- * @template S Zod-схема валидации клиентских изменений (см. {@link ContextSchema}).
+ *
+ * Zod-схема клиентских изменений задаётся в {@link createContext} через поле `schema`,
+ * а не вторым type-параметром: так проще согласовать runtime-схему и тип данных.
  */
-export class Context<
-  T extends JsonObject,
-  S extends z.ZodObject | undefined = undefined,
-> {
+export class Context<T extends JsonObject> {
   /** Уникальный идентификатор контекста */
   readonly id = crypto.randomUUID();
   /** Реактивное хранилище данных контекста. */
   protected data$?: BehaviorSubject<T>;
   /** Схема валидации данных контекста */
-  readonly schema?: S extends z.ZodObject ? S : undefined;
+  readonly schema?: z.ZodObject;
   /** Флаг, указывающий, что контекст должен быть инициализирован при авторизации клиента */
   readonly preload: boolean;
   /**
@@ -517,18 +523,13 @@ export class Context<
    * Подписывается на входящие сообщения от клиента и ошибки, связанные с этим контекстом.
   
    */
-  constructor(
-    config: S extends z.ZodObject
-      ? ContextInitWithSchema<T, S>
-      : ContextInitWithoutSchema<T>,
-  ) {
-    this.schema = (
-      "schema" in config ? config.schema : undefined
-    ) as S extends z.ZodObject ? S : undefined;
+  constructor(config: ContextRuntimeInit<T>) {
+    this.schema = config.schema;
+
     if (this.schema) {
       assertClientUpdateSchemaSupported(this.schema);
     }
-    registerContext(this as unknown as StoredContext);
+    registerContext(this);
     this.initDataCallback = config.data;
     this.preload = config.preload ?? false;
     this.persistent = config.persistent ?? false;
@@ -610,7 +611,7 @@ export class Context<
 
   authorizeClient(client: Client) {
     this.assertNotDestroyed();
-    if (!bindClient(this as unknown as StoredContext, client)) {
+    if (!bindClient(this, client)) {
       return;
     }
     if (this.preload) {
@@ -976,10 +977,7 @@ export class Context<
    */
   ref<K extends Paths<T>>(path: K): ContextRef<T, K> {
     this.assertNotDestroyed();
-    return new ContextRef<T, K>(
-      this as unknown as Context<T, z.ZodObject | undefined>,
-      path,
-    );
+    return new ContextRef<T, K>(this, path);
   }
 
   /**
@@ -1018,7 +1016,7 @@ export class Context<
     return new ContextRef<
       T,
       PathValue<OtherContextType, OtherPathType> & Paths<T>
-    >(this as unknown as Context<T, z.ZodObject | undefined>, path);
+    >(this, path);
   }
 
   toJSON() {
@@ -1029,7 +1027,7 @@ export class Context<
 }
 
 /** Любой зарегистрированный контекст (с Zod-схемой или без). */
-export type AnyContext = StoredContext;
+export type AnyContext = Context<any>;
 
 /**
  * Создаёт контекст данных BFF: хранилище состояния с синхронизацией клиент ↔ сервер.
@@ -1043,5 +1041,5 @@ export type AnyContext = StoredContext;
 export function createContext<C extends ContextInitShape>(
   config: C & ValidatedContextInit<C>,
 ): ContextFromInit<C> {
-  return new Context(config) as ContextFromInit<C>;
+  return new Context(config);
 }

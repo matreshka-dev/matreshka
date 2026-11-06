@@ -62,6 +62,7 @@ npx skills add matreshka-dev/agents--skill --skill context-init-in-boot prefer-c
 | Loading на кнопке                            | `rules-not-conditions-for-loading-ui`, `prevent-duplicate-form-submit`   |
 | Списки `forEach`                             | `foreach-stable-track`, `strict-context-ref`, `context-value-ref-in-api` |
 | Shared-хелпер / метод с ref по типу значения | `context-value-ref-in-api`                                               |
+| Не тащить целый контекст / фейковый `ContextRef` ради значения | `prefer-context-value-ref`                                    |
 | Типы ref на странице (контекст + путь)       | `strict-context-ref`                                                     |
 | Функция принимает `Context` / `ContextRef`   | `preserve-context-generics`                                              |
 | OR/AND в conditions                          | `when-oneof-vs-when-any`                                                 |

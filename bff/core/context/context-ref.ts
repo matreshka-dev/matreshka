@@ -1,7 +1,6 @@
 import { JsonObject } from "@matreshka/client-bff-protocol/types/json";
 import { Observable } from "rxjs";
 import { Paths, PathValue } from "ts-essentials";
-import { z } from "zod";
 import { ActionConfig } from "../actions/action";
 import { decContextValue, DecContextValue } from "../actions/dec-context-value";
 import {
@@ -93,7 +92,7 @@ export class ContextRef<
   } as ContextRefLocalActions<ContextType, PathType>;
 
   constructor(
-    readonly context: Context<ContextType, z.ZodObject | undefined>,
+    readonly context: Context<ContextType>,
     readonly path: PathType,
   ) {}
 
