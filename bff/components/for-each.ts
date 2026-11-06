@@ -10,7 +10,6 @@ import {
   ComponentTreeNode,
   Context,
   contextClientUpdatesForbiddenSchema,
-  type ContextClientUpdatesForbiddenSchema,
   ContextRef,
   ContextRefValue,
   JsonObject,
@@ -164,10 +163,7 @@ export type ForEachInitConfig<
   divider?: ComponentTreeNode | ComponentTreeNode[];
 } & ComponentInitConfig<ForEach<RefType, ComponentType>, PropertiesType>;
 
-class ForEachContext<T extends JsonObject> extends Context<
-  T,
-  ContextClientUpdatesForbiddenSchema
-> {
+class ForEachContext<T extends JsonObject> extends Context<T> {
   /**
    * Синхронно поднимает хранилище до async {@link init} (preload-сериализация индексов).
    * @returns Тот же экземпляр контекста.
