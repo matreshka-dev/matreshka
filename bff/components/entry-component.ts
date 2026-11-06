@@ -59,17 +59,32 @@ export abstract class EntryComponent<
 > extends Component<InitConfigType, PropertiesType> {
   private readonly registeredTools: WebMcpTool[] = [];
   private declaredToolsRegistered = false;
+  private entryLifecycleInteractionsRegistered = false;
 
   constructor(config: InitConfigType) {
     super(config);
-    // До полей наследника. В отложенном обработчике this уже собран.
-    this.bindDeclaredInteraction("enter", this.onEnter());
-    this.bindDeclaredInteraction("leave", this.onLeave());
   }
 
   /**
+   * `onEnter` / `onLeave` читаются при первом создании entry-инстанса,
+   * уже после конструктора наследника — поля и `this.options` доступны.
+   * Дополнительные interaction для того же момента — в {@link registerEntryLifecycleInteractionsExtra}.
+   */
+  protected registerEntryLifecycleInteractions(): void {
+    if (this.entryLifecycleInteractionsRegistered) {
+      return;
+    }
+    this.entryLifecycleInteractionsRegistered = true;
+    this.bindDeclaredInteraction("enter", this.onEnter());
+    this.bindDeclaredInteraction("leave", this.onLeave());
+    this.registerEntryLifecycleInteractionsExtra();
+  }
+
+  /** Хук для наследников: один раз сразу после enter/leave (см. {@link registerEntryLifecycleInteractions}). */
+  protected registerEntryLifecycleInteractionsExtra(): void {}
+
+  /**
    * Показ entry. По умолчанию — `onEnter` конструктора.
-   * Читается в конструкторе, до полей наследника.
    */
   protected onEnter(): InitConfigType["onEnter"] {
     return this.config.onEnter;
@@ -77,7 +92,6 @@ export abstract class EntryComponent<
 
   /**
    * Начало ухода entry. По умолчанию — `onLeave` конструктора.
-   * Читается в конструкторе, до полей наследника.
    */
   protected onLeave(): InitConfigType["onLeave"] {
     return this.config.onLeave;
@@ -242,7 +256,17 @@ export abstract class EntryComponent<
     return this.createSelfEntry();
   }
 
+  /**
+   * Явное создание instance entry (редко для Page/Dialog; для App-оверлеев см.
+   * {@link beginSerializationContext}). Обработчики enter/leave регистрируются здесь же.
+   */
+  override createInstance(): ComponentInstance<this> {
+    this.registerEntryLifecycleInteractions();
+    return super.createInstance();
+  }
+
   protected override createSelfEntry(): ComponentInstance<this> {
+    this.registerEntryLifecycleInteractions();
     const instance = super.createSelfEntry();
     const client = currentClient();
     // Подписка на leave и прочие interaction до commitSerialization instance.entry.

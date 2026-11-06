@@ -52,6 +52,13 @@ export abstract class Page<
   constructor() {
     // @ts-expect-error Page задаёт content в boot(), а не через конфиг конструктора Component.
     super({});
+  }
+
+  /**
+   * Обработчик прокрутки регистрируется вместе с enter/leave — после конструктора наследника,
+   * когда доступны поля подкласса (см. {@link EntryComponent.registerEntryLifecycleInteractions}).
+   */
+  protected override registerEntryLifecycleInteractionsExtra(): void {
     this.bindDeclaredInteraction("scroll", this.onScroll());
   }
 
