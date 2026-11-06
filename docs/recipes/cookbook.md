@@ -71,7 +71,9 @@ button(
 Задача: оставить у элемента обычную ссылку, но собрать ее из серверного контекста.
 
 ```ts
-context = new Context({
+import { createContext } from "@matreshka/bff/core";
+
+context = createContext({
   data: async () => ({
     userId: "42",
   }),
@@ -94,9 +96,10 @@ button(
 Задача: хранить введенное значение в BFF-контексте.
 
 ```ts
+import { createContext } from "@matreshka/bff/core";
 import { z } from "zod";
 
-context = new Context({
+context = createContext({
   schema: z.object({
     name: z.string(),
   }),
@@ -405,7 +408,9 @@ dialog(
 Задача: отрисовать массив из `Context`.
 
 ```ts
-context = new Context({
+import { createContext } from "@matreshka/bff/core";
+
+context = createContext({
   data: async () => ({
     items: [
       { id: "1", title: "Первый" },
@@ -701,7 +706,9 @@ app.router.addPage("/admin", async (client) => {
 ### 1. `preload`: загрузить заранее
 
 ```ts
-context = new Context({
+import { createContext } from "@matreshka/bff/core";
+
+context = createContext({
   preload: true,
   data: async () => ({
     notifications: [],
@@ -714,7 +721,9 @@ context = new Context({
 ### 2. Lazy: инициализировать по первому запросу
 
 ```ts
-context = new Context({
+import { createContext } from "@matreshka/bff/core";
+
+context = createContext({
   data: async () => ({
     profile: null,
   }),
@@ -726,7 +735,9 @@ context = new Context({
 ### 3. Ручной `init()`: загрузить в конкретный момент
 
 ```ts
-context = new Context({
+import { createContext } from "@matreshka/bff/core";
+
+context = createContext({
   data: async () => ({
     profile: null,
   }),

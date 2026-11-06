@@ -1,4 +1,5 @@
 import { BehaviorSubject } from "rxjs";
+import { distinctUntilChanged } from "rxjs/operators";
 import { describe, expect, it, vi } from "vitest";
 import { Context } from "./context";
 
@@ -49,6 +50,28 @@ describe("Context.watch", () => {
     await ctx.init();
 
     expect(values).toEqual([5]);
+  });
+
+  it("set() эмитит новую ссылку для distinctUntilChanged", async () => {
+    type Nested = { profile: { name: string } };
+    const ctx = new Context<Nested>({
+      data: async () => ({ profile: { name: "a" } }),
+    });
+    await ctx.init();
+
+    const emissions: Nested[] = [];
+    ctx
+      .watch()
+      .pipe(distinctUntilChanged())
+      .subscribe((data) => {
+        emissions.push(data);
+      });
+
+    ctx.set({ "profile.name": "b" });
+
+    expect(emissions).toHaveLength(2);
+    expect(emissions[0]).not.toBe(emissions[1]);
+    expect(emissions[1]!.profile.name).toBe("b");
   });
 
   it("завершает поток без эмиссий, если destroy до init", () => {

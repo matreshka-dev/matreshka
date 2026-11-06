@@ -304,12 +304,12 @@ import {
   TextInputKind,
   textInput,
 } from "@matreshka/bff/components";
-import { Context } from "@matreshka/bff/core";
+import { createContext } from "@matreshka/bff/core";
 import { when } from "@matreshka/bff/core/conditions";
 import { z } from "zod";
 
 class SignInPage extends Page {
-  context = new Context({
+  context = createContext({
     schema: z.object({
       login: z.string(),
       password: z.string(),

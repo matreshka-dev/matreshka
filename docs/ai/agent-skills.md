@@ -63,6 +63,7 @@ npx skills add matreshka-dev/agents--skill --skill context-init-in-boot prefer-c
 | Списки `forEach`                             | `foreach-stable-track`, `strict-context-ref`, `context-value-ref-in-api` |
 | Shared-хелпер / метод с ref по типу значения | `context-value-ref-in-api`                                               |
 | Типы ref на странице (контекст + путь)       | `strict-context-ref`                                                     |
+| Функция принимает `Context` / `ContextRef`   | `preserve-context-generics`                                              |
 | OR/AND в conditions                          | `when-oneof-vs-when-any`                                                 |
 | Один Component в двух местах / animate       | `create-instance-before-serialize`                                       |
 | Color token «not found»                      | `register-color-tokens`                                                  |

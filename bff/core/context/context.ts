@@ -13,10 +13,14 @@ import { fetchFromObject } from "@matreshka/shared/utils/fetch-from-object";
 import { setObjectProperty } from "@matreshka/shared/utils/set-object-property";
 import {
   BehaviorSubject,
+  catchError,
+  concatMap,
   EMPTY,
   filter,
+  from,
   Observable,
   ReplaySubject,
+  Subject,
   Subscription,
   switchMap,
   take,
@@ -38,10 +42,12 @@ import type { Client } from "../client";
 import { currentClient } from "../client-context";
 import { ContextUpdateDelivery } from "../types/context-update-delivery";
 import { ContextValueOrRef } from "../types/context-value-ref";
+import { assertNonOverlappingContextPaths } from "../utils/assert-non-overlapping-context-paths";
+import { assertSafeDottedPath } from "../utils/assert-safe-dotted-path";
 import { zodDeepPick } from "../utils/deep-pick";
-import { incomingMessageObserver } from "../utils/incoming-message-observer";
 import { objectsDiff } from "../utils/objects-diff";
 import { replaceContextKeys } from "../utils/replace-context-keys";
+import { assertClientUpdateSchemaSupported } from "./assert-client-update-schema";
 import { ContextRef } from "./context-ref";
 
 export type { ContextUpdateDelivery } from "../types/context-update-delivery";
@@ -67,21 +73,149 @@ export const contextClientUpdatesForbiddenSchema = z.strictObject(
   {},
 ) as ContextClientUpdatesForbiddenSchema;
 
+type StripNullish<T> = Exclude<T, null | undefined>;
+
+type ArrayElement<T> = T extends readonly (infer E)[] ? E : never;
+
+/** `true`, если output допускает null/undefined как значение, а поле `T` — нет. */
+type NullishValueMismatch<TField, IField> =
+  | (null extends IField ? (null extends TField ? never : true) : never)
+  | (undefined extends IField
+      ? undefined extends TField
+        ? never
+        : true
+      : never);
+
+type FieldExtraSchemaKeysOne<TField, IField> = [StripNullish<IField>] extends [
+  JsonObject,
+]
+  ? [StripNullish<TField>] extends [JsonObject]
+    ? ExtraSchemaKeys<StripNullish<TField>, StripNullish<IField>>
+    : never
+  : [StripNullish<IField>] extends [readonly unknown[]]
+    ? [StripNullish<TField>] extends [readonly unknown[]]
+      ? ExtraSchemaKeys<
+          ArrayElement<StripNullish<TField>>,
+          ArrayElement<StripNullish<IField>>
+        >
+      : never
+    : never;
+
+/** Лишние ключи внутри поля (union, optional/nullable, массивы объектов). */
+type FieldExtraSchemaKeys<TField, IField> = IField extends any
+  ? FieldExtraSchemaKeysOne<TField, IField>
+  : never;
+
+/** Лишние ключи для одной пары object-веток (коррелированные поля). `true` — есть лишние ключи. */
+type ExtraSchemaKeysObjectExact<
+  T extends JsonObject,
+  Input extends JsonObject,
+> =
+  Exclude<keyof Input, keyof T> extends never
+    ? {
+        [K in keyof Input & keyof T]: FieldExtraSchemaKeys<T[K], Input[K]>;
+      }[keyof Input & keyof T] extends never
+      ? never
+      : true
+    : true;
+
+/** Есть ветка `T`, для которой `Input` не содержит лишних ключей. */
+type SomeExtraSchemaKeysBranchOk<
+  T,
+  Input extends JsonObject,
+> = T extends JsonObject
+  ? ExtraSchemaKeysObjectExact<T, Input> extends never
+    ? true
+    : never
+  : never;
+
 /**
- * Zod-схема для {@link context}: описывает подмножество полей `T` без лишних ключей;
- * типы полей согласованы с {@link z.input} схемы и `Partial<T>`.
+ * Лишние ключи в shape схемы относительно `T` (рекурсивно).
+ * Union в `Input` и `T` проверяется по отдельным веткам. `true` — есть лишние ключи.
+ */
+type ExtraSchemaKeys<T, Input> = Input extends JsonObject
+  ? SomeExtraSchemaKeysBranchOk<T, Input> extends true
+    ? never
+    : true
+  : never;
+
+type FieldSchemaCompatibleOne<TField, IField> =
+  NullishValueMismatch<TField, IField> extends never
+    ? FieldSchemaCompatibleShape<TField, IField>
+    : true;
+
+type FieldSchemaCompatibleShape<TField, IField> = [
+  StripNullish<IField>,
+] extends [JsonObject]
+  ? [StripNullish<TField>] extends [JsonObject]
+    ? SchemaCompatible<StripNullish<TField>, StripNullish<IField>>
+    : true
+  : [StripNullish<IField>] extends [readonly unknown[]]
+    ? [StripNullish<TField>] extends [readonly unknown[]]
+      ? FieldSchemaCompatible<
+          ArrayElement<StripNullish<TField>>,
+          ArrayElement<StripNullish<IField>>
+        >
+      : true
+    : [StripNullish<IField>] extends [StripNullish<TField>]
+      ? never
+      : true;
+
+/** Совместимость типа поля с полем контекста (union на входе — по веткам). */
+type FieldSchemaCompatible<TField, IField> = IField extends any
+  ? FieldSchemaCompatibleOne<TField, IField>
+  : never;
+
+/** Совместимость для одной пары object-веток. `true` — несовместимость. */
+type SchemaCompatibleObjectExact<
+  T extends JsonObject,
+  Input extends JsonObject,
+> =
+  Exclude<keyof Input, keyof T> extends never
+    ? {
+        [K in keyof Input & keyof T]: FieldSchemaCompatible<T[K], Input[K]>;
+      }[keyof Input & keyof T] extends never
+      ? never
+      : true
+    : true;
+
+type SomeSchemaCompatibleBranchOk<
+  T,
+  Input extends JsonObject,
+> = T extends JsonObject
+  ? SchemaCompatibleObjectExact<T, Input> extends never
+    ? true
+    : never
+  : never;
+
+/**
+ * Типы полей shape схемы совместимы с `T` (рекурсивно; для клиентской схемы — {@link z.output}).
+ * Подмножество ключей на любой глубине; union — по веткам. `true` — несовместимость.
+ */
+type SchemaCompatible<T, Input> = Input extends JsonObject
+  ? SomeSchemaCompatibleBranchOk<T, Input> extends true
+    ? never
+    : true
+  : never;
+
+/**
+ * Zod-схема для {@link createContext}: без лишних ключей во {@link z.input} и {@link z.output}
+ * ({@link ExtraSchemaKeys}, union по веткам); {@link z.output} совместим с `T`
+ * ({@link SchemaCompatible}, вложенные подмножества). В контекст попадает output после `parse()`.
  */
 export type ContextSchema<T extends JsonObject, S extends z.ZodObject> = [
   S,
 ] extends [ContextClientUpdatesForbiddenSchema]
   ? S
-  : Exclude<keyof z.input<S>, keyof T> extends never
-    ? z.input<S> extends Partial<T>
-      ? S
+  : ExtraSchemaKeys<T, z.input<S>> extends never
+    ? ExtraSchemaKeys<T, z.output<S>> extends never
+      ? SchemaCompatible<T, z.output<S>> extends never
+        ? S
+        : never
       : never
     : never;
 
-/** Конфиг {@link context} без клиентской Zod-схемы. */
+/** Конфиг {@link createContext} без клиентской Zod-схемы. */
 export type ContextInitWithoutSchema<T extends JsonObject> = {
   data: () => Promise<T>;
   schema?: undefined;
@@ -89,7 +223,7 @@ export type ContextInitWithoutSchema<T extends JsonObject> = {
   persistent?: boolean;
 };
 
-/** Конфиг {@link context} с Zod-схемой клиентских изменений. */
+/** Конфиг {@link createContext} с Zod-схемой клиентских изменений. */
 export type ContextInitWithSchema<
   T extends JsonObject,
   S extends z.ZodObject,
@@ -100,7 +234,7 @@ export type ContextInitWithSchema<
   persistent?: boolean;
 };
 
-/** Конфигурация {@link context} (единственный аргумент). */
+/** Конфигурация {@link createContext} (единственный аргумент). */
 export type ContextInitConfig<
   T extends JsonObject,
   S extends z.ZodObject | undefined = undefined,
@@ -108,7 +242,7 @@ export type ContextInitConfig<
   ? ContextInitWithSchema<T, S>
   : ContextInitWithoutSchema<T>;
 
-/** Минимальная форма аргумента {@link context}. */
+/** Минимальная форма аргумента {@link createContext}. */
 type ContextInitShape = {
   data: () => Promise<JsonObject>;
   schema?: z.ZodObject;
@@ -128,7 +262,7 @@ export type ContextSchemaFromInit<C extends ContextInitShape> = C extends {
   ? C["schema"]
   : undefined;
 
-/** Экземпляр {@link Context} по форме конфига {@link context}. */
+/** Экземпляр {@link Context} по форме конфига {@link createContext}. */
 export type ContextFromInit<C extends ContextInitShape> =
   ContextSchemaFromInit<C> extends z.ZodObject
     ? Context<ContextDataFromInit<C>, ContextSchemaFromInit<C>>
@@ -211,10 +345,14 @@ function unbindClient(contextId: string, client: Client) {
   entry.clients.delete(client);
   return entry.clients.size === 0;
 }
+
+function isClientBound(contextId: string, client: Client): boolean {
+  return getRegistryEntry(contextId)?.clients.has(client) ?? false;
+}
 /**
  * Контекст данных, связанных с клиентом.
  *
- * @internal Создавайте экземпляры через {@link context}.
+ * @internal Создавайте экземпляры через {@link createContext}.
  *
  * @template T Тип структуры данных контекста.
  * @template S Zod-схема валидации клиентских изменений (см. {@link ContextSchema}).
@@ -273,6 +411,11 @@ export class Context<
   private clientSubscriptions = new Map<Client, Subscription>();
   /** Серверный set/replace уже сам отправил diff; в subscribeToDataChanges повторять не нужно. */
   private skipNextDataSync = false;
+  /** Очередь входящих targeted-сообщений всех клиентов (последовательная обработка). */
+  private incomingClientMessages$ = new Subject<{
+    client: Client;
+    message: TargetedMessage;
+  }>();
 
   private assertNotDestroyed() {
     if (this.destroyed) {
@@ -291,9 +434,15 @@ export class Context<
   /**
    * Клиентское `context-values` разрешено только по ключам {@link schema}.
    * Нет схемы или ключ вне неё — `Error`, patch не применяется.
-   * Несовпадение типа остаётся `ZodError` из `parse`.
+   * Валидация через {@link zodDeepPick}: output **конечного** поля (leaf transform/refine).
+   * Transform/refine родительского object при dotted-patch не поддерживаются.
    */
-  private assertClientChangeAllowed(key: string, value: unknown): void {
+  private async parseClientChange(
+    key: string,
+    value: unknown,
+  ): Promise<unknown> {
+    assertSafeDottedPath(key);
+
     if (!this.schema) {
       throw new Error(
         `Context ${this.id} rejected client update for "${key}": validation schema is not set`,
@@ -310,7 +459,49 @@ export class Context<
       );
     }
 
-    keySchema.parse(value);
+    return keySchema.parseAsync(value);
+  }
+
+  private async handleTargetedClientMessage(
+    client: Client,
+    unsafeMessage: TargetedMessage,
+  ): Promise<void> {
+    if (this.destroyed) {
+      return;
+    }
+    if (unsafeMessage instanceof ClientToBffContextInitMessage) {
+      await this.init();
+      if (this.destroyed || !isClientBound(this.id, client)) {
+        return;
+      }
+      this.sendContextInit(client);
+      if (!isInitSent(this.id, client)) {
+        markInitSent(this.id, client);
+      }
+      return;
+    }
+    if (unsafeMessage instanceof ClientToBffContextValuesMessage) {
+      const payloadSchema = z.array(
+        z.strictObject({ key: z.string(), value: z.unknown() }),
+      );
+      const changes = payloadSchema.parse(unsafeMessage.payload);
+      assertNonOverlappingContextPaths(changes.map((change) => change.key));
+      const patch: Partial<Record<string, unknown>> = {};
+      for (const change of changes) {
+        patch[change.key] = await this.parseClientChange(
+          change.key,
+          change.value,
+        );
+        if (this.destroyed || !isClientBound(this.id, client)) {
+          return;
+        }
+      }
+      if (this.destroyed || !isClientBound(this.id, client)) {
+        return;
+      }
+      this.dataChangedByClient = client;
+      this.set(patch as ContextPathPatch<T>);
+    }
   }
 
   /** Ошибка загрузки initDataCallback — в error$ всех клиентов, привязанных к контексту. */
@@ -334,10 +525,27 @@ export class Context<
     this.schema = (
       "schema" in config ? config.schema : undefined
     ) as S extends z.ZodObject ? S : undefined;
+    if (this.schema) {
+      assertClientUpdateSchemaSupported(this.schema);
+    }
     registerContext(this as unknown as StoredContext);
     this.initDataCallback = config.data;
     this.preload = config.preload ?? false;
     this.persistent = config.persistent ?? false;
+    this.subscriptions.add(
+      this.incomingClientMessages$
+        .pipe(
+          concatMap(({ client, message }) =>
+            from(this.handleTargetedClientMessage(client, message)).pipe(
+              catchError((error) => {
+                client.error$.next(error);
+                return EMPTY;
+              }),
+            ),
+          ),
+        )
+        .subscribe(),
+    );
   }
 
   /** `data$` создан (init мог ещё выполняться — см. {@link init}). */
@@ -360,6 +568,7 @@ export class Context<
       return;
     }
     this.destroyed = true;
+    this.incomingClientMessages$.complete();
 
     getRegistryEntry(this.id)?.clients.forEach((_, client) => {
       client.outcomingMessage$.next(new ContextDestroyMessage(this.id));
@@ -405,13 +614,15 @@ export class Context<
       return;
     }
     if (this.preload) {
-      void this.init().then(() => {
-        if (this.destroyed) {
-          return;
-        }
-        this.sendContextInit(client);
-        markInitSent(this.id, client);
-      });
+      void this.init()
+        .then(() => {
+          if (this.destroyed || !isClientBound(this.id, client)) {
+            return;
+          }
+          this.sendContextInit(client);
+          markInitSent(this.id, client);
+        })
+        .catch(() => {});
     }
     const clientSubscription = new Subscription();
     this.clientSubscriptions.set(client, clientSubscription);
@@ -431,46 +642,17 @@ export class Context<
       client.incomingMessage$
         .pipe(
           filter(
-            (unsafeMessage) =>
+            (unsafeMessage): unsafeMessage is TargetedMessage =>
               unsafeMessage instanceof TargetedMessage &&
               unsafeMessage.target === this.id,
           ),
         )
-        .subscribe(
-          incomingMessageObserver(client, (unsafeMessage) => {
-            if (this.destroyed) {
-              return;
-            }
-            if (unsafeMessage instanceof ClientToBffContextInitMessage) {
-              void this.init().then(() => {
-                if (this.destroyed) {
-                  return;
-                }
-                this.sendContextInit(client);
-                if (!isInitSent(this.id, client)) {
-                  markInitSent(this.id, client);
-                }
-              });
-              return;
-            }
-            if (unsafeMessage instanceof ClientToBffContextValuesMessage) {
-              const payloadSchema = z.array(
-                z.strictObject({ key: z.string(), value: z.unknown() }),
-              );
-              const changes = payloadSchema.parse(unsafeMessage.payload);
-              for (const change of changes) {
-                this.assertClientChangeAllowed(change.key, change.value);
-              }
-              const patch: Partial<Record<string, unknown>> = {};
-              for (const change of changes) {
-                patch[change.key] = change.value;
-              }
-              this.dataChangedByClient = client;
-              this.set(patch as ContextPathPatch<T>);
-              return;
-            }
-          }),
-        ),
+        .subscribe((unsafeMessage) => {
+          this.incomingClientMessages$.next({
+            client,
+            message: unsafeMessage,
+          });
+        }),
     );
   }
 
@@ -594,8 +776,9 @@ export class Context<
     this.assertNotDestroyed();
     this.assertInitialized();
 
-    const prevData = structuredClone(this.data$.getValue());
-    const nextData = mutator(this.data$.getValue());
+    const currentData = this.data$.getValue();
+    const prevData = structuredClone(currentData);
+    const nextData = mutator(structuredClone(currentData));
     const diff = objectsDiff(prevData, nextData);
 
     this.skipNextDataSync = true;
@@ -715,16 +898,16 @@ export class Context<
    * См. `docs/architecture/context-update-delivery.md`.
    */
   set(patch: ContextPathPatch<T>): Observable<ContextUpdateDelivery> {
+    const paths = Object.keys(patch).filter((path) =>
+      Object.prototype.hasOwnProperty.call(patch, path),
+    );
+    assertNonOverlappingContextPaths(paths);
+    for (const path of paths) {
+      assertSafeDottedPath(path);
+    }
     return this.updateDataAndWait((data) => {
-      for (const path of Object.keys(patch) as Paths<T>[]) {
-        // hasOwnProperty: «loading: undefined» пишем, пропущенный ключ — не трогаем.
-        if (Object.prototype.hasOwnProperty.call(patch, path)) {
-          setObjectProperty(
-            data,
-            path,
-            patch[path] as PathValue<T, typeof path>,
-          );
-        }
+      for (const path of paths as Paths<T>[]) {
+        setObjectProperty(data, path, patch[path] as PathValue<T, typeof path>);
       }
       return data;
     });
@@ -737,7 +920,7 @@ export class Context<
    * Возвращает тот же hot {@link Observable}, что и {@link set}.
    */
   replace(data: T): Observable<ContextUpdateDelivery> {
-    return this.updateDataAndWait(() => data);
+    return this.updateDataAndWait(() => structuredClone(data));
   }
 
   /**
@@ -857,7 +1040,7 @@ export type AnyContext = StoredContext;
  * Если в начальном `data` нет части полей (например опциональных), укажите тип на колбэке:
  * `data: async (): Promise<MyT> => ({ … })`.
  */
-export function context<C extends ContextInitShape>(
+export function createContext<C extends ContextInitShape>(
   config: C & ValidatedContextInit<C>,
 ): ContextFromInit<C> {
   return new Context(config) as ContextFromInit<C>;

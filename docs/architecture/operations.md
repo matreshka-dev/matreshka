@@ -161,7 +161,9 @@ Transport должен только:
 Каждый ключ input и каждый путь `context.local` / `ref.local` обязан быть в `schema`. Привязка любой ссылки открывает клиенту весь контекст, а типы компонентов проверяют только код BFF. Ключи, которые пишет только сервер, в схему не входят.
 
 ```ts
-context = new Context({
+import { createContext } from "@matreshka/bff/core";
+
+context = createContext({
   schema: z.object({
     email: z.string(),
   }),

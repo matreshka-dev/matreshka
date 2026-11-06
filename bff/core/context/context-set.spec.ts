@@ -3,7 +3,7 @@ import { BehaviorSubject, Subject } from "rxjs";
 import { describe, expect, it, vi } from "vitest";
 import { z, ZodError } from "zod";
 import type { Client } from "../client";
-import { Context, context } from "./context";
+import { Context, createContext } from "./context";
 
 vi.mock("../client", () => {
   class FakeClient {
@@ -18,6 +18,15 @@ vi.mock("../client", () => {
     Client: FakeClient,
   };
 });
+
+async function flushClientMessageHandling() {
+  await new Promise<void>((resolve) => {
+    queueMicrotask(() => resolve());
+  });
+  await new Promise<void>((resolve) => {
+    queueMicrotask(() => resolve());
+  });
+}
 
 describe("Context.set", () => {
   function createDeliveryClient() {
@@ -266,7 +275,7 @@ describe("Context.set", () => {
   });
 
   it("client-originated update шлёт diff только другим клиентам и без дубля", async () => {
-    const ctx = context({
+    const ctx = createContext({
       schema: z.object({ loading: z.boolean() }),
       data: async () => ({ loading: false as boolean }),
     });
@@ -282,6 +291,7 @@ describe("Context.set", () => {
         { key: "loading", value: true },
       ]),
     );
+    await flushClientMessageHandling();
 
     expect(ctx.get("loading")).toBe(true);
     expect(source.sentMessages).toHaveLength(0);
@@ -304,6 +314,7 @@ describe("Context.set", () => {
         { key: "loading", value: true },
       ]),
     );
+    await flushClientMessageHandling();
 
     expect(ctx.get("loading")).toBe(false);
     expect(source.errors).toHaveLength(1);
@@ -316,7 +327,7 @@ describe("Context.set", () => {
   });
 
   it("ключ вне schema отклоняется целиком, даже если рядом валидное поле", async () => {
-    const ctx = context({
+    const ctx = createContext({
       schema: z.object({ name: z.string() }),
       data: async () => ({ name: "", role: "viewer" as string }),
     });
@@ -331,6 +342,7 @@ describe("Context.set", () => {
         { key: "role", value: "admin" },
       ]),
     );
+    await flushClientMessageHandling();
 
     expect(ctx.get("name")).toBe("");
     expect(ctx.get("role")).toBe("viewer");
@@ -342,8 +354,155 @@ describe("Context.set", () => {
     );
   });
 
+  it("применяет результат Zod parse (transform) в контекст", async () => {
+    const ctx = createContext({
+      schema: z.object({
+        name: z.string().transform((value) => value.trim()),
+      }),
+      data: async () => ({ name: "" as string }),
+    });
+    const source = createDeliveryClient();
+
+    ctx.authorizeClient(source.client);
+    await ctx.init();
+
+    source.incomingMessage$.next(
+      new ClientToBffContextValuesMessage(ctx.id, [
+        { key: "name", value: "  Анна  " },
+      ]),
+    );
+    await flushClientMessageHandling();
+
+    expect(ctx.get("name")).toBe("Анна");
+    expect(source.errors).toEqual([]);
+  });
+
+  it("object-level transform в schema отклоняется при создании контекста", () => {
+    expect(() =>
+      createContext({
+        schema: z.object({
+          user: z
+            .object({
+              firstName: z.string(),
+              lastName: z.string(),
+            })
+            .transform((user) => ({
+              fullName: `${user.firstName} ${user.lastName}`,
+            })),
+        }),
+        data: async () => ({
+          user: { firstName: "A", lastName: "B" },
+        }),
+      }),
+    ).toThrow(/object-level transform/);
+  });
+
+  it("явный undefined для обязательного поля отклоняется", async () => {
+    const ctx = createContext({
+      schema: z.object({ name: z.string() }),
+      data: async () => ({ name: "keep" as string }),
+    });
+    const source = createDeliveryClient();
+
+    ctx.authorizeClient(source.client);
+    await ctx.init();
+
+    source.incomingMessage$.next(
+      new ClientToBffContextValuesMessage(ctx.id, [
+        { key: "name", value: undefined },
+      ]),
+    );
+    await flushClientMessageHandling();
+
+    expect(ctx.get("name")).toBe("keep");
+    expect(source.errors[0]).toBeInstanceOf(ZodError);
+  });
+
+  it("отклоняет опасный сегмент пути", async () => {
+    const ctx = createContext({
+      schema: z.object({ name: z.string() }),
+      data: async () => ({ name: "" as string }),
+    });
+    const source = createDeliveryClient();
+
+    ctx.authorizeClient(source.client);
+    await ctx.init();
+
+    source.incomingMessage$.next(
+      new ClientToBffContextValuesMessage(ctx.id, [
+        { key: "__proto__.x", value: "y" },
+      ]),
+    );
+    await flushClientMessageHandling();
+
+    expect(ctx.get("name")).toBe("");
+    expect(source.errors[0]).toBeInstanceOf(Error);
+    expect((source.errors[0] as Error).message).toContain(
+      "Invalid context path",
+    );
+  });
+
+  it("пересекающиеся пути в одном context-values отклоняются", async () => {
+    const ctx = createContext({
+      schema: z.object({
+        user: z.object({ name: z.string() }),
+      }),
+      data: async () => ({ user: { name: "" } }),
+    });
+    const source = createDeliveryClient();
+
+    ctx.authorizeClient(source.client);
+    await ctx.init();
+
+    source.incomingMessage$.next(
+      new ClientToBffContextValuesMessage(ctx.id, [
+        { key: "user", value: { name: "John" } },
+        { key: "user.name", value: "Mike" },
+      ]),
+    );
+    await flushClientMessageHandling();
+
+    expect(ctx.get("user.name")).toBe("");
+    expect(source.errors).toHaveLength(1);
+    expect((source.errors[0] as Error).message).toContain(
+      "Overlapping context paths",
+    );
+  });
+
+  it("client update по dotted-пути применяет transform вложенного поля", async () => {
+    type UserContext = {
+      profile: { name: string; age: number };
+    };
+
+    const ctx = createContext({
+      schema: z.object({
+        profile: z.object({
+          age: z.string().transform((value) => Number(value)),
+        }),
+      }),
+      data: async (): Promise<UserContext> => ({
+        profile: { name: "", age: 0 },
+      }),
+    });
+    const source = createDeliveryClient();
+
+    ctx.authorizeClient(source.client);
+    await ctx.init();
+
+    source.incomingMessage$.next(
+      new ClientToBffContextValuesMessage(ctx.id, [
+        { key: "profile.age", value: "25" },
+      ]),
+    );
+    await flushClientMessageHandling();
+
+    expect(ctx.get("profile.age")).toBe(25);
+    expect(typeof ctx.get("profile.age")).toBe("number");
+    expect(source.errors).toEqual([]);
+  });
+
   it("значение не того типа остаётся ZodError и не попадает в контекст", async () => {
-    const ctx = context({
+    const ctx = createContext({
       schema: z.object({ name: z.string() }),
       data: async () => ({ name: "" as string }),
     });
@@ -357,6 +516,7 @@ describe("Context.set", () => {
         { key: "name", value: 123 },
       ]),
     );
+    await flushClientMessageHandling();
 
     expect(ctx.get("name")).toBe("");
     expect(source.errors[0]).toBeInstanceOf(ZodError);

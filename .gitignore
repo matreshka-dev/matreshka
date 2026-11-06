@@ -8,3 +8,4 @@ projects/*/tmp
 /node_modules
 **/.tsbuildinfo
 /shared/dist
+/shared/node_modules

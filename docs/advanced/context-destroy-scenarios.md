@@ -41,7 +41,9 @@
 - Не путать с **client-scoped** (`WeakMap<Client, Context>`): там память растёт с числом клиентов; persistent — **один** id на процесс, общий для всех одновременных потребителей.
 
 ```ts
-let catalogContext = new Context({
+import { createContext } from "@matreshka/bff/core";
+
+let catalogContext = createContext({
   persistent: true,
   preload: true,
   data: async () => loadCatalogOnce(),
@@ -49,7 +51,7 @@ let catalogContext = new Context({
 
 export function invalidateCatalogContext() {
   catalogContext.destroy();
-  catalogContext = new Context({
+  catalogContext = createContext({
     persistent: true,
     preload: true,
     data: async () => loadCatalogOnce(),
@@ -69,6 +71,7 @@ export function invalidateCatalogContext() {
 import type { Context } from "@matreshka/bff/core";
 import type { JsonObject } from "@matreshka/client-bff-protocol/types/json";
 import type { Observable } from "rxjs";
+import { createContext } from "@matreshka/bff/core";
 
 function destroyContextWithEntry<T extends JsonObject>(
   entry: { stopUsing$: Observable<void> },
@@ -85,7 +88,7 @@ function destroyContextWithEntry<T extends JsonObject>(
 export class ProfilePage extends Page {
   context = destroyContextWithEntry(
     this,
-    new Context({
+    createContext({
       data: async () => ({ name: "Alice" }),
     }),
   );
@@ -103,7 +106,7 @@ export class ProfilePage extends Page {
 Данные **одни на всё приложение для данного пользователя**: корзина, счётчик уведомлений, выбранное пространство, глобальный поиск в shell. Один экземпляр `Context` на **`Client`**, кэш через `WeakMap<Client, Context>`:
 
 ```ts
-import { Client, Context, currentClient } from "@matreshka/bff/core";
+import { Client, Context, createContext, currentClient } from "@matreshka/bff/core";
 
 const CACHE = new WeakMap<Client, Context<{ unread: number }>>();
 
@@ -111,7 +114,7 @@ export function currentSessionContext(): Context<{ unread: number }> {
   const client = currentClient();
   let context = CACHE.get(client);
   if (context === undefined) {
-    context = new Context({
+    context = createContext({
       preload: true,
       data: async () => ({ unread: await loadUnread() }),
     });
@@ -149,8 +152,10 @@ export function destroySessionContext(client: Client = currentClient()) {
 - при **`stopUsing$`** компонента (сняты все client-instance этого компонента) — **`context.destroy()`**, если контекст больше никому не нужен.
 
 ```ts
+import { createContext } from "@matreshka/bff/core";
+
 export class MyListWidget extends Component {
-  private readonly indexStore = new Context({
+  private readonly indexStore = createContext({
     preload: this.config.preload,
     data: async () => ({}),
   });

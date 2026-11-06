@@ -6,13 +6,18 @@ import type { Client } from "../client";
  */
 export function incomingMessageObserver<T>(
   client: Client,
-  next: (value: T) => void,
+  next: (value: T) => void | Promise<void>,
 ) {
   // Обычный try catch при вызове next не ловит ошибки подписок на поток, поэтому используется такая функция.
   return {
     next: (value: T) => {
       try {
-        next(value);
+        const result = next(value);
+        if (result instanceof Promise) {
+          void result.catch((error) => {
+            client.error$.next(error);
+          });
+        }
       } catch (error) {
         client.error$.next(error);
       }

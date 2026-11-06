@@ -410,7 +410,7 @@ await firstValueFrom(
 В этом сценарии агент не просто меняет интерфейс: он также сохраняет заметку. Поэтому `execute` должен дождаться доставки значений в контекст, выполнить сохранение и вернуть понятный результат.
 
 ```ts
-import { Context, Page, textInput, textarea, webMcpTool } from "@matreshka/bff";
+import { createContext, Page, textInput, textarea, webMcpTool } from "@matreshka/bff";
 import { lastValueFrom } from "rxjs";
 import { z } from "zod";
 
@@ -420,7 +420,7 @@ type NoteState = {
 };
 
 export class NotePage extends Page {
-  context = new Context<NoteState>({
+  context = createContext({
     schema: z.object({
       title: z.string(),
       text: z.string(),

@@ -20,7 +20,7 @@
 Зарегистрируйте route так же, как в [first-app](first-app.md), например `app.router.addPage("/greet", async () => new GreetPage())`.
 
 ```ts
-import { Context } from "@matreshka/bff/core";
+import { createContext } from "@matreshka/bff/core";
 import { when } from "@matreshka/bff/core/conditions";
 import { Page, button, form, text, textInput } from "@matreshka/bff/components";
 import { z } from "zod";
@@ -31,7 +31,7 @@ type GreetState = {
 };
 
 export class GreetPage extends Page {
-  context = new Context<GreetState>({
+  context = createContext({
     schema: z.object({
       name: z.string(),
     }),

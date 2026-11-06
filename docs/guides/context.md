@@ -17,8 +17,12 @@
 
 ## Самый маленький `Context`
 
+Ниже в примерах подразумевается импорт `createContext` из `@matreshka/bff/core`.
+
 ```ts
-context = new Context({
+import { createContext } from "@matreshka/bff/core";
+
+context = createContext({
   data: async () => ({
     name: "Alice",
   }),
@@ -156,7 +160,7 @@ this.context
 ### 1. `preload`
 
 ```ts
-context = new Context({
+context = createContext({
   preload: true,
   data: async () => ({
     draft: "",
@@ -175,7 +179,7 @@ context = new Context({
 ### 2. Lazy-инициализация
 
 ```ts
-context = new Context({
+context = createContext({
   data: async () => ({
     draft: "",
   }),
@@ -194,7 +198,7 @@ context = new Context({
 
 ```ts
 class ProfilePage extends Page {
-  context = new Context({
+  context = createContext({
     data: async () => ({
       name: "Alice",
     }),
@@ -267,9 +271,10 @@ class ProfilePage extends Page {
 Вложенный путь (`user.email`, `items[0].qty`) описывают деревом `z.object` / `z.array`, чтобы путь существовал в схеме.
 
 ```ts
+import { createContext } from "@matreshka/bff/core";
 import { z } from "zod";
 
-context = new Context({
+context = createContext({
   schema: z.object({
     query: z.string(),
     quantity: z.number(),
@@ -295,7 +300,7 @@ this.context.set({ role: "editor" });
 Контекст только с серверными записями:
 
 ```ts
-context = new Context({
+context = createContext({
   data: async () => ({ title: "Счёт", balance: 0 }),
 });
 
@@ -322,7 +327,7 @@ text(this.context.ref("title"));
 Простой пример внутри одного контекста:
 
 ```ts
-context = new Context({
+context = createContext({
   data: async () => ({
     userId: 1,
     users: [{ name: "Alice" }, { name: "Bob" }],
@@ -342,13 +347,13 @@ text(`Пользователь: ${this.context.ref("users").ref("userId").ref("n
 - `strictRef()` нужен, когда путь в одном контексте зависит от значения, лежащего в другом контексте.
 
 ```ts
-const cardsContext = new Context({
+const cardsContext = createContext({
   data: async () => ({
     cards: [{ title: "A" }, { title: "B" }],
   }),
 });
 
-const indexContext = new Context({
+const indexContext = createContext({
   data: async () => ({ key: "0.title" }),
 });
 

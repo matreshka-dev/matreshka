@@ -40,7 +40,9 @@ textInput({
 Предположим, на сервере создан контекст:
 
 ```typescript
-context = new Context({
+import { createContext } from "@matreshka/bff/core";
+
+context = createContext({
   data: async () => ({
     name: "Дмитрий",
     age: 30,
@@ -78,7 +80,9 @@ textInput({
 Например:
 
 ```typescript
-context = new Context({
+import { createContext } from "@matreshka/bff/core";
+
+context = createContext({
   data: async () => ({
     name: "",
     age: 0,
@@ -132,12 +136,12 @@ TypeScript не участвует в обработке таких сообще
 
 Схема описывает структуру и типы данных, которые нужно проверять на границе с недоверенным источником. В частности, она определяет ключи Context, которые разрешено изменять клиенту, и проверяет типы поступающих значений.
 
-На этапе компиляции тип данных и Zod-схема связываются через `ContextSchema<T, S>`: схема может описывать все поля или только часть, но не может содержать лишних ключей или несовместимых типов. Контекст создаётся функцией `context({ data, schema?, … })` — TypeScript выведет `T` из `data` и тип схемы из `schema`. Если в первом ответе `data` нет части полей модели (например опциональных), задайте тип явно на колбэке: `data: async (): Promise<MyT> => (…))`.
+На этапе компиляции тип данных и Zod-схема связываются через `ContextSchema<T, S>`: схема может описывать **любое подмножество** полей `T` на любой глубине (например только `profile.name`, когда в контексте есть и `profile.age`), но не может содержать лишних ключей ни во **входе** (`z.input`), ни в **результате** (`z.output`) — в том числе во вложенных объектах, в элементах массивов и в **каждой ветке** `z.union`. Типы полей, которые схема описывает, проверяются по **`z.output`** (после `.transform()` / `.pipe()`): output должен быть совместим с `T`. Контекст создаётся функцией `createContext({ data, schema?, … })` — TypeScript выведет `T` из `data` и тип схемы из `schema`. Если в первом ответе `data` нет части полей модели (например опциональных), задайте тип явно на колбэке: `data: async (): Promise<MyT> => (…))`.
 
 Например:
 
 ```typescript
-pageContext = context({
+pageContext = createContext({
   schema: z.object({
     name: z.string(),
     age: z.number(),
@@ -173,6 +177,13 @@ pageContext = context({
 - Если у контекста нет `schema`, изменение отклоняется: данные не меняются, ошибка уходит в поток ошибок клиента.
 - Если ключ не описан в `schema`, происходит то же самое. Сообщение с несколькими полями не применяется частично: один ключ вне схемы отменяет весь patch.
 - Если ключ описан, но значение не проходит тип, Zod бросает ошибку, и значение в контекст не попадает.
+- Если ключ описан и значение прошло проверку, в контекст записывается **output** схемы **конечного поля** (`zodDeepPick` + `parseAsync`), включая leaf `.transform()` / refine на этом поле.
+- **Transform/refine родительского object** при dotted-patch **не поддерживаются**: такая схема **отклоняется при создании контекста** (runtime-проверка `assertClientUpdateSchemaSupported`). На leaf-полях transform/refine по-прежнему разрешены.
+- Несколько ключей в одном сообщении валидируются **до** `set()`; при ошибке любого поля patch не применяется. Входящие targeted-сообщения **всех клиентов** одного контекста обрабатываются **последовательно** через общую очередь на `Context` (`concatMap`).
+- После асинхронной валидации patch не применяется, если клиент уже отвязан от контекста или контекст уничтожен (в том числе при `preload` после `init()`).
+- В одном сообщении или вызове {@link Context.set} нельзя смешивать дублирующиеся и вложенные dotted-пути (`user` и `user.name`).
+- Пути ключей проверяются на безопасные сегменты (запрет `__proto__`, `prototype`, `constructor` и пустых сегментов).
+- На этапе компиляции `z.output` не должен допускать `null`/`undefined` как значение поля, если соответствующее поле в `T` этого не допускает (отсутствие ключа в частичной схеме — отдельно и допустимо).
 
 Серверные `set`, `replace` и `data()` эту проверку не проходят.
 
@@ -253,12 +264,14 @@ this.context.ref("status").set("approved");
 Перед тем как использовать такой ответ в Context, его нужно проверить через Zod-схему:
 
 ```typescript
+import { createContext } from "@matreshka/bff/core";
+
 const deliverySchema = z.object({
   status: z.enum(["pending", "shipped", "delivered"]),
   trackingNumber: z.string(),
 });
 
-context = new Context({
+context = createContext({
   schema: deliverySchema,
 
   data: async () => ({
@@ -301,7 +314,9 @@ text(this.context.ref("name"));
 Например, в форме редактирования профиля пользователь может менять имя, а сервер самостоятельно управляет статусом профиля.
 
 ```typescript
-context = new Context({
+import { createContext } from "@matreshka/bff/core";
+
+context = createContext({
   schema: z.object({
     name: z.string(),
   }),
@@ -336,7 +351,9 @@ this.context.set({
 Пользователь может изменять количество товаров и комментарий. Итоговая стоимость и статус заказа рассчитываются сервером.
 
 ```typescript
-context = new Context({
+import { createContext } from "@matreshka/bff/core";
+
+context = createContext({
   schema: z.object({
     quantity: z.number(),
     comment: z.string(),
@@ -385,7 +402,9 @@ this.context.set({
 Например, для профиля пользователя:
 
 ```typescript
-context = new Context({
+import { createContext } from "@matreshka/bff/core";
+
+context = createContext({
   schema: z.object({
     user: z.object({
       name: z.string(),
