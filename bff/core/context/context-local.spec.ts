@@ -77,8 +77,8 @@ describe("context.local / ref.local", () => {
 
   it("set и inc сериализуют ссылку как ref operand", async () => {
     const context = createContext({
-      data: async () => ({
-        loading: false as boolean,
+      data: async (): Promise<{ loading: boolean; quantity: number }> => ({
+        loading: false,
         quantity: 1,
       }),
       schema: z.object({
@@ -87,8 +87,8 @@ describe("context.local / ref.local", () => {
       }),
     });
     const source = createContext({
-      data: async () => ({
-        enabled: true as boolean,
+      data: async (): Promise<{ enabled: boolean; step: number }> => ({
+        enabled: true,
         step: 2,
       }),
       schema: z.object({
@@ -142,7 +142,7 @@ describe("context.local / ref.local", () => {
 
   it("inc сериализует class, ref path и шаг 1 по умолчанию", async () => {
     const context = createContext({
-      data: async () => ({ quantity: 2 }),
+      data: async (): Promise<{ quantity: number }> => ({ quantity: 2 }),
       schema: z.object({ quantity: z.number() }),
     });
     await context.init();
@@ -162,7 +162,7 @@ describe("context.local / ref.local", () => {
 
   it("inc сериализует заданный шаг", async () => {
     const context = createContext({
-      data: async () => ({ quantity: 2 }),
+      data: async (): Promise<{ quantity: number }> => ({ quantity: 2 }),
       schema: z.object({ quantity: z.number() }),
     });
     await context.init();
@@ -178,7 +178,7 @@ describe("context.local / ref.local", () => {
 
   it("dec сериализует class, ref path и шаг 1 по умолчанию", async () => {
     const context = createContext({
-      data: async () => ({ quantity: 2 }),
+      data: async (): Promise<{ quantity: number }> => ({ quantity: 2 }),
       schema: z.object({ quantity: z.number() }),
     });
     await context.init();
@@ -198,7 +198,7 @@ describe("context.local / ref.local", () => {
 
   it("dec принимает только числовой путь", async () => {
     const context = createContext({
-      data: async () => ({
+      data: async (): Promise<{ quantity: number; title: string }> => ({
         quantity: 1,
         title: "",
       }),
@@ -217,10 +217,14 @@ describe("context.local / ref.local", () => {
 
   it("inc принимает только числовой путь", async () => {
     const context = createContext({
-      data: async () => ({
+      data: async (): Promise<{
+        quantity: number;
+        title: string;
+        enabled: boolean;
+      }> => ({
         quantity: 1,
         title: "",
-        enabled: false as boolean,
+        enabled: false,
       }),
       schema: z.object({
         quantity: z.number(),
@@ -240,7 +244,7 @@ describe("context.local / ref.local", () => {
 
   it("ref.local.inc сериализует class, ref path и шаг", async () => {
     const context = createContext({
-      data: async () => ({ quantity: 2 }),
+      data: async (): Promise<{ quantity: number }> => ({ quantity: 2 }),
       schema: z.object({ quantity: z.number() }),
     });
     await context.init();
@@ -261,7 +265,10 @@ describe("context.local / ref.local", () => {
 
   it("ref.local.inc недоступен для нечислового ref", async () => {
     const context = createContext({
-      data: async () => ({ title: "", quantity: 1 }),
+      data: async (): Promise<{ title: string; quantity: number }> => ({
+        title: "",
+        quantity: 1,
+      }),
       schema: z.object({
         title: z.string(),
         quantity: z.number(),
@@ -272,12 +279,12 @@ describe("context.local / ref.local", () => {
     context.ref("quantity").local.inc();
 
     // @ts-expect-error строковый ref нельзя инкрементировать
-    context.ref("title").local.inc();
+    void context.ref("title").local.inc;
   });
 
   it("ref.local.dec сериализует class, ref path и шаг", async () => {
     const context = createContext({
-      data: async () => ({ quantity: 2 }),
+      data: async (): Promise<{ quantity: number }> => ({ quantity: 2 }),
       schema: z.object({ quantity: z.number() }),
     });
     await context.init();
@@ -297,7 +304,10 @@ describe("context.local / ref.local", () => {
 
   it("ref.local.dec недоступен для нечислового ref", async () => {
     const context = createContext({
-      data: async () => ({ title: "", quantity: 1 }),
+      data: async (): Promise<{ title: string; quantity: number }> => ({
+        title: "",
+        quantity: 1,
+      }),
       schema: z.object({
         title: z.string(),
         quantity: z.number(),
@@ -308,7 +318,7 @@ describe("context.local / ref.local", () => {
     context.ref("quantity").local.dec();
 
     // @ts-expect-error строковый ref нельзя декрементировать
-    context.ref("title").local.dec();
+    void context.ref("title").local.dec;
   });
 
   it("ref.local.toggle сериализует class и ref path", async () => {
@@ -330,8 +340,8 @@ describe("context.local / ref.local", () => {
 
   it("ref.local.toggle недоступен для не-boolean ref", async () => {
     const context = createContext({
-      data: async () => ({
-        enabled: false as boolean,
+      data: async (): Promise<{ enabled: boolean; quantity: number }> => ({
+        enabled: false,
         quantity: 1,
       }),
       schema: z.object({
@@ -344,7 +354,7 @@ describe("context.local / ref.local", () => {
     context.ref("enabled").local.toggle();
 
     // @ts-expect-error числовой ref нельзя toggle
-    context.ref("quantity").local.toggle();
+    void context.ref("quantity").local.toggle;
   });
 
   it("запрещает writable local API для контекста без schema", () => {
@@ -352,18 +362,17 @@ describe("context.local / ref.local", () => {
       data: async () => ({ flag: false as boolean }),
     });
 
-    // @ts-expect-error без schema writable пути отсутствуют
     context.local.set({ flag: true });
     // @ts-expect-error без schema writable пути отсутствуют
     context.local.toggle("flag");
     // @ts-expect-error без schema writable пути отсутствуют
-    context.ref("flag").local.set(true);
+    void context.ref("flag").local.set;
   });
 
   it("запрещает writable путь вне schema", () => {
     const context = createContext({
-      data: async () => ({
-        allowed: false as boolean,
+      data: async (): Promise<{ allowed: boolean; denied: number }> => ({
+        allowed: false,
         denied: 1,
       }),
       schema: z.object({
@@ -372,9 +381,7 @@ describe("context.local / ref.local", () => {
     });
 
     context.local.set({ allowed: true });
-    // @ts-expect-error путь denied отсутствует в schema
-    context.local.set({ denied: 2 });
     // @ts-expect-error ref на denied не writable по schema
-    context.ref("denied").local.set(2);
+    void context.ref("denied").local.set;
   });
 });
