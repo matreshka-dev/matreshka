@@ -318,12 +318,25 @@ export class Context<T extends JsonObject> {
   }
 
   /**
+   * Фабричный runtime-вход для {@link createContext}.
+   * Не используйте напрямую в прикладном коде — это обходит compile-time проверку schema↔data.
+   *
+   * @internal
+   * @deprecated Internal API. Use createContext(...) instead.
+   */
+  static createRuntime<U extends JsonObject>(
+    config: ContextRuntimeInit<U>,
+  ): Context<U> {
+    return new Context<U>(config);
+  }
+
+  /**
    * Создаёт экземпляр контекста, привязанный к конкретному клиенту.
    *
    * Подписывается на входящие сообщения от клиента и ошибки, связанные с этим контекстом.
   
    */
-  constructor(config: ContextRuntimeInit<T>) {
+  protected constructor(config: ContextRuntimeInit<T>) {
     this.schema = config.schema;
 
     if (this.schema) {

@@ -1,7 +1,7 @@
 import { BehaviorSubject } from "rxjs";
 import { distinctUntilChanged } from "rxjs/operators";
 import { describe, expect, it, vi } from "vitest";
-import { Context } from "./context";
+import { createContext } from "./context";
 
 vi.mock("../client", () => {
   class FakeClient {
@@ -21,7 +21,7 @@ describe("Context.watch", () => {
   type TestContext = { count: number };
 
   it("эмитит текущее значение при subscribe и следующие обновления", async () => {
-    const ctx = new Context<TestContext>({
+    const ctx = createContext({
       data: async () => ({ count: 1 }),
     });
 
@@ -38,7 +38,7 @@ describe("Context.watch", () => {
   });
 
   it("ждёт init и затем эмитит данные", async () => {
-    const ctx = new Context<TestContext>({
+    const ctx = createContext({
       data: async () => ({ count: 5 }),
     });
 
@@ -54,7 +54,7 @@ describe("Context.watch", () => {
 
   it("set() эмитит новую ссылку для distinctUntilChanged", async () => {
     type Nested = { profile: { name: string } };
-    const ctx = new Context<Nested>({
+    const ctx = createContext({
       data: async () => ({ profile: { name: "a" } }),
     });
     await ctx.init();
@@ -75,7 +75,7 @@ describe("Context.watch", () => {
   });
 
   it("завершает поток без эмиссий, если destroy до init", () => {
-    const ctx = new Context<TestContext>({
+    const ctx = createContext<TestContext>({
       data: async () => new Promise(() => {}),
     });
 

@@ -3,7 +3,7 @@ import { BehaviorSubject, Subject } from "rxjs";
 import { describe, expect, it, vi } from "vitest";
 import { z, ZodError } from "zod";
 import type { Client } from "../client";
-import { Context, createContext } from "./context";
+import { createContext } from "./context";
 
 vi.mock("../client", () => {
   class FakeClient {
@@ -65,7 +65,7 @@ describe("Context.set", () => {
       count: number;
     };
 
-    const ctx = new Context<TestContext>({
+    const ctx = createContext<TestContext>({
       data: async () => ({
         message: "draft",
         sending: true,
@@ -93,7 +93,7 @@ describe("Context.set", () => {
   });
 
   it("возвращает hot Observable и ждёт receipt клиента", async () => {
-    const ctx = new Context<{ loading: boolean }>({
+    const ctx = createContext<{ loading: boolean }>({
       data: async () => ({ loading: false }),
     });
     const recipient = createDeliveryClient();
@@ -129,7 +129,7 @@ describe("Context.set", () => {
   });
 
   it("завершается только после receipt всех адресатов", async () => {
-    const ctx = new Context<{ loading: boolean }>({
+    const ctx = createContext<{ loading: boolean }>({
       data: async () => ({ loading: false }),
     });
     const first = createDeliveryClient();
@@ -175,7 +175,7 @@ describe("Context.set", () => {
       label: string;
     };
 
-    const ctx = new Context<TestContext>({
+    const ctx = createContext<TestContext>({
       data: async () => ({
         flag: true,
         label: "keep",
@@ -196,7 +196,7 @@ describe("Context.set", () => {
   it("patch с одним ключом обновляет одно поле", async () => {
     type TestContext = { loading: boolean };
 
-    const ctx = new Context<TestContext>({
+    const ctx = createContext<TestContext>({
       data: async () => ({ loading: false }),
     });
 
@@ -210,7 +210,7 @@ describe("Context.set", () => {
       user: { name: string };
     };
 
-    const ctx = new Context<TestContext>({
+    const ctx = createContext<TestContext>({
       data: async () => ({
         user: { name: "Alice" },
       }),
@@ -226,7 +226,7 @@ describe("Context.set", () => {
   });
 
   it("при пустом diff эмитит один success и не шлёт context-values", async () => {
-    const ctx = new Context<{ loading: boolean }>({
+    const ctx = createContext<{ loading: boolean }>({
       data: async () => ({ loading: false }),
     });
     const recipient = createDeliveryClient();
@@ -252,7 +252,7 @@ describe("Context.set", () => {
   });
 
   it("при отсутствии адресатов сразу завершается и не ждёт receipt", async () => {
-    const ctx = new Context<{ loading: boolean }>({
+    const ctx = createContext<{ loading: boolean }>({
       data: async () => ({ loading: false }),
     });
 
@@ -301,7 +301,7 @@ describe("Context.set", () => {
   });
 
   it("client update без schema уходит в error$ и не меняет данные", async () => {
-    const ctx = new Context<{ loading: boolean }>({
+    const ctx = createContext<{ loading: boolean }>({
       data: async () => ({ loading: false }),
     });
     const source = createDeliveryClient();

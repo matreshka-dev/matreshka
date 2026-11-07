@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { Client, Context, runWithClient } from "../core";
+import { Client, createContext, runWithClient } from "../core";
 import { itemList, map } from "./map";
 import { text } from "./outputs/text";
 
@@ -11,9 +11,7 @@ describe("Map itemList", () => {
   it("сериализует hybrid markers с itemList", async () => {
     const client = createClient();
     const staticMarker = text("HQ");
-    const context = new Context<{
-      points: { id: string; lat: number; lng: number }[];
-    }>({
+    const context = createContext({
       data: async () => ({
         points: [{ id: "p1", lat: 10, lng: 20 }],
       }),

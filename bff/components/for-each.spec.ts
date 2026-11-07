@@ -1,6 +1,6 @@
 import { describe, expectTypeOf, it } from "vitest";
 import { ContextArrayValueRef, ContextRefValueType } from "../core";
-import { Context } from "../core/context/context";
+import { createContext } from "../core/context/context";
 import { ForEach } from "./for-each";
 import { Text } from "./outputs/text";
 
@@ -15,7 +15,7 @@ describe("ForEach type inference", () => {
       };
     };
 
-    const context = new Context<{ messages: Message[] }>({
+    const context = createContext<{ messages: Message[] }>({
       data: async () => ({
         messages: [],
       }),
@@ -60,7 +60,7 @@ describe("ForEach type inference", () => {
       categories: Category[];
     };
 
-    const context = new Context<{ sections: Section[] }>({
+    const context = createContext<{ sections: Section[] }>({
       data: async () => ({
         sections: [],
       }),
@@ -109,7 +109,7 @@ describe("ForEach type inference", () => {
       };
     };
 
-    const context = new Context<{ blocks: Block[] }>({
+    const context = createContext<{ blocks: Block[] }>({
       data: async () => ({
         blocks: [],
       }),
@@ -139,7 +139,7 @@ describe("ForEach type inference", () => {
   });
 
   it("требует ref на массив", () => {
-    const context = new Context<{
+    const context = createContext<{
       list: { id: string }[];
       single: { id: string };
     }>({

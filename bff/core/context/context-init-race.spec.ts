@@ -1,6 +1,6 @@
 import { Subject } from "rxjs";
 import { describe, expect, it } from "vitest";
-import { Context } from "./context";
+import { createContext } from "./context";
 
 type TestData = { name: string };
 
@@ -11,7 +11,7 @@ describe("Context.init race", () => {
       resolveLoad = resolve;
     });
 
-    const context = new Context<TestData>({
+    const context = createContext({
       data: () => loadPromise,
     });
 
@@ -30,7 +30,7 @@ describe("Context.init race", () => {
       resolveLoad = resolve;
     });
 
-    const context = new Context<TestData>({
+    const context = createContext({
       data: () => loadPromise,
     });
 
@@ -51,7 +51,7 @@ describe("Context.init race", () => {
       error$: { next: (error: unknown) => errors.push(error) },
     } as any;
 
-    const context = new Context<TestData>({
+    const context = createContext<TestData>({
       data: () => Promise.reject(new Error("load failed")),
     });
 

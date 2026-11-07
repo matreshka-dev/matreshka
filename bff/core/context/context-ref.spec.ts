@@ -1,7 +1,7 @@
 import { BehaviorSubject, Subject } from "rxjs";
 import { describe, expect, it, vi } from "vitest";
 import type { Client } from "../client";
-import { Context } from "./context";
+import { createContext } from "./context";
 import { ContextRef } from "./context-ref";
 
 // Переопределяем currentClient до объявления любых зависимостей, чтобы Context.toJSON/ContextRef.toJSON не падали
@@ -23,7 +23,7 @@ vi.mock("../client", () => {
 
 describe("Context.ref и ContextRef.ref", () => {
   it("должны строить простой путь внутри одного контекста", async () => {
-    const ctx = new Context({
+    const ctx = createContext({
       data: async () => ({
         user: {
           profile: { name: "Alice" },
@@ -46,7 +46,7 @@ describe("Context.ref и ContextRef.ref", () => {
       };
     };
 
-    const ctx = new Context<TestContext>({
+    const ctx = createContext<TestContext>({
       data: async () => ({
         user: {
           profile: { name: "Bob" },
@@ -74,7 +74,7 @@ describe("Context.ref и ContextRef.ref", () => {
       loading: boolean;
     };
 
-    const ctx = new Context<TestContext>({
+    const ctx = createContext<TestContext>({
       data: async () => ({
         user: { name: "Alice" },
         loading: false,
@@ -104,7 +104,7 @@ describe("Context.ref и ContextRef.ref", () => {
   });
 
   it("ContextRef.set после destroy бросает ту же ошибку, что Context.set", async () => {
-    const ctx = new Context<{ flag: boolean }>({
+    const ctx = createContext<{ flag: boolean }>({
       data: async () => ({ flag: false }),
     });
 
@@ -133,7 +133,7 @@ describe("Context.ref и ContextRef.ref", () => {
       }),
     } as unknown as Client;
 
-    const ctx = new Context<{ flag: boolean }>({
+    const ctx = createContext<{ flag: boolean }>({
       data: async () => ({ flag: false }),
     });
     ctx.authorizeClient(client);
@@ -176,13 +176,13 @@ describe("Context.strictRef", () => {
       path: string;
     };
 
-    const cardsContext = new Context<CardsContext>({
+    const cardsContext = createContext<CardsContext>({
       data: async () => ({
         cards: [{ balance: 100 }, { balance: 200 }],
       }),
     });
 
-    const pathContext = new Context<PathContext>({
+    const pathContext = createContext<PathContext>({
       data: async () => ({
         path: "cards.1.balance",
       }),
@@ -207,13 +207,13 @@ describe("Context.strictRef", () => {
       path: string;
     };
 
-    const cardsContext = new Context<CardsContext>({
+    const cardsContext = createContext<CardsContext>({
       data: async () => ({
         cards: [{ balance: 100 }, { balance: 200 }],
       }),
     });
 
-    const pathContext = new Context<PathContext>({
+    const pathContext = createContext<PathContext>({
       data: async () => ({
         path: "cards.0.balance",
       }),

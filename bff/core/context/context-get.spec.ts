@@ -1,6 +1,6 @@
 import { BehaviorSubject } from "rxjs";
 import { describe, expect, it, vi } from "vitest";
-import { Context } from "./context";
+import { createContext } from "./context";
 
 vi.mock("../client", () => {
   class FakeClient {
@@ -23,7 +23,7 @@ describe("Context.get", () => {
       items: string[];
     };
 
-    const ctx = new Context<TestContext>({
+    const ctx = createContext({
       data: async () => ({
         meta: { count: 1 },
         items: ["a"],

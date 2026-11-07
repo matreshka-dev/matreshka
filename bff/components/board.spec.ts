@@ -1,6 +1,6 @@
 import { ContextInitMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/context/context-init-message";
 import { describe, expect, it } from "vitest";
-import { Client, Context, runWithClient } from "../core";
+import { Client, createContext, runWithClient } from "../core";
 import { board, itemList } from "./board";
 import { text } from "./outputs/text";
 
@@ -59,9 +59,7 @@ describe("Board", () => {
 
   it("сериализует itemList в items", async () => {
     const client = createClient();
-    const context = new Context<{
-      cards: { id: string; x: number; y: number; title: string }[];
-    }>({
+    const context = createContext({
       data: async () => ({
         cards: [{ id: "c1", x: 5, y: 10, title: "Sales" }],
       }),
@@ -91,9 +89,7 @@ describe("Board", () => {
 
   it("сериализует itemList с ref на поле элемента и отдаёт index context клиенту", async () => {
     const client = createClient();
-    const context = new Context<{
-      cards: { id: string; x: number; y: number; title: string }[];
-    }>({
+    const context = createContext({
       preload: true,
       data: async () => ({
         cards: [{ id: "c1", x: 5, y: 10, title: "Sales" }],

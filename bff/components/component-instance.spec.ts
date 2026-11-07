@@ -19,7 +19,7 @@ import {
   Client,
   ComponentInstance,
   ComponentTreeNode,
-  Context,
+  createContext,
   mobileDevice,
   runWithClient,
   runWithEntry,
@@ -900,7 +900,7 @@ describe("Component instance: ForEach и несколько placement", () => {
   type Task = { id: string; title: string };
 
   async function createTaskContext(tasks: Task[]) {
-    const context = new Context<{ tasks: Task[] }>({
+    const context = createContext({
       data: async () => ({ tasks }),
     });
     await context.init();

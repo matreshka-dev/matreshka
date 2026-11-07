@@ -1,11 +1,11 @@
 import { describe, expectTypeOf, it } from "vitest";
-import { Context } from "../context/context";
+import { createContext } from "../context/context";
 import { ContextRefValueType } from "../context/context-ref";
 import { ContextRefOfValue } from "./context-value-ref";
 
 describe("ContextRefOfValue", () => {
   it("принимает ref страницы с числовым полем", () => {
-    const context = new Context<{ amount?: number }>({
+    const context = createContext<{ amount?: number }>({
       data: async () => ({ amount: 1 }),
     });
 
@@ -20,7 +20,7 @@ describe("ContextRefOfValue", () => {
   });
 
   it("отклоняет ref с несовместимым типом значения", () => {
-    const context = new Context<{ title: string }>({
+    const context = createContext({
       data: async () => ({ title: "" }),
     });
 

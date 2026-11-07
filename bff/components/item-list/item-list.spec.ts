@@ -1,6 +1,6 @@
 import { diffNestedItems } from "@matreshka/shared/utils/diff-nested-items";
 import { describe, expect, it } from "vitest";
-import { Client, Context, runWithClient } from "../../core";
+import { Client, createContext, runWithClient } from "../../core";
 import { itemList, map, type MapMarker, type MapMarkerEntry } from "../map";
 import { text } from "../outputs/text";
 import { isItemList } from "./flatten-nested-items";
@@ -36,9 +36,7 @@ describe("flattenNestedItems", () => {
     const client = createClient();
     const staticA = text("A");
     const staticB = text("B");
-    const context = new Context<{
-      points: { id: string; lat: number; lng: number }[];
-    }>({
+    const context = createContext({
       data: async () => ({
         points: [{ id: "p1", lat: 10, lng: 20 }],
       }),
@@ -85,9 +83,7 @@ describe("flattenNestedItems", () => {
 
 describe("itemList", () => {
   it("передаёт в text ссылку на поле элемента, а не значение", async () => {
-    const context = new Context<{
-      departments: { id: number; name: string }[];
-    }>({
+    const context = createContext({
       data: async () => ({ departments: [{ id: 1, name: "A" }] }),
     });
     await context.init();
@@ -105,7 +101,7 @@ describe("itemList", () => {
   });
 
   it("isItemList распознаёт фабрику", () => {
-    const context = new Context<{ items: string[] }>({
+    const context = createContext<{ items: string[] }>({
       data: async () => ({ items: [] }),
     });
     const list = itemList({

@@ -1,7 +1,7 @@
 import { BehaviorSubject, Subject } from "rxjs";
 import { describe, expect, it, vi } from "vitest";
 import type { Client } from "../client";
-import { Context } from "./context";
+import { createContext } from "./context";
 
 vi.mock("../client", () => {
   class FakeClient {
@@ -46,7 +46,7 @@ describe("Context.replace", () => {
   }
 
   it("подменяет весь снимок данных", async () => {
-    const ctx = new Context<TestContext>({
+    const ctx = createContext({
       data: async () => ({ message: "old", count: 1 }),
     });
 
@@ -59,7 +59,7 @@ describe("Context.replace", () => {
   });
 
   it("возвращает Observable, который завершается после receipt", async () => {
-    const ctx = new Context<TestContext>({
+    const ctx = createContext({
       data: async () => ({ message: "old", count: 1 }),
     });
     const recipient = createDeliveryClient();
@@ -90,7 +90,7 @@ describe("Context.replace", () => {
   });
 
   it("бросает, если контекст не инициализирован", () => {
-    const ctx = new Context<TestContext>({
+    const ctx = createContext({
       data: async () => ({ message: "", count: 0 }),
     });
 

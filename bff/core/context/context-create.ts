@@ -246,11 +246,14 @@ type ContextCreateConfig<C extends ContextInitShape> = C &
  * Если в начальном `data` нет части полей (например опциональных), укажите тип на колбэке:
  * `data: async (): Promise<MyT> => ({ … })`.
  */
-export function createContext<const C extends ContextInitShape>(
-  config: ContextCreateConfig<C>,
-): Context<ContextDataFromInit<C>>;
+export function createContext<const T extends JsonObject>(
+  config: ContextInitWithoutSchema<T>,
+): Context<T>;
+export function createContext<
+  const C extends ContextInitShape & { schema: z.ZodObject },
+>(config: ContextCreateConfig<C>): Context<ContextDataFromInit<C>>;
 export function createContext<const T extends JsonObject>(
   config: ContextCreateRuntimeInit<T>,
 ): Context<T> {
-  return new Context<T>(config);
+  return Context.createRuntime<T>(config);
 }

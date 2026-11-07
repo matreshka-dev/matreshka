@@ -7,17 +7,19 @@
 1. [`protocol.md`](protocol.md) — общий wire-format сообщений и основные message groups.
 2. [`platform-actions.md`](platform-actions.md) — философия platform-action: обязательный ответ клиента (результат или ack).
 3. [`context-lifecycle.md`](context-lifecycle.md) — жизненный цикл Context на BFF и клиенте, `context-destroy`, holds.
-4. [`context-ref-type-naming.md`](context-ref-type-naming.md) — модель типов вокруг `ContextRef` и правила нейминга.
-5. [`context-update-delivery.md`](context-update-delivery.md) — `Observable<ContextUpdateDelivery>`, прогресс `delivered` и receipt по клиентам.
-6. [`client-rendering.md`](client-rendering.md) — как клиент загружает контексты, проверяет conditions и монтирует компоненты.
-7. [`message-delivery.md`](message-delivery.md) — надёжная доставка, подтверждения получения, retry, дедупликация и RTT/ping.
-8. [`operations.md`](operations.md) — reconnect, lifecycle клиента, эксплуатационные ограничения и best practices.
+4. [`context-create-factory.md`](context-create-factory.md) — зачем нужен `createContext`, compile-time связка `schema` и `data`, и почему это не только задача класса `Context`.
+5. [`context-ref-type-naming.md`](context-ref-type-naming.md) — модель типов вокруг `ContextRef` и правила нейминга.
+6. [`context-update-delivery.md`](context-update-delivery.md) — `Observable<ContextUpdateDelivery>`, прогресс `delivered` и receipt по клиентам.
+7. [`client-rendering.md`](client-rendering.md) — как клиент загружает контексты, проверяет conditions и монтирует компоненты.
+8. [`message-delivery.md`](message-delivery.md) — надёжная доставка, подтверждения получения, retry, дедупликация и RTT/ping.
+9. [`operations.md`](operations.md) — reconnect, lifecycle клиента, эксплуатационные ограничения и best practices.
 
 ## Карта архитектурных документов
 
 - [`protocol.md`](protocol.md) — базовая форма сообщения, `target`, основные типы обмена между BFF и клиентом.
 - [`platform-actions.md`](platform-actions.md) — request/response платформы, результат или пустой ack, отслеживание и цепочки после завершения.
 - [`context-lifecycle.md`](context-lifecycle.md) — создание, sync, destroy на BFF; holds и `pendingDestroy` на клиенте.
+- [`context-create-factory.md`](context-create-factory.md) — роль `createContext` как compile-time слоя поверх runtime-класса `Context`.
 - [`context-ref-type-naming.md`](context-ref-type-naming.md) — роли типов вокруг `ContextRef`: path-aware, extractor, value-only ref и naming-конвенции.
 - [`context-update-delivery.md`](context-update-delivery.md) — server-side доставка `Context` updates, накопительный `delivered` и reliable receipt.
 - [`client-rendering.md`](client-rendering.md) — `ContextHub`, `ComponentHub`, `ready$`, `display$`, conditions, rules и реакция на `change$`.

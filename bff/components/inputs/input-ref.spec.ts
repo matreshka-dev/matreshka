@@ -1,6 +1,6 @@
 import { TextInputKind } from "@matreshka/client-bff-protocol/enums/text-input-kind";
 import { describe, it } from "vitest";
-import { Context } from "../../core/context/context";
+import { createContext } from "../../core/context/context";
 import { numberInput } from "./number-input";
 import { passwordInput } from "./password-input";
 import { textInput } from "./text-input";
@@ -8,7 +8,7 @@ import { textarea } from "./textarea";
 
 describe("Input ref typing", () => {
   it("разрешает только совместимые ref для NumberInput", () => {
-    const context = new Context<{
+    const context = createContext<{
       numeric: number;
       numericOrText: number | string;
       text: string;
@@ -31,7 +31,7 @@ describe("Input ref typing", () => {
   });
 
   it("разрешает только строковые ref для TextInput", () => {
-    const context = new Context<{
+    const context = createContext<{
       text: string;
       numeric: number;
     }>({
@@ -51,7 +51,7 @@ describe("Input ref typing", () => {
   });
 
   it("разрешает только строковые ref для Textarea", () => {
-    const context = new Context<{
+    const context = createContext<{
       description: string;
       tags: string[];
     }>({
@@ -70,7 +70,7 @@ describe("Input ref typing", () => {
   });
 
   it("разрешает только строковые ref для PasswordInput", () => {
-    const context = new Context<{
+    const context = createContext<{
       password: string;
       numeric: number;
     }>({

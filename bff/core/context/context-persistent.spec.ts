@@ -1,7 +1,7 @@
 import { ContextInitMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/context/index";
 import { Subject } from "rxjs";
 import { describe, expect, it } from "vitest";
-import { Context } from "./context";
+import { createContext } from "./context";
 
 type TestData = { name: string };
 
@@ -17,7 +17,7 @@ function createMockClient() {
 describe("Context persistent", () => {
   it("по умолчанию уничтожается при destroy$ последнего клиента", async () => {
     const client = createMockClient();
-    const context = new Context<TestData>({
+    const context = createContext({
       data: async () => ({ name: "a" }),
     });
 
@@ -30,7 +30,7 @@ describe("Context persistent", () => {
 
   it("persistent: остаётся жив после ухода последнего клиента", async () => {
     const client = createMockClient();
-    const context = new Context<TestData>({
+    const context = createContext({
       persistent: true,
       data: async () => ({ name: "cached" }),
     });
@@ -47,7 +47,7 @@ describe("Context persistent", () => {
 
   it("persistent: новый клиент получает context-init после ухода предыдущего", async () => {
     const first = createMockClient();
-    const context = new Context<TestData>({
+    const context = createContext({
       persistent: true,
       preload: true,
       data: async () => ({ name: "shared" }),
@@ -70,7 +70,7 @@ describe("Context persistent", () => {
 
   it("persistent: явный destroy() после unbind всех клиентов", async () => {
     const client = createMockClient();
-    const context = new Context<TestData>({
+    const context = createContext({
       persistent: true,
       data: async () => ({ name: "x" }),
     });
@@ -84,10 +84,10 @@ describe("Context persistent", () => {
   });
 
   it("два клиента: после ухода обоих default контекст уничтожен, persistent жив", async () => {
-    const defaultContext = new Context<TestData>({
+    const defaultContext = createContext({
       data: async () => ({ name: "d" }),
     });
-    const persistentContext = new Context<TestData>({
+    const persistentContext = createContext({
       persistent: true,
       data: async () => ({ name: "p" }),
     });

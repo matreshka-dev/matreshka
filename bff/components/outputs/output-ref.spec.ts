@@ -1,11 +1,11 @@
 import { describe, it } from "vitest";
-import { Context } from "../../core/context/context";
+import { createContext } from "../../core/context/context";
 import { number } from "./number";
 import { text } from "./text";
 
 describe("Output ref typing", () => {
   it("разрешает только совместимые ref для числового output", () => {
-    const context = new Context<{
+    const context = createContext<{
       numeric: number;
       numericOrText: number | string;
       text: string;
@@ -28,7 +28,7 @@ describe("Output ref typing", () => {
   });
 
   it("сохраняет строковые ref валидными для Text output", () => {
-    const context = new Context<{ text: string }>({
+    const context = createContext({
       data: async () => ({
         text: "",
       }),

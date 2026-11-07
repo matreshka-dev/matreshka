@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { Context } from "./context";
+import { createContext } from "./context";
 import { ContextRef } from "./context-ref";
 
 describe("context.local / ref.local", () => {
   it("set-context сериализует patch одного поля", async () => {
-    const context = new Context({
+    const context = createContext({
       data: async () => ({ loading: false as boolean }),
     });
     await context.init();
@@ -24,7 +24,7 @@ describe("context.local / ref.local", () => {
   });
 
   it("set-context сериализует batch patch", async () => {
-    const context = new Context({
+    const context = createContext({
       data: async () => ({
         loading: false as boolean,
         dirty: false as boolean,
@@ -48,7 +48,7 @@ describe("context.local / ref.local", () => {
   });
 
   it("ref.local.set сериализует patch по path ref", async () => {
-    const context = new Context({
+    const context = createContext({
       data: async () => ({ loading: false as boolean }),
     });
     await context.init();
@@ -69,13 +69,13 @@ describe("context.local / ref.local", () => {
   });
 
   it("set и inc сериализуют ссылку как ref operand", async () => {
-    const context = new Context({
+    const context = createContext({
       data: async () => ({
         loading: false as boolean,
         quantity: 1 as number,
       }),
     });
-    const source = new Context({
+    const source = createContext({
       data: async () => ({
         enabled: true as boolean,
         step: 2 as number,
@@ -110,7 +110,7 @@ describe("context.local / ref.local", () => {
   });
 
   it("toggle сериализует class и ref path", async () => {
-    const context = new Context({
+    const context = createContext({
       data: async () => ({ enabled: false as boolean }),
     });
     await context.init();
@@ -125,7 +125,7 @@ describe("context.local / ref.local", () => {
   });
 
   it("inc сериализует class, ref path и шаг 1 по умолчанию", async () => {
-    const context = new Context({
+    const context = createContext({
       data: async () => ({ quantity: 2 as number }),
     });
     await context.init();
@@ -144,7 +144,7 @@ describe("context.local / ref.local", () => {
   });
 
   it("inc сериализует заданный шаг", async () => {
-    const context = new Context({
+    const context = createContext({
       data: async () => ({ quantity: 2 as number }),
     });
     await context.init();
@@ -159,7 +159,7 @@ describe("context.local / ref.local", () => {
   });
 
   it("dec сериализует class, ref path и шаг 1 по умолчанию", async () => {
-    const context = new Context({
+    const context = createContext({
       data: async () => ({ quantity: 2 as number }),
     });
     await context.init();
@@ -178,7 +178,7 @@ describe("context.local / ref.local", () => {
   });
 
   it("dec принимает только числовой путь", async () => {
-    const context = new Context({
+    const context = createContext({
       data: async () => ({
         quantity: 1 as number,
         title: "" as string,
@@ -193,7 +193,7 @@ describe("context.local / ref.local", () => {
   });
 
   it("inc принимает только числовой путь", async () => {
-    const context = new Context({
+    const context = createContext({
       data: async () => ({
         quantity: 1 as number,
         title: "" as string,
@@ -211,7 +211,7 @@ describe("context.local / ref.local", () => {
   });
 
   it("ref.local.inc сериализует class, ref path и шаг", async () => {
-    const context = new Context({
+    const context = createContext({
       data: async () => ({ quantity: 2 as number }),
     });
     await context.init();
@@ -231,7 +231,7 @@ describe("context.local / ref.local", () => {
   });
 
   it("ref.local.inc недоступен для нечислового ref", async () => {
-    const context = new Context({
+    const context = createContext({
       data: async () => ({ title: "" as string, quantity: 1 as number }),
     });
     await context.init();
@@ -243,7 +243,7 @@ describe("context.local / ref.local", () => {
   });
 
   it("ref.local.dec сериализует class, ref path и шаг", async () => {
-    const context = new Context({
+    const context = createContext({
       data: async () => ({ quantity: 2 as number }),
     });
     await context.init();
@@ -262,7 +262,7 @@ describe("context.local / ref.local", () => {
   });
 
   it("ref.local.dec недоступен для нечислового ref", async () => {
-    const context = new Context({
+    const context = createContext({
       data: async () => ({ title: "" as string, quantity: 1 as number }),
     });
     await context.init();
@@ -274,7 +274,7 @@ describe("context.local / ref.local", () => {
   });
 
   it("ref.local.toggle сериализует class и ref path", async () => {
-    const context = new Context({
+    const context = createContext({
       data: async () => ({ enabled: false as boolean }),
     });
     await context.init();
@@ -290,7 +290,7 @@ describe("context.local / ref.local", () => {
   });
 
   it("ref.local.toggle недоступен для не-boolean ref", async () => {
-    const context = new Context({
+    const context = createContext({
       data: async () => ({
         enabled: false as boolean,
         quantity: 1 as number,

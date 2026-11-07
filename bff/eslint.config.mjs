@@ -56,4 +56,18 @@ export default tseslint.config(
       ],
     },
   },
+  {
+    files: ["**/*.ts"],
+    ignores: ["core/context/context.ts", "core/context/context-create.ts"],
+    rules: {
+      "no-restricted-properties": [
+        "error",
+        {
+          object: "Context",
+          property: "createRuntime",
+          message: "Use createContext(...) instead of Context.createRuntime(...).",
+        },
+      ],
+    },
+  },
 );

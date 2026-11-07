@@ -1,7 +1,7 @@
 import { ContextInitMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/context/index";
 import { Subject } from "rxjs";
 import { describe, expect, it } from "vitest";
-import { Context } from "./context";
+import { createContext } from "./context";
 
 function sleep(ms: number) {
   return new Promise<void>((resolve) => {
@@ -20,7 +20,7 @@ describe("Context preload", () => {
     const sent: unknown[] = [];
     client.outcomingMessage$.subscribe((message) => sent.push(message));
 
-    const context = new Context<{ name: string }>({
+    const context = createContext({
       preload: true,
       persistent: true,
       data: async () => {
