@@ -2,6 +2,13 @@ import { JsonObject } from "@matreshka/client-bff-protocol/types/json";
 import { z } from "zod";
 import { Context } from "./context";
 
+/** Карта файла:
+ * 1) type-хелперы валидации schema↔data (extra-keys, compatibility)
+ * 2) публичные типы createContext
+ * 3) overload-ы и runtime-реализация createContext
+ */
+
+// --- Базовые type-примитивы ---
 type StripNullish<T> = Exclude<T, null | undefined>;
 
 type ArrayElement<T> = T extends readonly (infer E)[] ? E : never;
@@ -47,6 +54,7 @@ type ExtraSchemaKeysObjectExact<
       : true
     : true;
 
+// --- Блок extra-keys: запрещаем ключи, которых нет в data ---
 /** Есть ветка `T`, для которой `Input` не содержит лишних ключей. */
 type SomeExtraSchemaKeysBranchOk<
   T,
@@ -67,6 +75,7 @@ type ExtraSchemaKeys<T, Input> = Input extends JsonObject
     : true
   : never;
 
+// --- Блок compatibility: проверяем совместимость типов schema output ↔ data ---
 type FieldSchemaCompatibleOne<TField, IField> =
   NullishValueMismatch<TField, IField> extends never
     ? FieldSchemaCompatibleShape<TField, IField>
@@ -126,9 +135,7 @@ type SchemaCompatible<T, Input> = Input extends JsonObject
     : true
   : never;
 
-type SchemaInputKeysSubset<T extends JsonObject, S extends z.ZodObject> =
-  Exclude<keyof z.input<S>, keyof T> extends never ? true : false;
-
+// --- Финальная проверка output-совместимости ---
 type DeepPartial<T> = T extends readonly (infer E)[]
   ? readonly DeepPartial<E>[]
   : T extends object
@@ -141,19 +148,18 @@ type SchemaOutputCompatible<T extends JsonObject, S extends z.ZodObject> =
 /**
  * Zod-схема для {@link createContext}: без лишних ключей во {@link z.input} и {@link z.output}
  * ({@link ExtraSchemaKeys}, union по веткам); {@link z.output} совместим с `T`
- * ({@link SchemaCompatible}, вложенные подмножества). В контекст попадает output после `parse()`.
+ * ({@link SchemaOutputCompatible}, через deep partial). В контекст попадает output после `parse()`.
  */
 export type ContextSchema<T extends JsonObject, S extends z.ZodObject> =
   SchemaOutputCompatible<T, S> extends false
     ? never
-    : SchemaInputKeysSubset<T, S> extends false
-      ? never
-      : ExtraSchemaKeys<T, z.input<S>> extends never
-        ? ExtraSchemaKeys<T, z.output<S>> extends never
-          ? S
-          : never
-        : never;
+    : ExtraSchemaKeys<T, z.input<S>> extends never
+      ? ExtraSchemaKeys<T, z.output<S>> extends never
+        ? S
+        : never
+      : never;
 
+// --- Публичные типы конфигурации createContext ---
 /** Конфиг {@link createContext} без клиентской Zod-схемы. */
 export type ContextInitWithoutSchema<T extends JsonObject> = {
   data: () => Promise<T>;
@@ -206,20 +212,6 @@ export type ContextFromInit<C extends ContextInitShape> = Context<
   ContextDataFromInit<C>
 >;
 
-type ContextWithSchemaInit = {
-  data: () => Promise<unknown>;
-  schema: z.ZodObject;
-  preload?: boolean;
-  persistent?: boolean;
-};
-
-type ContextDataForSchema<C extends ContextWithSchemaInit> =
-  Awaited<ReturnType<C["data"]>> extends infer T
-    ? T extends JsonObject
-      ? T
-      : never
-    : never;
-
 type ContextCreateRuntimeInit<T extends JsonObject> = {
   data: () => Promise<T>;
   schema?: z.ZodObject;
@@ -227,6 +219,24 @@ type ContextCreateRuntimeInit<T extends JsonObject> = {
   persistent?: boolean;
 };
 
+type ContextSchemaCompatibilityGuard<C extends ContextInitShape> = C extends {
+  schema: z.ZodObject;
+}
+  ? ContextSchema<ContextDataFromInit<C>, NoInfer<C["schema"]>> extends never
+    ? {
+        /**
+         * Type helper for better diagnostics:
+         * schema must be a subset of data keys and have output-compatible field types.
+         */
+        __contextSchemaError__: "createContext(schema): schema is incompatible with data";
+      }
+    : unknown
+  : unknown;
+
+type ContextCreateConfig<C extends ContextInitShape> = C &
+  ContextSchemaCompatibilityGuard<C>;
+
+// --- Overload-ы и runtime-реализация ---
 /**
  * Создаёт контекст данных BFF: хранилище состояния с синхронизацией клиент ↔ сервер.
  *
@@ -236,21 +246,11 @@ type ContextCreateRuntimeInit<T extends JsonObject> = {
  * Если в начальном `data` нет части полей (например опциональных), укажите тип на колбэке:
  * `data: async (): Promise<MyT> => ({ … })`.
  */
-export function createContext<const C extends ContextWithSchemaInit>(
-  config: C,
-  ...validation: ContextSchema<
-    ContextDataForSchema<C>,
-    NoInfer<C["schema"]>
-  > extends never
-    ? [schemaMismatch: never]
-    : []
-): Context<ContextDataForSchema<C>>;
-export function createContext<const T extends JsonObject>(
-  config: ContextInitWithoutSchema<T>,
-): Context<T>;
+export function createContext<const C extends ContextInitShape>(
+  config: ContextCreateConfig<C>,
+): Context<ContextDataFromInit<C>>;
 export function createContext<const T extends JsonObject>(
   config: ContextCreateRuntimeInit<T>,
-  ..._validation: unknown[]
 ): Context<T> {
   return new Context<T>(config);
 }
