@@ -92,6 +92,16 @@ function finishSubmit(loadingRef: ContextRefOfValue<boolean | undefined>) {
 
 Для мгновенного UI **из actions на клиенте** используйте `context.local.set(patch)` или `ref.local.set(value)` — см. [events-and-actions.md](events-and-actions.md). На BFF в обработчиках и `ServerAction` — `ref.set()` или `context.set()`.
 
+### Compile-time контракт для writable API
+
+В writable API (`input`-привязки, `context.local.*`, `ref.local.*`) есть строгая проверка на этапе типов:
+
+- путь должен существовать в `data`;
+- путь должен быть описан в `schema` этого контекста;
+- тип значения по пути должен совпадать с ожидаемым типом действия/компонента.
+
+Если `schema` не задана, writable-пути считаются недоступными на уровне TypeScript (`never`): такие вызовы не компилируются.
+
 ## API контекста на BFF
 
 Кратко, чем пользоваться в коде страницы и сервисов:
@@ -248,6 +258,8 @@ class ProfilePage extends Page {
 Локальное действие сразу меняет зеркало контекста на клиенте и затем отправляет то же изменение на BFF сообщением `context-values`.
 
 Ключ, который пишет только BFF (`data()`, `context.set`, `ref.set`, `replace`), в схему не включают. Тип такой записи проверяет TypeScript на сервере. Контекст, который клиент только читает, оставляют без `schema`.
+
+Важно: контекст без `schema` подходит для server-only записей (`set` / `replace` / `ref.set`), но не для client-writable API.
 
 ### Почему привязка открывает весь контекст
 

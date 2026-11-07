@@ -1,4 +1,9 @@
-import { ContextRef, ContextRefValueType } from "../context/context-ref";
+import { WritableContextPath } from "../context/context";
+import {
+  AnySchemaContextRef,
+  ContextRef,
+  ContextRefValueType,
+} from "../context/context-ref";
 
 /**
  * Ссылка на поле контекста с известным типом значения.
@@ -16,17 +21,37 @@ import { ContextRef, ContextRefValueType } from "../context/context-ref";
  * bindAmount(pageContext.ref("amount"));
  * ```
  */
-export type ContextRefOfValue<ValueType> = ContextRef<any, any> & {
+export type ContextRefOfValue<ValueType> = ContextRef<any, any, any> & {
   readonly __valueType?: ValueType;
   get(): ValueType;
   set(value: ValueType): void;
+  toString(): string;
+  toJSON(): string;
 };
 
 /**
  * Ref `R` совместим с ожидаемым типом значения `ValueType` (проверка на call site).
  */
-export type CompatibleContextRefOfValue<ValueType, R extends ContextRef> =
-  ValueType extends ContextRefValueType<R> ? R : never;
+export type CompatibleContextRefOfValue<
+  ValueType,
+  R extends AnySchemaContextRef,
+> = ValueType extends ContextRefValueType<R> ? R : never;
+
+/** Ref `R` указывает на путь, разрешённый для клиентской записи по schema. */
+export type WritableContextRef<R extends AnySchemaContextRef> =
+  R extends ContextRef<infer ContextType, infer PathType, infer SchemaType>
+    ? PathType extends string
+      ? PathType extends WritableContextPath<ContextType, SchemaType>
+        ? R
+        : never
+      : never
+    : never;
+
+/** Ref `R` совместим по значению и одновременно writable по schema. */
+export type CompatibleWritableContextRefOfValue<
+  ValueType,
+  R extends AnySchemaContextRef,
+> = WritableContextRef<CompatibleContextRefOfValue<ValueType, R>>;
 
 /** Статическое значение или ссылка на совместимое значение в контексте. */
 export type ValueOrContextRef<ValueType> =

@@ -20,7 +20,7 @@
 
 ### 1) Path-aware ref
 
-- `ContextRef<ContextType, PathType>` — основной типизированный ref на путь в конкретном контексте.
+- `ContextRef<ContextType, PathType, SchemaType>` — основной типизированный ref на путь в конкретном контексте.
 - Используется, когда нужен доступ к `context`, `path`, типизированный `ref(...)`, `strictRef(...)`.
 
 ### 2) Extractor типа значения
@@ -52,6 +52,11 @@ function finishSubmit(loadingRef: ContextRefOfValue<boolean | undefined>) {
 - `CompatibleContextRefOfValue<ValueType, R extends ContextRef>` — фильтрует `R`, оставляя только ref с совместимым типом значения.
 - Нужен для compile-time проверок в generic-сигнатурах.
 
+Для writable API дополнительно используется:
+
+- `WritableContextRef<R extends ContextRef>` — путь `R` присутствует в writable-paths `schema`;
+- `CompatibleWritableContextRefOfValue<ValueType, R>` — одновременно совместимость по значению и writable-принадлежность пути.
+
 ### 5) Union для аргументов API
 
 - `ValueOrContextRef<ValueType>` — значение `ValueType` или `ContextRefOfValue<Exclude<ValueType, undefined>>`.
@@ -82,6 +87,9 @@ function finishSubmit(loadingRef: ContextRefOfValue<boolean | undefined>) {
   - использовать `ValueOrContextRef<T>`.
 - Нужен ref на массив элементов:
   - использовать `ContextArrayValueRef<Item>`.
+
+- Нужен ref для input/local actions, где путь обязан быть в `schema`:
+  - использовать writable-совместимые контракты (`CompatibleWritableContextRefOfValue` и производные типы компонентов/actions).
 
 ## Граница ответственности
 

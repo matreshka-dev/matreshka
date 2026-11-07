@@ -37,6 +37,9 @@
 - `Context` — runtime-механика (инициализация, watch/set/replace, доставка diff, lifecycle);
 - `createContext` — compile-time контракт и удобный API создания.
 
+Дополнительно: тип `Context` schema-aware (`Context<T, S>`), где `S` выводится автоматически из `createContext({ schema })`.
+Это позволяет типам writable API (inputs, `context.local.*`, `ref.local.*`) проверять путь относительно `schema` уже на compile-time.
+
 Поэтому создание контекста должно идти через фабрику:
 
 - `createContext({ data, schema?, preload?, persistent? })`.
@@ -57,3 +60,9 @@
 
 `createContext` — не «лишняя обёртка», а отдельный архитектурный слой type-safety.  
 Он предотвращает класс ошибок в конфигурации `schema`/`data` и даёт более понятные compile-time diagnostics, чем попытка опереться только на `new Context(...)`.
+
+После schema-aware переезда это распространяется и на writable refs:
+
+- путь вне `schema` не компилируется;
+- контекст без `schema` не даёт writable path в `local`/input API;
+- при этом второй generic `S` обычно не пишется вручную — он выводится фабрикой.

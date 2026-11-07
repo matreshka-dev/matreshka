@@ -65,7 +65,8 @@ export default tseslint.config(
         {
           object: "Context",
           property: "createRuntime",
-          message: "Use createContext(...) instead of Context.createRuntime(...).",
+          message:
+            "Use createContext(...) instead of Context.createRuntime(...).",
         },
       ],
     },

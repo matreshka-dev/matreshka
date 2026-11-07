@@ -10,7 +10,7 @@ type ItemListIndexContext = Record<string, { index: `${number}` }>;
 /** Контекст индексов элементов ItemList; данные не загружаются снаружи. */
 export class ItemListIndexStore<
   T extends JsonObject = ItemListIndexContext,
-> extends Context<T> {
+> extends Context<T, typeof contextClientUpdatesForbiddenSchema> {
   /**
    * Синхронно поднимает хранилище до async {@link init}, чтобы `replace` в serialize
    * не перезаписывался пустым `{}` из `initDataCallback`.

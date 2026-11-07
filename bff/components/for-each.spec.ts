@@ -84,7 +84,9 @@ describe("ForEach type inference", () => {
             const categoryNameRef = ref.ref("name");
             const categoryName = categoryNameRef.get();
             type CategoryRefValue = ContextRefValueType<typeof ref>;
-            type CategoryNameRefValue = ContextRefValueType<typeof categoryNameRef>;
+            type CategoryNameRefValue = ContextRefValueType<
+              typeof categoryNameRef
+            >;
 
             expectTypeOf(data).toEqualTypeOf<Category>();
             expectTypeOf<CategoryRefValue>().toEqualTypeOf<Category>();

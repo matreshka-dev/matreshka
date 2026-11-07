@@ -1,4 +1,8 @@
-import { ContextRefOfValue } from "../types/context-value-ref";
+import { AnySchemaContextRef } from "../context/context-ref";
+import {
+  CompatibleWritableContextRefOfValue,
+  ContextRefOfValue,
+} from "../types/context-value-ref";
 import { ActionConfig } from "./action";
 import { LocalAction } from "./local-action";
 
@@ -31,7 +35,10 @@ export class ToggleContextValue extends LocalAction {
  * Принимает только `ContextRef` с boolean-значением.
  */
 export function toggleContextValue(
-  ref: BooleanValueRef,
+  ref: CompatibleWritableContextRefOfValue<
+    boolean | undefined,
+    AnySchemaContextRef
+  >,
   config: ActionConfig = {},
 ): ToggleContextValue {
   return new ToggleContextValue(ref, config);

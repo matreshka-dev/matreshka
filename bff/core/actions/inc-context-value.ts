@@ -1,5 +1,10 @@
 import { toSerializedOperand } from "../conditions/condition-operand";
-import { ContextRefOfValue, ValueOrContextRef } from "../types/context-value-ref";
+import { AnySchemaContextRef } from "../context/context-ref";
+import {
+  CompatibleWritableContextRefOfValue,
+  ContextRefOfValue,
+  ValueOrContextRef,
+} from "../types/context-value-ref";
 import { ActionConfig } from "./action";
 import { LocalAction } from "./local-action";
 
@@ -37,7 +42,10 @@ export class IncContextValue extends LocalAction {
  * Без `step` клиент прибавляет 1.
  */
 export function incContextValue(
-  ref: NumberValueRef,
+  ref: CompatibleWritableContextRefOfValue<
+    number | undefined,
+    AnySchemaContextRef
+  >,
   step: ValueOrContextRef<number> = 1,
   config: ActionConfig = {},
 ): IncContextValue {

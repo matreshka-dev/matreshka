@@ -1,6 +1,7 @@
 import type { ServerComponentConfig } from "@matreshka/client-bff-protocol/types/server-component-config";
 import { skip, Subscription } from "rxjs";
 import {
+  AnySchemaContextRef,
   ComponentInstance,
   ComponentTreeNode,
   ContextRef,
@@ -33,7 +34,7 @@ type ItemListInstanceState = {
  * читает массив из `Context`, генерирует элементы и синхронизирует host через diff.
  */
 export class ItemList<
-  RefType extends ContextRef<any, any>,
+  RefType extends AnySchemaContextRef,
   ItemType extends NestedItemTreeNode = NestedItemTreeNode,
 > {
   readonly isItemList = true as const;
@@ -275,7 +276,7 @@ export class ItemList<
 
 /** Factory для DSL: `itemList({ ref, track, generator, preload? })`. */
 export const itemList = <
-  RefType extends ContextRef<any, any>,
+  RefType extends AnySchemaContextRef,
   ItemType extends NestedItemTreeNode = NestedItemTreeNode,
 >(
   config: ItemListInitConfig<RefType, ItemType>,

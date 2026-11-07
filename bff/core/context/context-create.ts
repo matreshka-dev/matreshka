@@ -209,12 +209,16 @@ export type ContextSchemaFromInit<C extends ContextInitShape> = C extends {
 
 /** Экземпляр {@link Context} по форме конфига {@link createContext}. */
 export type ContextFromInit<C extends ContextInitShape> = Context<
-  ContextDataFromInit<C>
+  ContextDataFromInit<C>,
+  ContextSchemaFromInit<C>
 >;
 
-type ContextCreateRuntimeInit<T extends JsonObject> = {
+type ContextCreateRuntimeInit<
+  T extends JsonObject,
+  S extends z.ZodObject | undefined,
+> = {
   data: () => Promise<T>;
-  schema?: z.ZodObject;
+  schema?: S;
   preload?: boolean;
   persistent?: boolean;
 };
@@ -248,12 +252,15 @@ type ContextCreateConfig<C extends ContextInitShape> = C &
  */
 export function createContext<const T extends JsonObject>(
   config: ContextInitWithoutSchema<T>,
-): Context<T>;
+): Context<T, undefined>;
 export function createContext<
   const C extends ContextInitShape & { schema: z.ZodObject },
->(config: ContextCreateConfig<C>): Context<ContextDataFromInit<C>>;
-export function createContext<const T extends JsonObject>(
-  config: ContextCreateRuntimeInit<T>,
-): Context<T> {
-  return Context.createRuntime<T>(config);
+>(
+  config: ContextCreateConfig<C>,
+): Context<ContextDataFromInit<C>, ContextSchemaFromInit<C>>;
+export function createContext<
+  const T extends JsonObject,
+  const S extends z.ZodObject | undefined,
+>(config: ContextCreateRuntimeInit<T, S>): Context<T, S> {
+  return Context.createRuntime<T, S>(config);
 }

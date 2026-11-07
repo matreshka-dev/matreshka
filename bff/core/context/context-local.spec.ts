@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { z } from "zod";
 import { createContext } from "./context";
 import { ContextRef } from "./context-ref";
 
@@ -6,6 +7,7 @@ describe("context.local / ref.local", () => {
   it("set-context сериализует patch одного поля", async () => {
     const context = createContext({
       data: async () => ({ loading: false as boolean }),
+      schema: z.object({ loading: z.boolean() }),
     });
     await context.init();
 
@@ -29,6 +31,10 @@ describe("context.local / ref.local", () => {
         loading: false as boolean,
         dirty: false as boolean,
       }),
+      schema: z.object({
+        loading: z.boolean(),
+        dirty: z.boolean(),
+      }),
     });
     await context.init();
 
@@ -50,6 +56,7 @@ describe("context.local / ref.local", () => {
   it("ref.local.set сериализует patch по path ref", async () => {
     const context = createContext({
       data: async () => ({ loading: false as boolean }),
+      schema: z.object({ loading: z.boolean() }),
     });
     await context.init();
 
@@ -72,13 +79,21 @@ describe("context.local / ref.local", () => {
     const context = createContext({
       data: async () => ({
         loading: false as boolean,
-        quantity: 1 as number,
+        quantity: 1,
+      }),
+      schema: z.object({
+        loading: z.boolean(),
+        quantity: z.number(),
       }),
     });
     const source = createContext({
       data: async () => ({
         enabled: true as boolean,
-        step: 2 as number,
+        step: 2,
+      }),
+      schema: z.object({
+        enabled: z.boolean(),
+        step: z.number(),
       }),
     });
     await context.init();
@@ -112,6 +127,7 @@ describe("context.local / ref.local", () => {
   it("toggle сериализует class и ref path", async () => {
     const context = createContext({
       data: async () => ({ enabled: false as boolean }),
+      schema: z.object({ enabled: z.boolean() }),
     });
     await context.init();
 
@@ -126,7 +142,8 @@ describe("context.local / ref.local", () => {
 
   it("inc сериализует class, ref path и шаг 1 по умолчанию", async () => {
     const context = createContext({
-      data: async () => ({ quantity: 2 as number }),
+      data: async () => ({ quantity: 2 }),
+      schema: z.object({ quantity: z.number() }),
     });
     await context.init();
 
@@ -145,7 +162,8 @@ describe("context.local / ref.local", () => {
 
   it("inc сериализует заданный шаг", async () => {
     const context = createContext({
-      data: async () => ({ quantity: 2 as number }),
+      data: async () => ({ quantity: 2 }),
+      schema: z.object({ quantity: z.number() }),
     });
     await context.init();
 
@@ -160,7 +178,8 @@ describe("context.local / ref.local", () => {
 
   it("dec сериализует class, ref path и шаг 1 по умолчанию", async () => {
     const context = createContext({
-      data: async () => ({ quantity: 2 as number }),
+      data: async () => ({ quantity: 2 }),
+      schema: z.object({ quantity: z.number() }),
     });
     await context.init();
 
@@ -180,8 +199,12 @@ describe("context.local / ref.local", () => {
   it("dec принимает только числовой путь", async () => {
     const context = createContext({
       data: async () => ({
-        quantity: 1 as number,
-        title: "" as string,
+        quantity: 1,
+        title: "",
+      }),
+      schema: z.object({
+        quantity: z.number(),
+        title: z.string(),
       }),
     });
     await context.init();
@@ -195,9 +218,14 @@ describe("context.local / ref.local", () => {
   it("inc принимает только числовой путь", async () => {
     const context = createContext({
       data: async () => ({
-        quantity: 1 as number,
-        title: "" as string,
+        quantity: 1,
+        title: "",
         enabled: false as boolean,
+      }),
+      schema: z.object({
+        quantity: z.number(),
+        title: z.string(),
+        enabled: z.boolean(),
       }),
     });
     await context.init();
@@ -212,7 +240,8 @@ describe("context.local / ref.local", () => {
 
   it("ref.local.inc сериализует class, ref path и шаг", async () => {
     const context = createContext({
-      data: async () => ({ quantity: 2 as number }),
+      data: async () => ({ quantity: 2 }),
+      schema: z.object({ quantity: z.number() }),
     });
     await context.init();
 
@@ -232,7 +261,11 @@ describe("context.local / ref.local", () => {
 
   it("ref.local.inc недоступен для нечислового ref", async () => {
     const context = createContext({
-      data: async () => ({ title: "" as string, quantity: 1 as number }),
+      data: async () => ({ title: "", quantity: 1 }),
+      schema: z.object({
+        title: z.string(),
+        quantity: z.number(),
+      }),
     });
     await context.init();
 
@@ -244,7 +277,8 @@ describe("context.local / ref.local", () => {
 
   it("ref.local.dec сериализует class, ref path и шаг", async () => {
     const context = createContext({
-      data: async () => ({ quantity: 2 as number }),
+      data: async () => ({ quantity: 2 }),
+      schema: z.object({ quantity: z.number() }),
     });
     await context.init();
 
@@ -263,7 +297,11 @@ describe("context.local / ref.local", () => {
 
   it("ref.local.dec недоступен для нечислового ref", async () => {
     const context = createContext({
-      data: async () => ({ title: "" as string, quantity: 1 as number }),
+      data: async () => ({ title: "", quantity: 1 }),
+      schema: z.object({
+        title: z.string(),
+        quantity: z.number(),
+      }),
     });
     await context.init();
 
@@ -276,6 +314,7 @@ describe("context.local / ref.local", () => {
   it("ref.local.toggle сериализует class и ref path", async () => {
     const context = createContext({
       data: async () => ({ enabled: false as boolean }),
+      schema: z.object({ enabled: z.boolean() }),
     });
     await context.init();
 
@@ -293,7 +332,11 @@ describe("context.local / ref.local", () => {
     const context = createContext({
       data: async () => ({
         enabled: false as boolean,
-        quantity: 1 as number,
+        quantity: 1,
+      }),
+      schema: z.object({
+        enabled: z.boolean(),
+        quantity: z.number(),
       }),
     });
     await context.init();
@@ -302,5 +345,36 @@ describe("context.local / ref.local", () => {
 
     // @ts-expect-error числовой ref нельзя toggle
     context.ref("quantity").local.toggle();
+  });
+
+  it("запрещает writable local API для контекста без schema", () => {
+    const context = createContext({
+      data: async () => ({ flag: false as boolean }),
+    });
+
+    // @ts-expect-error без schema writable пути отсутствуют
+    context.local.set({ flag: true });
+    // @ts-expect-error без schema writable пути отсутствуют
+    context.local.toggle("flag");
+    // @ts-expect-error без schema writable пути отсутствуют
+    context.ref("flag").local.set(true);
+  });
+
+  it("запрещает writable путь вне schema", () => {
+    const context = createContext({
+      data: async () => ({
+        allowed: false as boolean,
+        denied: 1,
+      }),
+      schema: z.object({
+        allowed: z.boolean(),
+      }),
+    });
+
+    context.local.set({ allowed: true });
+    // @ts-expect-error путь denied отсутствует в schema
+    context.local.set({ denied: 2 });
+    // @ts-expect-error ref на denied не writable по schema
+    context.ref("denied").local.set(2);
   });
 });

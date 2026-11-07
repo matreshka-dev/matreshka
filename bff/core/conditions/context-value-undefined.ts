@@ -5,7 +5,7 @@ import { Condition } from "./condition";
 /**
  * Условие, означающее, что значение в контексте по заданному ключу не определено.
  *
- * Параметр — `R extends ContextRef<any, any>`. Голый `ContextRef` раскрывается
+ * Параметр — `R extends ContextRef<any, any, any>`. Голый `ContextRef` раскрывается
  * в `ContextRef<JsonObject, string>`. Метод `local.set` принимает значение по пути,
  * поэтому ссылка инвариантна: при `strictFunctionTypes` конкретный ref страницы
  * в этот параметр не входит. `any` в ограничении выводит `R` из аргумента
@@ -14,7 +14,7 @@ import { Condition } from "./condition";
  * @internal Используйте {@link contextValueUndefined} / {@link when.notDefined}.
  */
 export class ContextValueUndefined<
-  R extends ContextRef<any, any>,
+  R extends ContextRef<any, any, any>,
 > extends Condition {
   constructor(ref: R) {
     super(ConditionType.ContextValueUndefined, { ref });
@@ -22,7 +22,7 @@ export class ContextValueUndefined<
 }
 
 /** Функциональная форма {@link ContextValueUndefined}. */
-export function contextValueUndefined<R extends ContextRef<any, any>>(
+export function contextValueUndefined<R extends ContextRef<any, any, any>>(
   ref: R,
 ): ContextValueUndefined<R> {
   return new ContextValueUndefined(ref);

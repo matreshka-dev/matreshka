@@ -1,5 +1,7 @@
 import {
+  AnySchemaContextRef,
   CompatibleContextRefOfValue,
+  CompatibleWritableContextRefOfValue,
   Componentable,
   ContextRefOfValue,
   StandaloneComponent,
@@ -25,13 +27,16 @@ export type StringInputContextRef = InputContextRef<string>;
 /** @see CompatibleContextRefOfValue */
 export type CompatibleInputRef<
   ValueType,
-  RefType extends InputContextRef<ValueType>,
-> = CompatibleContextRefOfValue<ValueType, RefType>;
+  RefType extends AnySchemaContextRef,
+> = CompatibleWritableContextRefOfValue<
+  ValueType | undefined,
+  CompatibleContextRefOfValue<ValueType | undefined, RefType>
+>;
 
 export type InputInitConfig<
   ValueType,
   ComponentType extends Componentable = InputComponent,
-  RefType extends InputContextRef<ValueType> = InputContextRef<ValueType>,
+  RefType extends AnySchemaContextRef = AnySchemaContextRef,
   PropertiesType extends InputProperties = InputProperties,
 > = {
   ref: CompatibleInputRef<ValueType, RefType>;

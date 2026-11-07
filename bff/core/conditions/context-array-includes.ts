@@ -18,7 +18,7 @@ import {
  * @internal Используйте {@link contextArrayIncludes} / {@link when.includes}.
  */
 export class ContextArrayIncludes<
-  R extends ContextRef<any, any>,
+  R extends ContextRef<any, any, any>,
   P extends Extract<Paths<ContextRefArrayElement<R>>, string> | "" = "",
 > extends Condition {
   constructor(
@@ -36,7 +36,7 @@ export class ContextArrayIncludes<
 
 /** Функциональная форма {@link ContextArrayIncludes}. */
 export function contextArrayIncludes<
-  R extends ContextRef<any, any>,
+  R extends ContextRef<any, any, any>,
   P extends Extract<Paths<ContextRefArrayElement<R>>, string> | "" = "",
 >(
   ref: CompatibleArrayContextRef<R>,
@@ -55,7 +55,7 @@ export function contextArrayIncludes<
  * @internal Используйте {@link contextArrayNotIncludes} / {@link when.excludes}.
  */
 export class ContextArrayNotIncludes<
-  R extends ContextRef<any, any>,
+  R extends ContextRef<any, any, any>,
   P extends Extract<Paths<ContextRefArrayElement<R>>, string> | "" = "",
 > extends Condition {
   constructor(
@@ -73,7 +73,7 @@ export class ContextArrayNotIncludes<
 
 /** Функциональная форма {@link ContextArrayNotIncludes}. */
 export function contextArrayNotIncludes<
-  R extends ContextRef<any, any>,
+  R extends ContextRef<any, any, any>,
   P extends Extract<Paths<ContextRefArrayElement<R>>, string> | "" = "",
 >(
   ref: CompatibleArrayContextRef<R>,

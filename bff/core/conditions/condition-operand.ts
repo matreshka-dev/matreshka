@@ -5,19 +5,21 @@ import type {
 } from "@matreshka/client-bff-protocol/types/json";
 import type { SerializedOperand } from "@matreshka/client-bff-protocol/types/serialized-operand";
 import { Paths, PathValue } from "ts-essentials";
-import { ContextRef, ContextRefValueType } from "../context/context-ref";
+import {
+  AnySchemaContextRef,
+  ContextRef,
+  ContextRefValueType,
+} from "../context/context-ref";
 import type { CompatibleContextRefOfValue } from "../types/context-value-ref";
 
 type ContextArrayValue = readonly unknown[] | unknown[];
 
 /** Элемент массива по значению `ContextRef`. */
-export type ContextRefArrayElement<R extends ContextRef<any, any>> = Extract<
-  ContextRefValueType<R>,
-  ContextArrayValue
->[number];
+export type ContextRefArrayElement<R extends AnySchemaContextRef> =
+  Extract<ContextRefValueType<R>, ContextArrayValue>[number];
 
 /** Ref на массив в контексте (значение по ref — массив или readonly-массив). */
-export type CompatibleArrayContextRef<R extends ContextRef<any, any>> = [
+export type CompatibleArrayContextRef<R extends AnySchemaContextRef> = [
   Extract<ContextRefValueType<R>, ContextArrayValue>,
 ] extends [never]
   ? never
@@ -26,19 +28,19 @@ export type CompatibleArrayContextRef<R extends ContextRef<any, any>> = [
 /**
  * Операнд сравнения по известному типу значения: JSON-примитив или совместимая `ContextRef`.
  *
- * Ref-операнд: {@link CompatibleContextRefOfValue} с `ContextRef<any, any>` (item-ref из `forEach`
+ * Ref-операнд: {@link CompatibleContextRefOfValue} с `AnySchemaContextRef` (item-ref из `forEach`
  * и ref из другого контекста). Без `| undefined` у ValueType — иначе `(T | undefined) extends T`
  * отсекает ref↔ref сравнения.
  */
 export type ConditionOperandFor<ValueType> =
   | (ValueType & JsonPrimitive)
-  | CompatibleContextRefOfValue<ValueType, ContextRef<any, any>>; // Пришлось оставить <any, any>, без этого ругается на типы в условиях
+  | CompatibleContextRefOfValue<ValueType, AnySchemaContextRef>;
 
 /**
  * Операнд условия на BFF: JSON-примитив того же типа, что значение по `ref`,
  * либо другая ссылка с совместимым типом значения (сравнение в рантайме через `===`).
  */
-export type ConditionOperand<R extends ContextRef<any, any>> =
+export type ConditionOperand<R extends AnySchemaContextRef> =
   ConditionOperandFor<ContextRefValueType<R>>;
 
 /** Значение поля элемента массива по `itemPath` (пустой путь — сам элемент). */
@@ -50,7 +52,7 @@ export type ArrayIncludesItemValue<Item, P extends string> = P extends ""
 
 /** Операнд {@link ContextArrayIncludes} / {@link ContextArrayNotIncludes}. */
 export type ArrayIncludesOperand<
-  R extends ContextRef<any, any>,
+  R extends AnySchemaContextRef,
   P extends string,
 > = ConditionOperandFor<ArrayIncludesItemValue<ContextRefArrayElement<R>, P>>;
 

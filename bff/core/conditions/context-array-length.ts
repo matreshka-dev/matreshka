@@ -15,7 +15,7 @@ import {
  * @internal Используйте фабрики длины массива ({@link contextArrayLengthEqual} и др.).
  */
 export abstract class ContextArrayLength<
-  R extends ContextRef<any, any>,
+  R extends ContextRef<any, any, any>,
 > extends Condition {
   constructor(
     ref: CompatibleArrayContextRef<R>,
@@ -36,7 +36,7 @@ export abstract class ContextArrayLength<
  * @internal Используйте {@link contextArrayLengthEqual} / {@link when.lengthEquals}.
  */
 export class ContextArrayLengthEqual<
-  R extends ContextRef<any, any>,
+  R extends ContextRef<any, any, any>,
 > extends Condition {
   constructor(
     ref: CompatibleArrayContextRef<R>,
@@ -51,7 +51,7 @@ export class ContextArrayLengthEqual<
 }
 
 /** Функциональная форма {@link ContextArrayLengthEqual}. */
-export function contextArrayLengthEqual<R extends ContextRef<any, any>>(
+export function contextArrayLengthEqual<R extends ContextRef<any, any, any>>(
   ref: CompatibleArrayContextRef<R>,
   length: ConditionLengthOperand,
 ): ContextArrayLengthEqual<R> {
@@ -64,7 +64,7 @@ export function contextArrayLengthEqual<R extends ContextRef<any, any>>(
  * @internal Используйте {@link contextArrayLengthLessThan} / {@link when.lengthLessThan}.
  */
 export class ContextArrayLengthLessThan<
-  R extends ContextRef<any, any>,
+  R extends ContextRef<any, any, any>,
 > extends Condition {
   constructor(
     ref: CompatibleArrayContextRef<R>,
@@ -79,7 +79,7 @@ export class ContextArrayLengthLessThan<
 }
 
 /** Функциональная форма {@link ContextArrayLengthLessThan}. */
-export function contextArrayLengthLessThan<R extends ContextRef<any, any>>(
+export function contextArrayLengthLessThan<R extends ContextRef<any, any, any>>(
   ref: CompatibleArrayContextRef<R>,
   length: ConditionLengthOperand,
 ): ContextArrayLengthLessThan<R> {
@@ -92,7 +92,7 @@ export function contextArrayLengthLessThan<R extends ContextRef<any, any>>(
  * @internal Используйте {@link contextArrayLengthLessOrEqual} / {@link when.lengthAtMost}.
  */
 export class ContextArrayLengthLessOrEqual<
-  R extends ContextRef<any, any>,
+  R extends ContextRef<any, any, any>,
 > extends Condition {
   constructor(
     ref: CompatibleArrayContextRef<R>,
@@ -107,7 +107,9 @@ export class ContextArrayLengthLessOrEqual<
 }
 
 /** Функциональная форма {@link ContextArrayLengthLessOrEqual}. */
-export function contextArrayLengthLessOrEqual<R extends ContextRef<any, any>>(
+export function contextArrayLengthLessOrEqual<
+  R extends ContextRef<any, any, any>,
+>(
   ref: CompatibleArrayContextRef<R>,
   length: ConditionLengthOperand,
 ): ContextArrayLengthLessOrEqual<R> {
@@ -120,7 +122,7 @@ export function contextArrayLengthLessOrEqual<R extends ContextRef<any, any>>(
  * @internal Используйте {@link contextArrayLengthGreaterThan} / {@link when.lengthGreaterThan}.
  */
 export class ContextArrayLengthGreaterThan<
-  R extends ContextRef<any, any>,
+  R extends ContextRef<any, any, any>,
 > extends Condition {
   constructor(
     ref: CompatibleArrayContextRef<R>,
@@ -135,7 +137,9 @@ export class ContextArrayLengthGreaterThan<
 }
 
 /** Функциональная форма {@link ContextArrayLengthGreaterThan}. */
-export function contextArrayLengthGreaterThan<R extends ContextRef<any, any>>(
+export function contextArrayLengthGreaterThan<
+  R extends ContextRef<any, any, any>,
+>(
   ref: CompatibleArrayContextRef<R>,
   length: ConditionLengthOperand,
 ): ContextArrayLengthGreaterThan<R> {
@@ -148,7 +152,7 @@ export function contextArrayLengthGreaterThan<R extends ContextRef<any, any>>(
  * @internal Используйте {@link contextArrayLengthGreaterOrEqual} / {@link when.lengthAtLeast}.
  */
 export class ContextArrayLengthGreaterOrEqual<
-  R extends ContextRef<any, any>,
+  R extends ContextRef<any, any, any>,
 > extends Condition {
   constructor(
     ref: CompatibleArrayContextRef<R>,
@@ -164,7 +168,7 @@ export class ContextArrayLengthGreaterOrEqual<
 
 /** Функциональная форма {@link ContextArrayLengthGreaterOrEqual}. */
 export function contextArrayLengthGreaterOrEqual<
-  R extends ContextRef<any, any>,
+  R extends ContextRef<any, any, any>,
 >(
   ref: CompatibleArrayContextRef<R>,
   length: ConditionLengthOperand,
@@ -178,7 +182,7 @@ export function contextArrayLengthGreaterOrEqual<
  * @internal Используйте {@link contextValueEmpty} / {@link when.isEmpty}.
  */
 export class ContextValueEmpty<
-  R extends ContextRef<any, any>,
+  R extends ContextRef<any, any, any>,
 > extends ContextArrayLengthEqual<R> {
   constructor(ref: CompatibleArrayContextRef<R>) {
     super(ref, 0);
@@ -186,7 +190,7 @@ export class ContextValueEmpty<
 }
 
 /** Функциональная форма {@link ContextValueEmpty}. */
-export function contextValueEmpty<R extends ContextRef<any, any>>(
+export function contextValueEmpty<R extends ContextRef<any, any, any>>(
   ref: CompatibleArrayContextRef<R>,
 ): ContextValueEmpty<R> {
   return new ContextValueEmpty(ref);
@@ -198,7 +202,7 @@ export function contextValueEmpty<R extends ContextRef<any, any>>(
  * @internal Используйте {@link contextValueNotEmpty} / {@link when.notEmpty}.
  */
 export class ContextValueNotEmpty<
-  R extends ContextRef<any, any>,
+  R extends ContextRef<any, any, any>,
 > extends ContextArrayLengthGreaterThan<R> {
   constructor(ref: CompatibleArrayContextRef<R>) {
     super(ref, 0);
@@ -206,7 +210,7 @@ export class ContextValueNotEmpty<
 }
 
 /** Функциональная форма {@link ContextValueNotEmpty}. */
-export function contextValueNotEmpty<R extends ContextRef<any, any>>(
+export function contextValueNotEmpty<R extends ContextRef<any, any, any>>(
   ref: CompatibleArrayContextRef<R>,
 ): ContextValueNotEmpty<R> {
   return new ContextValueNotEmpty(ref);

@@ -28,20 +28,25 @@ import {
 import { Paths, PathValue } from "ts-essentials";
 import { z } from "zod";
 import { ActionConfig } from "../actions/action";
-import { decContextValue } from "../actions/dec-context-value";
-import { incContextValue, NumberValueRef } from "../actions/inc-context-value";
+import { decContextValue, DecContextValue } from "../actions/dec-context-value";
+import {
+  incContextValue,
+  IncContextValue,
+  NumberValueRef,
+} from "../actions/inc-context-value";
 import {
   createSetContext,
   LocalContextPathPatch,
 } from "../actions/set-context";
 import {
   BooleanValueRef,
+  ToggleContextValue,
   toggleContextValue,
 } from "../actions/toggle-context-value";
 import type { Client } from "../client";
 import { currentClient } from "../client-context";
 import { ContextUpdateDelivery } from "../types/context-update-delivery";
-import { ValueOrContextRef } from "../types/context-value-ref";
+import type { ValueOrContextRef } from "../types/context-value-ref";
 import { assertNonOverlappingContextPaths } from "../utils/assert-non-overlapping-context-paths";
 import { assertSafeDottedPath } from "../utils/assert-safe-dotted-path";
 import { zodDeepPick } from "../utils/deep-pick";
@@ -57,6 +62,43 @@ export * from "./context-create";
 export type ContextPathPatch<T extends JsonObject> = Partial<{
   [K in Paths<T>]: PathValue<T, K>;
 }>;
+
+/** Входная форма данных, которые клиент может отправить в `context-values`. */
+export type WritableSchemaInput<S extends z.ZodObject | undefined> =
+  S extends z.ZodObject
+    ? z.input<S> extends JsonObject
+      ? z.input<S>
+      : never
+    : never;
+
+/** Dotted-пути, разрешённые для клиентской записи (по `schema`). */
+type IsAny<T> = 0 extends 1 & T ? true : false;
+
+export type WritablePath<S extends z.ZodObject | undefined> =
+  IsAny<S> extends true
+    ? string
+    : S extends z.ZodObject
+      ? Paths<WritableSchemaInput<S>>
+      : never;
+
+/** Тип значения по writable-пути `P` (из `schema` input). */
+export type WritablePathValue<
+  S extends z.ZodObject | undefined,
+  P extends string,
+> =
+  IsAny<S> extends true
+    ? unknown
+    : S extends z.ZodObject
+      ? P extends Paths<WritableSchemaInput<S>>
+        ? PathValue<WritableSchemaInput<S>, P>
+        : never
+      : never;
+
+/** Пересечение путей контекста и путей `schema`, доступных для client write. */
+export type WritableContextPath<
+  T extends JsonObject,
+  S extends z.ZodObject | undefined,
+> = Extract<Paths<T>, WritablePath<S>>;
 
 /**
  * Пустая strict-схема: клиент не может менять данные контекста через `context-values`.
@@ -74,10 +116,13 @@ export const contextClientUpdatesForbiddenSchema = z.strictObject(
   {},
 ) as ContextClientUpdatesForbiddenSchema;
 
-type ContextRuntimeInit<T extends JsonObject> = {
+type ContextRuntimeInit<
+  T extends JsonObject,
+  S extends z.ZodObject | undefined,
+> = {
   data: () => Promise<T>;
 
-  schema?: z.ZodObject;
+  schema?: S;
 
   preload?: boolean;
 
@@ -166,13 +211,16 @@ function isClientBound(contextId: string, client: Client): boolean {
  * Zod-схема клиентских изменений задаётся в {@link createContext} через поле `schema`,
  * а не вторым type-параметром: так проще согласовать runtime-схему и тип данных.
  */
-export class Context<T extends JsonObject> {
+export class Context<
+  T extends JsonObject,
+  S extends z.ZodObject | undefined = any,
+> {
   /** Уникальный идентификатор контекста */
   readonly id = crypto.randomUUID();
   /** Реактивное хранилище данных контекста. */
   protected data$?: BehaviorSubject<T>;
   /** Схема валидации данных контекста */
-  readonly schema?: z.ZodObject;
+  readonly schema?: S;
   /** Флаг, указывающий, что контекст должен быть инициализирован при авторизации клиента */
   readonly preload: boolean;
   /**
@@ -182,22 +230,48 @@ export class Context<T extends JsonObject> {
   readonly persistent: boolean;
   /** Локальные (client-only) действия над данными этого контекста. */
   readonly local = {
-    set: (patch: LocalContextPathPatch<T>, config?: ActionConfig) =>
+    set: (patch: LocalContextPathPatch<T, S>, config?: ActionConfig) =>
       createSetContext(this, patch, config),
-    toggle: <K extends Paths<T>>(
-      path: PathValue<T, K> extends boolean | undefined ? K : never,
+    toggle: <K extends WritableContextPath<T, S>>(
+      path: PathValue<T, K> extends boolean | undefined
+        ? WritablePathValue<S, K> extends boolean | undefined
+          ? K
+          : never
+        : never,
       config?: ActionConfig,
-    ) => toggleContextValue(this.ref(path) as BooleanValueRef, config),
-    inc: <K extends Paths<T>>(
-      path: PathValue<T, K> extends number | undefined ? K : never,
+    ): ToggleContextValue =>
+      toggleContextValue(
+        this.ref(path as Paths<T>) as unknown as BooleanValueRef,
+        config,
+      ),
+    inc: <K extends WritableContextPath<T, S>>(
+      path: PathValue<T, K> extends number | undefined
+        ? WritablePathValue<S, K> extends number | undefined
+          ? K
+          : never
+        : never,
       step?: ValueOrContextRef<number>,
       config?: ActionConfig,
-    ) => incContextValue(this.ref(path) as NumberValueRef, step ?? 1, config),
-    dec: <K extends Paths<T>>(
-      path: PathValue<T, K> extends number | undefined ? K : never,
+    ): IncContextValue =>
+      incContextValue(
+        this.ref(path as Paths<T>) as unknown as NumberValueRef,
+        step ?? 1,
+        config,
+      ),
+    dec: <K extends WritableContextPath<T, S>>(
+      path: PathValue<T, K> extends number | undefined
+        ? WritablePathValue<S, K> extends number | undefined
+          ? K
+          : never
+        : never,
       step?: ValueOrContextRef<number>,
       config?: ActionConfig,
-    ) => decContextValue(this.ref(path) as NumberValueRef, step ?? 1, config),
+    ): DecContextValue =>
+      decContextValue(
+        this.ref(path as Paths<T>) as unknown as NumberValueRef,
+        step ?? 1,
+        config,
+      ),
   };
   /** Реактивное хранилище инициализации контекста */
   private _init$ = new ReplaySubject<void>(1);
@@ -324,10 +398,11 @@ export class Context<T extends JsonObject> {
    * @internal
    * @deprecated Internal API. Use createContext(...) instead.
    */
-  static createRuntime<U extends JsonObject>(
-    config: ContextRuntimeInit<U>,
-  ): Context<U> {
-    return new Context<U>(config);
+  static createRuntime<
+    U extends JsonObject,
+    SchemaType extends z.ZodObject | undefined,
+  >(config: ContextRuntimeInit<U, SchemaType>): Context<U, SchemaType> {
+    return new Context<U, SchemaType>(config);
   }
 
   /**
@@ -336,7 +411,7 @@ export class Context<T extends JsonObject> {
    * Подписывается на входящие сообщения от клиента и ошибки, связанные с этим контекстом.
   
    */
-  protected constructor(config: ContextRuntimeInit<T>) {
+  protected constructor(config: ContextRuntimeInit<T, S>) {
     this.schema = config.schema;
 
     if (this.schema) {
@@ -788,9 +863,9 @@ export class Context<T extends JsonObject> {
    * @param path Путь до значения.
    * @returns Плейсхолдер для использования в шаблонах и компонентах.
    */
-  ref<K extends Paths<T>>(path: K): ContextRef<T, K> {
+  ref<K extends Paths<T>>(path: K): ContextRef<T, K, S> {
     this.assertNotDestroyed();
-    return new ContextRef<T, K>(this, path);
+    return new ContextRef<T, K, S>(this, path);
   }
 
   /**
@@ -816,10 +891,11 @@ export class Context<T extends JsonObject> {
    */
   strictRef<
     OtherContextType extends JsonObject,
+    OtherSchemaType extends z.ZodObject | undefined,
     OtherPathType extends Paths<OtherContextType>,
   >(
-    other: ContextRef<OtherContextType, OtherPathType>,
-  ): ContextRef<T, PathValue<OtherContextType, OtherPathType> & Paths<T>> {
+    other: ContextRef<OtherContextType, OtherPathType, OtherSchemaType>,
+  ): ContextRef<T, PathValue<OtherContextType, OtherPathType> & Paths<T>, S> {
     this.assertNotDestroyed();
     const path = other.toString() as PathValue<
       OtherContextType,
@@ -828,7 +904,8 @@ export class Context<T extends JsonObject> {
       Paths<T>;
     return new ContextRef<
       T,
-      PathValue<OtherContextType, OtherPathType> & Paths<T>
+      PathValue<OtherContextType, OtherPathType> & Paths<T>,
+      S
     >(this, path);
   }
 
@@ -839,5 +916,8 @@ export class Context<T extends JsonObject> {
   }
 }
 
+export type AnySchemaContext<T extends JsonObject = JsonObject> =
+  Context<T, z.ZodObject | undefined>;
+
 /** Любой зарегистрированный контекст (с Zod-схемой или без). */
-export type AnyContext = Context<any>;
+export type AnyContext = Context<any, any>;

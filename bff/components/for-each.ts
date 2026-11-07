@@ -5,6 +5,7 @@ import type { ForEachConfig } from "@matreshka/client-bff-protocol/types/for-eac
 import { BehaviorSubject, skip, Subscription } from "rxjs";
 import { Paths, PathValue } from "ts-essentials";
 import {
+  AnySchemaContextRef,
   calculateComponents,
   ComponentInstance,
   ComponentTreeNode,
@@ -28,25 +29,25 @@ import {
 
 type ForEachArrayValue = readonly unknown[] | unknown[];
 type ForEachIndexContext = Record<string, { index: `${number}` }>;
-type ForEachItemArray<RefType extends ContextRef<any, any>> = Extract<
+type ForEachItemArray<RefType extends AnySchemaContextRef> = Extract<
   ContextRefValueType<RefType>,
   ForEachArrayValue
 >;
 
-export type CompatibleForEachRef<RefType extends ContextRef<any, any>> = [
+export type CompatibleForEachRef<RefType extends AnySchemaContextRef> = [
   ForEachItemArray<RefType>,
 ] extends [never]
   ? never
   : RefType;
 
-type ForEachItemData<RefType extends ContextRef<any, any>> =
+type ForEachItemData<RefType extends AnySchemaContextRef> =
   ForEachItemArray<RefType>[number];
 
 type ForEachTypedItemRef<
   ContextType extends JsonObject,
   PathType extends string,
   ValueType,
-> = Omit<ContextRef<any, any>, "context" | "path" | "ref" | "get"> & {
+> = Omit<AnySchemaContextRef, "context" | "path" | "ref" | "get"> & {
   readonly context: Context<ContextType>;
   readonly path: PathType;
   readonly __valueType?: ValueType;
@@ -64,7 +65,7 @@ type ForEachTypedItemRef<
   ): ContextRef<ContextType, `${PathType}.${P2}`>;
 };
 
-type ForEachItemLink<RefType extends ContextRef<any, any>> =
+type ForEachItemLink<RefType extends AnySchemaContextRef> =
   RefType extends ContextRef<infer ContextType, infer PathType>
     ? ForEachTypedItemRef<
         ContextType,
@@ -80,7 +81,7 @@ type ForEachInstanceState = {
 };
 
 /** Возвращает массив элементов списка из ref; не-массив даёт пустой массив. */
-function getForEachValue<RefType extends ContextRef<any, any>>(
+function getForEachValue<RefType extends AnySchemaContextRef>(
   ref: RefType,
 ): ForEachItemData<RefType>[] {
   const rawValue = ref.get() as ForEachItemArray<RefType> | undefined;
@@ -96,14 +97,14 @@ function getForEachValue<RefType extends ContextRef<any, any>>(
 function createForEachItemLink<
   ContextType extends JsonObject,
   PathType extends string,
-  RefType extends ContextRef<ContextType, PathType> & {
+  RefType extends ContextRef<ContextType, PathType, any> & {
     get(): ForEachArrayValue | undefined;
   },
 >(
   ref: RefType,
-  indexRef: ContextRef<ForEachIndexContext, `${string}.index`>,
+  indexRef: ContextRef<ForEachIndexContext, `${string}.index`, any>,
 ): ForEachItemLink<RefType> {
-  return ref.strictRef(indexRef) as ForEachItemLink<RefType>;
+  return ref.strictRef(indexRef) as unknown as ForEachItemLink<RefType>;
 }
 
 /**
@@ -113,7 +114,7 @@ function createForEachItemLink<
  * @property key Ключ контекста, в котором хранятся данные элемента.
  */
 export type ForEachGeneratorProperties<
-  RefType extends ContextRef<any, any>,
+  RefType extends AnySchemaContextRef,
   ComponentType extends ComponentTreeNode = ComponentTreeNode,
 > = {
   component: ForEach<RefType, ComponentType>;
@@ -133,7 +134,7 @@ export type ForEachProperties = {
 } & ComponentProperties;
 
 export const forEach = <
-  RefType extends ContextRef<any, any>,
+  RefType extends AnySchemaContextRef,
   ComponentType extends ComponentTreeNode = ComponentTreeNode,
   PropertiesType extends ForEachProperties = ForEachProperties,
 >(
@@ -149,7 +150,7 @@ export const forEach = <
  * @property generator Функция, генерирующая компонент(ы) для каждого элемента данных.
  */
 export type ForEachInitConfig<
-  RefType extends ContextRef<any, any>,
+  RefType extends AnySchemaContextRef,
   ComponentType extends ComponentTreeNode = ComponentTreeNode,
   PropertiesType extends ForEachProperties = ForEachProperties,
 > = {
@@ -163,7 +164,10 @@ export type ForEachInitConfig<
   divider?: ComponentTreeNode | ComponentTreeNode[];
 } & ComponentInitConfig<ForEach<RefType, ComponentType>, PropertiesType>;
 
-class ForEachContext<T extends JsonObject> extends Context<T> {
+class ForEachContext<T extends JsonObject> extends Context<
+  T,
+  typeof contextClientUpdatesForbiddenSchema
+> {
   /**
    * Синхронно поднимает хранилище до async {@link init} (preload-сериализация индексов).
    * @returns Тот же экземпляр контекста.
@@ -195,7 +199,7 @@ class ForEachContext<T extends JsonObject> extends Context<T> {
  * Компонент, отображающий список элементов путём генерации компонентов на основе массива данных.
  */
 export class ForEach<
-    RefType extends ContextRef<any, any>,
+    RefType extends AnySchemaContextRef,
     ComponentType extends ComponentTreeNode = ComponentTreeNode,
     PropertiesType extends ForEachProperties = ForEachProperties,
   >

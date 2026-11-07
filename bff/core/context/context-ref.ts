@@ -1,6 +1,7 @@
 import { JsonObject } from "@matreshka/client-bff-protocol/types/json";
 import { Observable } from "rxjs";
 import { Paths, PathValue } from "ts-essentials";
+import { z } from "zod";
 import { ActionConfig } from "../actions/action";
 import { decContextValue, DecContextValue } from "../actions/dec-context-value";
 import {
@@ -21,17 +22,25 @@ import {
 import { currentClient } from "../client-context";
 import type { ContextUpdateDelivery } from "../types/context-update-delivery";
 import { ValueOrContextRef } from "../types/context-value-ref";
-import { Context, ContextPathPatch } from "./context";
+import {
+  Context,
+  ContextPathPatch,
+  WritableContextPath,
+  WritablePathValue,
+} from "./context";
 
 type ContextRefLocalSet<
   ContextType extends JsonObject,
   PathType extends string,
-> = {
-  set: (
-    value: ValueOrContextRef<PathValue<ContextType, PathType>>,
-    config?: ActionConfig,
-  ) => SetContext<ContextType>;
-};
+  SchemaType extends z.ZodObject | undefined,
+> = PathType extends WritableContextPath<ContextType, SchemaType>
+  ? {
+      set: (
+        value: ValueOrContextRef<WritablePathValue<SchemaType, PathType>>,
+        config?: ActionConfig,
+      ) => SetContext<ContextType, SchemaType>;
+    }
+  : {};
 
 type ContextRefLocalToggle = {
   toggle: (config?: ActionConfig) => ToggleContextValue;
@@ -52,26 +61,40 @@ type ContextRefLocalNumeric = {
 export type ContextRefLocalActions<
   ContextType extends JsonObject,
   PathType extends string,
-> = ContextRefLocalSet<ContextType, PathType> &
-  (PathValue<ContextType, PathType> extends boolean | undefined
-    ? ContextRefLocalToggle
+  SchemaType extends z.ZodObject | undefined,
+> = ContextRefLocalSet<ContextType, PathType, SchemaType> &
+  (PathType extends WritableContextPath<ContextType, SchemaType>
+    ? WritablePathValue<SchemaType, PathType> extends boolean | undefined
+      ? ContextRefLocalToggle
+      : {}
     : {}) &
-  (PathValue<ContextType, PathType> extends number | undefined
-    ? ContextRefLocalNumeric
+  (PathType extends WritableContextPath<ContextType, SchemaType>
+    ? WritablePathValue<SchemaType, PathType> extends number | undefined
+      ? ContextRefLocalNumeric
+      : {}
     : {});
 
-export type ContextRefValueType<R extends ContextRef> = R extends {
+export type AnySchemaContextRef<
+  ContextType extends JsonObject = any,
+  PathType extends string = any,
+> =
+  | ContextRef<ContextType, PathType, undefined>
+  | ContextRef<ContextType, PathType, z.ZodObject>;
+
+export type ContextRefValueType<R extends AnySchemaContextRef> = R extends {
   readonly __valueType?: infer ValueType;
 }
   ? Exclude<ValueType, undefined>
-  : R extends ContextRef<infer ContextType, infer PathType>
+  : R extends ContextRef<infer ContextType, infer PathType, any>
     ? PathValue<ContextType, PathType>
     : never;
 
 export class ContextRef<
   ContextType extends JsonObject = JsonObject,
   PathType extends string = string,
+  SchemaType extends z.ZodObject | undefined = any,
 > {
+  readonly __schemaType?: SchemaType;
   /** Локальные (client-only) действия по этому ref. */
   readonly local = {
     set: (
@@ -80,19 +103,19 @@ export class ContextRef<
     ) => {
       const patch = {
         [this.path]: value,
-      } as unknown as LocalContextPathPatch<ContextType>;
+      } as LocalContextPathPatch<ContextType, SchemaType>;
       return createSetContext(this.context, patch, config);
     },
     toggle: (config?: ActionConfig) =>
-      toggleContextValue(this as BooleanValueRef, config),
+      toggleContextValue(this as unknown as BooleanValueRef, config),
     inc: (step: ValueOrContextRef<number> = 1, config?: ActionConfig) =>
-      incContextValue(this as NumberValueRef, step, config),
+      incContextValue(this as unknown as NumberValueRef, step, config),
     dec: (step: ValueOrContextRef<number> = 1, config?: ActionConfig) =>
-      decContextValue(this as NumberValueRef, step, config),
-  } as ContextRefLocalActions<ContextType, PathType>;
+      decContextValue(this as unknown as NumberValueRef, step, config),
+  } as unknown as ContextRefLocalActions<ContextType, PathType, SchemaType>;
 
   constructor(
-    readonly context: Context<ContextType>,
+    readonly context: Context<ContextType, SchemaType>,
     readonly path: PathType,
   ) {}
 
@@ -102,25 +125,31 @@ export class ContextRef<
    */
   ref<K extends Paths<PathValue<ContextType, PathType>>>(
     path: K,
-  ): ContextRef<ContextType, `${PathType}.${K}`>;
+  ): ContextRef<ContextType, `${PathType}.${K}`, SchemaType>;
   /**
    * Продолжение пути, если передан другой ContextRef того же контекста.
    * В этом случае итоговый путь становится `${PathType}.${P2}`.
    */
-  ref<P2 extends string>(
-    path: ContextRef<ContextType, P2>,
-  ): ContextRef<ContextType, `${PathType}.${P2}`>;
+  ref<P2 extends string, OtherSchemaType extends z.ZodObject | undefined>(
+    path: ContextRef<ContextType, P2, OtherSchemaType>,
+  ): ContextRef<ContextType, `${PathType}.${P2}`, SchemaType>;
   ref(
     path:
       | Paths<PathValue<ContextType, PathType>>
-      | ContextRef<ContextType, string>,
-  ): ContextRef<ContextType, any> {
+      | ContextRef<ContextType, string, z.ZodObject | undefined>,
+  ): ContextRef<ContextType, any, SchemaType> {
     if (path instanceof ContextRef) {
       const fullPath = `${this.path}.${path.path}`;
-      return new ContextRef<ContextType, string>(this.context, fullPath);
+      return new ContextRef<ContextType, string, SchemaType>(
+        this.context,
+        fullPath,
+      );
     }
     const fullPath = `${this.path}.${path}`;
-    return new ContextRef<ContextType, string>(this.context, fullPath);
+    return new ContextRef<ContextType, string, SchemaType>(
+      this.context,
+      fullPath,
+    );
   }
   /**
    * Дописывает к текущему пути **плейсхолдер** второго контекста: строку вида
@@ -147,17 +176,20 @@ export class ContextRef<
    */
   strictRef<
     OtherContextType extends JsonObject,
+    OtherSchemaType extends z.ZodObject | undefined,
     OtherPathType extends Paths<OtherContextType>,
   >(
-    other: ContextRef<OtherContextType, OtherPathType>,
+    other: ContextRef<OtherContextType, OtherPathType, OtherSchemaType>,
   ): ContextRef<
     ContextType,
-    `${PathType}.${PathValue<OtherContextType, OtherPathType> & string}`
+    `${PathType}.${PathValue<OtherContextType, OtherPathType> & string}`,
+    SchemaType
   > {
     const fullPath = `${this.path}.${other.toString()}`;
     return new ContextRef<
       ContextType,
-      `${PathType}.${PathValue<OtherContextType, OtherPathType> & string}`
+      `${PathType}.${PathValue<OtherContextType, OtherPathType> & string}`,
+      SchemaType
     >(
       this.context,
       fullPath as `${PathType}.${PathValue<OtherContextType, OtherPathType> &
