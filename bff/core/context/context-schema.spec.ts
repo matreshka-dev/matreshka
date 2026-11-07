@@ -4,7 +4,7 @@ import {
   createContext,
   type ContextDataFromInit,
   type ContextSchema,
-} from "./context";
+} from "./context-create";
 
 describe("ContextSchema", () => {
   it("связывает generic T и Zod-схему", () => {
@@ -312,17 +312,42 @@ describe("ContextSchema", () => {
       extra: z.string(),
     });
 
-    createContext({
-      data: async () => ({ name: "" as string }),
-      // @ts-expect-error лишний ключ extra относительно data
+    // @ts-expect-error лишний ключ extra относительно data
+    createContext<{ name: string }, typeof badSchema>({
+      data: async () => ({ name: "" }),
       schema: badSchema,
+    });
+  });
+
+  it("createContext() отклоняет schema с несовместимым типом поля data", () => {
+    const badSchema = z.object({
+      searchQuery: z.number(),
+    });
+    // @ts-expect-error z.number() must not accept string output
+    const outputCheck: z.output<typeof badSchema> = { searchQuery: "" };
+
+    // @ts-expect-error schema output должен быть совместим с типом data
+    createContext<{ searchQuery: string }, typeof badSchema>({
+      data: async (): Promise<{ searchQuery: string }> => ({
+        searchQuery: "",
+      }),
+      schema: badSchema,
+    });
+  });
+
+  it("createContext() принимает schema с совместимым типом поля data", () => {
+    createContext({
+      data: async () => ({ searchQuery: "" }),
+      schema: z.object({
+        searchQuery: z.string(),
+      }),
     });
   });
 
   it("createContext() выводит S из schema", () => {
     const nameSchema = z.object({ name: z.string() });
     const ctx = createContext({
-      data: async () => ({ name: "a" as string }),
+      data: async () => ({ name: "a" }),
       schema: nameSchema,
     });
 
