@@ -1,10 +1,10 @@
 import { toSerializedOperand } from "../conditions/condition-operand";
-import { ContextValueOrRef, ContextValueRef } from "../types/context-value-ref";
+import { ContextRefOfValue, ValueOrContextRef } from "../types/context-value-ref";
 import { ActionConfig } from "./action";
 import { LocalAction } from "./local-action";
 
 /** Ref на числовое поле контекста. */
-export type NumberValueRef = ContextValueRef<number | undefined>;
+export type NumberValueRef = ContextRefOfValue<number | undefined>;
 
 /**
  * Изменение числового значения в Context на клиенте на `step`
@@ -13,7 +13,7 @@ export type NumberValueRef = ContextValueRef<number | undefined>;
 export class IncContextValue extends LocalAction {
   constructor(
     private readonly ref: NumberValueRef,
-    private readonly step: ContextValueOrRef<number>,
+    private readonly step: ValueOrContextRef<number>,
     config: ActionConfig = {},
   ) {
     super(config.conditions);
@@ -38,7 +38,7 @@ export class IncContextValue extends LocalAction {
  */
 export function incContextValue(
   ref: NumberValueRef,
-  step: ContextValueOrRef<number> = 1,
+  step: ValueOrContextRef<number> = 1,
   config: ActionConfig = {},
 ): IncContextValue {
   return new IncContextValue(ref, step, config);

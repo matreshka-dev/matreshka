@@ -1,8 +1,8 @@
 import {
   Componentable,
   ContextRef,
-  ContextRefValue,
-  ContextValueRef,
+  ContextRefOfValue,
+  ContextRefValueType,
   StandaloneComponent,
 } from "../../core";
 import {
@@ -20,8 +20,8 @@ import {
  * @property value Статическое значение.
  */
 
-/** Ref на поле вывода (`ContextValueRef` для скalar `ValueType` компонента). */
-export type OutputContextRef<ValueType> = ContextValueRef<
+/** Ref на поле вывода (`ContextRefOfValue` для scalar `ValueType` компонента). */
+export type OutputContextRef<ValueType> = ContextRefOfValue<
   ValueType | undefined
 >;
 
@@ -34,7 +34,7 @@ export type NumberOutputContextRef = OutputContextRef<number>;
 export type CompatibleOutputRef<
   ValueType,
   RefType extends OutputContextRef<ValueType>,
-> = ValueType extends ContextRefValue<RefType> ? RefType : never;
+> = ValueType extends ContextRefValueType<RefType> ? RefType : never;
 
 export type OutputInitConfig<
   ValueType,
@@ -111,7 +111,7 @@ export abstract class OutputComponent<
 export function outputValueRefToConfig<TOpts extends object>(
   valueOrRef: unknown,
   opts: TOpts,
-): TOpts & ({ ref: ContextValueRef<unknown> } | { value: unknown }) {
+): TOpts & ({ ref: ContextRefOfValue<unknown> } | { value: unknown }) {
   if (valueOrRef instanceof ContextRef) {
     return { ...opts, ref: valueOrRef };
   }

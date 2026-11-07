@@ -20,7 +20,7 @@ import {
 } from "../actions/toggle-context-value";
 import { currentClient } from "../client-context";
 import type { ContextUpdateDelivery } from "../types/context-update-delivery";
-import { ContextValueOrRef } from "../types/context-value-ref";
+import { ValueOrContextRef } from "../types/context-value-ref";
 import { Context, ContextPathPatch } from "./context";
 
 type ContextRefLocalSet<
@@ -28,7 +28,7 @@ type ContextRefLocalSet<
   PathType extends string,
 > = {
   set: (
-    value: ContextValueOrRef<PathValue<ContextType, PathType>>,
+    value: ValueOrContextRef<PathValue<ContextType, PathType>>,
     config?: ActionConfig,
   ) => SetContext<ContextType>;
 };
@@ -39,11 +39,11 @@ type ContextRefLocalToggle = {
 
 type ContextRefLocalNumeric = {
   inc: (
-    step?: ContextValueOrRef<number>,
+    step?: ValueOrContextRef<number>,
     config?: ActionConfig,
   ) => IncContextValue;
   dec: (
-    step?: ContextValueOrRef<number>,
+    step?: ValueOrContextRef<number>,
     config?: ActionConfig,
   ) => DecContextValue;
 };
@@ -60,7 +60,7 @@ export type ContextRefLocalActions<
     ? ContextRefLocalNumeric
     : {});
 
-export type ContextRefValue<R extends ContextRef> = R extends {
+export type ContextRefValueType<R extends ContextRef> = R extends {
   readonly __valueType?: infer ValueType;
 }
   ? Exclude<ValueType, undefined>
@@ -75,7 +75,7 @@ export class ContextRef<
   /** Локальные (client-only) действия по этому ref. */
   readonly local = {
     set: (
-      value: ContextValueOrRef<PathValue<ContextType, PathType>>,
+      value: ValueOrContextRef<PathValue<ContextType, PathType>>,
       config?: ActionConfig,
     ) => {
       const patch = {
@@ -85,9 +85,9 @@ export class ContextRef<
     },
     toggle: (config?: ActionConfig) =>
       toggleContextValue(this as BooleanValueRef, config),
-    inc: (step: ContextValueOrRef<number> = 1, config?: ActionConfig) =>
+    inc: (step: ValueOrContextRef<number> = 1, config?: ActionConfig) =>
       incContextValue(this as NumberValueRef, step, config),
-    dec: (step: ContextValueOrRef<number> = 1, config?: ActionConfig) =>
+    dec: (step: ValueOrContextRef<number> = 1, config?: ActionConfig) =>
       decContextValue(this as NumberValueRef, step, config),
   } as ContextRefLocalActions<ContextType, PathType>;
 

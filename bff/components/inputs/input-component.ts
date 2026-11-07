@@ -1,7 +1,7 @@
 import {
-  CompatibleContextValueRef,
+  CompatibleContextRefOfValue,
   Componentable,
-  ContextValueRef,
+  ContextRefOfValue,
   StandaloneComponent,
 } from "../../core";
 import {
@@ -11,7 +11,9 @@ import {
 } from "../component";
 
 /** Ref на поле ввода: значение `ValueType | undefined`. */
-export type InputContextRef<ValueType> = ContextValueRef<ValueType | undefined>;
+export type InputContextRef<ValueType> = ContextRefOfValue<
+  ValueType | undefined
+>;
 
 /** Ref на строковое поле ввода. */
 export type StringInputContextRef = InputContextRef<string>;
@@ -20,11 +22,11 @@ export type StringInputContextRef = InputContextRef<string>;
  * Конфигурация инициализации компонента ввода.
  * @property ref Ссылка в контексте.
  */
-/** @see CompatibleContextValueRef */
+/** @see CompatibleContextRefOfValue */
 export type CompatibleInputRef<
   ValueType,
   RefType extends InputContextRef<ValueType>,
-> = CompatibleContextValueRef<ValueType, RefType>;
+> = CompatibleContextRefOfValue<ValueType, RefType>;
 
 export type InputInitConfig<
   ValueType,

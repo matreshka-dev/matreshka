@@ -41,7 +41,7 @@ import {
 import type { Client } from "../client";
 import { currentClient } from "../client-context";
 import { ContextUpdateDelivery } from "../types/context-update-delivery";
-import { ContextValueOrRef } from "../types/context-value-ref";
+import { ValueOrContextRef } from "../types/context-value-ref";
 import { assertNonOverlappingContextPaths } from "../utils/assert-non-overlapping-context-paths";
 import { assertSafeDottedPath } from "../utils/assert-safe-dotted-path";
 import { zodDeepPick } from "../utils/deep-pick";
@@ -190,12 +190,12 @@ export class Context<T extends JsonObject> {
     ) => toggleContextValue(this.ref(path) as BooleanValueRef, config),
     inc: <K extends Paths<T>>(
       path: PathValue<T, K> extends number | undefined ? K : never,
-      step?: ContextValueOrRef<number>,
+      step?: ValueOrContextRef<number>,
       config?: ActionConfig,
     ) => incContextValue(this.ref(path) as NumberValueRef, step ?? 1, config),
     dec: <K extends Paths<T>>(
       path: PathValue<T, K> extends number | undefined ? K : never,
-      step?: ContextValueOrRef<number>,
+      step?: ValueOrContextRef<number>,
       config?: ActionConfig,
     ) => decContextValue(this.ref(path) as NumberValueRef, step ?? 1, config),
   };

@@ -289,7 +289,7 @@ await firstValueFrom(
 
 Куда именно смещать popover относительно якоря, задаётся свойством `positionArea` у `Popover`.
 
-### `showDatePicker(anchor, ref: ContextValueRef<string | undefined>)`
+### `showDatePicker(anchor, ref: ContextRefOfValue<string | undefined>)`
 
 Открывает native date picker и связывает результат с `ref` — ссылка на строковое поле контекста.
 
@@ -304,7 +304,7 @@ await firstValueFrom(
 );
 ```
 
-### `showColorPicker(anchor, ref: ContextValueRef<string | undefined>)`
+### `showColorPicker(anchor, ref: ContextRefOfValue<string | undefined>)`
 
 Открывает native color picker. Возвращает `Observable<void>` (picker открыт на клиенте).
 
@@ -314,7 +314,7 @@ await firstValueFrom(
 );
 ```
 
-### `showTimePicker(anchor, ref: ContextValueRef<string | undefined>)`
+### `showTimePicker(anchor, ref: ContextRefOfValue<string | undefined>)`
 
 Открывает native time picker.
 
@@ -324,7 +324,7 @@ await firstValueFrom(
 );
 ```
 
-### `showDateTimePicker(anchor, ref: ContextValueRef<string | undefined>)`
+### `showDateTimePicker(anchor, ref: ContextRefOfValue<string | undefined>)`
 
 Открывает native datetime picker.
 

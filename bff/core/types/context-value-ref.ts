@@ -1,4 +1,4 @@
-import { ContextRef, ContextRefValue } from "../context/context-ref";
+import { ContextRef, ContextRefValueType } from "../context/context-ref";
 
 /**
  * Ссылка на поле контекста с известным типом значения.
@@ -9,14 +9,14 @@ import { ContextRef, ContextRefValue } from "../context/context-ref";
  *
  * @example
  * ```ts
- * function bindAmount(ref: ContextValueRef<number | undefined>) {
+ * function bindAmount(ref: ContextRefOfValue<number | undefined>) {
  *   ref.get(); // number | undefined
  * }
  *
  * bindAmount(pageContext.ref("amount"));
  * ```
  */
-export type ContextValueRef<ValueType> = ContextRef<any, any> & {
+export type ContextRefOfValue<ValueType> = ContextRef<any, any> & {
   readonly __valueType?: ValueType;
   get(): ValueType;
   set(value: ValueType): void;
@@ -25,17 +25,19 @@ export type ContextValueRef<ValueType> = ContextRef<any, any> & {
 /**
  * Ref `R` совместим с ожидаемым типом значения `ValueType` (проверка на call site).
  */
-export type CompatibleContextValueRef<ValueType, R extends ContextRef> =
-  ValueType extends ContextRefValue<R> ? R : never;
+export type CompatibleContextRefOfValue<ValueType, R extends ContextRef> =
+  ValueType extends ContextRefValueType<R> ? R : never;
 
 /** Статическое значение или ссылка на совместимое значение в контексте. */
-export type ContextValueOrRef<ValueType> =
+export type ValueOrContextRef<ValueType> =
   | ValueType
-  | ContextValueRef<Exclude<ValueType, undefined>>;
+  | ContextRefOfValue<Exclude<ValueType, undefined>>;
 
 /**
  * Ссылка на массив элементов в контексте (`ItemType[] | undefined`).
  *
  * Generic задаёт тип **элемента**, как в {@link CompatibleForEachRef} / `forEach`.
  */
-export type ContextArrayRef<ItemType> = ContextValueRef<ItemType[] | undefined>;
+export type ContextArrayValueRef<ItemType> = ContextRefOfValue<
+  ItemType[] | undefined
+>;

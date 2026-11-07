@@ -4,12 +4,12 @@ import {
   UntypedActionOperand,
 } from "../conditions/condition-operand";
 import { Context, ContextPathPatch } from "../context/context";
-import { ContextValueOrRef } from "../types/context-value-ref";
+import { ValueOrContextRef } from "../types/context-value-ref";
 import { ActionConfig } from "./action";
 import { LocalAction } from "./local-action";
 
 export type LocalContextPathPatch<T extends JsonObject> = Partial<{
-  [K in keyof ContextPathPatch<T>]: ContextValueOrRef<ContextPathPatch<T>[K]>;
+  [K in keyof ContextPathPatch<T>]: ValueOrContextRef<ContextPathPatch<T>[K]>;
 }>;
 
 /**

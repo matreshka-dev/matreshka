@@ -1,5 +1,5 @@
 import { describe, expectTypeOf, it } from "vitest";
-import { ContextArrayRef, ContextRefValue } from "../core";
+import { ContextArrayValueRef, ContextRefValueType } from "../core";
 import { Context } from "../core/context/context";
 import { ForEach } from "./for-each";
 import { Text } from "./outputs/text";
@@ -33,9 +33,9 @@ describe("ForEach type inference", () => {
         const textRef = ref.ref("text");
         const userName = userNameRef.get();
         const text = textRef.get();
-        type MessageRefValue = ContextRefValue<typeof ref>;
-        type MessageUserNameRefValue = ContextRefValue<typeof userNameRef>;
-        type MessageTextRefValue = ContextRefValue<typeof textRef>;
+        type MessageRefValue = ContextRefValueType<typeof ref>;
+        type MessageUserNameRefValue = ContextRefValueType<typeof userNameRef>;
+        type MessageTextRefValue = ContextRefValueType<typeof textRef>;
 
         expectTypeOf(data).toEqualTypeOf<Message>();
         expectTypeOf<MessageRefValue>().toEqualTypeOf<Message>();
@@ -71,7 +71,7 @@ describe("ForEach type inference", () => {
       track: (section) => section.id,
       generator: ({ ref: sectionRef }) => {
         const section = sectionRef.get();
-        type SectionRefValue = ContextRefValue<typeof sectionRef>;
+        type SectionRefValue = ContextRefValueType<typeof sectionRef>;
 
         expectTypeOf(section).toEqualTypeOf<Section>();
         expectTypeOf<SectionRefValue>().toEqualTypeOf<Section>();
@@ -83,8 +83,8 @@ describe("ForEach type inference", () => {
             const data = ref.get();
             const categoryNameRef = ref.ref("name");
             const categoryName = categoryNameRef.get();
-            type CategoryRefValue = ContextRefValue<typeof ref>;
-            type CategoryNameRefValue = ContextRefValue<typeof categoryNameRef>;
+            type CategoryRefValue = ContextRefValueType<typeof ref>;
+            type CategoryNameRefValue = ContextRefValueType<typeof categoryNameRef>;
 
             expectTypeOf(data).toEqualTypeOf<Category>();
             expectTypeOf<CategoryRefValue>().toEqualTypeOf<Category>();
@@ -100,7 +100,7 @@ describe("ForEach type inference", () => {
     });
   });
 
-  it("использует внешний ContextArrayRef без явного generic у ForEach", () => {
+  it("использует внешний ContextArrayValueRef без явного generic у ForEach", () => {
     type Block = {
       id: string;
       type: string;
@@ -115,7 +115,7 @@ describe("ForEach type inference", () => {
       }),
     });
 
-    const createEditor = (ref: ContextArrayRef<Block>) =>
+    const createEditor = (ref: ContextArrayValueRef<Block>) =>
       new ForEach({
         ref,
         track: (block) => block.id,
@@ -123,8 +123,8 @@ describe("ForEach type inference", () => {
           const data = blockRef.get();
           const blockLabelRef = blockRef.ref("value").ref("label");
           const blockLabel = blockLabelRef.get();
-          type BlockRefValue = ContextRefValue<typeof blockRef>;
-          type BlockLabelRefValue = ContextRefValue<typeof blockLabelRef>;
+          type BlockRefValue = ContextRefValueType<typeof blockRef>;
+          type BlockLabelRefValue = ContextRefValueType<typeof blockLabelRef>;
 
           expectTypeOf(data).toEqualTypeOf<Block>();
           expectTypeOf<BlockRefValue>().toEqualTypeOf<Block>();

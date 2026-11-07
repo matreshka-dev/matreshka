@@ -1,9 +1,9 @@
-import { ContextValueRef } from "../types/context-value-ref";
+import { ContextRefOfValue } from "../types/context-value-ref";
 import { ActionConfig } from "./action";
 import { LocalAction } from "./local-action";
 
 /** Ref на boolean-поле контекста. */
-export type BooleanValueRef = ContextValueRef<boolean | undefined>;
+export type BooleanValueRef = ContextRefOfValue<boolean | undefined>;
 /**
  * Инверсия boolean-значения в Context на клиенте (с sync на BFF через `context-values`).
  */

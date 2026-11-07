@@ -1,5 +1,5 @@
 import { toSerializedOperand } from "../conditions/condition-operand";
-import { ContextValueOrRef } from "../types/context-value-ref";
+import { ValueOrContextRef } from "../types/context-value-ref";
 import { ActionConfig } from "./action";
 import { NumberValueRef } from "./inc-context-value";
 import { LocalAction } from "./local-action";
@@ -11,7 +11,7 @@ import { LocalAction } from "./local-action";
 export class DecContextValue extends LocalAction {
   constructor(
     private readonly ref: NumberValueRef,
-    private readonly step: ContextValueOrRef<number>,
+    private readonly step: ValueOrContextRef<number>,
     config: ActionConfig = {},
   ) {
     super(config.conditions);
@@ -36,7 +36,7 @@ export class DecContextValue extends LocalAction {
  */
 export function decContextValue(
   ref: NumberValueRef,
-  step: ContextValueOrRef<number> = 1,
+  step: ValueOrContextRef<number> = 1,
   config: ActionConfig = {},
 ): DecContextValue {
   return new DecContextValue(ref, step, config);

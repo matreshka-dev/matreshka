@@ -26,7 +26,7 @@ import {
   Client,
   Componentable,
   ComponentInstance,
-  ContextValueRef,
+  ContextRefOfValue,
   runWithEntry,
   serializeOverlays,
 } from "../core";
@@ -170,28 +170,28 @@ export abstract class Platform {
 
   showDatePicker(
     anchor: ComponentInstance | Componentable,
-    ref: ContextValueRef<string | undefined>,
+    ref: ContextRefOfValue<string | undefined>,
   ): Observable<void> {
     return this.showNativePicker(anchor, "date", ref);
   }
 
   showColorPicker(
     anchor: ComponentInstance | Componentable,
-    ref: ContextValueRef<string | undefined>,
+    ref: ContextRefOfValue<string | undefined>,
   ): Observable<void> {
     return this.showNativePicker(anchor, "color", ref);
   }
 
   showTimePicker(
     anchor: ComponentInstance | Componentable,
-    ref: ContextValueRef<string | undefined>,
+    ref: ContextRefOfValue<string | undefined>,
   ): Observable<void> {
     return this.showNativePicker(anchor, "time", ref);
   }
 
   showDateTimePicker(
     anchor: ComponentInstance | Componentable,
-    ref: ContextValueRef<string | undefined>,
+    ref: ContextRefOfValue<string | undefined>,
   ): Observable<void> {
     return this.showNativePicker(anchor, "datetime-local", ref);
   }
@@ -199,7 +199,7 @@ export abstract class Platform {
   private showNativePicker(
     anchor: ComponentInstance | Componentable,
     inputType: PlatformNativePickerInputType,
-    ref: ContextValueRef<string | undefined>,
+    ref: ContextRefOfValue<string | undefined>,
   ): Observable<void> {
     return targetedClientPlatformAction(this.client, {
       outgoingMessage: (scope) =>

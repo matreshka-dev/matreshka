@@ -11,7 +11,7 @@ import {
   Context,
   contextClientUpdatesForbiddenSchema,
   ContextRef,
-  ContextRefValue,
+  ContextRefValueType,
   JsonObject,
   runWithClient,
   runWithEntryContext,
@@ -29,7 +29,7 @@ import {
 type ForEachArrayValue = readonly unknown[] | unknown[];
 type ForEachIndexContext = Record<string, { index: `${number}` }>;
 type ForEachItemArray<RefType extends ContextRef<any, any>> = Extract<
-  ContextRefValue<RefType>,
+  ContextRefValueType<RefType>,
   ForEachArrayValue
 >;
 

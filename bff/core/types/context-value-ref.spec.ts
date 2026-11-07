@@ -1,9 +1,9 @@
 import { describe, expectTypeOf, it } from "vitest";
 import { Context } from "../context/context";
-import { ContextRefValue } from "../context/context-ref";
-import { ContextValueRef } from "./context-value-ref";
+import { ContextRefValueType } from "../context/context-ref";
+import { ContextRefOfValue } from "./context-value-ref";
 
-describe("ContextValueRef", () => {
+describe("ContextRefOfValue", () => {
   it("принимает ref страницы с числовым полем", () => {
     const context = new Context<{ amount?: number }>({
       data: async () => ({ amount: 1 }),
@@ -11,12 +11,12 @@ describe("ContextValueRef", () => {
 
     const amountRef = context.ref("amount");
 
-    const bindAmount = (ref: ContextValueRef<number | undefined>) => {
+    const bindAmount = (ref: ContextRefOfValue<number | undefined>) => {
       void ref;
     };
 
     bindAmount(amountRef);
-    expectTypeOf(amountRef).toExtend<ContextValueRef<number | undefined>>();
+    expectTypeOf(amountRef).toExtend<ContextRefOfValue<number | undefined>>();
   });
 
   it("отклоняет ref с несовместимым типом значения", () => {
@@ -24,19 +24,19 @@ describe("ContextValueRef", () => {
       data: async () => ({ title: "" }),
     });
 
-    const bindAmount = (ref: ContextValueRef<number | undefined>) => {
+    const bindAmount = (ref: ContextRefOfValue<number | undefined>) => {
       void ref;
     };
 
     bindAmount(
-      // @ts-expect-error строковый ref несовместим с числовым ContextValueRef
+      // @ts-expect-error строковый ref несовместим с числовым ContextRefOfValue
       context.ref("title"),
     );
   });
 
-  it("выводит тип значения через ContextRefValue для брендированного ref", () => {
-    type AmountRef = ContextValueRef<number | undefined>;
+  it("выводит тип значения через ContextRefValueType для брендированного ref", () => {
+    type AmountRef = ContextRefOfValue<number | undefined>;
 
-    expectTypeOf<ContextRefValue<AmountRef>>().toEqualTypeOf<number>();
+    expectTypeOf<ContextRefValueType<AmountRef>>().toEqualTypeOf<number>();
   });
 });

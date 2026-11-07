@@ -78,12 +78,12 @@ nameRef.set("Bob"); // записать
 
 Тип `ContextUpdateDelivery` экспортируется из `@matreshka/bff/core`. Подробности — [../architecture/context-update-delivery.md](../architecture/context-update-delivery.md). Для финала доставки используйте `complete` или `lastValueFrom`, а не `firstValueFrom` (он даёт только первый прогресс).
 
-Если ref уже пришёл в хелпер (`ContextValueRef`), не нужно снова искать путь:
+Если ref уже пришёл в хелпер (`ContextRefOfValue`), не нужно снова искать путь:
 
 ```ts
-import type { ContextValueRef } from "@matreshka/bff/core";
+import type { ContextRefOfValue } from "@matreshka/bff/core";
 
-function finishSubmit(loadingRef: ContextValueRef<boolean | undefined>) {
+function finishSubmit(loadingRef: ContextRefOfValue<boolean | undefined>) {
   loadingRef.set(false);
 }
 ```
