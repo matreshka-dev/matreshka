@@ -38,11 +38,8 @@ export class DecContextValue extends LocalAction {
  * Принимает только `ContextRef` с числовым значением.
  * Без `step` клиент вычитает 1.
  */
-export function decContextValue(
-  ref: CompatibleWritableContextRefOfValue<
-    number | undefined,
-    AnySchemaContextRef
-  >,
+export function decContextValue<R extends AnySchemaContextRef>(
+  ref: CompatibleWritableContextRefOfValue<number | undefined, R>,
   step: ValueOrContextRef<number> = 1,
   config: ActionConfig = {},
 ): DecContextValue {

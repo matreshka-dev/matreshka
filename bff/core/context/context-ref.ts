@@ -33,14 +33,15 @@ type ContextRefLocalSet<
   ContextType extends JsonObject,
   PathType extends string,
   SchemaType extends z.ZodObject | undefined,
-> = PathType extends WritableContextPath<ContextType, SchemaType>
-  ? {
-      set: (
-        value: ValueOrContextRef<WritablePathValue<SchemaType, PathType>>,
-        config?: ActionConfig,
-      ) => SetContext<ContextType, SchemaType>;
-    }
-  : {};
+> =
+  PathType extends WritableContextPath<ContextType, SchemaType>
+    ? {
+        set: (
+          value: ValueOrContextRef<WritablePathValue<SchemaType, PathType>>,
+          config?: ActionConfig,
+        ) => SetContext<ContextType, SchemaType>;
+      }
+    : {};
 
 type ContextRefLocalToggle = {
   toggle: (config?: ActionConfig) => ToggleContextValue;

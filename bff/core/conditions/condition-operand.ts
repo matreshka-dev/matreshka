@@ -15,8 +15,10 @@ import type { CompatibleContextRefOfValue } from "../types/context-value-ref";
 type ContextArrayValue = readonly unknown[] | unknown[];
 
 /** Элемент массива по значению `ContextRef`. */
-export type ContextRefArrayElement<R extends AnySchemaContextRef> =
-  Extract<ContextRefValueType<R>, ContextArrayValue>[number];
+export type ContextRefArrayElement<R extends AnySchemaContextRef> = Extract<
+  ContextRefValueType<R>,
+  ContextArrayValue
+>[number];
 
 /** Ref на массив в контексте (значение по ref — массив или readonly-массив). */
 export type CompatibleArrayContextRef<R extends AnySchemaContextRef> = [

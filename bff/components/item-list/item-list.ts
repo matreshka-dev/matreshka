@@ -4,7 +4,6 @@ import {
   AnySchemaContextRef,
   ComponentInstance,
   ComponentTreeNode,
-  ContextRef,
   runWithClient,
   runWithEntryContext,
 } from "../../core";

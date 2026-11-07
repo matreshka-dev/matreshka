@@ -916,8 +916,10 @@ export class Context<
   }
 }
 
-export type AnySchemaContext<T extends JsonObject = JsonObject> =
-  Context<T, z.ZodObject | undefined>;
+export type AnySchemaContext<T extends JsonObject = JsonObject> = Context<
+  T,
+  z.ZodObject | undefined
+>;
 
 /** Любой зарегистрированный контекст (с Zod-схемой или без). */
 export type AnyContext = Context<any, any>;

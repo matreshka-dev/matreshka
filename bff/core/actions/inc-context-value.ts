@@ -41,11 +41,8 @@ export class IncContextValue extends LocalAction {
  * Принимает только `ContextRef` с числовым значением.
  * Без `step` клиент прибавляет 1.
  */
-export function incContextValue(
-  ref: CompatibleWritableContextRefOfValue<
-    number | undefined,
-    AnySchemaContextRef
-  >,
+export function incContextValue<R extends AnySchemaContextRef>(
+  ref: CompatibleWritableContextRefOfValue<number | undefined, R>,
   step: ValueOrContextRef<number> = 1,
   config: ActionConfig = {},
 ): IncContextValue {

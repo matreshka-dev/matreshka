@@ -34,11 +34,8 @@ export class ToggleContextValue extends LocalAction {
  * Функциональная форма {@link ToggleContextValue}.
  * Принимает только `ContextRef` с boolean-значением.
  */
-export function toggleContextValue(
-  ref: CompatibleWritableContextRefOfValue<
-    boolean | undefined,
-    AnySchemaContextRef
-  >,
+export function toggleContextValue<R extends AnySchemaContextRef>(
+  ref: CompatibleWritableContextRefOfValue<boolean | undefined, R>,
   config: ActionConfig = {},
 ): ToggleContextValue {
   return new ToggleContextValue(ref, config);

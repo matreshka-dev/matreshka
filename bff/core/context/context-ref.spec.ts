@@ -1,5 +1,6 @@
 import { BehaviorSubject, Subject } from "rxjs";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, expectTypeOf, it, vi } from "vitest";
+import { z } from "zod";
 import type { Client } from "../client";
 import { createContext } from "./context";
 import { ContextRef } from "./context-ref";
@@ -7,7 +8,7 @@ import { ContextRef } from "./context-ref";
 // Переопределяем currentClient до объявления любых зависимостей, чтобы Context.toJSON/ContextRef.toJSON не падали
 vi.mock("../client", () => {
   class FakeClient {
-    destroy$ = new BehaviorSubject<void>(undefined as any);
+    destroy$ = new BehaviorSubject<void>(undefined);
     outcomingMessage$ = new BehaviorSubject<any>(null as any);
     incomingMessage$ = new BehaviorSubject<any>(null as any);
     error$ = new BehaviorSubject<any>(null as any);
@@ -22,6 +23,39 @@ vi.mock("../client", () => {
 });
 
 describe("Context.ref и ContextRef.ref", () => {
+  it("должен давать local-методы только для writable ref", () => {
+    type TestContext = {
+      count: number;
+      flag: boolean;
+      title: string;
+    };
+
+    const ctx = createContext({
+      data: async (): Promise<TestContext> => ({
+        count: 1,
+        flag: false,
+        title: "A",
+      }),
+      schema: z.object({
+        count: z.number(),
+        flag: z.boolean(),
+      }),
+    });
+
+    const countRef = ctx.ref("count");
+    const flagRef = ctx.ref("flag");
+    const titleRef = ctx.ref("title");
+
+    expectTypeOf(countRef.local.set).toBeFunction();
+    expectTypeOf(countRef.local.inc).toBeFunction();
+    expectTypeOf(countRef.local.dec).toBeFunction();
+    expectTypeOf(flagRef.local.set).toBeFunction();
+    expectTypeOf(flagRef.local.toggle).toBeFunction();
+    expectTypeOf(titleRef.local).not.toHaveProperty("set");
+    expectTypeOf(titleRef.local).not.toHaveProperty("inc");
+    expectTypeOf(titleRef.local).not.toHaveProperty("toggle");
+  });
+
   it("должны строить простой путь внутри одного контекста", async () => {
     const ctx = createContext({
       data: async () => ({

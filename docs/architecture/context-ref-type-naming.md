@@ -42,6 +42,8 @@ type UserName = ContextRefValueType<typeof userNameRef>; // string
 Пример:
 
 ```ts
+import type { ContextRefOfValue } from "@matreshka/bff/core";
+
 function finishSubmit(loadingRef: ContextRefOfValue<boolean | undefined>) {
   loadingRef.set(false);
 }
