@@ -12,13 +12,16 @@ import {
   Context,
   contextClientUpdatesForbiddenSchema,
   ContextRef,
+  ContextRefLocalActions,
   ContextRefValueType,
   JsonObject,
   runWithClient,
   runWithEntryContext,
   serializeComponentList,
   StandaloneComponent,
+  WritableContextRefOfValue,
 } from "../core";
+import type { z } from "zod";
 import { serializeForEachSlots } from "../core/utils/serialize-component-tree";
 import { runWithCreatedInstanceTracking } from "../core/utils/track-created-instances";
 import {
@@ -43,14 +46,37 @@ export type CompatibleForEachRef<RefType extends AnySchemaContextRef> = [
 type ForEachItemData<RefType extends AnySchemaContextRef> =
   ForEachItemArray<RefType>[number];
 
+type ForEachIsAny<T> = 0 extends 1 & T ? true : false;
+
+/**
+ * `local` item-ref: при известной schema — по ней (writable-пути), при `any`
+ * (ref без привязки к schema) — по типу значения.
+ */
+type ForEachItemLocal<
+  ContextType extends JsonObject,
+  PathType extends string,
+  SchemaType extends z.ZodObject | undefined,
+  ValueType,
+> =
+  ForEachIsAny<SchemaType> extends true
+    ? WritableContextRefOfValue<ValueType>["local"]
+    : ContextRefLocalActions<ContextType, PathType, SchemaType>;
+
 type ForEachTypedItemRef<
   ContextType extends JsonObject,
   PathType extends string,
   ValueType,
-> = Omit<AnySchemaContextRef, "context" | "path" | "ref" | "get"> & {
+  SchemaType extends z.ZodObject | undefined = any,
+> = Omit<AnySchemaContextRef, "context" | "path" | "ref" | "get" | "local"> & {
   readonly context: Context<ContextType>;
   readonly path: PathType;
   readonly __valueType?: ValueType;
+  readonly local: ForEachItemLocal<
+    ContextType,
+    PathType,
+    SchemaType,
+    ValueType
+  >;
   get(): ValueType;
   get(): JsonObject;
   ref<K extends Paths<ValueType>>(
@@ -58,7 +84,8 @@ type ForEachTypedItemRef<
   ): ForEachTypedItemRef<
     ContextType,
     `${PathType}.${K & string}`,
-    PathValue<ValueType, K>
+    PathValue<ValueType, K>,
+    SchemaType
   >;
   ref<P2 extends string>(
     path: ContextRef<ContextType, P2>,
@@ -66,11 +93,16 @@ type ForEachTypedItemRef<
 };
 
 type ForEachItemLink<RefType extends AnySchemaContextRef> =
-  RefType extends ContextRef<infer ContextType, infer PathType>
+  RefType extends ContextRef<
+    infer ContextType,
+    infer PathType,
+    infer SchemaType
+  >
     ? ForEachTypedItemRef<
         ContextType,
         `${PathType}.${number}`,
-        ForEachItemData<RefType>
+        ForEachItemData<RefType>,
+        SchemaType
       >
     : never;
 

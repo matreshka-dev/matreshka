@@ -1,9 +1,12 @@
 import type { Paths, PathValue } from "ts-essentials";
+import type { z } from "zod";
 import type {
   AnySchemaContextRef,
   ComponentTreeNode,
   ContextRef,
+  ContextRefLocalActions,
   JsonObject,
+  WritableContextRefOfValue,
 } from "../../core";
 
 export type ListArrayValue = readonly unknown[] | unknown[];
@@ -22,13 +25,33 @@ export type CompatibleItemListRef<RefType extends AnySchemaContextRef> = [
 export type ItemListItemData<RefType extends AnySchemaContextRef> =
   ItemArray<RefType>[number];
 
+type ItemListIsAny<T> = 0 extends 1 & T ? true : false;
+
+/** `local` item-ref: по schema, а при `any` — по типу значения. */
+type ItemListItemLocal<
+  ContextType extends JsonObject,
+  PathType extends string,
+  SchemaType extends z.ZodObject | undefined,
+  ValueType,
+> =
+  ItemListIsAny<SchemaType> extends true
+    ? WritableContextRefOfValue<ValueType>["local"]
+    : ContextRefLocalActions<ContextType, PathType, SchemaType>;
+
 export type ItemListTypedItemRef<
   ContextType extends JsonObject,
   PathType extends string,
   ValueType,
-> = Omit<AnySchemaContextRef, "path" | "ref" | "get"> & {
+  SchemaType extends z.ZodObject | undefined = any,
+> = Omit<AnySchemaContextRef, "path" | "ref" | "get" | "local"> & {
   readonly path: PathType;
   readonly __valueType?: ValueType;
+  readonly local: ItemListItemLocal<
+    ContextType,
+    PathType,
+    SchemaType,
+    ValueType
+  >;
   get(): ValueType;
   get(): JsonObject;
   ref<K extends Paths<ValueType>>(
@@ -36,7 +59,8 @@ export type ItemListTypedItemRef<
   ): ItemListTypedItemRef<
     ContextType,
     `${PathType}.${K & string}`,
-    PathValue<ValueType, K>
+    PathValue<ValueType, K>,
+    SchemaType
   >;
   ref<P2 extends string>(
     path: ContextRef<ContextType, P2, any>,
@@ -44,11 +68,16 @@ export type ItemListTypedItemRef<
 };
 
 export type ItemListItemLink<RefType extends AnySchemaContextRef> =
-  RefType extends ContextRef<infer ContextType, infer PathType>
+  RefType extends ContextRef<
+    infer ContextType,
+    infer PathType,
+    infer SchemaType
+  >
     ? ItemListTypedItemRef<
         ContextType,
         `${PathType}.${number}`,
-        ItemListItemData<RefType>
+        ItemListItemData<RefType>,
+        SchemaType
       >
     : never;
 
