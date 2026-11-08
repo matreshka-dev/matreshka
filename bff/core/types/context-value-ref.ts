@@ -26,13 +26,13 @@ import type { ContextUpdateDelivery } from "./context-update-delivery";
  * bindAmount(pageContext.ref("amount"));
  * ```
  */
-export type ContextRefOfValue<ValueType> = ContextRef<any, any, any> & {
+export type ContextRefOfValue<ValueType> = {
   readonly __valueType?: ValueType;
   get(): ValueType;
   set(value: ValueType): void;
   toString(): string;
   toJSON(): string;
-};
+} & ContextRef<any, any, any>;
 
 /**
  * Ref `R` совместим с ожидаемым типом значения `ValueType` (проверка на call site).
