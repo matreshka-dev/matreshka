@@ -817,6 +817,19 @@ export class Context<
   }
 
   /**
+   * Следующее состояние целиком из текущего снимка `T`.
+   *
+   * Callback получает копию текущих данных и возвращает значение того же типа.
+   * Результат сохраняется как structured clone, как в {@link replace}.
+   * Возвращает тот же hot {@link Observable}, что и {@link set}.
+   */
+  update(updater: (current: T) => T): Observable<ContextUpdateDelivery> {
+    return this.updateDataAndWait((current) =>
+      structuredClone(updater(current)),
+    );
+  }
+
+  /**
    * Глубокая копия всего `T` (structured clone корня).
    *
    * Для одного поля — {@link get}. Нужен, когда на время async нужен отсоединённый
@@ -836,7 +849,7 @@ export class Context<
    * поток завершается без эмиссий.
    *
    * После подключения сразу эмитит текущее состояние, затем каждое обновление
-   * через {@link set}, {@link replace} и т.п.
+   * через {@link set}, {@link replace}, {@link update} и т.п.
    */
   watch(): Observable<T> {
     this.assertNotDestroyed();

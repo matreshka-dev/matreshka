@@ -62,7 +62,7 @@ npm install @matreshka/gateway
 
 ### Context
 
-Серверное состояние сценария (форма, список, экран). В разметке используйте `this.context.ref("field")`, чтобы UI обновлялся при изменениях. В обработчиках на BFF — `get`, `set`, `replace` или `ref.get()` / `ref.set()`.
+Серверное состояние сценария (форма, список, экран). В разметке используйте `this.context.ref("field")`, чтобы UI обновлялся при изменениях. В обработчиках на BFF — `get`, `set`, `replace`, `update` или `ref.get()` / `ref.set()` / `ref.update()`.
 
 ### Transport
 

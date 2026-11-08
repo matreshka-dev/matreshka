@@ -80,6 +80,13 @@ export type AnySchemaContextRef<
   | ContextRef<ContextType, PathType, undefined>
   | ContextRef<ContextType, PathType, z.ZodObject>;
 
+function cloneContextValue<T>(value: T): T {
+  if (value !== null && typeof value === "object") {
+    return structuredClone(value);
+  }
+  return value;
+}
+
 export type ContextRefValueType<R extends AnySchemaContextRef> = R extends {
   readonly __valueType?: infer ValueType;
 }
@@ -225,6 +232,20 @@ export class ContextRef<
     return this.context.set({
       [this.path]: value,
     } as unknown as ContextPathPatch<ContextType>);
+  }
+
+  /**
+   * Следующее значение по текущему пути из текущего снимка.
+   *
+   * Callback получает то же, что {@link get}, и возвращает значение того же типа.
+   * Запись идёт через {@link set}.
+   */
+  update(
+    updater: (
+      current: PathValue<ContextType, PathType>,
+    ) => PathValue<ContextType, PathType>,
+  ): Observable<ContextUpdateDelivery> {
+    return this.set(cloneContextValue(updater(this.get())));
   }
 
   toString() {

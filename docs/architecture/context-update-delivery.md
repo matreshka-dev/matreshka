@@ -1,6 +1,6 @@
 # Доставка server-updates Context
 
-Документ описывает семантику `Context.set(...)`, `Context.replace(...)` и `ContextRef.set(...)` на BFF: hot `Observable<ContextUpdateDelivery>` и прогресс по клиентам.
+Документ описывает семантику `Context.set(...)`, `Context.replace(...)`, `Context.update(...)`, `ContextRef.set(...)` и `ContextRef.update(...)` на BFF: hot `Observable<ContextUpdateDelivery>` и прогресс по клиентам.
 
 Связанные документы:
 
@@ -10,7 +10,7 @@
 
 ## Коротко
 
-- `context.set(...)`, `context.replace(...)` и `ref.set(...)` на BFF возвращают **hot `Observable<ContextUpdateDelivery>`**.
+- `context.set(...)`, `context.replace(...)`, `context.update(...)`, `ref.set(...)` и `ref.update(...)` на BFF возвращают **hot `Observable<ContextUpdateDelivery>`**.
 - Тип payload:
 
 ```ts

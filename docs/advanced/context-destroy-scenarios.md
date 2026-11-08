@@ -185,7 +185,7 @@ export class MyListWidget extends Component {
 
 ## 5. Async после ухода со страницы
 
-`get` / `set` / `replace` и `ref.set()` после `destroy()` на BFF бросают ошибку; в обработчиках после async проверяйте `isDestroyed()`.
+`get` / `set` / `replace` / `update` и `ref.set()` / `ref.update()` после `destroy()` на BFF бросают ошибку; в обработчиках после async проверяйте `isDestroyed()`.
 
 ## Связь с другими документами
 

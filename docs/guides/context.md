@@ -65,11 +65,12 @@ text(`Привет, ${this.context.ref("name").toString()}`);
 const nameRef = this.context.ref("name");
 const current = nameRef.get(); // прочитать
 nameRef.set("Bob"); // записать
+nameRef.update((name) => name.trim()); // следующее значение из текущего
 ```
 
-`ref.set()` внутри вызывает `context.set({ … })` — клиент получит те же обновления, что и при записи через контекст.
+`ref.set()` и `ref.update()` внутри вызывают `context.set({ … })` — клиент получит те же обновления, что и при записи через контекст.
 
-На BFF `context.set(...)`, `context.replace(...)` и `ref.set(...)` возвращают **hot `Observable<ContextUpdateDelivery>`**:
+На BFF `context.set(...)`, `context.replace(...)`, `context.update(...)`, `ref.set(...)` и `ref.update(...)` возвращают **hot `Observable<ContextUpdateDelivery>`**:
 
 - update стартует **сразу при вызове метода**;
 - на каждый transport-level receipt у очередного клиента — `next({ delivered })`, где `delivered` — **накопительный** список `Client`;
@@ -88,7 +89,7 @@ function finishSubmit(loadingRef: ContextRefOfValue<boolean | undefined>) {
 }
 ```
 
-После `destroy()` вызовы `get` / `set` / `replace` и `ref.set()` **бросают ошибку**; после async проверяйте `isDestroyed()`.
+После `destroy()` вызовы `get` / `set` / `replace` / `update` и `ref.set()` / `ref.update()` **бросают ошибку**; после async проверяйте `isDestroyed()`.
 
 Для мгновенного UI **из actions на клиенте** используйте `context.local.set(patch)` или `ref.local.set(value)` — см. [events-and-actions.md](events-and-actions.md). На BFF в обработчиках и `ServerAction` — `ref.set()` или `context.set()`.
 
@@ -110,6 +111,7 @@ function finishSubmit(loadingRef: ContextRefOfValue<boolean | undefined>) {
 | ---------------------------------- | ------------------------------------------------------------------------------------------------- |
 | Прочитать поле по пути             | `context.get("path")` или `ref.get()`                                                             |
 | Обновить одно или несколько полей  | `context.set({ … })` — ключи с dotted-путями, hot `Observable<ContextUpdateDelivery>`             |
+| Следующее состояние из текущего    | `context.update((current) => …)` или `ref.update((current) => …)`                                         |
 | Заменить всё состояние целиком     | `context.replace(data)` — после load или готового снимка, hot `Observable<ContextUpdateDelivery>` |
 | Скопировать всё `T` на время async | `context.snapshot()`                                                                              |
 | Подписаться на изменения           | `context.watch()`                                                                                 |
@@ -119,14 +121,15 @@ function finishSubmit(loadingRef: ContextRefOfValue<boolean | undefined>) {
 ```ts
 const tab = this.context.get("activeTab");
 this.context.set({ sending: false, message: "" });
+this.context.update((current) => ({ ...current, count: current.count + 1 }));
 
 const loaded = await this.api.loadProfile();
 this.context.replace({ ...loaded, draft: this.context.get("draft") });
 ```
 
-`get` для объектов и массивов отдаёт **копию** — правки «на месте» без `set` / `replace` контекст не меняют.
+`get` для объектов и массивов отдаёт **копию** — правки «на месте» без `set` / `replace` / `update` контекст не меняют. Callback `update` тоже получает копию: вернутое значение записывается, дальнейшая мутация аргумента хранилище не меняет.
 
-Если вам не нужно ждать доставку diff, можно по-прежнему вызывать `context.set(...)` / `replace(...)` в fire-and-forget стиле: update уже стартовал. Подписка нужна, когда важно отслеживать `delivered` по клиентам или дождаться `complete`.
+Если вам не нужно ждать доставку diff, можно по-прежнему вызывать `context.set(...)` / `replace(...)` / `update(...)` в fire-and-forget стиле: запись уже стартовала. Подписка нужна, когда важно отслеживать `delivered` по клиентам или дождаться `complete`.
 
 ## Подписка на изменения
 
@@ -380,7 +383,7 @@ const dynamicCardTitleRef = cardsContext
 
 Это скорее `bad practice`, а не основной рекомендуемый способ работы с контекстом.
 
-Предпочитайте `set({ … })`, `ref.set(…)` или `replace` после load. Если собрали новое значение в локальной переменной:
+Предпочитайте `set({ … })`, `update((current) => …)`, `ref.set(…)` / `ref.update(…)` или `replace` после load. Если собрали новое значение в локальной переменной:
 
 ```ts
 const items = this.context.get("items") as Item[];
@@ -389,7 +392,7 @@ this.context.set({
 });
 ```
 
-`get` для объектов и массивов возвращает копию — мутация результата не меняет контекст, пока не вызван `set` / `replace`.
+`get` для объектов и массивов возвращает копию — мутация результата не меняет контекст, пока не вызван `set` / `replace` / `update`.
 
 ## Что приходит с клиента
 

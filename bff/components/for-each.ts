@@ -4,6 +4,7 @@ import { ForEachSyncComponentsMessage } from "@matreshka/client-bff-protocol/mes
 import type { ForEachConfig } from "@matreshka/client-bff-protocol/types/for-each-config";
 import { BehaviorSubject, skip, Subscription } from "rxjs";
 import { Paths, PathValue } from "ts-essentials";
+import type { z } from "zod";
 import {
   AnySchemaContextRef,
   calculateComponents,
@@ -21,7 +22,6 @@ import {
   StandaloneComponent,
   WritableContextRefOfValue,
 } from "../core";
-import type { z } from "zod";
 import { serializeForEachSlots } from "../core/utils/serialize-component-tree";
 import { runWithCreatedInstanceTracking } from "../core/utils/track-created-instances";
 import {

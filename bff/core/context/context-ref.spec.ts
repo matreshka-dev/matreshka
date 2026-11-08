@@ -137,6 +137,54 @@ describe("Context.ref и ContextRef.ref", () => {
     expect(loadingRef.get()).toBe(true);
   });
 
+  it("ContextRef.update считает следующее значение из текущего", async () => {
+    type TestContext = {
+      count: number;
+      user: { tags: string[] };
+    };
+
+    const ctx = createContext<TestContext>({
+      data: async () => ({
+        count: 1,
+        user: { tags: ["a"] },
+      }),
+    });
+
+    await ctx.init();
+
+    const countRef = ctx.ref("count");
+    expectTypeOf<
+      Parameters<ContextRef<TestContext, "count">["update"]>[0]
+    >().toEqualTypeOf<(current: number) => number>();
+    countRef.update((current) => current + 1);
+    expect(countRef.get()).toBe(2);
+
+    const tagsRef = ctx.ref("user").ref("tags");
+    let held: string[] | undefined;
+    tagsRef.update((tags) => {
+      tags.push("b");
+      held = tags;
+      return tags;
+    });
+
+    expect(tagsRef.get()).toEqual(["a", "b"]);
+    held!.push("c");
+    expect(tagsRef.get()).toEqual(["a", "b"]);
+  });
+
+  it("ContextRef.update после destroy бросает ту же ошибку, что Context.set", async () => {
+    const ctx = createContext<{ flag: boolean }>({
+      data: async () => ({ flag: false }),
+    });
+
+    await ctx.init();
+
+    const flagRef = ctx.ref("flag");
+    ctx.destroy();
+
+    expect(() => flagRef.update((flag) => !flag)).toThrow(/has been destroyed/);
+  });
+
   it("ContextRef.set после destroy бросает ту же ошибку, что Context.set", async () => {
     const ctx = createContext<{ flag: boolean }>({
       data: async () => ({ flag: false }),
