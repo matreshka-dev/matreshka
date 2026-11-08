@@ -59,29 +59,46 @@ export abstract class EntryComponent<
 > extends Component<InitConfigType, PropertiesType> {
   private readonly registeredTools: WebMcpTool[] = [];
   private declaredToolsRegistered = false;
-  private entryLifecycleInteractionsRegistered = false;
+  private entryInteractionsRegistered = false;
 
   constructor(config: InitConfigType) {
     super(config);
   }
 
   /**
-   * `onEnter` / `onLeave` читаются при первом создании entry-инстанса,
-   * уже после конструктора наследника — поля и `this.options` доступны.
-   * Дополнительные interaction для того же момента — в {@link registerEntryLifecycleInteractionsExtra}.
+   * Декларативная карта interaction entry: имя события → обработчики.
+   * Наследники расширяют её через `{ ...super.entryInteractions(), scroll: ... }`.
+   * Вызывается лениво (после конструктора наследника), поэтому поля подкласса доступны.
    */
-  protected registerEntryLifecycleInteractions(): void {
-    if (this.entryLifecycleInteractionsRegistered) {
-      return;
-    }
-    this.entryLifecycleInteractionsRegistered = true;
-    this.bindDeclaredInteraction("enter", this.onEnter());
-    this.bindDeclaredInteraction("leave", this.onLeave());
-    this.registerEntryLifecycleInteractionsExtra();
+  protected entryInteractions(): Record<
+    string,
+    | ServerComponentAction<any, any>
+    | ServerComponentAction<any, any>[]
+    | undefined
+  > {
+    return {
+      enter: this.onEnter(),
+      leave: this.onLeave(),
+    };
   }
 
-  /** Хук для наследников: один раз сразу после enter/leave (см. {@link registerEntryLifecycleInteractions}). */
-  protected registerEntryLifecycleInteractionsExtra(): void {}
+  /** Идемпотентная регистрация {@link entryInteractions}. */
+  private registerEntryInteractions(): void {
+    if (this.entryInteractionsRegistered) {
+      return;
+    }
+    this.entryInteractionsRegistered = true;
+    for (const [event, handlers] of Object.entries(this.entryInteractions())) {
+      if (handlers !== undefined) {
+        this.bindActions(
+          event,
+          handlers as
+            | ServerComponentAction<Componentable, unknown>
+            | ServerComponentAction<Componentable, unknown>[],
+        );
+      }
+    }
+  }
 
   /**
    * Показ entry. По умолчанию — `onEnter` конструктора.
@@ -116,25 +133,6 @@ export abstract class EntryComponent<
       return;
     }
     this.registeredTools.push(...tools);
-  }
-
-  /** Привязка обработчиков к имени взаимодействия. */
-  protected bindDeclaredInteraction(
-    event: string,
-    handlers:
-      | ServerComponentAction<any, any>
-      | ServerComponentAction<any, any>[]
-      | undefined,
-  ): void {
-    if (handlers === undefined) {
-      return;
-    }
-    this.bindActions(
-      event,
-      handlers as
-        | ServerComponentAction<Componentable, unknown>
-        | ServerComponentAction<Componentable, unknown>[],
-    );
   }
 
   /**
@@ -258,15 +256,15 @@ export abstract class EntryComponent<
 
   /**
    * Явное создание instance entry (редко для Page/Dialog; для App-оверлеев см.
-   * {@link beginSerializationContext}). Обработчики enter/leave регистрируются здесь же.
+   * {@link beginSerializationContext}). Interaction entry регистрируются здесь же.
    */
   override createInstance(): ComponentInstance<this> {
-    this.registerEntryLifecycleInteractions();
+    this.registerEntryInteractions();
     return super.createInstance();
   }
 
   protected override createSelfEntry(): ComponentInstance<this> {
-    this.registerEntryLifecycleInteractions();
+    this.registerEntryInteractions();
     const instance = super.createSelfEntry();
     const client = currentClient();
     // Подписка на leave и прочие interaction до commitSerialization instance.entry.

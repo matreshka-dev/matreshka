@@ -54,12 +54,11 @@ export abstract class Page<
     super({});
   }
 
-  /**
-   * Обработчик прокрутки регистрируется вместе с enter/leave — после конструктора наследника,
-   * когда доступны поля подкласса (см. {@link EntryComponent.registerEntryLifecycleInteractions}).
-   */
-  protected override registerEntryLifecycleInteractionsExtra(): void {
-    this.bindDeclaredInteraction("scroll", this.onScroll());
+  /** Добавляет `scroll` к стандартным enter/leave (см. {@link EntryComponent.entryInteractions}). */
+  protected override entryInteractions(): ReturnType<
+    EntryComponent["entryInteractions"]
+  > {
+    return { ...super.entryInteractions(), scroll: this.onScroll() };
   }
 
   /**

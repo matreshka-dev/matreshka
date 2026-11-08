@@ -19,7 +19,6 @@ import {
   EntryComponentInitConfig,
   EntryComponentProperties,
 } from "./entry-component";
-import type { Overlay } from "./types/container-overlay";
 
 function serializeLocalActions(
   actions: AnimateComponent | AnimateComponent[] | undefined,
@@ -184,7 +183,7 @@ export class Dialog<
   /**
    * Оверлеи диалога. По умолчанию — `overlays` конструктора.
    */
-  protected overlays(): Overlay[] | undefined {
+  protected overlays(): InitConfigType["overlays"] {
     return this.config.overlays;
   }
 
