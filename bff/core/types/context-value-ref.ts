@@ -2,13 +2,19 @@ import type { JsonObject } from "@matreshka/client-bff-protocol/types/json";
 import type { Observable } from "rxjs";
 import { z } from "zod";
 import type { SetContext } from "../actions/set-context";
-import { WritableContextPath } from "../context/context";
 import {
   AnySchemaContextRef,
   ContextRef,
   ContextRefValueType,
 } from "../context/context-ref";
 import type { ContextUpdateDelivery } from "./context-update-delivery";
+
+/** Общая часть ref-типов по значению: маркер типа и чтение. */
+type ValueRefBase<ValueType> = {
+  readonly __valueType?: ValueType;
+  get(): ValueType;
+  set(value: ValueType): Observable<ContextUpdateDelivery>;
+};
 
 /**
  * Ссылка на поле контекста с известным типом значения.
@@ -26,13 +32,9 @@ import type { ContextUpdateDelivery } from "./context-update-delivery";
  * bindAmount(pageContext.ref("amount"));
  * ```
  */
-export type ContextRefOfValue<ValueType> = {
-  readonly __valueType?: ValueType;
-  get(): ValueType;
-  set(value: ValueType): void;
-  toString(): string;
-  toJSON(): string;
-} & ContextRef<any, any, any>;
+export type ContextRefOfValue<ValueType> = ValueRefBase<ValueType> &
+  ContextRef<any, any, any>;
+// & с ContextRef без Omit дает дополнительные лишние перегрузки get/set, которые не вызываются, но позволяют считать ContextRefOfValue совемстимым с ContextRef, что упрощает типизацию
 
 /**
  * Ref `R` совместим с ожидаемым типом значения `ValueType` (проверка на call site).
@@ -85,15 +87,10 @@ type EraseLocalContext<Local> = {
  * }
  * ```
  */
-export type WritableContextRefOfValue<ValueType> = Omit<
-  ContextRef<any, any, any>,
-  "get" | "set" | "local"
-> & {
-  readonly __valueType?: ValueType;
-  get(): ValueType;
-  set(value: ValueType): Observable<ContextUpdateDelivery>;
-  readonly local: EraseLocalContext<WritableReferenceRef<ValueType>["local"]>;
-};
+export type WritableContextRefOfValue<ValueType> =
+  ContextRefOfValue<ValueType> & {
+    readonly local: EraseLocalContext<WritableReferenceRef<ValueType>["local"]>;
+  };
 
 /** Статическое значение или ссылка на совместимое значение в контексте. */
 export type ValueOrContextRef<ValueType> =
