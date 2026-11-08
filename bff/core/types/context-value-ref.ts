@@ -42,22 +42,6 @@ export type CompatibleContextRefOfValue<
   R extends AnySchemaContextRef,
 > = ValueType extends ContextRefValueType<R> ? R : never;
 
-/** Ref `R` указывает на путь, разрешённый для клиентской записи по schema. */
-export type WritableContextRef<R extends AnySchemaContextRef> =
-  R extends ContextRef<infer ContextType, infer PathType, infer SchemaType>
-    ? PathType extends string
-      ? PathType extends WritableContextPath<ContextType, SchemaType>
-        ? R
-        : never
-      : never
-    : never;
-
-/** Ref `R` совместим по значению и одновременно writable по schema. */
-export type CompatibleWritableContextRefOfValue<
-  ValueType,
-  R extends AnySchemaContextRef,
-> = WritableContextRef<CompatibleContextRefOfValue<ValueType, R>>;
-
 /**
  * Эталонный writable ref для значения `ValueType`: путь `k` гарантированно есть
  * в schema. Из него выводится `local`, так что при добавлении

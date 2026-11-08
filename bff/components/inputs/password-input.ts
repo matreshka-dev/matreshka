@@ -54,7 +54,9 @@ export function passwordInput<
   }
   const single = arg0;
   if (single instanceof ContextRef) {
-    return new PasswordInput<RefType>({ ref: single });
+    return new PasswordInput<RefType>({
+      ref: single as unknown as DefaultInitConfigType<RefType>["ref"],
+    });
   }
   return new PasswordInput<RefType>(
     single as PasswordInputInitConfig<any, RefType>,

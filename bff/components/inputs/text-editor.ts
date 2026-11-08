@@ -92,7 +92,9 @@ export function textEditor<
   }
   const single = arg0;
   if (single instanceof ContextRef) {
-    return new TextEditor<RefType>({ ref: single });
+    return new TextEditor<RefType>({
+      ref: single as unknown as DefaultInitConfigType<RefType>["ref"],
+    });
   }
   return new TextEditor<RefType>(single as TextEditorInitConfig<any, RefType>);
 }

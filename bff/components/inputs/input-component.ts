@@ -1,10 +1,8 @@
 import {
   AnySchemaContextRef,
-  CompatibleContextRefOfValue,
-  CompatibleWritableContextRefOfValue,
   Componentable,
-  ContextRefOfValue,
   StandaloneComponent,
+  WritableContextRefOfValue,
 } from "../../core";
 import {
   Component,
@@ -13,7 +11,7 @@ import {
 } from "../component";
 
 /** Ref на поле ввода: значение `ValueType | undefined`. */
-export type InputContextRef<ValueType> = ContextRefOfValue<
+export type InputContextRef<ValueType> = WritableContextRefOfValue<
   ValueType | undefined
 >;
 
@@ -24,14 +22,12 @@ export type StringInputContextRef = InputContextRef<string>;
  * Конфигурация инициализации компонента ввода.
  * @property ref Ссылка в контексте.
  */
-/** @see CompatibleContextRefOfValue */
+/** Writable ref на поле ввода со значением `ValueType | undefined`. */
 export type CompatibleInputRef<
   ValueType,
-  RefType extends AnySchemaContextRef,
-> = CompatibleWritableContextRefOfValue<
-  ValueType | undefined,
-  CompatibleContextRefOfValue<ValueType | undefined, RefType>
->;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  RefType extends AnySchemaContextRef = AnySchemaContextRef,
+> = WritableContextRefOfValue<ValueType | undefined>;
 
 export type InputInitConfig<
   ValueType,

@@ -63,7 +63,9 @@ export function textarea<
   }
   const single = arg0;
   if (single instanceof ContextRef) {
-    return new Textarea<RefType>({ ref: single });
+    return new Textarea<RefType>({
+      ref: single as unknown as DefaultInitConfigType<RefType>["ref"],
+    });
   }
   return new Textarea<RefType>(single as TextareaInitConfig<any, RefType>);
 }

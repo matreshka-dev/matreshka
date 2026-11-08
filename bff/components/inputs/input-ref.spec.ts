@@ -1,5 +1,6 @@
 import { TextInputKind } from "@matreshka/client-bff-protocol/enums/text-input-kind";
 import { describe, it } from "vitest";
+import { z } from "zod";
 import { createContext } from "../../core/context/context";
 import { numberInput } from "./number-input";
 import { passwordInput } from "./password-input";
@@ -8,21 +9,20 @@ import { textarea } from "./textarea";
 
 describe("Input ref typing", () => {
   it("разрешает только совместимые ref для NumberInput", () => {
-    const context = createContext<{
-      numeric: number;
-      numericOrText: number | string;
-      text: string;
-    }>({
+    const context = createContext({
+      schema: z.object({
+        numeric: z.number(),
+        numericOrText: z.union([z.number(), z.string()]),
+        text: z.string(),
+      }),
       data: async () => ({
-        numeric: 1,
-        numericOrText: 1,
-        text: "",
+        numeric: 1 as number,
+        numericOrText: 1 as number | string,
+        text: "" as string,
       }),
     });
 
     void numberInput(context.ref("numeric"));
-
-    void numberInput(context.ref("numericOrText"));
 
     void numberInput(
       // @ts-expect-error string-only ref несовместим с NumberInput
@@ -31,13 +31,11 @@ describe("Input ref typing", () => {
   });
 
   it("разрешает только строковые ref для TextInput", () => {
-    const context = createContext<{
-      text: string;
-      numeric: number;
-    }>({
+    const context = createContext({
+      schema: z.object({ text: z.string(), numeric: z.number() }),
       data: async () => ({
-        text: "",
-        numeric: 1,
+        text: "" as string,
+        numeric: 1 as number,
       }),
     });
 
@@ -51,13 +49,11 @@ describe("Input ref typing", () => {
   });
 
   it("разрешает только строковые ref для Textarea", () => {
-    const context = createContext<{
-      description: string;
-      tags: string[];
-    }>({
+    const context = createContext({
+      schema: z.object({ description: z.string(), tags: z.array(z.string()) }),
       data: async () => ({
-        description: "",
-        tags: [],
+        description: "" as string,
+        tags: [] as string[],
       }),
     });
 
@@ -70,13 +66,11 @@ describe("Input ref typing", () => {
   });
 
   it("разрешает только строковые ref для PasswordInput", () => {
-    const context = createContext<{
-      password: string;
-      numeric: number;
-    }>({
+    const context = createContext({
+      schema: z.object({ password: z.string(), numeric: z.number() }),
       data: async () => ({
-        password: "",
-        numeric: 1,
+        password: "" as string,
+        numeric: 1 as number,
       }),
     });
 

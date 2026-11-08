@@ -74,7 +74,9 @@ export function numberInput<RefType extends NumberInputContextRef>(
   }
   const single = arg0;
   if (single instanceof ContextRef) {
-    return new NumberInput<RefType>({ ref: single });
+    return new NumberInput<RefType>({
+      ref: single as unknown as DefaultInitConfigType<RefType>["ref"],
+    });
   }
   return new NumberInput<RefType>(
     single as NumberInputInitConfig<any, RefType>,

@@ -78,7 +78,9 @@ export function textInput<
   }
   const single = arg0;
   if (single instanceof ContextRef) {
-    return new TextInput<RefType>({ ref: single });
+    return new TextInput<RefType>({
+      ref: single as unknown as DefaultInitConfigType<RefType>["ref"],
+    });
   }
   return new TextInput<RefType>(single as TextInputInitConfig<any, RefType>);
 }
