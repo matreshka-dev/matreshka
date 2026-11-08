@@ -2,7 +2,7 @@ import type { JsonObject } from "@matreshka/client-bff-protocol/types/json";
 import type { Observable } from "rxjs";
 import { z } from "zod";
 import type { SetContext } from "../actions/set-context";
-import { Context, WritableContextPath } from "../context/context";
+import { WritableContextPath } from "../context/context";
 import {
   AnySchemaContextRef,
   ContextRef,
@@ -88,8 +88,8 @@ type EraseLocalContext<Local> = {
 /**
  * Writable-ref с известным типом значения без generic по ref.
  *
- * Принадлежность пути schema проверяется брендом `__notWritable` (`undefined`
- * только для путей из `WritableContextPath`), а `local` берётся из `ContextRef.local`
+ * Структурно совместим с `ContextRef` (остальные члены берутся из
+ * `ContextRef<any, any, any>`), а `local` берётся из `ContextRef.local`
  * для эталонного writable ref, поэтому ref с путём вне schema не пройдёт
  * проверку на call site.
  *
@@ -101,14 +101,13 @@ type EraseLocalContext<Local> = {
  * }
  * ```
  */
-export type WritableContextRefOfValue<ValueType> = {
-  readonly context: Context<any, any>;
-  readonly path: string;
+export type WritableContextRefOfValue<ValueType> = Omit<
+  ContextRef<any, any, any>,
+  "get" | "set" | "local"
+> & {
   readonly __valueType?: ValueType;
   get(): ValueType;
   set(value: ValueType): Observable<ContextUpdateDelivery>;
-  toString(): string;
-  toJSON(): string;
   readonly local: EraseLocalContext<WritableReferenceRef<ValueType>["local"]>;
 };
 
