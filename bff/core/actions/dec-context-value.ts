@@ -1,8 +1,7 @@
 import { toSerializedOperand } from "../conditions/condition-operand";
-import { AnySchemaContextRef } from "../context/context-ref";
 import {
-  CompatibleWritableContextRefOfValue,
   ValueOrContextRef,
+  WritableContextRefOfValue,
 } from "../types/context-value-ref";
 import { ActionConfig } from "./action";
 import { NumberValueRef } from "./inc-context-value";
@@ -38,10 +37,10 @@ export class DecContextValue extends LocalAction {
  * Принимает только `ContextRef` с числовым значением.
  * Без `step` клиент вычитает 1.
  */
-export function decContextValue<R extends AnySchemaContextRef>(
-  ref: CompatibleWritableContextRefOfValue<number | undefined, R>,
+export function decContextValue(
+  ref: WritableContextRefOfValue<number | undefined>,
   step: ValueOrContextRef<number> = 1,
   config: ActionConfig = {},
 ): DecContextValue {
-  return new DecContextValue(ref, step, config);
+  return new DecContextValue(ref as unknown as NumberValueRef, step, config);
 }

@@ -57,6 +57,7 @@ function finishSubmit(loadingRef: ContextRefOfValue<boolean | undefined>) {
 Для writable API дополнительно используется:
 
 - `WritableContextRef<R extends ContextRef>` — путь `R` присутствует в writable-paths `schema`;
+- `WritableContextRefOfValue<ValueType>` — без generic по ref: writable-принадлежность выражена структурно (`local.set` есть только у writable-путей), `local` выводится из `ContextRef.local` (`ContextRefLocalActions`) для эталонного writable ref, поэтому ref с путём вне writable-путей schema не проходит проверку, а новые методы `local` подхватываются автоматически. Предпочтительный тип для сигнатур хелперов и actions;
 - `CompatibleWritableContextRefOfValue<ValueType, R>` — одновременно совместимость по значению и writable-принадлежность пути.
 
 ### 5) Union для аргументов API

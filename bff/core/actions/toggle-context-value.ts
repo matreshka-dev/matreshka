@@ -1,7 +1,6 @@
-import { AnySchemaContextRef } from "../context/context-ref";
 import {
-  CompatibleWritableContextRefOfValue,
   ContextRefOfValue,
+  WritableContextRefOfValue,
 } from "../types/context-value-ref";
 import { ActionConfig } from "./action";
 import { LocalAction } from "./local-action";
@@ -34,9 +33,9 @@ export class ToggleContextValue extends LocalAction {
  * Функциональная форма {@link ToggleContextValue}.
  * Принимает только `ContextRef` с boolean-значением.
  */
-export function toggleContextValue<R extends AnySchemaContextRef>(
-  ref: CompatibleWritableContextRefOfValue<boolean | undefined, R>,
+export function toggleContextValue(
+  ref: WritableContextRefOfValue<boolean | undefined>,
   config: ActionConfig = {},
 ): ToggleContextValue {
-  return new ToggleContextValue(ref, config);
+  return new ToggleContextValue(ref as unknown as BooleanValueRef, config);
 }

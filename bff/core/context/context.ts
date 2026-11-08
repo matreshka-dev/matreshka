@@ -29,24 +29,22 @@ import { Paths, PathValue } from "ts-essentials";
 import { z } from "zod";
 import { ActionConfig } from "../actions/action";
 import { decContextValue, DecContextValue } from "../actions/dec-context-value";
-import {
-  incContextValue,
-  IncContextValue,
-  NumberValueRef,
-} from "../actions/inc-context-value";
+import { incContextValue, IncContextValue } from "../actions/inc-context-value";
 import {
   createSetContext,
   LocalContextPathPatch,
 } from "../actions/set-context";
 import {
-  BooleanValueRef,
   ToggleContextValue,
   toggleContextValue,
 } from "../actions/toggle-context-value";
 import type { Client } from "../client";
 import { currentClient } from "../client-context";
 import { ContextUpdateDelivery } from "../types/context-update-delivery";
-import type { ValueOrContextRef } from "../types/context-value-ref";
+import type {
+  ValueOrContextRef,
+  WritableContextRefOfValue,
+} from "../types/context-value-ref";
 import { assertNonOverlappingContextPaths } from "../utils/assert-non-overlapping-context-paths";
 import { assertSafeDottedPath } from "../utils/assert-safe-dotted-path";
 import { zodDeepPick } from "../utils/deep-pick";
@@ -241,7 +239,9 @@ export class Context<
       config?: ActionConfig,
     ): ToggleContextValue =>
       toggleContextValue(
-        this.ref(path as Paths<T>) as unknown as BooleanValueRef,
+        this.ref(path as Paths<T>) as unknown as WritableContextRefOfValue<
+          boolean | undefined
+        >,
         config,
       ),
     inc: <K extends WritableContextPath<T, S>>(
@@ -254,7 +254,9 @@ export class Context<
       config?: ActionConfig,
     ): IncContextValue =>
       incContextValue(
-        this.ref(path as Paths<T>) as unknown as NumberValueRef,
+        this.ref(path as Paths<T>) as unknown as WritableContextRefOfValue<
+          number | undefined
+        >,
         step ?? 1,
         config,
       ),
@@ -268,7 +270,9 @@ export class Context<
       config?: ActionConfig,
     ): DecContextValue =>
       decContextValue(
-        this.ref(path as Paths<T>) as unknown as NumberValueRef,
+        this.ref(path as Paths<T>) as unknown as WritableContextRefOfValue<
+          number | undefined
+        >,
         step ?? 1,
         config,
       ),

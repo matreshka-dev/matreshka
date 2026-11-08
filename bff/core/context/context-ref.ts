@@ -4,24 +4,22 @@ import { Paths, PathValue } from "ts-essentials";
 import { z } from "zod";
 import { ActionConfig } from "../actions/action";
 import { decContextValue, DecContextValue } from "../actions/dec-context-value";
-import {
-  incContextValue,
-  IncContextValue,
-  NumberValueRef,
-} from "../actions/inc-context-value";
+import { incContextValue, IncContextValue } from "../actions/inc-context-value";
 import {
   createSetContext,
   LocalContextPathPatch,
   SetContext,
 } from "../actions/set-context";
 import {
-  BooleanValueRef,
   toggleContextValue,
   ToggleContextValue,
 } from "../actions/toggle-context-value";
 import { currentClient } from "../client-context";
 import type { ContextUpdateDelivery } from "../types/context-update-delivery";
-import { ValueOrContextRef } from "../types/context-value-ref";
+import {
+  ValueOrContextRef,
+  WritableContextRefOfValue,
+} from "../types/context-value-ref";
 import {
   Context,
   ContextPathPatch,
@@ -108,11 +106,22 @@ export class ContextRef<
       return createSetContext(this.context, patch, config);
     },
     toggle: (config?: ActionConfig) =>
-      toggleContextValue(this as unknown as BooleanValueRef, config),
+      toggleContextValue(
+        this as unknown as WritableContextRefOfValue<boolean | undefined>,
+        config,
+      ),
     inc: (step: ValueOrContextRef<number> = 1, config?: ActionConfig) =>
-      incContextValue(this as unknown as NumberValueRef, step, config),
+      incContextValue(
+        this as unknown as WritableContextRefOfValue<number | undefined>,
+        step,
+        config,
+      ),
     dec: (step: ValueOrContextRef<number> = 1, config?: ActionConfig) =>
-      decContextValue(this as unknown as NumberValueRef, step, config),
+      decContextValue(
+        this as unknown as WritableContextRefOfValue<number | undefined>,
+        step,
+        config,
+      ),
   } as unknown as ContextRefLocalActions<ContextType, PathType, SchemaType>;
 
   constructor(
