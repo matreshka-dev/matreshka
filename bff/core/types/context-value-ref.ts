@@ -9,11 +9,14 @@ import {
 } from "../context/context-ref";
 import type { ContextUpdateDelivery } from "./context-update-delivery";
 
-/** Общая часть ref-типов по значению: маркер типа и чтение. */
+/** Общая часть ref-типов по значению: маркер типа, чтение и запись. */
 type ValueRefBase<ValueType> = {
   readonly __valueType?: ValueType;
   get(): ValueType;
   set(value: ValueType): Observable<ContextUpdateDelivery>;
+  update(
+    updater: (current: ValueType) => ValueType,
+  ): Observable<ContextUpdateDelivery>;
 };
 
 /**
@@ -34,7 +37,7 @@ type ValueRefBase<ValueType> = {
  */
 export type ContextRefOfValue<ValueType> = ValueRefBase<ValueType> &
   ContextRef<any, any, any>;
-// & с ContextRef без Omit дает дополнительные лишние перегрузки get/set, которые не вызываются, но позволяют считать ContextRefOfValue совемстимым с ContextRef, что упрощает типизацию
+// & с ContextRef без Omit дает дополнительные лишние перегрузки get/set/update, которые не вызываются, но позволяют считать ContextRefOfValue совемстимым с ContextRef, что упрощает типизацию
 
 /**
  * Ref `R` совместим с ожидаемым типом значения `ValueType` (проверка на call site).

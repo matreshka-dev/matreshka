@@ -16,6 +16,9 @@ describe("ContextRefOfValue", () => {
     };
 
     bindAmount(amountRef);
+    expectTypeOf<
+      Parameters<ContextRefOfValue<number | undefined>["update"]>[0]
+    >().toEqualTypeOf<(current: number | undefined) => number | undefined>();
     expectTypeOf(amountRef).toExtend<ContextRefOfValue<number | undefined>>();
   });
 
