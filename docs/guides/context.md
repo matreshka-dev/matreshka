@@ -111,7 +111,7 @@ function finishSubmit(loadingRef: ContextRefOfValue<boolean | undefined>) {
 | ---------------------------------- | ------------------------------------------------------------------------------------------------- |
 | Прочитать поле по пути             | `context.get("path")` или `ref.get()`                                                             |
 | Обновить одно или несколько полей  | `context.set({ … })` — ключи с dotted-путями, hot `Observable<ContextUpdateDelivery>`             |
-| Следующее состояние из текущего    | `context.update((current) => …)` или `ref.update((current) => …)`                                         |
+| Следующее состояние из текущего    | `context.update((current) => …)` или `ref.update((current) => …)`                                 |
 | Заменить всё состояние целиком     | `context.replace(data)` — после load или готового снимка, hot `Observable<ContextUpdateDelivery>` |
 | Скопировать всё `T` на время async | `context.snapshot()`                                                                              |
 | Подписаться на изменения           | `context.watch()`                                                                                 |
@@ -283,7 +283,7 @@ class ProfilePage extends Page {
 - `toggle` — `z.boolean()`;
 - `local.set` объекта или массива — та же форма, что в patch.
 
-Вложенный путь (`user.email`, `items[0].qty`) описывают деревом `z.object` / `z.array`, чтобы путь существовал в схеме.
+Вложенный путь (`user.email`, `items.0.qty`) описывают деревом `z.object` / `z.array`, чтобы путь существовал в схеме.
 
 ```ts
 import { createContext } from "@matreshka/bff/core";

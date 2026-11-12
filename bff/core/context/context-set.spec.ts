@@ -501,6 +501,39 @@ describe("Context.set", () => {
     expect(source.errors).toEqual([]);
   });
 
+  it("client update по числовому сегменту массива проходит схему", async () => {
+    const ctx = createContext({
+      schema: z.object({
+        meters: z.array(
+          z.object({
+            zones: z.array(
+              z.object({
+                value: z.string(),
+              }),
+            ),
+          }),
+        ),
+      }),
+      data: async () => ({
+        meters: [{ id: 10, zones: [{ code: "T1", value: "" }] }],
+      }),
+    });
+    const source = createDeliveryClient();
+
+    ctx.authorizeClient(source.client);
+    await ctx.init();
+
+    source.incomingMessage$.next(
+      new ClientToBffContextValuesMessage(ctx.id, [
+        { key: "meters.0.zones.0.value", value: "2" },
+      ]),
+    );
+    await flushClientMessageHandling();
+
+    expect(ctx.get("meters.0.zones.0.value")).toBe("2");
+    expect(source.errors).toEqual([]);
+  });
+
   it("значение не того типа остаётся ZodError и не попадает в контекст", async () => {
     const ctx = createContext({
       schema: z.object({ name: z.string() }),
