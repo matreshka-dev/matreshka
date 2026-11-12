@@ -1,10 +1,10 @@
 import { z } from "zod";
 
-function isZodObject(schema: z.ZodTypeAny): schema is z.ZodObject {
+function isZodObject(schema: z.ZodType): schema is z.ZodObject {
   return schema instanceof z.ZodObject;
 }
 
-function isZodArray(schema: z.ZodTypeAny): schema is z.ZodArray<any> {
+function isZodArray(schema: z.ZodType): schema is z.ZodArray<any> {
   return schema instanceof z.ZodArray;
 }
 
@@ -12,11 +12,11 @@ function isZodArray(schema: z.ZodTypeAny): schema is z.ZodArray<any> {
  * Узел схемы, по которому можно идти дальше по пути.
  * Снимает optional/nullable и pipe к object/array (object-level transform).
  */
-function schemaForPathStep(schema: z.ZodTypeAny): z.ZodTypeAny {
-  let current: z.ZodTypeAny = schema;
+function schemaForPathStep(schema: z.ZodType): z.ZodType {
+  let current: z.ZodType = schema;
   for (;;) {
     if (current instanceof z.ZodOptional || current instanceof z.ZodNullable) {
-      current = current.unwrap() as z.ZodTypeAny;
+      current = current.unwrap() as z.ZodType;
       continue;
     }
     if (current instanceof z.ZodPipe) {
@@ -33,7 +33,7 @@ function schemaForPathStep(schema: z.ZodTypeAny): z.ZodTypeAny {
 }
 
 /** Объектная shape для навигации по dotted-пути (без object-level pipe/transform). */
-function objectShapeForPick(schema: z.ZodTypeAny): z.ZodObject {
+function objectShapeForPick(schema: z.ZodType): z.ZodObject {
   const current = schemaForPathStep(schema);
   if (isZodObject(current)) {
     return current;
@@ -41,9 +41,9 @@ function objectShapeForPick(schema: z.ZodTypeAny): z.ZodObject {
   throw Error("Not a zod object");
 }
 
-function pickObject(schema: z.ZodTypeAny, path: string): z.ZodTypeAny {
+function pickObject(schema: z.ZodType, path: string): z.ZodType {
   const objectSchema = objectShapeForPick(schema);
-  const shape = objectSchema.shape as Record<string, z.ZodTypeAny>;
+  const shape = objectSchema.shape as Record<string, z.ZodType>;
   const newSchema = shape[path];
   if (!newSchema)
     throw Error(
@@ -54,11 +54,11 @@ function pickObject(schema: z.ZodTypeAny, path: string): z.ZodTypeAny {
   return newSchema;
 }
 
-function pickArray(schema: z.ZodTypeAny): z.ZodTypeAny {
+function pickArray(schema: z.ZodType): z.ZodType {
   const current = schemaForPathStep(schema);
   if (!isZodArray(current)) throw Error("Not a Zod Array");
 
-  const newSchema = current.element as z.ZodTypeAny | undefined;
+  const newSchema = current.element as z.ZodType | undefined;
   if (!newSchema) throw Error("No element on Zod Array");
 
   return newSchema;
@@ -72,9 +72,9 @@ function pickArray(schema: z.ZodTypeAny): z.ZodTypeAny {
  * тот же сегмент остаётся строковым ключом (`{ "0": z.string() }`).
  */
 export function zodDeepPick(
-  schema: z.ZodTypeAny,
+  schema: z.ZodType,
   propertyPath: string,
-): z.ZodTypeAny {
+): z.ZodType {
   if (propertyPath === "") return schema;
 
   const dot = propertyPath.indexOf(".");

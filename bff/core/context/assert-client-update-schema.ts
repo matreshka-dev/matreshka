@@ -1,9 +1,9 @@
 import { z } from "zod";
 
-function unwrapOptionalNullable(schema: z.ZodTypeAny): z.ZodTypeAny {
+function unwrapOptionalNullable(schema: z.ZodType): z.ZodType {
   let current = schema;
   while (current instanceof z.ZodOptional || current instanceof z.ZodNullable) {
-    current = current.unwrap() as z.ZodTypeAny;
+    current = current.unwrap() as z.ZodType;
   }
   return current;
 }
@@ -27,13 +27,13 @@ export function assertClientUpdateSchemaSupported(
 }
 
 function assertClientUpdateFieldSupported(
-  schema: z.ZodTypeAny,
+  schema: z.ZodType,
   path: string,
 ): void {
   const unwrapped = unwrapOptionalNullable(schema);
 
   if (unwrapped instanceof z.ZodPipe) {
-    const inner = unwrapped._def.in as z.ZodTypeAny;
+    const inner = unwrapped._def.in as z.ZodType;
     if (inner instanceof z.ZodObject) {
       throw new Error(
         `Context validation schema: object-level transform at "${formatPath(path)}" is not supported for dotted-path client updates. Use leaf-level transforms only.`,
@@ -55,7 +55,7 @@ function assertClientUpdateFieldSupported(
 
   if (unwrapped instanceof z.ZodArray) {
     assertClientUpdateFieldSupported(
-      unwrapped.element as z.ZodTypeAny,
+      unwrapped.element as z.ZodType,
       `${path}[]`,
     );
   }
