@@ -1,10 +1,10 @@
 import { z } from "zod";
 
-function isZodObject(schema: z.ZodType): schema is z.ZodObject {
+function isZodObject(schema: unknown): schema is z.ZodObject {
   return schema instanceof z.ZodObject;
 }
 
-function isZodArray(schema: z.ZodType): schema is z.ZodArray<any> {
+function isZodArray(schema: unknown): schema is z.ZodArray<any> {
   return schema instanceof z.ZodArray;
 }
 

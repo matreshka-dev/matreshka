@@ -33,7 +33,7 @@ function assertClientUpdateFieldSupported(
   const unwrapped = unwrapOptionalNullable(schema);
 
   if (unwrapped instanceof z.ZodPipe) {
-    const inner = unwrapped._def.in as z.ZodType;
+    const inner = unwrapped.in;
     if (inner instanceof z.ZodObject) {
       throw new Error(
         `Context validation schema: object-level transform at "${formatPath(path)}" is not supported for dotted-path client updates. Use leaf-level transforms only.`,
@@ -43,7 +43,7 @@ function assertClientUpdateFieldSupported(
   }
 
   if (unwrapped instanceof z.ZodObject) {
-    const checks = unwrapped._def.checks;
+    const checks = unwrapped.def.checks;
     if (checks && checks.length > 0) {
       throw new Error(
         `Context validation schema: object-level refine at "${formatPath(path)}" is not supported for dotted-path client updates. Use leaf-level refinements only.`,
