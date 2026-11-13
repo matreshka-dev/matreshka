@@ -109,7 +109,7 @@ export class Map<
     source: [] as MapMarkerEntry[],
     itemLists: [] as ItemList<any, MapMarker>[],
   };
-  private readonly itemListHostAdapter!: ItemListHostAdapter;
+  private readonly itemListHostAdapter!: ItemListHostAdapter<MapMarker>;
 
   readonly local = {
     setCenter: (

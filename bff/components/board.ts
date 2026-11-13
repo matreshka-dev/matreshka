@@ -99,7 +99,7 @@ export class Board<
     source: [] as BoardItemEntry[],
     itemLists: [] as ItemList<any, BoardItem>[],
   };
-  private readonly itemListHostAdapter!: ItemListHostAdapter;
+  private readonly itemListHostAdapter!: ItemListHostAdapter<BoardItem>;
 
   readonly local = {
     setCenter: (center: BoardPoint, config?: ActionConfig) =>

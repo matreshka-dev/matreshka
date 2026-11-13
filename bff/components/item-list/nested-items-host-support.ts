@@ -99,14 +99,19 @@ type SlotInstanceCache = {
   sentIds: Set<string>;
 };
 
-export type ItemListHostAdapter = ItemListHost & {
+export type ItemListHostAdapter<
+  TItem extends NestedItemTreeNode = NestedItemTreeNode,
+> = ItemListHost & {
   /** Снимает кэш слота вместе с host-instance. */
   releaseHostInstance(instance: ComponentInstance): void;
   /**
    * Flat-массив для первого ответа страницы.
    * Помечает id как уже отданные, чтобы следующий sync не слал их снова.
+   * Сохраняет поля элемента (position, coordinates, …), не только NestedItemBase.
    */
-  serializeSlot(instance: ComponentInstance): NestedItemBase[] | undefined;
+  serializeSlot(
+    instance: ComponentInstance,
+  ): SerializedNestedSlotItem<TItem>[] | undefined;
 };
 
 /**
@@ -117,7 +122,7 @@ export function createItemListHostAdapter<TItem extends NestedItemTreeNode>(
   getInstances: () => readonly ComponentInstance[],
   getSlotState: (slot: string) => NestedItemsSlotState<TItem> | undefined,
   slotName: string,
-): ItemListHostAdapter {
+): ItemListHostAdapter<TItem> {
   const caches = new Map<ComponentInstance, SlotInstanceCache>();
 
   const cacheFor = (instance: ComponentInstance): SlotInstanceCache => {
@@ -191,7 +196,9 @@ export function createItemListHostAdapter<TItem extends NestedItemTreeNode>(
         caches.delete(instance);
       }
     },
-    serializeSlot(instance: ComponentInstance): NestedItemBase[] | undefined {
+    serializeSlot(
+      instance: ComponentInstance,
+    ): SerializedNestedSlotItem<TItem>[] | undefined {
       const state = getSlotState(slotName);
       const cache = cacheFor(instance);
       const flat = flattenNestedItemsForSerialize(

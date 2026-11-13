@@ -1,6 +1,6 @@
 {
   "name": "@matreshka/client",
-  "version": "0.23.1",
+  "version": "0.24.0",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
@@ -38,7 +38,7 @@
     "@capacitor/push-notifications": "^7.0.1",
     "@capacitor/share": "^7.0.1",
     "@capacitor/status-bar": "^7.0.1",
-    "@matreshka/client-bff-protocol": "^0.2.1",
+    "@matreshka/client-bff-protocol": "^0.3.0",
     "@matreshka/shared": "^0.25.1",
     "@panzoom/panzoom": "^4.6.2",
     "@simplewebauthn/browser": "^13.3.0",
