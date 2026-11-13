@@ -61,7 +61,8 @@ export function registerWebMcpTools(
               description: tool.description,
               inputSchema: tool.inputSchema ?? emptyInputSchema,
               annotations: toWebMcpAnnotations(tool.annotations),
-              execute: (input) => callWebMcpTool(postman, tool.id, input),
+              execute: (input: unknown) =>
+                callWebMcpTool(postman, tool.id, input),
             },
             { signal: registration.controller.signal },
           )

@@ -9,7 +9,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "rm -rf dist && tsc -p tsconfig.build.types.json && tsc -p tsconfig.build.cjs.json && tsc -p tsconfig.build.esm.json && printf '{\"type\":\"module\"}\\n' > dist/esm/package.json && cp package.json dist/package.json",
+    "build": "rm -rf dist && tsc -p tsconfig.build.types.json && tsc -p tsconfig.build.cjs.json && tsc -p tsconfig.build.esm.json && node -e \"const fs=require('fs'); const {version}=require('./package.json'); fs.writeFileSync('dist/esm/package.json', JSON.stringify({type:'module',version})+'\\n')\" && cp package.json dist/package.json",
     "prepublishOnly": "npm run build",
     "format": "prettier --write .",
     "lint": "eslint ."
