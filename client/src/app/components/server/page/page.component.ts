@@ -51,19 +51,24 @@ export class PageComponent
   override ngOnInit() {
     super.ngOnInit();
     if (!isPlatformServer(this.platformId)) {
+      const readPageScrollPayload = () =>
+        readWindowVerticalScrollPayload(window, this.document.documentElement);
       this.subscribeThrottledScrollReporting(
         () => {
           if (!this.hasServerInteraction('scroll')) {
             return null;
           }
-          return readWindowVerticalScrollPayload(
-            window,
-            this.document.documentElement,
-          );
+          return readPageScrollPayload();
         },
         window,
         this.document.documentElement,
       );
+      this.subscribeThrottledResizeReporting(() => {
+        if (!this.hasServerInteraction('resize')) {
+          return null;
+        }
+        return readPageScrollPayload();
+      }, this.document.documentElement);
     }
 
     if (

@@ -92,17 +92,26 @@ export class StackComponent extends ServerComponent<StackConfig> {
 
   override ngOnInit() {
     super.ngOnInit();
-    this.subscribeThrottledScrollReporting(() => {
+    const readStackAxisPayload = () => {
       if (!this.stackScrollableVertical && !this.stackScrollableHorizontal) {
-        return null;
-      }
-      if (!this.hasServerInteraction('scroll')) {
         return null;
       }
       const el = this.elementRef.nativeElement as HTMLElement;
       return this.stackLayoutHorizontal
         ? readHorizontalScrollPayload(el)
         : readVerticalScrollPayload(el);
+    };
+    this.subscribeThrottledScrollReporting(() => {
+      if (!this.hasServerInteraction('scroll')) {
+        return null;
+      }
+      return readStackAxisPayload();
+    });
+    this.subscribeThrottledResizeReporting(() => {
+      if (!this.hasServerInteraction('resize')) {
+        return null;
+      }
+      return readStackAxisPayload();
     });
 
     this.componentCommandMessages$.subscribe((message) => {

@@ -10,6 +10,7 @@ import {
 } from "@matreshka/client-bff-protocol/enums/stack-align";
 import { StackDirection } from "@matreshka/client-bff-protocol/enums/stack-direction";
 import { ComponentScrollToMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/components/component-scroll-to-message";
+import type { ComponentResizePayload } from "@matreshka/client-bff-protocol/messages/client-to-bff/components/component-resize-message";
 import type { ComponentScrollPayload } from "@matreshka/client-bff-protocol/messages/client-to-bff/components/component-scroll-message";
 import {
   normalizeFlexItem,
@@ -47,6 +48,7 @@ export {
   StackMainAxisAlign,
 } from "@matreshka/client-bff-protocol/enums/stack-align";
 export { StackDirection } from "@matreshka/client-bff-protocol/enums/stack-direction";
+export type { ComponentResizePayload } from "@matreshka/client-bff-protocol/messages/client-to-bff/components/component-resize-message";
 export type { ComponentScrollPayload } from "@matreshka/client-bff-protocol/messages/client-to-bff/components/component-scroll-message";
 export type { DimensionalValue } from "@matreshka/client-bff-protocol/types/dimensional-value";
 export type { FlexItemSpec } from "@matreshka/client-bff-protocol/types/flex-item";
@@ -109,7 +111,8 @@ export type StackProperties = {
  * @property safeArea Стороны, для которых клиент добавляет системный safe area к padding.
  * @property onClick Обработчики клика по контейнеру.
  * @property onKeyDown Обработчики нажатия клавиши, когда фокус находится на элементе.
- * @property onScroll Обработчики прокрутки по главной оси (`offset`, `viewportSize`, `contentSize`), с троттлингом на клиенте.
+ * @property onScroll Обработчики прокрутки по главной оси (`offset`, `viewportSize`, `contentSize`), с троттлингом на клиенте. Также приходит после изменения DOM внутри контейнера.
+ * @property onResize Обработчики изменения размера контейнера. Payload тот же, что у `onScroll`.
  * @property overlays Наложения поверх контейнера.
  * @property surface Фон контейнера (`--background-color`).
  * @property outline Стиль внешней границы контейнера.
@@ -129,6 +132,9 @@ export type StackInitConfig<
   onScroll?:
     | ServerComponentAction<ComponentType, ComponentScrollPayload>
     | ServerComponentAction<ComponentType, ComponentScrollPayload>[];
+  onResize?:
+    | ServerComponentAction<ComponentType, ComponentResizePayload>
+    | ServerComponentAction<ComponentType, ComponentResizePayload>[];
   align?: {
     main?: StackMainAxisAlign;
     cross?: StackCrossAxisAlign;
@@ -224,6 +230,14 @@ export class Stack<
       this.bindActions(
         "scroll",
         config.onScroll as
+          | ServerComponentAction<Componentable, unknown>
+          | ServerComponentAction<Componentable, unknown>[],
+      );
+    }
+    if (config.onResize) {
+      this.bindActions(
+        "resize",
+        config.onResize as
           | ServerComponentAction<Componentable, unknown>
           | ServerComponentAction<Componentable, unknown>[],
       );

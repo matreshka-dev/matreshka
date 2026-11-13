@@ -502,7 +502,7 @@ button(
 );
 ```
 
-Тот же `instance` доступен в `onClick`, `onSubmit`, `onScroll`, `onShow`, `onHide`, `onEnter`, `onLeave`, `onMouseEnter`, `onMouseLeave` и других server-interaction.
+Тот же `instance` доступен в `onClick`, `onSubmit`, `onScroll`, `onResize`, `onShow`, `onHide`, `onEnter`, `onLeave`, `onMouseEnter`, `onMouseLeave` и других server-interaction.
 
 ### Platform API
 

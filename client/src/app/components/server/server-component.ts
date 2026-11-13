@@ -32,6 +32,10 @@ import { ComponentLeaveMessage } from '@matreshka/client-bff-protocol/messages/c
 import { ComponentMouseEnterMessage } from '@matreshka/client-bff-protocol/messages/client-to-bff/components/component-mouseenter-message';
 import { ComponentMouseLeaveMessage } from '@matreshka/client-bff-protocol/messages/client-to-bff/components/component-mouseleave-message';
 import {
+  ComponentResizeMessage,
+  type ComponentResizePayload,
+} from '@matreshka/client-bff-protocol/messages/client-to-bff/components/component-resize-message';
+import {
   ComponentScrollMessage,
   type ComponentScrollPayload,
 } from '@matreshka/client-bff-protocol/messages/client-to-bff/components/component-scroll-message';
@@ -65,7 +69,10 @@ import {
   runComponentAnimations,
   type ComponentAnimationPayload,
 } from './utils/run-component-animations';
-import { subscribeThrottledScrollReport } from './utils/subscribe-throttled-scroll-report';
+import {
+  subscribeThrottledResizeReport,
+  subscribeThrottledScrollReport,
+} from './utils/subscribe-throttled-scroll-report';
 
 @Component({
   template: ``,
@@ -181,13 +188,14 @@ export abstract class ServerComponent<T extends ServerComponentConfig>
    * Троттлинг отчётов скролла + отправка {@link ComponentScrollMessage}, если
    * `getPayloadOrSkip` вернул не `null`.
    *
-   * Кроме события `scroll`, клиент шлёт snapshot после изменения размеров и DOM
-   * `measureElement` — чтобы BFF мог догрузить данные, если контент короче viewport.
+   * Кроме события `scroll`, клиент шлёт snapshot после изменения DOM
+   * `measureElement` — чтобы BFF мог догрузить данные, если контент короче viewport
+   * и рамка контейнера не меняется. Смена размера — {@link subscribeThrottledResizeReporting}.
    *
    * @param scrollTarget По умолчанию хост компонента; для страницы с прокруткой
    *   документа передай {@link Window} (см. `window.scrollTo` в PageComponent).
-   * @param measureElement Элемент для ResizeObserver / MutationObserver; по умолчанию
-   *   совпадает с `scrollTarget`, если это {@link Element}.
+   * @param measureElement Элемент для MutationObserver; по умолчанию совпадает
+   *   с `scrollTarget`, если это {@link Element}.
    */
   protected subscribeThrottledScrollReporting(
     getPayloadOrSkip: () => ComponentScrollPayload | null,
@@ -217,6 +225,37 @@ export abstract class ServerComponent<T extends ServerComponentConfig>
       measureElement,
       this.destroyRef,
       reportScroll,
+    );
+  }
+
+  /**
+   * Троттлинг отчётов размера + отправка {@link ComponentResizeMessage}.
+   * Источник — только `ResizeObserver` на `measureElement` (включая первый замер).
+   */
+  protected subscribeThrottledResizeReporting(
+    getPayloadOrSkip: () => ComponentResizePayload | null,
+    measureElement: Element = this.elementRef.nativeElement as HTMLElement,
+  ): void {
+    const reportResize = () => {
+      if (!this._configSignal()) {
+        return;
+      }
+      const payload = getPayloadOrSkip();
+      if (payload === null) {
+        return;
+      }
+      this.interact(
+        'resize',
+        this.componentInteractionMessage(
+          (target) => new ComponentResizeMessage(target, payload),
+        ),
+      );
+    };
+
+    subscribeThrottledResizeReport(
+      measureElement,
+      this.destroyRef,
+      reportResize,
     );
   }
 

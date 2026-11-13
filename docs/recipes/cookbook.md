@@ -757,13 +757,15 @@ async boot() {
 - lazy — когда данные могут понадобиться позже или не понадобиться вовсе;
 - ручной `init()` — когда момент загрузки должен контролироваться серверной логикой.
 
-## Реакция на `onScroll`
+## Реакция на `onScroll` и `onResize`
 
 Задача: запустить дозагрузку, когда пользователь почти дошёл до конца **или**
-конент короче viewport и скролла ещё нет (большой экран, маленькая первая порция).
+контент короче viewport и скролла ещё нет (большой экран, маленькая первая порция).
 
-Клиент шлёт `ComponentScrollPayload` не только при прокрутке, но и после изменения
-размеров/DOM scroll-контейнера — BFF может догружать порции, пока не появится скролл.
+`onScroll` приходит на событие `scroll` и после изменения DOM внутри контейнера
+(контент вырос, рамка нет). `onResize` приходит от `ResizeObserver`, когда меняется
+размер самого контейнера или окна. Payload у обоих один и тот же, `needsMore`
+подходит к обоим.
 
 ```ts
 import { needsMore } from "@matreshka/bff/components";
@@ -771,15 +773,21 @@ import { needsMore } from "@matreshka/bff/components";
 const NEAR_END_PX = 120;
 
 protected onScroll() {
-  return ({ payload }) => {
-    if (!this.hasMore || this.loadingMore) {
-      return;
-    }
-    if (needsMore(payload, NEAR_END_PX)) {
-      this.appendNextBatch();
-    }
-  };
+  return this.loadMoreIfNeeded;
 }
+
+protected onResize() {
+  return this.loadMoreIfNeeded;
+}
+
+private loadMoreIfNeeded = ({ payload }) => {
+  if (!this.hasMore || this.loadingMore) {
+    return;
+  }
+  if (needsMore(payload, NEAR_END_PX)) {
+    this.appendNextBatch();
+  }
+};
 ```
 
 ## Что читать дальше

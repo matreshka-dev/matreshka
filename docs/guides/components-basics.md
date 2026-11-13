@@ -61,7 +61,7 @@ text(
 - `onMouseEnter`
 - `onMouseLeave`
 
-Кроме этого, конкретные компоненты добавляют свои события. Например, у `stack` есть `onClick`, `onKeyDown`, `onScroll`.
+Кроме этого, конкретные компоненты добавляют свои события. Например, у `stack` есть `onClick`, `onKeyDown`, `onScroll`, `onResize`.
 
 ## `conditions`
 

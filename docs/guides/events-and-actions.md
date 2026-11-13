@@ -10,7 +10,7 @@
 - серверный обработчик события;
 - `LocalAction`, который исполняется на клиенте.
 
-События появляются после пользовательских действий или lifecycle-сигналов клиента: `onClick`, `onSubmit`, `onScroll`, `onShow`, `onHide`, `onEnter`, `onLeave`, `onMouseEnter`, `onMouseLeave` и специализированных событий конкретных компонентов.
+События появляются после пользовательских действий или lifecycle-сигналов клиента: `onClick`, `onSubmit`, `onScroll`, `onResize`, `onShow`, `onHide`, `onEnter`, `onLeave`, `onMouseEnter`, `onMouseLeave` и специализированных событий конкретных компонентов.
 
 ## Серверный обработчик события
 

@@ -172,7 +172,7 @@ stack(
 - `radius` — скругление;
 - `overlays` — наложения;
 - `disabled` — отключенное состояние;
-- `onClick`, `onKeyDown`, `onScroll` — взаимодействия контейнера.
+- `onClick`, `onKeyDown`, `onScroll`, `onResize` — взаимодействия контейнера.
 
 Пример с несколькими настройками:
 

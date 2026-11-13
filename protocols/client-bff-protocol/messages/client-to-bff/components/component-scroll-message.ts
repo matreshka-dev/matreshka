@@ -5,8 +5,9 @@ import { ComponentInteractionMessage } from "./component-interaction-message";
  * для строки — горизонталь (`scrollLeft` / `clientWidth` / `scrollWidth`).
  * Расстояние до конца: `contentSize - offset - viewportSize`.
  *
- * Клиент отправляет snapshot также при изменении размеров/DOM контейнера (не только при `scroll`),
- * чтобы BFF мог догрузить данные, если `contentSize <= viewportSize`.
+ * Кроме события `scroll`, клиент шлёт тот же snapshot после изменения DOM внутри
+ * контейнера (контент вырос, а border box — нет). Смена размера самого контейнера —
+ * отдельное событие `resize`.
  * Проверка на BFF: {@link needsMore} из `@matreshka/shared`.
  */
 export type ComponentScrollPayload = {

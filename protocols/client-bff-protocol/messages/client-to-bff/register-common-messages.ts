@@ -13,6 +13,7 @@ import { ComponentKeyDownMessage } from "./components/component-keydown-message"
 import { ComponentLeaveMessage } from "./components/component-leave-message";
 import { ComponentMouseEnterMessage } from "./components/component-mouseenter-message";
 import { ComponentMouseLeaveMessage } from "./components/component-mouseleave-message";
+import { ComponentResizeMessage } from "./components/component-resize-message";
 import { ComponentScrollMessage } from "./components/component-scroll-message";
 import { ComponentShowMessage } from "./components/component-show-message";
 import { FileUploadAreaCompleteMessage } from "./components/file-upload-area/file-upload-area-complete-message";
@@ -47,6 +48,7 @@ export function registerCommonClientToBffMessages() {
   clientToBffMessageRegistry.register(ComponentMouseLeaveMessage);
   clientToBffMessageRegistry.register(ComponentKeyDownMessage);
   clientToBffMessageRegistry.register(ComponentScrollMessage);
+  clientToBffMessageRegistry.register(ComponentResizeMessage);
   clientToBffMessageRegistry.register(CameraQrCodeMessage);
   clientToBffMessageRegistry.register(CameraDeviceChangeMessage);
   clientToBffMessageRegistry.register(MapCenterChangeMessage);

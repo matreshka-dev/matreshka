@@ -1,4 +1,5 @@
 import { ServerComponentClass } from "@matreshka/client-bff-protocol/enums/server-component-class";
+import type { ComponentResizePayload } from "@matreshka/client-bff-protocol/messages/client-to-bff/components/component-resize-message";
 import type { ComponentScrollPayload } from "@matreshka/client-bff-protocol/messages/client-to-bff/components/component-scroll-message";
 import type { PageConfig } from "@matreshka/client-bff-protocol/types/page-config";
 import {
@@ -54,11 +55,15 @@ export abstract class Page<
     super({});
   }
 
-  /** Добавляет `scroll` к стандартным enter/leave (см. {@link EntryComponent.entryInteractions}). */
+  /** Добавляет `scroll` и `resize` к стандартным enter/leave (см. {@link EntryComponent.entryInteractions}). */
   protected override entryInteractions(): ReturnType<
     EntryComponent["entryInteractions"]
   > {
-    return { ...super.entryInteractions(), scroll: this.onScroll() };
+    return {
+      ...super.entryInteractions(),
+      scroll: this.onScroll(),
+      resize: this.onResize(),
+    };
   }
 
   /**
@@ -104,12 +109,24 @@ export abstract class Page<
   }
 
   /**
-   * Обработчики прокрутки корня страницы (хост `app-page`), с троттлингом на клиенте.
+   * Обработчики прокрутки корня страницы (`window`), с троттлингом на клиенте.
+   * Клиент также шлёт этот snapshot после изменения DOM документа.
    * Переопредели в наследнике для дозагрузки списков и т.п.
    */
   protected onScroll():
     | ServerComponentAction<Page, ComponentScrollPayload>
     | ServerComponentAction<Page, ComponentScrollPayload>[]
+    | undefined {
+    return undefined;
+  }
+
+  /**
+   * Обработчики изменения размера корня страницы (`ResizeObserver` на `documentElement`).
+   * Payload — тот же снимок оси, что у {@link onScroll}.
+   */
+  protected onResize():
+    | ServerComponentAction<Page, ComponentResizePayload>
+    | ServerComponentAction<Page, ComponentResizePayload>[]
     | undefined {
     return undefined;
   }

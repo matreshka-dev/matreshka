@@ -86,8 +86,9 @@ export function subscribeThrottledScroll(
 }
 
 /**
- * Отчёты скролла на BFF: событие `scroll`, изменение размеров и DOM контента.
- * Последнее нужно для infinite scroll, когда первая порция не создаёт полосу прокрутки.
+ * Отчёты скролла на BFF: событие `scroll` и изменение DOM внутри контейнера.
+ * MutationObserver нужен для infinite scroll, когда первая порция не создаёт полосу
+ * прокрутки и border box контейнера не меняется.
  */
 export function subscribeThrottledScrollReport(
   scrollTarget: EventTarget,
@@ -98,9 +99,26 @@ export function subscribeThrottledScrollReport(
 ): void {
   merge(
     fromEvent(scrollTarget, 'scroll', { passive: true }),
-    observeElementResize(measureElement),
     observeElementDomChanges(measureElement),
   )
+    .pipe(
+      throttleTime(throttleMs, asyncScheduler, {
+        leading: true,
+        trailing: true,
+      }),
+      takeUntilDestroyed(destroyRef),
+    )
+    .subscribe(() => onReport());
+}
+
+/** Отчёты изменения размера на BFF: только `ResizeObserver` на измеряемом элементе. */
+export function subscribeThrottledResizeReport(
+  measureElement: Element,
+  destroyRef: DestroyRef,
+  onReport: () => void,
+  throttleMs: number = SERVER_COMPONENT_SCROLL_REPORT_THROTTLE_MS,
+): void {
+  observeElementResize(measureElement)
     .pipe(
       throttleTime(throttleMs, asyncScheduler, {
         leading: true,
