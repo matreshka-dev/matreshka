@@ -1,7 +1,7 @@
 import { DestroyRef } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import type { ComponentScrollPayload } from '@matreshka/client-bff-protocol/messages/client-to-bff/components/component-scroll-message';
-import { asyncScheduler, fromEvent, merge, Observable } from 'rxjs';
+import { asyncScheduler, fromEvent, Observable } from 'rxjs';
 import { throttleTime } from 'rxjs/operators';
 
 /** Троттлинг отчётов скролла на BFF: первый и последний кадр в серии событий. */
@@ -51,19 +51,6 @@ function observeElementResize(element: Element): Observable<void> {
   });
 }
 
-/** DOM внутри scroll-контейнера может вырасти без изменения border box — нужен для `stack`. */
-function observeElementDomChanges(element: Element): Observable<void> {
-  return new Observable<void>((subscriber) => {
-    if (typeof MutationObserver === 'undefined') {
-      subscriber.complete();
-      return;
-    }
-    const observer = new MutationObserver(() => subscriber.next());
-    observer.observe(element, { childList: true, subtree: true });
-    return () => observer.disconnect();
-  });
-}
-
 /**
  * Пассивный listener + throttle: общий контур для {@link ServerComponent}
  * (хост, `window`, и т.д.).
@@ -83,32 +70,6 @@ export function subscribeThrottledScroll(
       takeUntilDestroyed(destroyRef),
     )
     .subscribe(() => onScroll());
-}
-
-/**
- * Отчёты скролла на BFF: событие `scroll` и изменение DOM внутри контейнера.
- * MutationObserver нужен для infinite scroll, когда первая порция не создаёт полосу
- * прокрутки и border box контейнера не меняется.
- */
-export function subscribeThrottledScrollReport(
-  scrollTarget: EventTarget,
-  measureElement: Element,
-  destroyRef: DestroyRef,
-  onReport: () => void,
-  throttleMs: number = SERVER_COMPONENT_SCROLL_REPORT_THROTTLE_MS,
-): void {
-  merge(
-    fromEvent(scrollTarget, 'scroll', { passive: true }),
-    observeElementDomChanges(measureElement),
-  )
-    .pipe(
-      throttleTime(throttleMs, asyncScheduler, {
-        leading: true,
-        trailing: true,
-      }),
-      takeUntilDestroyed(destroyRef),
-    )
-    .subscribe(() => onReport());
 }
 
 /** Отчёты изменения размера на BFF: только `ResizeObserver` на измеряемом элементе. */

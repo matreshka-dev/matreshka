@@ -762,32 +762,49 @@ async boot() {
 Задача: запустить дозагрузку, когда пользователь почти дошёл до конца **или**
 контент короче viewport и скролла ещё нет (большой экран, маленькая первая порция).
 
-`onScroll` приходит на событие `scroll` и после изменения DOM внутри контейнера
-(контент вырос, рамка нет). `onResize` приходит от `ResizeObserver`, когда меняется
-размер самого контейнера или окна. Payload у обоих один и тот же, `needsMore`
-подходит к обоим.
+`onScroll` приходит только на событие `scroll` scrollport. `onResize` приходит от
+`ResizeObserver`, когда меняется рамка этого компонента. Рост списка внутри
+`overflow: auto` рамку scrollport не меняет: высоту контента смотрит `onResize`
+внутреннего `column` с высотой по содержимому (`flex-shrink: 0`, `overflow: visible`).
+Его payload — высота списка, а не позиция прокрутки внешнего контейнера; для
+`needsMore` берут последний снимок scrollport и эту высоту.
 
 ```ts
 import { needsMore } from "@matreshka/bff/components";
 
 const NEAR_END_PX = 120;
 
+// Внешний column — scrollport. Снимок только с события scroll.
 protected onScroll() {
-  return this.loadMoreIfNeeded;
+  return ({ payload }) => {
+    this.scroll = payload;
+    this.loadMoreIfNeeded();
+  };
 }
 
-protected onResize() {
-  return this.loadMoreIfNeeded;
-}
+// Внутренний column: flex-shrink 0, overflow visible, внутри forEach.
+// payload.contentSize здесь — высота списка, не позиция прокрутки.
+onResize: ({ payload }) => {
+  this.contentSize = payload.contentSize;
+  this.loadMoreIfNeeded();
+};
 
-private loadMoreIfNeeded = ({ payload }) => {
+private loadMoreIfNeeded() {
+  if (!this.scroll || this.contentSize === undefined) {
+    return;
+  }
   if (!this.hasMore || this.loadingMore) {
     return;
   }
-  if (needsMore(payload, NEAR_END_PX)) {
+  if (
+    needsMore(
+      { ...this.scroll, contentSize: this.contentSize },
+      NEAR_END_PX,
+    )
+  ) {
     this.appendNextBatch();
   }
-};
+}
 ```
 
 ## Что читать дальше

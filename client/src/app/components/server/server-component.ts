@@ -71,7 +71,7 @@ import {
 } from './utils/run-component-animations';
 import {
   subscribeThrottledResizeReport,
-  subscribeThrottledScrollReport,
+  subscribeThrottledScroll,
 } from './utils/subscribe-throttled-scroll-report';
 
 @Component({
@@ -186,23 +186,14 @@ export abstract class ServerComponent<T extends ServerComponentConfig>
 
   /**
    * Троттлинг отчётов скролла + отправка {@link ComponentScrollMessage}, если
-   * `getPayloadOrSkip` вернул не `null`.
-   *
-   * Кроме события `scroll`, клиент шлёт snapshot после изменения DOM
-   * `measureElement` — чтобы BFF мог догрузить данные, если контент короче viewport
-   * и рамка контейнера не меняется. Смена размера — {@link subscribeThrottledResizeReporting}.
+   * `getPayloadOrSkip` вернул не `null`. Источник — только событие `scroll`.
    *
    * @param scrollTarget По умолчанию хост компонента; для страницы с прокруткой
    *   документа передай {@link Window} (см. `window.scrollTo` в PageComponent).
-   * @param measureElement Элемент для MutationObserver; по умолчанию совпадает
-   *   с `scrollTarget`, если это {@link Element}.
    */
   protected subscribeThrottledScrollReporting(
     getPayloadOrSkip: () => ComponentScrollPayload | null,
     scrollTarget: EventTarget = this.elementRef.nativeElement as HTMLElement,
-    measureElement: Element = scrollTarget instanceof Element
-      ? scrollTarget
-      : (this.elementRef.nativeElement as HTMLElement),
   ): void {
     const reportScroll = () => {
       if (!this._configSignal()) {
@@ -220,12 +211,7 @@ export abstract class ServerComponent<T extends ServerComponentConfig>
       );
     };
 
-    subscribeThrottledScrollReport(
-      scrollTarget,
-      measureElement,
-      this.destroyRef,
-      reportScroll,
-    );
+    subscribeThrottledScroll(scrollTarget, this.destroyRef, reportScroll);
   }
 
   /**

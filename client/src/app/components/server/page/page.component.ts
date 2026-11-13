@@ -53,16 +53,12 @@ export class PageComponent
     if (!isPlatformServer(this.platformId)) {
       const readPageScrollPayload = () =>
         readWindowVerticalScrollPayload(window, this.document.documentElement);
-      this.subscribeThrottledScrollReporting(
-        () => {
-          if (!this.hasServerInteraction('scroll')) {
-            return null;
-          }
-          return readPageScrollPayload();
-        },
-        window,
-        this.document.documentElement,
-      );
+      this.subscribeThrottledScrollReporting(() => {
+        if (!this.hasServerInteraction('scroll')) {
+          return null;
+        }
+        return readPageScrollPayload();
+      }, window);
       this.subscribeThrottledResizeReporting(() => {
         if (!this.hasServerInteraction('resize')) {
           return null;

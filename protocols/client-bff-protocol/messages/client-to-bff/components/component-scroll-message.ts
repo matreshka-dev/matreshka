@@ -5,8 +5,7 @@ import { ComponentInteractionMessage } from "./component-interaction-message";
  * для строки — горизонталь (`scrollLeft` / `clientWidth` / `scrollWidth`).
  * Расстояние до конца: `contentSize - offset - viewportSize`.
  *
- * Кроме события `scroll`, клиент шлёт тот же snapshot после изменения DOM внутри
- * контейнера (контент вырос, а border box — нет). Смена размера самого контейнера —
+ * Клиент шлёт snapshot только на событие `scroll`. Смена размера контейнера —
  * отдельное событие `resize`.
  * Проверка на BFF: {@link needsMore} из `@matreshka/shared`.
  */

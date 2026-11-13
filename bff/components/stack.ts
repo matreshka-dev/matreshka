@@ -111,7 +111,7 @@ export type StackProperties = {
  * @property safeArea Стороны, для которых клиент добавляет системный safe area к padding.
  * @property onClick Обработчики клика по контейнеру.
  * @property onKeyDown Обработчики нажатия клавиши, когда фокус находится на элементе.
- * @property onScroll Обработчики прокрутки по главной оси (`offset`, `viewportSize`, `contentSize`), с троттлингом на клиенте. Также приходит после изменения DOM внутри контейнера.
+ * @property onScroll Обработчики прокрутки по главной оси (`offset`, `viewportSize`, `contentSize`), с троттлингом на клиенте.
  * @property onResize Обработчики изменения размера контейнера. Payload тот же, что у `onScroll`.
  * @property overlays Наложения поверх контейнера.
  * @property surface Фон контейнера (`--background-color`).
