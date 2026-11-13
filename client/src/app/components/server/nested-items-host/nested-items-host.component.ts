@@ -28,6 +28,8 @@ export abstract class NestedItemsHostComponent<
   TItem extends NestedHostItem,
 > extends ServerComponent<TConfig> {
   protected readonly nestedItems = signal<TItem[]>([]);
+  /** id элемента (track или id статики) → последний известный конфиг. */
+  private readonly itemsById = new Map<string, TItem>();
   private readonly itemComponentsCache = new Map<
     string,
     ServerComponentConfig[]
@@ -66,9 +68,35 @@ export abstract class NestedItemsHostComponent<
       return;
     }
     for (const item of items) {
+      this.itemsById.set(item.id, item);
       this.componentHub.registerConfig(item.component, entryId);
     }
     this.nestedItems.set(items);
+  }
+
+  /** Сливает upserts в карту и собирает слот в порядке `order`. */
+  private materializeNestedItems(
+    order: readonly string[],
+    upserts: readonly TItem[],
+  ): TItem[] {
+    for (const item of upserts) {
+      this.itemsById.set(item.id, item);
+    }
+    const next: TItem[] = [];
+    const seen = new Set<string>();
+    for (const id of order) {
+      seen.add(id);
+      const item = this.itemsById.get(id);
+      if (item) {
+        next.push(item);
+      }
+    }
+    for (const id of [...this.itemsById.keys()]) {
+      if (!seen.has(id)) {
+        this.itemsById.delete(id);
+      }
+    }
+    return next;
   }
 
   private subscribeNestedItemsSync(): void {
@@ -80,11 +108,15 @@ export abstract class NestedItemsHostComponent<
             message instanceof NestedItemsSyncMessage,
         ),
         filter((message) => message.payload.slot === slot),
-        map((message) => message.payload.items as TItem[]),
+        map((message) => message.payload),
         takeUntilDestroyed(this.destroyRef),
       )
-      .subscribe((nextItems) => {
+      .subscribe((payload) => {
         const previousItems = this.nestedItems();
+        const nextItems = this.materializeNestedItems(
+          payload.order,
+          payload.upserts as TItem[],
+        );
         const diff = diffNestedItems(previousItems, nextItems);
         const entryId = this.componentHub.getEntryId(this.id());
         if (entryId) {

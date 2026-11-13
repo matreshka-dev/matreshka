@@ -42,7 +42,10 @@ describe("Component command messages", () => {
   });
 
   it("ForEachSync reliable, но не pingable", () => {
-    const message = new ForEachSyncComponentsMessage("for-each-1", []);
+    const message = new ForEachSyncComponentsMessage("for-each-1", {
+      order: [],
+      upserts: [],
+    });
 
     expect(message).toBeInstanceOf(ReliableComponentCommandMessage);
     expect(message).not.toBeInstanceOf(PingableComponentCommandMessage);

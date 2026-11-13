@@ -69,11 +69,17 @@ type NestedItemBase = {
 - **Static:** `id = component.id` (должен быть уникален в slot'е).
 - **Dynamic (itemList):** `id = track(item)` — стабильный ключ из данных контекста.
 
-При изменении любого `itemList` host пересобирает **весь** flat-массив slot'а и шлёт `NestedItemsSyncMessage`:
+Первый ответ страницы по-прежнему содержит полный flat-массив слота. Дальше host шлёт `NestedItemsSyncMessage` с полным порядком id и конфигами только тех id, которых у этого instance клиента ещё нет:
 
 ```ts
-{ slot: "markers" | "items"; items: NestedItemBase[] }
+{
+  slot: "markers" | "items";
+  order: string[];
+  upserts: NestedItemBase[];
+}
 ```
+
+Догрузка и замена одного элемента не повторяют уже отданные конфиги. Полная смена массива присылает только новый набор: старые элементы в сообщение не входят, клиент снимает id, которых нет в `order`. Статические соседи слота сериализуются один раз и дальше только упоминаются в `order`.
 
 ## API `itemList`
 
@@ -100,9 +106,8 @@ itemList<TItem>({
 | Layout | нет (только component) | coordinates / position обязательны |
 | Divider | да | нет |
 
-## Ограничения MVP
+## Ограничения
 
-- Full resync slot'а при любом изменении segment (без partial sync).
 - `itemList` внутри `itemList` — не поддерживается.
 - Static `id` = `component.id` — уникальность в пределах slot'а на авторе.
 

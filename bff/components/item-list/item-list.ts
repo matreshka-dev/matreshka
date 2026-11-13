@@ -22,10 +22,24 @@ import {
   type NestedItemTreeNode,
 } from "./types";
 
-/** Per-instance кэш сгенерированных элементов и временных instances сериализации. */
-type ItemListInstanceState = {
-  itemSyncInstances: ComponentInstance[];
+type SerializedItemListItem<ItemType extends NestedItemTreeNode> = Omit<
+  ItemType,
+  "component"
+> & {
+  id: string;
+  component: ServerComponentConfig;
+};
+
+/** Уже отданный клиенту элемент: повторная сериализация создала бы новый instance id. */
+type SerializedItemSlot<ItemType extends NestedItemTreeNode> = {
+  item: SerializedItemListItem<ItemType>;
+  instances: ComponentInstance[];
+};
+
+/** Per-instance кэш сгенерированных элементов и уже отданных конфигов. */
+type ItemListInstanceState<ItemType extends NestedItemTreeNode> = {
   itemsCache: Map<string, NestedItemTreeNode>;
+  serializedById: Map<string, SerializedItemSlot<ItemType>>;
 };
 
 /**
@@ -52,7 +66,7 @@ export class ItemList<
   private lastItemsCheckSum = "";
   private readonly instanceStates = new Map<
     ComponentInstance,
-    ItemListInstanceState
+    ItemListInstanceState<ItemType>
   >();
 
   constructor(config: ItemListInitConfig<RefType, ItemType>) {
@@ -92,34 +106,48 @@ export class ItemList<
     }
   }
 
-  /** Сериализованные элементы сегмента для flatten / preload. */
-  buildItems(instance: ComponentInstance): (Omit<ItemType, "component"> & {
-    id: string;
-    component: ServerComponentConfig;
-  })[] {
+  /** Сериализованные элементы сегмента для flatten / preload. Уже отданные id не сериализуются. */
+  buildItems(instance: ComponentInstance): SerializedItemListItem<ItemType>[] {
     if (!instance.client) {
       return [];
     }
     return runWithClient(instance.client, () =>
       runWithEntryContext(instance.entry, instance.client!, () => {
-        this.releaseItemSyncInstances(instance);
         const items = this.generateItems(instance);
         // Индексы элементов живут во внутреннем контексте itemList (strictRef).
         // Без authorizeClient клиент не получит его и ref вида
         // `departments.@{…index}.name` резолвится в пустую строку.
         this.indexContext.authorizeClient(instance.client!);
         const state = this.getInstanceState(instance);
-        const { result, instances } = runWithCreatedInstanceTracking(() =>
-          items.map(({ id, item }) => ({
-            ...item,
-            id,
-            component: item.component.serialize(),
-          })),
+        this.evictSerializedItems(
+          new Set(items.map((entry) => entry.id)),
+          state,
         );
-        state.itemSyncInstances = instances;
+        const result: SerializedItemListItem<ItemType>[] = [];
+        for (const { id, item } of items) {
+          const cached = state.serializedById.get(id);
+          if (cached) {
+            result.push(cached.item);
+            continue;
+          }
+          const serialized = this.serializeItemOnce(id, item, state);
+          result.push(serialized);
+        }
         return result;
       }),
     );
+  }
+
+  /** Снимает кэш и instances сегмента, когда host-instance уничтожен. */
+  releaseHostInstance(instance: ComponentInstance): void {
+    const state = this.instanceStates.get(instance);
+    if (!state) {
+      return;
+    }
+    for (const slot of state.serializedById.values()) {
+      releaseItemListInstances(slot.instances);
+    }
+    this.instanceStates.delete(instance);
   }
 
   /**
@@ -203,36 +231,61 @@ export class ItemList<
     return this.config.track(item);
   }
 
-  /** Lazy-init per-instance state (кэш строк и sync instances). */
-  private getInstanceState(instance: ComponentInstance): ItemListInstanceState {
+  /** Lazy-init per-instance state (кэш строк и уже отданные конфиги). */
+  private getInstanceState(
+    instance: ComponentInstance,
+  ): ItemListInstanceState<ItemType> {
     let state = this.instanceStates.get(instance);
     if (!state) {
       state = {
-        itemSyncInstances: [],
         itemsCache: new Map(),
+        serializedById: new Map(),
       };
       this.instanceStates.set(instance, state);
     }
     return state;
   }
 
-  /** Освобождает временные instances, созданные при прошлой сериализации. */
-  private releaseItemSyncInstances(instance: ComponentInstance): void {
-    const state = this.instanceStates.get(instance);
-    if (!state || state.itemSyncInstances.length === 0) {
-      return;
-    }
-    releaseItemListInstances(state.itemSyncInstances);
-    state.itemSyncInstances = [];
+  /** Сериализует элемент один раз и сохраняет instances до ухода ключа из массива. */
+  private serializeItemOnce(
+    id: string,
+    item: ItemType,
+    state: ItemListInstanceState<ItemType>,
+  ): SerializedItemListItem<ItemType> {
+    const { result, instances } = runWithCreatedInstanceTracking(() => ({
+      ...item,
+      id,
+      component: item.component.serialize(),
+    }));
+    state.serializedById.set(id, { item: result, instances });
+    return result;
   }
 
-  /** Удаляет из кэша строки, которых больше нет в массиве Context. */
+  /** Снимает instances элементов, которых больше нет в массиве. */
+  private evictSerializedItems(
+    currentIds: Set<string>,
+    state: ItemListInstanceState<ItemType>,
+  ): void {
+    for (const id of [...state.serializedById.keys()]) {
+      if (currentIds.has(id)) {
+        continue;
+      }
+      const slot = state.serializedById.get(id);
+      if (slot) {
+        releaseItemListInstances(slot.instances);
+      }
+      state.serializedById.delete(id);
+      state.itemsCache.delete("id" + id);
+    }
+  }
+
+  /** Удаляет из кэша generator строки, которых больше нет в массиве Context. */
   private evictRemovedItemCaches(
     currentItemIds: Set<string>,
     instance: ComponentInstance,
   ): void {
     const cache = this.getInstanceState(instance).itemsCache;
-    for (const itemId of cache.keys()) {
+    for (const itemId of [...cache.keys()]) {
       if (!currentItemIds.has(itemId)) {
         cache.delete(itemId);
       }
@@ -248,6 +301,9 @@ export class ItemList<
   ): { id: string; item: ItemType }[] {
     const cache = this.getInstanceState(instance).itemsCache;
     const value = getItemListValue(this.config.ref);
+    this.lastItemsCheckSum = value
+      .map((item) => this.config.track(item))
+      .join("|");
     const store: Record<string, { index: `${number}` }> = {};
     for (let index = 0; index < value.length; index++) {
       const cacheKey = this.itemCacheKey(value[index]);

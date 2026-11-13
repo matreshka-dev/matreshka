@@ -119,7 +119,8 @@ describe('MapComponent nested items', () => {
 
     const syncPayload: NestedItemsSyncPayload = {
       slot: 'markers',
-      items: [
+      order: ['m2'],
+      upserts: [
         {
           id: 'm2',
           coordinates: { latitude: 3, longitude: 4 },
@@ -135,5 +136,40 @@ describe('MapComponent nested items', () => {
 
     expect(nestedItems()).toHaveLength(1);
     expect(nestedItems()[0].id).toBe('m2');
+  });
+
+  it('оставляет известный маркер, если sync прислал только новый', () => {
+    component.ngOnInit();
+
+    const nestedItems = () =>
+      (
+        component as unknown as {
+          nestedItems: () => { id: string; component: { id: string } }[];
+        }
+      ).nestedItems();
+
+    const nextChild: ServerComponentConfig = {
+      id: 'marker-child-2',
+      class: ServerComponentClass.Text,
+      properties: { value: 'B' },
+    };
+
+    postman.incomingMessage$.next(
+      new NestedItemsSyncMessage(configId, {
+        slot: 'markers',
+        order: ['m1', 'm2'],
+        upserts: [
+          {
+            id: 'm2',
+            coordinates: { latitude: 3, longitude: 4 },
+            width: 80,
+            component: nextChild,
+          } as SerializedMapMarker,
+        ],
+      }),
+    );
+
+    expect(nestedItems().map((item) => item.id)).toEqual(['m1', 'm2']);
+    expect(nestedItems()[0].component.id).toBe('marker-child');
   });
 });

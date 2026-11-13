@@ -1,7 +1,9 @@
 import { ServerComponentClass } from "@matreshka/client-bff-protocol/enums/server-component-class";
-import type { ForEachSyncComponentsPayload } from "@matreshka/client-bff-protocol/messages/bff-to-client/components/for-each/for-each-sync-components-message";
 import { ForEachSyncComponentsMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/components/for-each/for-each-sync-components-message";
-import type { ForEachConfig } from "@matreshka/client-bff-protocol/types/for-each-config";
+import type {
+  ForEachConfig,
+  ForEachSyncComponentsPayload,
+} from "@matreshka/client-bff-protocol/types/for-each-config";
 import { BehaviorSubject, skip, Subscription } from "rxjs";
 import { Paths, PathValue } from "ts-essentials";
 import type { z } from "zod";
@@ -22,7 +24,6 @@ import {
   StandaloneComponent,
   WritableContextRefOfValue,
 } from "../core";
-import { serializeForEachSlots } from "../core/utils/serialize-component-tree";
 import { runWithCreatedInstanceTracking } from "../core/utils/track-created-instances";
 import {
   Component,
@@ -106,10 +107,16 @@ type ForEachItemLink<RefType extends AnySchemaContextRef> =
       >
     : never;
 
-/** Кэш generator и instances элементов списка, привязанные к одному instance ForEach. */
+/** Уже отданный клиенту слот: повторно не сериализуется, instance id стабильны. */
+type ForEachSerializedSlot = {
+  components: ForEachSyncComponentsPayload["upserts"][number]["components"];
+  instances: ComponentInstance[];
+};
+
+/** Кэш generator и отданных слотов, привязанные к одному instance ForEach. */
 type ForEachInstanceState = {
-  itemSyncInstances: ComponentInstance[];
-  componentsCache: Map<string, ComponentTreeNode | ComponentTreeNode[]>;
+  componentsCache: Map<string, ComponentTreeNode[]>;
+  serializedByKey: Map<string, ForEachSerializedSlot>;
 };
 
 /** Возвращает массив элементов списка из ref; не-массив даёт пустой массив. */
@@ -291,14 +298,19 @@ export class ForEach<
    *
    * @param forEachInstance Instance ForEach на клиенте (связка client + entry + id).
    */
+  /** Ключ на wire: значение `track` без внутреннего префикса индексного контекста. */
+  private trackKey(item: ForEachItemData<RefType>) {
+    return this.config.track(item);
+  }
+
   private getInstanceState(
     forEachInstance: ComponentInstance<this>,
   ): ForEachInstanceState {
     let state = this.instanceStates.get(forEachInstance);
     if (!state) {
       state = {
-        itemSyncInstances: [],
         componentsCache: new Map(),
+        serializedByKey: new Map(),
       };
       this.instanceStates.set(forEachInstance, state);
     }
@@ -311,136 +323,148 @@ export class ForEach<
    * @param forEachInstance Instance ForEach, инстанс которого прекращено.
    */
   private releaseInstanceState(forEachInstance: ComponentInstance<this>) {
-    this.releaseItemSyncInstances(forEachInstance);
+    const state = this.instanceStates.get(forEachInstance);
+    if (state) {
+      for (const slot of state.serializedByKey.values()) {
+        this.releaseTrackedInstances(slot.instances);
+      }
+    }
     this.instanceStates.delete(forEachInstance);
   }
 
-  /**
-   * Снимает instances дочерних компонентов элементов, созданные при последнем preload/sync
-   * для конкретного instance ForEach.
-   *
-   * @param forEachInstance Instance ForEach, для которого снимаются дочерние instances.
-   */
-  private releaseItemSyncInstances(forEachInstance: ComponentInstance<this>) {
-    const state = this.instanceStates.get(forEachInstance);
-    if (!state || state.itemSyncInstances.length === 0) {
+  /** Снимает instances, созданные одной сериализацией слота. */
+  private releaseTrackedInstances(instances: ComponentInstance[]) {
+    if (instances.length === 0) {
       return;
     }
     const byComponent = new Map<Component, ComponentInstance[]>();
-    for (const instance of state.itemSyncInstances) {
+    for (const instance of instances) {
       const component = instance.component as Component;
       const list = byComponent.get(component) ?? [];
       list.push(instance);
       byComponent.set(component, list);
     }
-    for (const [component, instances] of byComponent) {
-      component.releaseInstances(instances);
+    for (const [component, componentInstances] of byComponent) {
+      component.releaseInstances(componentInstances);
     }
-    state.itemSyncInstances = [];
   }
 
   /**
-   * Удаляет из кэша элементы, которых больше нет в данных списка.
+   * Удаляет слоты, которых больше нет в массиве, и снимает только их instances.
    *
-   * @param currentItemIds Актуальные ключи элементов после `track`.
-   * @param cache Кэш generator для конкретного instance ForEach.
+   * @param currentTrackKeys Актуальные значения `track`.
+   * @param state Состояние одного instance ForEach.
    */
-  private evictRemovedItemCaches(
-    currentItemIds: Set<string>,
-    cache: Map<string, ComponentTreeNode | ComponentTreeNode[]>,
+  private evictRemovedSlots(
+    currentTrackKeys: Set<string>,
+    state: ForEachInstanceState,
   ) {
-    for (const itemId of cache.keys()) {
-      if (!currentItemIds.has(itemId)) {
-        cache.delete(itemId);
+    // Копия ключей: ниже удаляем записи прямо из Map.
+    // Слот уже отдан клиенту — снимаем его instances и оба кэша.
+    // Ключ дерева — `id` + track, как в {@link itemId}: так strictRef не путает его с индексом.
+    for (const trackKey of [...state.serializedByKey.keys()]) {
+      if (currentTrackKeys.has(trackKey)) {
+        continue;
+      }
+      const slot = state.serializedByKey.get(trackKey);
+      if (slot) {
+        this.releaseTrackedInstances(slot.instances);
+      }
+      state.serializedByKey.delete(trackKey);
+      state.componentsCache.delete("id" + trackKey);
+    }
+    // Дерево без сериализованного слота (generator успел отработать, serialize — нет).
+    // slice(2) снимает префикс `id` и возвращает значение track.
+    for (const itemId of [...state.componentsCache.keys()]) {
+      if (!currentTrackKeys.has(itemId.slice(2))) {
+        state.componentsCache.delete(itemId);
       }
     }
   }
 
   /**
-   * Сериализует слоты элементов списка и запоминает созданные instances для последующего снятия.
+   * Сериализует слот один раз и запоминает payload вместе с instances.
    *
-   * @param components Слоты по одному на элемент (узел или массив узлов).
-   * @param forEachInstance Instance ForEach, в контексте которого выполняется сериализация.
-   * @returns Сериализованные конфиги для клиента.
+   * @param tree Узлы элемента из кэша generator.
+   * @param state Состояние instance ForEach.
+   * @param trackKey Значение `track` элемента.
+   * @returns Конфиги строки для клиента.
    */
-  private serializeItemsWithTracking(
-    components: (ComponentTreeNode | ComponentTreeNode[])[],
-    forEachInstance: ComponentInstance<this>,
+  private serializeSlotOnce(
+    tree: ComponentTreeNode[],
+    state: ForEachInstanceState,
+    trackKey: string,
   ) {
-    this.releaseItemSyncInstances(forEachInstance);
-    const state = this.getInstanceState(forEachInstance);
     const { result, instances } = runWithCreatedInstanceTracking(() =>
-      serializeForEachSlots(components),
+      serializeComponentList(tree),
     );
-    state.itemSyncInstances = instances;
+    state.serializedByKey.set(trackKey, { components: result, instances });
     return result;
   }
 
   /**
-   * Строит дерево компонентов по текущему значению ref: обновляет индексы в
-   * {@link componentContext}, берёт узлы из кэша instance ForEach или вызывает `generator`.
+   * Собирает diff списка: полный порядок ключей и конфиги только новых ключей.
+   * Индексный контекст обновляется для всех элементов, уже отданные слоты не сериализуются.
    *
-   * @param forEachInstance Instance ForEach, для которого строится дерево элементов.
-   * @returns Слоты элементов в порядке следования в массиве данных.
+   * @param forEachInstance Instance ForEach, для которого строится payload.
+   * @returns Payload preload и `ForEachSyncComponentsMessage`.
    */
-  private generateComponents(forEachInstance: ComponentInstance<this>) {
-    const cache = this.getInstanceState(forEachInstance).componentsCache;
-    const value = getForEachValue(this.config.ref);
-    const itemsCheckSum = value.map(this.config.track).join("|");
-    this.lastItemsCheckSum = itemsCheckSum;
+  private buildSyncPayload(
+    forEachInstance: ComponentInstance<this>,
+  ): ForEachSyncComponentsPayload {
+    const state = this.getInstanceState(forEachInstance);
+    const items = getForEachValue(this.config.ref);
+    const order = items.map((item) => this.trackKey(item));
+    this.lastItemsCheckSum = order.join("|");
 
-    const items = Array.isArray(value) ? value : [];
     const store: ForEachIndexContext = {};
     for (let index = 0; index < items.length; index++) {
       store[this.itemId(items[index])] = { index: `${index}` };
     }
     this.componentContext.replace(store);
+    this.evictRemovedSlots(new Set(order), state);
 
-    return items.map((item) => {
-      const itemId = this.itemId(item);
-      if (cache.has(itemId)) {
-        return cache.get(itemId)!;
+    const upserts: ForEachSyncComponentsPayload["upserts"] = [];
+    for (let index = 0; index < items.length; index++) {
+      const trackKey = order[index];
+      if (state.serializedByKey.has(trackKey)) {
+        continue;
       }
-      const result = this.generateItemComponents({
-        component: this,
-        ref: createForEachItemLink(
-          this.config.ref,
-          this.componentContext.ref(`${itemId}.index`),
-        ),
+      const itemId = this.itemId(items[index]);
+      let tree = state.componentsCache.get(itemId);
+      if (!tree) {
+        tree = this.generateItemComponents({
+          component: this,
+          ref: createForEachItemLink(
+            this.config.ref,
+            this.componentContext.ref(`${itemId}.index`),
+          ),
+        });
+        state.componentsCache.set(itemId, tree);
+      }
+      upserts.push({
+        key: trackKey,
+        components: this.serializeSlotOnce(tree, state, trackKey),
       });
-      cache.set(itemId, result);
-      return result;
-    });
+    }
+    return { order, upserts };
   }
 
   /**
    * Синхронизирует элементы списка с клиентом для одного instance ForEach.
    *
    * @param forEachInstance Instance ForEach на клиенте.
-   * @param currentItemIds Актуальные ключи элементов списка.
    */
-  private syncForEachInstance(
-    forEachInstance: ComponentInstance<this>,
-    currentItemIds: Set<string>,
-  ) {
-    this.evictRemovedItemCaches(
-      currentItemIds,
-      this.getInstanceState(forEachInstance).componentsCache,
-    );
+  private syncForEachInstance(forEachInstance: ComponentInstance<this>) {
     runWithClient(forEachInstance.client!, () => {
       runWithEntryContext(
         forEachInstance.entry,
         forEachInstance.client!,
         () => {
-          const components = this.generateComponents(forEachInstance);
-          const serializedComponents = this.serializeItemsWithTracking(
-            components,
-            forEachInstance,
-          );
           forEachInstance.client!.outcomingMessage$.next(
             new ForEachSyncComponentsMessage(
               forEachInstance.id,
-              serializedComponents as ForEachSyncComponentsPayload,
+              this.buildSyncPayload(forEachInstance),
             ),
           );
         },
@@ -449,7 +473,7 @@ export class ForEach<
   }
 
   /**
-   * Отправляет клиенту актуальные конфиги элементов (`ForEachSyncComponentsMessage`).
+   * Отправляет клиенту порядок ключей и конфиги новых элементов (`ForEachSyncComponentsMessage`).
    * Вызывается при onShow и при изменении массива в ref (добавление, удаление, порядок).
    *
    * @param onlyIfChanged Если `true`, sync пропускается, когда не изменился набор `track`-ключей.
@@ -463,9 +487,8 @@ export class ForEach<
     if (this.instances.length === 0) {
       return;
     }
-    const currentItemIds = new Set(value.map((item) => this.itemId(item)));
     for (const forEachInstance of this.instances) {
-      this.syncForEachInstance(forEachInstance, currentItemIds);
+      this.syncForEachInstance(forEachInstance);
     }
   }
 
@@ -578,10 +601,7 @@ export class ForEach<
     if (this.preload && this.properties.ref.context.inited()) {
       runWithClient(instance.client!, () => {
         runWithEntryContext(instance.entry, instance.client!, () => {
-          extra.components = this.serializeItemsWithTracking(
-            this.generateComponents(instance),
-            instance,
-          );
+          extra.components = this.buildSyncPayload(instance);
         });
       });
     }

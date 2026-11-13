@@ -1,9 +1,11 @@
 import type { NestedItemBase } from "../../../../types/nested-item-base";
 import { ReliableComponentCommandMessage } from "../../reliable-component-command-message";
 
+/** Полный порядок id слота и элементы, которых у этого instance клиента ещё нет. */
 export type NestedItemsSyncPayload = {
   slot: string;
-  items: NestedItemBase[];
+  order: string[];
+  upserts: NestedItemBase[];
 };
 
 export class NestedItemsSyncMessage extends ReliableComponentCommandMessage<NestedItemsSyncPayload> {

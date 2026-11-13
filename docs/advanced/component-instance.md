@@ -361,15 +361,15 @@ flowchart LR
 ```ts
 // Упрощённо, в ForEach.syncComponents
 for (const forEachInstance of this.instances) {
-  syncForEachInstance(forEachInstance, currentItemIds);
-  // → ForEachSyncComponentsMessage(forEachInstance.id, свои_конфиги)
+  syncForEachInstance(forEachInstance);
+  // → ForEachSyncComponentsMessage(forEachInstance.id, { order, upserts })
 }
 ```
 
 - `abc-111-0` получает sync со своими id дочерних кнопок;
 - `abc-111-1` — со своими.
 
-Старые инстансы элементов списка снимаются **только внутри** `instanceStates` того инстанса ForEach, для которого выполнялся sync.
+Уже отданные ключи повторно не сериализуются: их instance id остаются прежними. Instances снимаются только у ключей, которые ушли из массива, и только внутри `instanceStates` того инстанса ForEach, для которого выполнялся sync.
 
 #### Окончание одного применения
 

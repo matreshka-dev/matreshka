@@ -9,7 +9,10 @@ import {
 } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ForEachSyncComponentsMessage } from '@matreshka/client-bff-protocol/messages/bff-to-client/components/for-each/for-each-sync-components-message';
-import type { ForEachConfig } from '@matreshka/client-bff-protocol/types/for-each-config';
+import type {
+  ForEachConfig,
+  ForEachSyncComponentsPayload,
+} from '@matreshka/client-bff-protocol/types/for-each-config';
 import { parseContextPath } from '@matreshka/shared/utils/parse-context-path';
 import { filter, map, takeUntil } from 'rxjs';
 import { SsrService } from '../../../services/ssr.service';
@@ -41,6 +44,8 @@ export class ForEachComponent
   ssr = inject(SsrService);
   componentsInitTask = this.ssr.addTask();
   elementsComponents = signal<ServerComponentConfig[][]>([]);
+  /** Ключ track → конфиги строки. Сервер присылает ключ, клиент его не вычисляет. */
+  private readonly itemsByKey = new Map<string, ServerComponentConfig[]>();
 
   override renderRoot(): HTMLElement {
     const firstRow = this.elementsComponents()[0];
@@ -60,9 +65,7 @@ export class ForEachComponent
     this.subscribeListRefFreeze();
     this.refreshListStructureChecksum();
     if (this.config.properties.components) {
-      const components = this.config.properties
-        .components as ServerComponentConfig[][];
-      this.syncComponentConfigs(components);
+      this.applySyncPayload(this.config.properties.components);
       // Очищаем задачу инициализации компонентов при получении их от сервера
       this.ssr.cleanupTask(this.componentsInitTask);
     }
@@ -74,13 +77,38 @@ export class ForEachComponent
         ),
         map((message) => message.payload),
       )
-      .subscribe((components: ServerComponentConfig[][]) => {
-        this.syncComponentConfigs(components);
+      .subscribe((payload) => {
+        this.applySyncPayload(payload);
         if (!this.config.properties.components) {
           // Если компоненты не были переданы в конфигурацию, то очищаем задачу инициализации компонентов при получении их от сервера
           this.ssr.cleanupTask(this.componentsInitTask);
         }
       });
+  }
+
+  /**
+   * Записывает новые ключи и собирает строки в порядке `order`.
+   * Ключи вне порядка снимаются вместе со строкой.
+   */
+  private applySyncPayload(payload: ForEachSyncComponentsPayload): void {
+    for (const item of payload.upserts) {
+      this.itemsByKey.set(item.key, item.components);
+    }
+    const rows: ServerComponentConfig[][] = [];
+    const seen = new Set<string>();
+    for (const key of payload.order) {
+      seen.add(key);
+      const components = this.itemsByKey.get(key);
+      if (components) {
+        rows.push(components);
+      }
+    }
+    for (const key of [...this.itemsByKey.keys()]) {
+      if (!seen.has(key)) {
+        this.itemsByKey.delete(key);
+      }
+    }
+    this.syncComponentConfigs(rows);
   }
 
   syncComponentConfigs(components: ServerComponentConfig[][]): void {

@@ -7,7 +7,10 @@ import {
   ContextInitMessage as BffContextInitMessage,
   ContextValuesMessage as BffContextValuesMessage,
 } from '@matreshka/client-bff-protocol/messages/bff-to-client/context/index';
-import type { ForEachConfig } from '@matreshka/client-bff-protocol/types/for-each-config';
+import type {
+  ForEachConfig,
+  ForEachSyncComponentsPayload,
+} from '@matreshka/client-bff-protocol/types/for-each-config';
 import { PLATFORM } from '../../../platforms/platform';
 import { TestPlatform } from '../../../platforms/tests/test-platform';
 import { ComponentHubService } from '../../../services/component-hub.service';
@@ -119,23 +122,25 @@ describe('ForEachComponent', () => {
 
       component.ngOnInit();
 
-      const payload: ServerComponentConfig[][] = [
-        [
-          {
-            id: 'child-1',
-            class: ServerComponentClass.UnitTest,
-          },
-        ],
+      const row: ServerComponentConfig[] = [
+        {
+          id: 'child-1',
+          class: ServerComponentClass.UnitTest,
+        },
       ];
+      const payload: ForEachSyncComponentsPayload = {
+        order: ['child-1'],
+        upserts: [{ key: 'child-1', components: row }],
+      };
 
       postman.incomingMessage$.next(
         new ForEachSyncComponentsMessage(configId, payload),
       );
 
       expect(syncConfigsSpy).toHaveBeenCalledTimes(1);
-      expect(syncConfigsSpy).toHaveBeenCalledWith(payload);
+      expect(syncConfigsSpy).toHaveBeenCalledWith([row]);
       expect(setElementsSpy).toHaveBeenCalledTimes(1);
-      expect(setElementsSpy).toHaveBeenCalledWith(payload);
+      expect(setElementsSpy).toHaveBeenCalledWith([row]);
 
       expect(ssr.cleanupTask).toHaveBeenCalledTimes(1);
       expect(ssr.cleanupTask).toHaveBeenCalledWith(initTask);
@@ -151,14 +156,20 @@ describe('ForEachComponent', () => {
 
       component.ngOnInit();
 
-      const payload: ServerComponentConfig[][] = [
-        [
+      const payload: ForEachSyncComponentsPayload = {
+        order: ['child-1'],
+        upserts: [
           {
-            id: 'child-1',
-            class: ServerComponentClass.UnitTest,
+            key: 'child-1',
+            components: [
+              {
+                id: 'child-1',
+                class: ServerComponentClass.UnitTest,
+              },
+            ],
           },
         ],
-      ];
+      };
 
       // Сообщение для другого компонента
       postman.incomingMessage$.next(
@@ -217,6 +228,33 @@ describe('ForEachComponent', () => {
       expect(registerSpy).toHaveBeenCalledWith(newComponents[0][0]);
       expect(deleteSpy).toHaveBeenCalledWith(oldComponents[0][0]);
       expect(component.elementsComponents()).toEqual(newComponents);
+    });
+
+    it('дописывает только новый ключ и сохраняет уже известную строку', () => {
+      const kept: ServerComponentConfig = {
+        id: 'kept',
+        class: ServerComponentClass.UnitTest,
+      };
+      component.ngOnInit();
+      postman.incomingMessage$.next(
+        new ForEachSyncComponentsMessage(configId, {
+          order: ['a'],
+          upserts: [{ key: 'a', components: [kept] }],
+        }),
+      );
+
+      const added: ServerComponentConfig = {
+        id: 'added',
+        class: ServerComponentClass.UnitTest,
+      };
+      postman.incomingMessage$.next(
+        new ForEachSyncComponentsMessage(configId, {
+          order: ['a', 'b'],
+          upserts: [{ key: 'b', components: [added] }],
+        }),
+      );
+
+      expect(component.elementsComponents()).toEqual([[kept], [added]]);
     });
 
     it('при deferred hide удаляет конфиг после setElementsComponents', async () => {

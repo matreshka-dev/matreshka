@@ -1,8 +1,10 @@
-import type { ServerComponentConfig } from "../../../../types/server-component-config";
+import type { ForEachSyncComponentsPayload } from "../../../../types/for-each-config";
 import { ReliableComponentCommandMessage } from "../../reliable-component-command-message";
 
-/** Сериализованные конфиги строк ForEach: каждая строка — массив компонентов. */
-export type ForEachSyncComponentsPayload = ServerComponentConfig[][];
+export type {
+  ForEachSyncComponentsPayload,
+  ForEachSyncedItem,
+} from "../../../../types/for-each-config";
 
 export class ForEachSyncComponentsMessage extends ReliableComponentCommandMessage<ForEachSyncComponentsPayload> {
   static readonly type = "for-each-sync-components";

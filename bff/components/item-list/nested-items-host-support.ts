@@ -2,7 +2,13 @@ import { NestedItemsSyncMessage } from "@matreshka/client-bff-protocol/messages/
 import type { NestedItemBase } from "@matreshka/client-bff-protocol/types/nested-item-base";
 import type { ComponentInstance } from "../../core";
 import type { ComponentInitConfig } from "../component";
-import { flattenNestedItems, isItemList } from "./flatten-nested-items";
+import {
+  flattenNestedItems,
+  isItemList,
+  releaseItemListInstances,
+  type SerializedNestedSlotItem,
+  type StaticNestedItemCache,
+} from "./flatten-nested-items";
 import type { ItemList } from "./item-list";
 import type { ItemListHost } from "./item-list-host";
 import type { NestedItemTreeNode } from "./types";
@@ -87,23 +93,74 @@ export function wireNestedItemsHostLifecycle(
   });
 }
 
+/** Кэш слота на одном host-instance: статика сериализуется один раз, sentIds — уже отданные id. */
+type SlotInstanceCache = {
+  staticById: StaticNestedItemCache;
+  sentIds: Set<string>;
+};
+
+export type ItemListHostAdapter = ItemListHost & {
+  /** Снимает кэш слота вместе с host-instance. */
+  releaseHostInstance(instance: ComponentInstance): void;
+  /**
+   * Flat-массив для первого ответа страницы.
+   * Помечает id как уже отданные, чтобы следующий sync не слал их снова.
+   */
+  serializeSlot(instance: ComponentInstance): NestedItemBase[] | undefined;
+};
+
 /**
- * Адаптер `ItemListHost` для map/board: отправляет клиенту
- * `NestedItemsSyncMessage` всем активным instances host-кomponenta.
+ * Адаптер `ItemListHost` для map/board: клиенту уходит порядок id
+ * и конфиги только тех элементов, которых у instance ещё нет.
  */
 export function createItemListHostAdapter<TItem extends NestedItemTreeNode>(
   getInstances: () => readonly ComponentInstance[],
   getSlotState: (slot: string) => NestedItemsSlotState<TItem> | undefined,
-): ItemListHost {
+  slotName: string,
+): ItemListHostAdapter {
+  const caches = new Map<ComponentInstance, SlotInstanceCache>();
+
+  const cacheFor = (instance: ComponentInstance): SlotInstanceCache => {
+    let cache = caches.get(instance);
+    if (!cache) {
+      cache = { staticById: new Map(), sentIds: new Set() };
+      caches.set(instance, cache);
+    }
+    return cache;
+  };
+
+  const publish = (
+    instance: ComponentInstance,
+    slot: string,
+    flat: NestedItemBase[],
+  ) => {
+    const cache = cacheFor(instance);
+    const order = flat.map((item) => item.id);
+    const nextIds = new Set(order);
+    for (const id of [...cache.staticById.keys()]) {
+      if (nextIds.has(id)) {
+        continue;
+      }
+      const cached = cache.staticById.get(id);
+      if (cached) {
+        releaseItemListInstances(cached.instances);
+      }
+      cache.staticById.delete(id);
+    }
+    const upserts = flat.filter((item) => !cache.sentIds.has(item.id));
+    cache.sentIds = nextIds;
+    instance.client!.outcomingMessage$.next(
+      new NestedItemsSyncMessage(instance.id, { slot, order, upserts }),
+    );
+  };
+
   return {
     get hostInstances(): readonly ComponentInstance[] {
       return getInstances();
     },
     syncNestedItems(slot: string, items: NestedItemBase[]): void {
       for (const instance of getInstances().filter((i) => i.client)) {
-        instance.client!.outcomingMessage$.next(
-          new NestedItemsSyncMessage(instance.id, { slot, items }),
-        );
+        publish(instance, slot, items);
       }
     },
     resyncNestedSlot(slot: string): void {
@@ -112,11 +169,43 @@ export function createItemListHostAdapter<TItem extends NestedItemTreeNode>(
         return;
       }
       for (const instance of getInstances().filter((i) => i.client)) {
-        const flat = flattenNestedItems(state.source, instance);
-        instance.client!.outcomingMessage$.next(
-          new NestedItemsSyncMessage(instance.id, { slot, items: flat }),
+        const cache = cacheFor(instance);
+        const flat = flattenNestedItems(
+          state.source,
+          instance,
+          cache.staticById,
         );
+        publish(instance, slot, flat);
       }
+    },
+    releaseHostInstance(instance: ComponentInstance): void {
+      const state = getSlotState(slotName);
+      for (const itemList of state?.itemLists ?? []) {
+        itemList.releaseHostInstance(instance);
+      }
+      const cache = caches.get(instance);
+      if (cache) {
+        for (const cached of cache.staticById.values()) {
+          releaseItemListInstances(cached.instances);
+        }
+        caches.delete(instance);
+      }
+    },
+    serializeSlot(instance: ComponentInstance): NestedItemBase[] | undefined {
+      const state = getSlotState(slotName);
+      const cache = cacheFor(instance);
+      const flat = flattenNestedItemsForSerialize(
+        state,
+        instance,
+        cache.staticById,
+      );
+      if (!flat) {
+        return undefined;
+      }
+      for (const item of flat) {
+        cache.sentIds.add(item.id);
+      }
+      return flat;
     },
   };
 }
@@ -130,7 +219,8 @@ export function flattenNestedItemsForSerialize<
 >(
   state: NestedItemsSlotState<TItem> | undefined,
   instance: ComponentInstance,
-): ReturnType<typeof flattenNestedItems<TItem, any>> | undefined {
+  staticCache?: StaticNestedItemCache,
+): SerializedNestedSlotItem<TItem>[] | undefined {
   if (!state || state.source.length === 0) {
     return undefined;
   }
@@ -143,5 +233,5 @@ export function flattenNestedItemsForSerialize<
   if (filteredSource.length === 0) {
     return undefined;
   }
-  return flattenNestedItems(filteredSource, instance);
+  return flattenNestedItems(filteredSource, instance, staticCache);
 }

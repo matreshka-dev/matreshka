@@ -35,8 +35,8 @@ import {
   attachItemListsToHost,
   createItemListHostAdapter,
   createNestedItemsSlotState,
-  flattenNestedItemsForSerialize,
   wireNestedItemsHostLifecycle,
+  type ItemListHostAdapter,
 } from "./item-list";
 import { flattenNestedItems } from "./item-list/flatten-nested-items";
 import type { ItemList } from "./item-list/item-list";
@@ -99,7 +99,7 @@ export class Board<
     source: [] as BoardItemEntry[],
     itemLists: [] as ItemList<any, BoardItem>[],
   };
-  private readonly itemListHostAdapter!: ItemListHost;
+  private readonly itemListHostAdapter!: ItemListHostAdapter;
 
   readonly local = {
     setCenter: (center: BoardPoint, config?: ActionConfig) =>
@@ -150,7 +150,11 @@ export class Board<
     this.itemListHostAdapter = createItemListHostAdapter(
       () => this.instances,
       (slot) => (slot === "items" ? this.itemsSlot : undefined),
+      "items",
     );
+    this.destroyInstance$.subscribe((released) => {
+      this.itemListHostAdapter.releaseHostInstance(released);
+    });
     if (config.onCenterChange) {
       const actions = config.onCenterChange as unknown as
         | ServerComponentAction<Componentable, unknown>
@@ -216,7 +220,7 @@ export class Board<
       instance = this.createInstance();
     }
     const result = super.serialize(instance);
-    const items = flattenNestedItemsForSerialize(this.itemsSlot, instance);
+    const items = this.itemListHostAdapter.serializeSlot(instance);
     return {
       ...result,
       class: ServerComponentClass.Board,

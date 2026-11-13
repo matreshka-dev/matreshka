@@ -164,11 +164,7 @@ function forEachConfigsInPage(pageConfig: PageConfig): ForEachConfig[] {
 }
 
 function firstSlotLeafId(forEachConfig: ForEachConfig): string {
-  const slot = forEachConfig.properties.components?.[0];
-  if (!slot) {
-    throw new Error("ForEach preload components are missing");
-  }
-  const first = Array.isArray(slot) ? slot[0] : slot;
+  const first = forEachConfig.properties.components?.upserts[0]?.components[0];
   if (!first) {
     throw new Error("ForEach preload components are missing");
   }
@@ -1049,5 +1045,76 @@ describe("Component instance: ForEach и несколько placement", () => {
     expect(
       rowButtons.flatMap((rowButton) => rowButton.getInstances({ client })),
     ).toHaveLength(2);
+  });
+
+  it("догрузка, замена одного ключа и полная смена массива не пересылают известные слоты", async () => {
+    const client = createClient();
+    const context = await createTaskContext([{ id: "a", title: "A" }]);
+    const rowButtons: Component[] = [];
+
+    const list = forEach({
+      ref: context.ref("tasks"),
+      track: (task) => task.id,
+      preload: true,
+      generator: () => {
+        const rowButton = button([text("task")]);
+        rowButtons.push(rowButton as Component);
+        return rowButton;
+      },
+    });
+    const page = new TestPage([list]);
+    serializePage(client, page);
+    const forEachInstance = list.getInstances({ client, entry: page })[0];
+    sendComponentShow(client, forEachInstance.id);
+
+    const keptInstanceId = rowButtons[0].getInstances({ client })[0].id;
+    const syncMessages: ForEachSyncComponentsMessage[] = [];
+    client.outcomingMessage$.subscribe((message) => {
+      if (message instanceof ForEachSyncComponentsMessage) {
+        syncMessages.push(message);
+      }
+    });
+
+    context.replace({
+      tasks: [
+        { id: "a", title: "A" },
+        { id: "b", title: "B" },
+      ],
+    });
+
+    expect(syncMessages).toHaveLength(1);
+    expect(syncMessages[0].payload.order).toEqual(["a", "b"]);
+    expect(syncMessages[0].payload.upserts.map((item) => item.key)).toEqual([
+      "b",
+    ]);
+    expect(rowButtons[0].getInstances({ client })[0].id).toBe(keptInstanceId);
+
+    syncMessages.length = 0;
+    context.replace({
+      tasks: [
+        { id: "b", title: "B" },
+        { id: "a", title: "A" },
+      ],
+    });
+    expect(syncMessages).toHaveLength(1);
+    expect(syncMessages[0].payload.order).toEqual(["b", "a"]);
+    expect(syncMessages[0].payload.upserts).toEqual([]);
+    expect(rowButtons[0].getInstances({ client })[0].id).toBe(keptInstanceId);
+
+    syncMessages.length = 0;
+    context.replace({
+      tasks: [
+        { id: "c", title: "C" },
+        { id: "d", title: "D" },
+      ],
+    });
+    expect(syncMessages).toHaveLength(1);
+    expect(syncMessages[0].payload.order).toEqual(["c", "d"]);
+    expect(syncMessages[0].payload.upserts.map((item) => item.key)).toEqual([
+      "c",
+      "d",
+    ]);
+    expect(rowButtons[0].getInstances({ client })).toHaveLength(0);
+    expect(rowButtons[1].getInstances({ client })).toHaveLength(0);
   });
 });

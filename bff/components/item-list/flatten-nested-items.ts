@@ -1,3 +1,5 @@
+import type { NestedItemBase } from "@matreshka/client-bff-protocol/types/nested-item-base";
+import type { ServerComponentConfig } from "@matreshka/client-bff-protocol/types/server-component-config";
 import * as crypto from "node:crypto";
 import type { ComponentInstance, ComponentTreeNode } from "../../core";
 import { runWithClient, runWithEntryContext } from "../../core";
@@ -5,6 +7,22 @@ import { runWithCreatedInstanceTracking } from "../../core/utils/track-created-i
 import { Component } from "../component";
 import type { ItemList } from "./item-list";
 import type { NestedItemTreeNode } from "./types";
+
+/** Статический элемент слота, сериализованный один раз на host-instance. */
+export type CachedStaticNestedItem = {
+  item: NestedItemBase;
+  instances: ComponentInstance[];
+};
+
+export type StaticNestedItemCache = Map<string, CachedStaticNestedItem>;
+
+export type SerializedNestedSlotItem<TItem extends NestedItemTreeNode> = Omit<
+  TItem,
+  "component"
+> & {
+  id: string;
+  component: ServerComponentConfig;
+};
 
 export function isItemList(value: unknown): value is ItemList<any, any> {
   return (
@@ -14,22 +32,17 @@ export function isItemList(value: unknown): value is ItemList<any, any> {
   );
 }
 
-export function flattenNestedItems<
-  TItem extends NestedItemTreeNode,
-  TSerialized extends TItem & {
-    id: string;
-    component: import("@matreshka/client-bff-protocol/types/server-component-config").ServerComponentConfig;
-  },
->(
+export function flattenNestedItems<TItem extends NestedItemTreeNode>(
   source: (TItem | ItemList<any, TItem>)[] | undefined,
   instance: ComponentInstance,
-): TSerialized[] {
-  const result: TSerialized[] = [];
+  staticCache?: StaticNestedItemCache,
+): SerializedNestedSlotItem<TItem>[] {
+  const result: SerializedNestedSlotItem<TItem>[] = [];
   for (const entry of source ?? []) {
     if (isItemList(entry)) {
-      result.push(...(entry.buildItems(instance) as TSerialized[]));
+      result.push(...entry.buildItems(instance));
     } else {
-      result.push(serializeStaticNestedItem(entry, instance) as TSerialized);
+      result.push(serializeStaticNestedItem(entry, instance, staticCache));
     }
   }
   return result;
@@ -38,17 +51,27 @@ export function flattenNestedItems<
 function serializeStaticNestedItem<TItem extends NestedItemTreeNode>(
   entry: TItem,
   instance: ComponentInstance,
+  staticCache?: StaticNestedItemCache,
 ): TItem & {
   id: string;
   component: ReturnType<ComponentTreeNode["serialize"]>;
 } {
+  const id = entry.component.id;
+  const cached = staticCache?.get(id);
+  if (cached) {
+    return cached.item as TItem & {
+      id: string;
+      component: ReturnType<ComponentTreeNode["serialize"]>;
+    };
+  }
   return runWithClient(instance.client!, () =>
     runWithEntryContext(instance.entry, instance.client!, () => {
-      const { result } = runWithCreatedInstanceTracking(() => ({
+      const { result, instances } = runWithCreatedInstanceTracking(() => ({
         ...entry,
-        id: entry.component.id,
+        id,
         component: entry.component.serialize(),
       }));
+      staticCache?.set(id, { item: result, instances });
       return result;
     }),
   );

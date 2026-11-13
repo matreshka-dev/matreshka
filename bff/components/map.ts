@@ -34,8 +34,8 @@ import {
   attachItemListsToHost,
   createItemListHostAdapter,
   createNestedItemsSlotState,
-  flattenNestedItemsForSerialize,
   wireNestedItemsHostLifecycle,
+  type ItemListHostAdapter,
 } from "./item-list";
 import { flattenNestedItems } from "./item-list/flatten-nested-items";
 import type { ItemList } from "./item-list/item-list";
@@ -109,7 +109,7 @@ export class Map<
     source: [] as MapMarkerEntry[],
     itemLists: [] as ItemList<any, MapMarker>[],
   };
-  private readonly itemListHostAdapter!: ItemListHost;
+  private readonly itemListHostAdapter!: ItemListHostAdapter;
 
   readonly local = {
     setCenter: (
@@ -173,7 +173,11 @@ export class Map<
     this.itemListHostAdapter = createItemListHostAdapter(
       () => this.instances,
       (slot) => (slot === "markers" ? this.markersSlot : undefined),
+      "markers",
     );
+    this.destroyInstance$.subscribe((released) => {
+      this.itemListHostAdapter.releaseHostInstance(released);
+    });
     if (config.onCenterChange) {
       const actions = config.onCenterChange as unknown as
         | ServerComponentAction<Componentable, unknown>
@@ -237,7 +241,7 @@ export class Map<
       instance = this.createInstance();
     }
     const result = super.serialize(instance);
-    const markers = flattenNestedItemsForSerialize(this.markersSlot, instance);
+    const markers = this.itemListHostAdapter.serializeSlot(instance);
     return {
       ...result,
       class: ServerComponentClass.Map,
