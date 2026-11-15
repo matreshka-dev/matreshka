@@ -225,7 +225,7 @@ describe('ForEachComponent', () => {
 
       component.syncComponentConfigs(newComponents);
 
-      expect(registerSpy).toHaveBeenCalledWith(newComponents[0][0]);
+      expect(registerSpy).toHaveBeenCalledWith(newComponents[0][0], configId);
       expect(deleteSpy).toHaveBeenCalledWith(oldComponents[0][0]);
       expect(component.elementsComponents()).toEqual(newComponents);
     });
@@ -323,6 +323,7 @@ describe('ForEachComponent', () => {
     }
 
     function mountForEachWithListRef(): void {
+      componentHub.deleteConfig(config);
       config = {
         id: configId,
         class: ServerComponentClass.ForEach,
@@ -359,12 +360,13 @@ describe('ForEachComponent', () => {
       const freezeSpy = vi.spyOn(componentHub, 'freezeConfigSubtree');
 
       postman.incomingMessage$.next(
-        new BffContextValuesMessage(contextId, [
-          {
-            key: 'items',
-            value: [{ key: 'upload-1', progress: 42 }],
+        new BffContextValuesMessage(contextId, {
+          items: {
+            '0': {
+              progress: 42,
+            },
           },
-        ]),
+        }),
       );
 
       expect(freezeSpy).not.toHaveBeenCalled();
@@ -377,15 +379,14 @@ describe('ForEachComponent', () => {
       const freezeSpy = vi.spyOn(componentHub, 'freezeConfigSubtree');
 
       postman.incomingMessage$.next(
-        new BffContextValuesMessage(contextId, [
-          {
-            key: 'items',
-            value: [
+        new BffContextValuesMessage(contextId, {
+          items: {
+            $set: [
               { key: 'upload-1', progress: 0 },
               { key: 'upload-2', progress: 0 },
             ],
           },
-        ]),
+        }),
       );
 
       expect(freezeSpy).toHaveBeenCalledTimes(1);

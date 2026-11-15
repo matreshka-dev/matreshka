@@ -1,6 +1,6 @@
 {
   "name": "@matreshka/shared",
-  "version": "0.25.1",
+  "version": "0.26.0",
   "description": "Shared runtime utilities for Matreshka BFF and client",
   "main": "./dist/cjs/index.js",
   "module": "./dist/esm/index.js",
@@ -39,7 +39,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@matreshka/client-bff-protocol": "^0.2.1",
+    "@matreshka/client-bff-protocol": "^0.6.0",
     "ts-essentials": "^10.0.4"
   },
   "devDependencies": {

@@ -141,9 +141,9 @@ describe('ServerInputComponent', () => {
       expect(component.value()).toBe('initial-from-context');
 
       postman.incomingMessage$.next(
-        new BffContextValuesMessage(contextId, [
-          { key: 'field', value: 'updated-from-context' },
-        ]),
+        new BffContextValuesMessage(contextId, {
+          field: 'updated-from-context',
+        }),
       );
 
       expect(component.value()).toBe('updated-from-context');
@@ -155,9 +155,9 @@ describe('ServerInputComponent', () => {
       setValuesSpy.mockClear();
 
       postman.incomingMessage$.next(
-        new BffContextValuesMessage(contextId, [
-          { key: 'field', value: 'updated-from-context' },
-        ]),
+        new BffContextValuesMessage(contextId, {
+          field: 'updated-from-context',
+        }),
       );
 
       expect(component.value()).toBe('updated-from-context');
@@ -169,9 +169,9 @@ describe('ServerInputComponent', () => {
       const initialValue = component.value();
 
       postman.incomingMessage$.next(
-        new BffContextValuesMessage(contextId, [
-          { key: 'field', value: 'initial-from-context' },
-        ]),
+        new BffContextValuesMessage(contextId, {
+          field: 'initial-from-context',
+        }),
       );
 
       expect(component.value()).toBe(initialValue);
@@ -278,9 +278,9 @@ describe('ServerInputComponent', () => {
       expect(component.value()).toBe('User 123');
 
       postman.incomingMessage$.next(
-        new BffContextValuesMessage(metaContextId, [
-          { key: 'id', value: '456' },
-        ]),
+        new BffContextValuesMessage(metaContextId, {
+          id: '456',
+        }),
       );
       fixture.detectChanges();
       expect(component.value()).toBe('User 456');
@@ -291,9 +291,9 @@ describe('ServerInputComponent', () => {
       setValuesSpy.mockClear();
 
       postman.incomingMessage$.next(
-        new BffContextValuesMessage(metaContextId, [
-          { key: 'id', value: '456' },
-        ]),
+        new BffContextValuesMessage(metaContextId, {
+          id: '456',
+        }),
       );
       fixture.detectChanges(); // Несколько detectChanges нужно чтобы корректно отслеживать effect в компоненте
       const event = {

@@ -29,7 +29,11 @@
       ],
       "@matreshka/client-bff-protocol/package.json": [
         "../protocols/client-bff-protocol/dist/package.json"
-      ]
+      ],
+      "@matreshka/client-bff-protocol/*": [
+        "../protocols/client-bff-protocol/*"
+      ],
+      "@matreshka/shared/*": ["../shared/*"]
     }
   },
   "angularCompilerOptions": {

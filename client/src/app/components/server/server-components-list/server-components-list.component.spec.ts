@@ -129,9 +129,9 @@ describe('ServerComponentsListComponent', () => {
     componentHub.freezeConfigSubtree(config);
 
     postman.incomingMessage$.next(
-      new BffContextValuesMessage(contextId, [
-        { key: 'status', value: undefined },
-      ]),
+      new BffContextValuesMessage(contextId, {
+        status: 'other',
+      }),
     );
 
     expect(values).toEqual([false]);

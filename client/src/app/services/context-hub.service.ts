@@ -3,10 +3,12 @@ import { ContextInitMessage as BffToClientContextInitMessage } from '@matreshka/
 import {
   ContextDestroyMessage,
   ContextValuesMessage,
+  type ContextDiffNode,
 } from '@matreshka/client-bff-protocol/messages/bff-to-client/context/index';
 import { ContextInitMessage as ClientToBffContextInitMessage } from '@matreshka/client-bff-protocol/messages/client-to-bff/context/context-init-message';
 import { ContextValuesMessage as ClientToBffContextValuesMessage } from '@matreshka/client-bff-protocol/messages/client-to-bff/context/context-values-message';
 import { fetchFromObject } from '@matreshka/shared/utils/fetch-from-object';
+import { applyContextDiff } from '@matreshka/shared/utils/objects-diff';
 import { parseContextPath } from '@matreshka/shared/utils/parse-context-path';
 import { replaceContextPlaceholders } from '@matreshka/shared/utils/replace-context-placeholders';
 import { setObjectProperty } from '@matreshka/shared/utils/set-object-property';
@@ -64,8 +66,11 @@ class Context {
       )
       .subscribe((payload) => {
         this.needSync = false;
-        this.setValues(payload);
-        this.needSync = true;
+        try {
+          this.applyServerDiff(payload);
+        } finally {
+          this.needSync = true;
+        }
       });
 
     return this;
@@ -96,6 +101,25 @@ class Context {
 
   value(key: string): unknown {
     return fetchFromObject(this.values$.getValue(), key);
+  }
+
+  /** BFF partial tree. Ошибка применения не меняет текущий корень. */
+  private applyServerDiff(diff: ContextDiffNode) {
+    const current = this.values$.getValue();
+    let next: unknown;
+    try {
+      next = applyContextDiff(current, diff);
+    } catch {
+      return;
+    }
+    if (typeof next !== 'object' || next === null) {
+      return;
+    }
+    const changes = deriveContextChanges(diff, next);
+    this.values$.next(next);
+    if (changes.length > 0) {
+      this.emitChange(changes);
+    }
   }
 
   setValues(data: { key: string; value: unknown }[]) {
@@ -273,4 +297,81 @@ export class ContextHubService {
   replacePlaceholders(str: string): string {
     return replaceContextPlaceholders(str, (path) => this.value(path));
   }
+}
+
+const RESERVED_DIFF_KEYS = new Set(['$set', '$remove', '$move', '$insert']);
+
+function deriveContextChanges(
+  diff: ContextDiffNode,
+  value: unknown,
+  path = '',
+): { key: string; value: unknown }[] {
+  if (isDiffPrimitive(diff)) {
+    return path === '' ? [] : [{ key: path, value }];
+  }
+  if (Array.isArray(diff)) {
+    if (!Array.isArray(value)) {
+      return path === '' ? [] : [{ key: path, value }];
+    }
+    const changes: { key: string; value: unknown }[] = [];
+    for (let index = 0; index < diff.length; index++) {
+      changes.push(
+        ...deriveContextChanges(
+          diff[index] as ContextDiffNode,
+          value[index],
+          joinPath(path, String(index)),
+        ),
+      );
+    }
+    return changes;
+  }
+  if (Object.prototype.hasOwnProperty.call(diff, '$set')) {
+    return path === '' ? [] : [{ key: path, value }];
+  }
+  if (Array.isArray(value) && (diff.$remove || diff.$move || diff.$insert)) {
+    return path === '' ? [] : [{ key: path, value }];
+  }
+  const changes: { key: string; value: unknown }[] = [];
+  if (!Array.isArray(value) && Array.isArray(diff.$remove)) {
+    for (const key of diff.$remove) {
+      if (typeof key === 'string') {
+        changes.push({ key: joinPath(path, key), value: undefined });
+      }
+    }
+  }
+  for (const key of Object.keys(diff)) {
+    if (RESERVED_DIFF_KEYS.has(key)) {
+      continue;
+    }
+    const child = diff[key];
+    if (child === undefined) {
+      continue;
+    }
+    const childValue: unknown = Array.isArray(value)
+      ? (value as unknown[])[Number(key)]
+      : (value as Record<string, unknown>)[key];
+    changes.push(
+      ...deriveContextChanges(
+        child as ContextDiffNode,
+        childValue,
+        joinPath(path, key),
+      ),
+    );
+  }
+  return changes;
+}
+
+function isDiffPrimitive(
+  value: ContextDiffNode,
+): value is Exclude<ContextDiffNode, object> {
+  return (
+    value === null ||
+    typeof value === 'string' ||
+    typeof value === 'number' ||
+    typeof value === 'boolean'
+  );
+}
+
+function joinPath(path: string, key: string): string {
+  return path === '' ? key : `${path}.${key}`;
 }

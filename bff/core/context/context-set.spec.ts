@@ -251,6 +251,26 @@ describe("Context.set", () => {
     expect(recipient.waiters).toHaveLength(0);
   });
 
+  it("структурно тот же массив не шлёт context-values", async () => {
+    const ctx = createContext<{ items: number[] }>({
+      data: async () => ({ items: [1, 2, 3] }),
+    });
+    const recipient = createDeliveryClient();
+
+    ctx.authorizeClient(recipient.client);
+    await ctx.init();
+
+    let completed = false;
+    ctx.set({ items: [1, 2, 3] }).subscribe({
+      complete: () => {
+        completed = true;
+      },
+    });
+
+    expect(completed).toBe(true);
+    expect(recipient.sentMessages).toHaveLength(0);
+  });
+
   it("при отсутствии адресатов сразу завершается и не ждёт receipt", async () => {
     const ctx = createContext<{ loading: boolean }>({
       data: async () => ({ loading: false }),

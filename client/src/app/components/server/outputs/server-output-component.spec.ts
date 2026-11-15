@@ -164,9 +164,9 @@ describe('ServerOutputComponent', () => {
 
       // Обновляем значение контекста — это должно обновить signal value
       postman.incomingMessage$.next(
-        new BffContextValuesMessage(contextId, [
-          { key: 'field', value: 'updated-from-context' },
-        ]),
+        new BffContextValuesMessage(contextId, {
+          field: 'updated-from-context',
+        }),
       );
 
       expect(component.value()).toBe('updated-from-context');
@@ -186,9 +186,9 @@ describe('ServerOutputComponent', () => {
       componentHub.freezeConfigSubtree(config);
 
       postman.incomingMessage$.next(
-        new BffContextValuesMessage(contextId, [
-          { key: 'field', value: 'other-title' },
-        ]),
+        new BffContextValuesMessage(contextId, {
+          field: 'other-title',
+        }),
       );
 
       expect(component.value()).toBe('initial-title');
@@ -208,9 +208,9 @@ describe('ServerOutputComponent', () => {
       expect(component.value()).toBe('initial-title');
 
       postman.incomingMessage$.next(
-        new BffContextValuesMessage(contextId, [
-          { key: 'field', value: 'after-unfreeze' },
-        ]),
+        new BffContextValuesMessage(contextId, {
+          field: 'after-unfreeze',
+        }),
       );
 
       expect(component.value()).toBe('after-unfreeze');
@@ -259,9 +259,9 @@ describe('ServerOutputComponent', () => {
 
       // Изменяем значение в контексте — это должно вызвать запрос ререндера
       postman.incomingMessage$.next(
-        new BffContextValuesMessage(contextId, [
-          { key: 'name', value: 'updated-name' },
-        ]),
+        new BffContextValuesMessage(contextId, {
+          name: 'updated-name',
+        }),
       );
 
       // Проверяем, что был запрос ререндера (markForCheck) и значение изменилось
@@ -309,9 +309,9 @@ describe('ServerOutputComponent', () => {
 
       // Меняем meta.id, теперь ключ должен указывать на users.456.name
       postman.incomingMessage$.next(
-        new BffContextValuesMessage(metaContextId, [
-          { key: 'id', value: '456' },
-        ]),
+        new BffContextValuesMessage(metaContextId, {
+          id: '456',
+        }),
       );
 
       expect(placeholderKeyComponent.value()).toBe('User 456');

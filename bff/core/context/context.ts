@@ -2,6 +2,7 @@ import {
   ContextValuesMessage as BffToClientContextValuesMessage,
   ContextDestroyMessage,
   ContextInitMessage,
+  type ContextDiffNode,
 } from "@matreshka/client-bff-protocol/messages/bff-to-client/context/index";
 import {
   ContextInitMessage as ClientToBffContextInitMessage,
@@ -48,9 +49,13 @@ import type {
 import { assertNonOverlappingContextPaths } from "../utils/assert-non-overlapping-context-paths";
 import { assertSafeDottedPath } from "../utils/assert-safe-dotted-path";
 import { zodDeepPick } from "../utils/deep-pick";
-import { objectsDiff } from "../utils/objects-diff";
 import { replaceContextKeys } from "../utils/replace-context-keys";
 import { assertClientUpdateSchemaSupported } from "./assert-client-update-schema";
+import {
+  createContextDiff,
+  isContextDiffBranch,
+  isEmptyContextDiff,
+} from "./context-diff";
 import { ContextRef } from "./context-ref";
 
 export type { ContextUpdateDelivery } from "../types/context-update-delivery";
@@ -239,9 +244,7 @@ export class Context<
       config?: ActionConfig,
     ): ToggleContextValue =>
       toggleContextValue(
-        this.ref(path as Paths<T>) as unknown as WritableContextRefOfValue<
-          boolean | undefined
-        >,
+        this.ref(path) as WritableContextRefOfValue<boolean | undefined>,
         config,
       ),
     inc: <K extends WritableContextPath<T, S>>(
@@ -254,7 +257,7 @@ export class Context<
       config?: ActionConfig,
     ): IncContextValue =>
       incContextValue(
-        this.ref(path as Paths<T>) as unknown as WritableContextRefOfValue<
+        this.ref(path) as unknown as WritableContextRefOfValue<
           number | undefined
         >,
         step ?? 1,
@@ -270,7 +273,7 @@ export class Context<
       config?: ActionConfig,
     ): DecContextValue =>
       decContextValue(
-        this.ref(path as Paths<T>) as unknown as WritableContextRefOfValue<
+        this.ref(path) as unknown as WritableContextRefOfValue<
           number | undefined
         >,
         step ?? 1,
@@ -564,30 +567,32 @@ export class Context<
       }
       // Во время init() не шлём diff (сохраняем текущую семантику: первая "реальная" установка данных не должна рассылаться как изменения).
       if (!this.initializing && prevData) {
-        let diff: Record<string, unknown> | undefined;
+        let diff: ContextDiffNode | undefined;
+        let diffReady = false;
         getRegistryEntry(this.id)?.clients.forEach((_, client) => {
           if (this.dataChangedByClient !== client) {
             // Не первое присваивание
             // Сравнение двух объектов, поиск измененных ключей
-            if (diff === undefined) {
-              diff = objectsDiff(prevData, data);
+            if (!diffReady) {
+              diff = createContextDiff(prevData, data);
+              diffReady = true;
             }
-            if (Object.keys(diff).length) {
+            if (
+              diff &&
+              isContextDiffBranch(diff) &&
+              !isEmptyContextDiff(diff)
+            ) {
               // Изменения есть
               client.outcomingMessage$.next(
-                new BffToClientContextValuesMessage(
-                  this.id,
-                  Object.entries(diff).map(([key, value]) => ({
-                    key,
-                    value,
-                  })),
-                ),
+                new BffToClientContextValuesMessage(this.id, diff),
               );
             }
           }
         });
       }
       this.dataChangedByClient = undefined;
+      // Снимок отделён от сравнения: копия защищает prev от последующей мутации,
+      // а createContextDiff сравнивает структуру, а не ссылки внутри копии.
       prevData = structuredClone(data);
     });
   }
@@ -610,18 +615,19 @@ export class Context<
   }
 
   private emitDiffAndWait(
-    diff: Record<string, unknown>,
+    diff: ContextDiffNode | undefined,
   ): Observable<ContextUpdateDelivery> {
     const recipients = this.recipientsForDiff();
     this.dataChangedByClient = undefined;
-    if (Object.keys(diff).length === 0 || recipients.length === 0) {
+    if (
+      !diff ||
+      !isContextDiffBranch(diff) ||
+      isEmptyContextDiff(diff) ||
+      recipients.length === 0
+    ) {
       return this.completeImmediately();
     }
 
-    const payload = Object.entries(diff).map(([key, value]) => ({
-      key,
-      value,
-    }));
     const result$ = new ReplaySubject<ContextUpdateDelivery>(recipients.length);
     const delivered: Client[] = [];
     let finalized = false;
@@ -650,7 +656,7 @@ export class Context<
     };
 
     for (const client of recipients) {
-      const message = new BffToClientContextValuesMessage(this.id, payload);
+      const message = new BffToClientContextValuesMessage(this.id, diff);
       subscriptions.add(
         client.waitForDelivery(message).subscribe({
           next: () => finishSuccess(client),
@@ -670,9 +676,8 @@ export class Context<
     this.assertInitialized();
 
     const currentData = this.data$.getValue();
-    const prevData = structuredClone(currentData);
     const nextData = mutator(structuredClone(currentData));
-    const diff = objectsDiff(prevData, nextData);
+    const diff = createContextDiff(currentData, nextData);
 
     this.skipNextDataSync = true;
     this.data$.next(nextData);

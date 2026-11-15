@@ -75,7 +75,9 @@ nameRef.update((name) => name.trim()); // следующее значение и
 - update стартует **сразу при вызове метода**;
 - на каждый transport-level receipt у очередного клиента — `next({ delivered })`, где `delivered` — **накопительный** список `Client`;
 - `complete` — когда receipt получены от **всех** ожидаемых адресатов diff;
-- если diff пустой или адресатов нет — один `next({ delivered: [] })` и `complete`.
+- если diff пустой (`{}`) или адресатов нет — один `next({ delivered: [] })` и `complete`, без исходящего `context-values`.
+
+После инициализации исходящий `context-values` несёт partial tree: только изменённые ветви и операции `$remove`, `$move`, `$insert`, `$set`. Полный snapshot по-прежнему уходит один раз в `context-init`. Пустой diff не отправляется. Сравнение структурное: новая ссылка на тот же массив или объект изменением не считается. Выбор представления разобран в [../architecture/context-diff.md](../architecture/context-diff.md).
 
 Тип `ContextUpdateDelivery` экспортируется из `@matreshka/bff/core`. Подробности — [../architecture/context-update-delivery.md](../architecture/context-update-delivery.md). Для финала доставки используйте `complete` или `lastValueFrom`, а не `firstValueFrom` (он даёт только первый прогресс).
 

@@ -3,6 +3,7 @@ export * from "./utils/diff-nested-items";
 export * from "./utils/fetch-from-object";
 export * from "./utils/find-context-keys";
 export * from "./utils/needs-more";
+export * from "./utils/objects-diff";
 export * from "./utils/parse-context-path";
 export * from "./utils/replace-context-placeholders";
 export * from "./utils/serialized-operand";

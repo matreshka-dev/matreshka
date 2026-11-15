@@ -5,6 +5,7 @@
 Связанные документы:
 
 - [context-lifecycle.md](context-lifecycle.md) — общий lifecycle `Context` на BFF и клиенте.
+- [context-diff.md](context-diff.md) — как из двух snapshot получается partial tree и какие фазы в нём оказываются.
 - [message-delivery.md](message-delivery.md) — reliable delivery, receipt, retry и дедупликация.
 - [../guides/context.md](../guides/context.md) — практическое API `Context` / `ContextRef`.
 
@@ -23,6 +24,7 @@ type ContextUpdateDelivery = {
 - После transport-level **receipt** каждого `context-values` у очередного адресата — **`next({ delivered })`**, где `delivered` растёт (порядок = порядок прихода receipt).
 - **`complete()`** — когда receipt получены от **всех** ожидаемых адресатов diff.
 - Если **`diff = {}`** или **нет получателей** — один **`next({ delivered: [] })`**, затем **`complete()`** (без исходящих `context-values`).
+- Исходящий `context-values` после init — partial tree (`$set`, `$remove`, `$move`, `$insert` и изменённые ветви), а не список dotted-путей. Клиентский `context-values` по-прежнему `{ key, value }[]` и проверяется схемой. Пустой partial tree не отправляется. Одинаковые по структуре массивы и объекты не создают diff.
 
 Это не application-level ack из `ContextHubService`: BFF знает, что сообщение дошло до клиентского runtime reliable-delivery слоя, но не ждёт отдельного подтверждения «diff применён в Angular service».
 

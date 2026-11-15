@@ -10,9 +10,10 @@
 4. [`context-create-factory.md`](context-create-factory.md) — зачем нужен `createContext`, compile-time связка `schema` и `data`, и почему это не только задача класса `Context`.
 5. [`context-ref-type-naming.md`](context-ref-type-naming.md) — модель типов вокруг `ContextRef` и правила нейминга.
 6. [`context-update-delivery.md`](context-update-delivery.md) — `Observable<ContextUpdateDelivery>`, прогресс `delivered` и receipt по клиентам.
-7. [`client-rendering.md`](client-rendering.md) — как клиент загружает контексты, проверяет conditions и монтирует компоненты.
-8. [`message-delivery.md`](message-delivery.md) — надёжная доставка, подтверждения получения, retry, дедупликация и RTT/ping.
-9. [`operations.md`](operations.md) — reconnect, lifecycle клиента, эксплуатационные ограничения и best practices.
+7. [`context-diff.md`](context-diff.md) — как BFF строит partial tree: `$remove`, `$move`, `$insert`, `$set` и частичное обновление.
+8. [`client-rendering.md`](client-rendering.md) — как клиент загружает контексты, проверяет conditions и монтирует компоненты.
+9. [`message-delivery.md`](message-delivery.md) — надёжная доставка, подтверждения получения, retry, дедупликация и RTT/ping.
+10. [`operations.md`](operations.md) — reconnect, lifecycle клиента, эксплуатационные ограничения и best practices.
 
 ## Карта архитектурных документов
 
@@ -22,6 +23,7 @@
 - [`context-create-factory.md`](context-create-factory.md) — роль `createContext` как compile-time слоя поверх runtime-класса `Context`.
 - [`context-ref-type-naming.md`](context-ref-type-naming.md) — роли типов вокруг `ContextRef`: path-aware, extractor, value-only ref и naming-конвенции.
 - [`context-update-delivery.md`](context-update-delivery.md) — server-side доставка `Context` updates, накопительный `delivered` и reliable receipt.
+- [`context-diff.md`](context-diff.md) — partial tree: `$remove`, `$move`, `$insert`, `$set` и выбор более короткого JSON.
 - [`client-rendering.md`](client-rendering.md) — `ContextHub`, `ComponentHub`, `ready$`, `display$`, conditions, rules и реакция на `change$`.
 - [`overlay-dom-order.md`](overlay-dom-order.md) — порядок overlays в DOM вокруг основного контента для корректной tab order без настроек на BFF.
 - [`message-delivery.md`](message-delivery.md) — детальная схема механизма надёжной отправки и обработки сообщений.

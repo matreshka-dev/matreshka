@@ -12,6 +12,7 @@ import {
   ContextInitMessage as BffContextInitMessage,
   ContextValuesMessage as BffContextValuesMessage,
   ContextDestroyMessage,
+  type ContextDiffNode,
 } from '@matreshka/client-bff-protocol/messages/bff-to-client/context/index';
 import { ClientToBffMessage } from '@matreshka/client-bff-protocol/messages/client-to-bff/client-to-bff-message';
 import { ContextInitMessage as ClientToBffContextInitMessage } from '@matreshka/client-bff-protocol/messages/client-to-bff/context/context-init-message';
@@ -252,19 +253,95 @@ describe('Контекст', () => {
     sentMessages.length = 0;
 
     // Сервер обновляет значение контекста
-    const serverChange = [{ key: 'field', value: 2 }];
+    const serverDiff: ContextDiffNode = {
+      field: 2,
+    };
     postman.incomingMessage$.next(
-      new BffContextValuesMessage(contextId, serverChange),
+      new BffContextValuesMessage(contextId, serverDiff),
     );
 
     expect(service.value('ctx-server-change.field')).toBe(2);
     expect(changeEvents).toHaveLength(1);
-    expect(changeEvents[0]).toEqual({ contextId, values: serverChange });
+    expect(changeEvents[0]).toEqual({
+      contextId,
+      values: [{ key: 'field', value: 2 }],
+    });
 
     // При обновлении с сервера клиент не должен отправлять сообщение обратно
     expect(sentMessages).toHaveLength(0);
 
     sub.unsubscribe();
+  });
+
+  it('серверная вставка в массив публикует изменение массива', () => {
+    const contextId = 'ctx-server-insert';
+
+    service.init$(contextId);
+    postman.incomingMessage$.next(
+      new BffContextInitMessage(contextId, { items: ['A', 'C'] }),
+    );
+
+    const changeEvents: ContextChangeEvent[] = [];
+    service.change$.subscribe((event) => changeEvents.push(event));
+
+    postman.incomingMessage$.next(
+      new BffContextValuesMessage(contextId, {
+        items: { $insert: [[1, ['B']]] },
+      }),
+    );
+
+    expect(service.value(`${contextId}.items`)).toEqual(['A', 'B', 'C']);
+    expect(changeEvents).toEqual([
+      {
+        contextId,
+        values: [{ key: 'items', value: ['A', 'B', 'C'] }],
+      },
+    ]);
+  });
+
+  it('сервер создаёт объект частичным деревом свойств', () => {
+    const contextId = 'ctx-server-new-object';
+
+    service.init$(contextId);
+    postman.incomingMessage$.next(new BffContextInitMessage(contextId, {}));
+
+    const changeEvents: ContextChangeEvent[] = [];
+    service.change$.subscribe((event) => changeEvents.push(event));
+
+    postman.incomingMessage$.next(
+      new BffContextValuesMessage(contextId, {
+        'id31@1': { index: '30' },
+      }),
+    );
+
+    expect(service.value(`${contextId}.id31@1`)).toEqual({ index: '30' });
+    expect(changeEvents).toEqual([
+      {
+        contextId,
+        values: [{ key: 'id31@1.index', value: '30' }],
+      },
+    ]);
+  });
+
+  it('ошибка partial tree не меняет контекст', () => {
+    const contextId = 'ctx-bad-diff';
+
+    service.init$(contextId);
+    postman.incomingMessage$.next(
+      new BffContextInitMessage(contextId, { items: [1, 2] }),
+    );
+
+    const changeEvents: ContextChangeEvent[] = [];
+    service.change$.subscribe((event) => changeEvents.push(event));
+
+    postman.incomingMessage$.next(
+      new BffContextValuesMessage(contextId, {
+        items: { $remove: [9] },
+      }),
+    );
+
+    expect(service.value(`${contextId}.items`)).toEqual([1, 2]);
+    expect(changeEvents).toHaveLength(0);
   });
 
   it('клиентское обновление значения', () => {
