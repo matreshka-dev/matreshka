@@ -37,7 +37,62 @@ export function createContextDiff(
   next: Json,
   identity?: ContextDiffIdentity,
 ): ContextDiffNode | undefined {
-  return createNodeDiff(previous, next, identity);
+  return createNodeDiff(toJsonData(previous), toJsonData(next), identity);
+}
+
+/**
+ * Убирает свойства со значением undefined.
+ *
+ * В JSON такого значения нет. Иначе diff получает {$set: undefined}
+ * и applyContextDiff бросает ContextDiffError.
+ * Дыра в массиве становится null, как при JSON.stringify.
+ */
+function toJsonData(value: Json): Json {
+  if (Array.isArray(value)) {
+    let copy: Json[] | undefined;
+
+    for (let index = 0; index < value.length; index++) {
+      const item = value[index] as Json | undefined;
+      const normalized = item === undefined ? null : toJsonData(item);
+
+      if (copy) {
+        copy.push(normalized);
+        continue;
+      }
+
+      if (normalized !== item) {
+        copy = value.slice(0, index);
+        copy.push(normalized);
+      }
+    }
+
+    return copy ?? value;
+  }
+
+  if (!isPlainObject(value)) {
+    return value;
+  }
+
+  let copy: Record<string, Json> | undefined;
+
+  for (const key of Object.keys(value)) {
+    const item = value[key] as Json | undefined;
+
+    if (item === undefined) {
+      copy ??= { ...value };
+      delete copy[key];
+      continue;
+    }
+
+    const normalized = toJsonData(item);
+
+    if (normalized !== item) {
+      copy ??= { ...value };
+      copy[key] = normalized;
+    }
+  }
+
+  return copy ?? value;
 }
 
 export function isContextDiffBranch(
@@ -823,11 +878,7 @@ function verifyDiff(
   next: Json,
   diff: ContextDiffNode,
 ): boolean {
-  try {
-    return deepEqual(applyContextDiff(previous, diff), next);
-  } catch {
-    return false;
-  }
+  return deepEqual(applyContextDiff(previous, diff), next);
 }
 
 function toCandidate(diff: ContextDiffNode, order: number): DiffCandidate {

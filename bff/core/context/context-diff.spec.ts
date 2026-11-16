@@ -92,6 +92,37 @@ describe("createContextDiff", () => {
     roundTrip({}, { settings: {}, items: ["A"] });
   });
 
+  it("удаляет свойство, значение которого стало undefined", () => {
+    const extra = "x".repeat(40);
+    const next = { flag: undefined, label: "keep", extra } as Json;
+
+    expect(
+      createContextDiff({ flag: true, label: "keep", extra }, next),
+    ).toEqual({
+      $remove: ["flag"],
+    });
+  });
+
+  it("не кладёт undefined-свойство нового элемента в diff", () => {
+    const next = [
+      { id: 1, name: "a" },
+      { id: 2, name: "b", owner: undefined },
+    ] as Json;
+
+    expect(createContextDiff([{ id: 1, name: "a" }], next)).toEqual({
+      "1": { id: 2, name: "b" },
+    });
+    expect(
+      applyContextDiff(
+        [{ id: 1, name: "a" }],
+        createContextDiff([{ id: 1, name: "a" }], next),
+      ),
+    ).toEqual([
+      { id: 1, name: "a" },
+      { id: 2, name: "b" },
+    ]);
+  });
+
   it("удаляет одно свойство через $remove, если это короче $set", () => {
     const previous = { name: "Ivan", age: 25, email: "ivan@example.com" };
     const next = { name: "Ivan", age: 25 };

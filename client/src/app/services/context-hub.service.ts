@@ -103,15 +103,9 @@ class Context {
     return fetchFromObject(this.values$.getValue(), key);
   }
 
-  /** BFF partial tree. Ошибка применения не меняет текущий корень. */
   private applyServerDiff(diff: ContextDiffNode) {
     const current = this.values$.getValue();
-    let next: unknown;
-    try {
-      next = applyContextDiff(current, diff);
-    } catch {
-      return;
-    }
+    const next: unknown = applyContextDiff(current, diff);
     if (typeof next !== 'object' || next === null) {
       return;
     }
@@ -351,11 +345,7 @@ function deriveContextChanges(
       ? (value as unknown[])[Number(key)]
       : (value as Record<string, unknown>)[key];
     changes.push(
-      ...deriveContextChanges(
-        child as ContextDiffNode,
-        childValue,
-        joinPath(path, key),
-      ),
+      ...deriveContextChanges(child, childValue, joinPath(path, key)),
     );
   }
   return changes;
