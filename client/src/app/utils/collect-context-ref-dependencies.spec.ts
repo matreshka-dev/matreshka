@@ -43,6 +43,36 @@ describe('contextChangeAffectsRef', () => {
     ).toBe(true);
   });
 
+  it('реагирует на ключ массива до резолва плейсхолдера', () => {
+    expect(
+      contextChangeAffectsRef(
+        {
+          contextId: userCtx,
+          values: [{ key: 'cart.items', value: [] }],
+        },
+        ref,
+        () => {
+          throw new Error('context not loaded');
+        },
+      ),
+    ).toBe(true);
+  });
+
+  it('игнорирует соседнюю ветку до резолва плейсхолдера', () => {
+    expect(
+      contextChangeAffectsRef(
+        {
+          contextId: userCtx,
+          values: [{ key: 'cart.total', value: 1 }],
+        },
+        ref,
+        () => {
+          throw new Error('context not loaded');
+        },
+      ),
+    ).toBe(false);
+  });
+
   it('реагирует на изменение cart до резолва плейсхолдера', () => {
     expect(
       contextChangeAffectsRef(

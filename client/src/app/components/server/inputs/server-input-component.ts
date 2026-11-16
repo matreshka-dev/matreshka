@@ -17,6 +17,7 @@ import {
   takeUntil,
   timer,
 } from 'rxjs';
+import { ContextNotLoadedError } from '../../../services/context-hub.service';
 import { contextChangeAffectsRef } from '../../../utils/collect-context-ref-dependencies';
 import { ServerComponent } from '../server-component';
 
@@ -52,11 +53,12 @@ export abstract class ServerInputComponent<
   override ngOnInit() {
     super.ngOnInit();
     // Инициализация значения
-    let defaultValue = this.contextHub.value(this.config.properties.ref);
-    if (typeof defaultValue === 'undefined') {
-      defaultValue = this.default();
-    }
-    const initialValue = this.castValueForComponent(defaultValue);
+    const initial = this.readContextRef();
+    const initialValue = this.castValueForComponent(
+      !initial.loaded || typeof initial.value === 'undefined'
+        ? this.default()
+        : initial.value,
+    );
     this.updatingFromContext.set(true);
     this.value.set(initialValue);
     this.updatingFromContext.set(false);
@@ -75,24 +77,56 @@ export abstract class ServerInputComponent<
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(() => {
-        // forEach: deferred removal строки списка
-        if (this.contextFrozen()) {
-          return;
-        }
-        const currentValue = this.value();
-        let newValue: ValueType | undefined = this.contextHub.value(
-          this.config.properties.ref,
-        ) as ValueType | undefined;
-        if (typeof newValue === 'undefined') {
-          newValue = this.default();
-        }
-        newValue = this.castValueForComponent(newValue); // Чтобы совпадали по типу с currentValue
-        if (JSON.stringify(currentValue) !== JSON.stringify(newValue)) {
-          this.updatingFromContext.set(true);
-          this.value.set(newValue);
-          this.updatingFromContext.set(false);
-        }
+        this.applyContextRef();
       });
+    this.componentHub.unfreezeConfig$
+      .pipe(
+        filter((id) => id === this.id()),
+        takeUntil(this.componentHub.entryDestroy$(entryId)),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe(() => {
+        this.applyContextRef();
+      });
+  }
+
+  /** loaded: false — индексный контекст плейсхолдера ещё не загружен. */
+  private readContextRef(): { loaded: boolean; value?: unknown } {
+    try {
+      return {
+        loaded: true,
+        value: this.contextHub.value(this.config.properties.ref),
+      };
+    } catch (error) {
+      if (error instanceof ContextNotLoadedError) {
+        return { loaded: false };
+      }
+      throw error;
+    }
+  }
+
+  private applyContextRef(): void {
+    // forEach: deferred removal строки списка
+    if (this.contextFrozen()) {
+      return;
+    }
+    const resolved = this.readContextRef();
+    if (!resolved.loaded) {
+      return;
+    }
+    const currentValue = this.value();
+    let newValue: ValueType | undefined = resolved.value as
+      | ValueType
+      | undefined;
+    if (typeof newValue === 'undefined') {
+      newValue = this.default();
+    }
+    newValue = this.castValueForComponent(newValue); // Чтобы совпадали по типу с currentValue
+    if (JSON.stringify(currentValue) !== JSON.stringify(newValue)) {
+      this.updatingFromContext.set(true);
+      this.value.set(newValue);
+      this.updatingFromContext.set(false);
+    }
   }
 
   onInputChange(event: Event): void {

@@ -176,6 +176,24 @@ describe('ServerInputComponent', () => {
 
       expect(component.value()).toBe(initialValue);
     });
+
+    it('после разморозки читает значение, пришедшее пока конфиг был заморожен', () => {
+      mountComponent();
+
+      componentHub.freezeConfigSubtree(config);
+
+      postman.incomingMessage$.next(
+        new BffContextValuesMessage(contextId, {
+          field: 'while-frozen',
+        }),
+      );
+
+      expect(component.value()).toBe('initial-from-context');
+
+      componentHub.unfreezeConfigSubtree(config);
+
+      expect(component.value()).toBe('while-frozen');
+    });
   });
 
   describe('изменение значения через onChange', () => {

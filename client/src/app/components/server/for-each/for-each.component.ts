@@ -59,6 +59,8 @@ export class ForEachComponent
   private listSyncGeneration = 0;
   /** Скелет списка (длина и порядок track-ключей) для отличия структуры от полей элементов. */
   private lastListStructureChecksum = '';
+  /** order последнего for-each-sync. Поздний context-values с тем же составом не морозит строки. */
+  private lastSyncedOrder: string[] | null = null;
 
   override ngOnInit() {
     super.ngOnInit();
@@ -91,6 +93,7 @@ export class ForEachComponent
    * Ключи вне порядка снимаются вместе со строкой.
    */
   private applySyncPayload(payload: ForEachSyncComponentsPayload): void {
+    this.lastSyncedOrder = payload.order;
     for (const item of payload.upserts) {
       this.itemsByKey.set(item.key, item.components);
     }
@@ -228,8 +231,9 @@ export class ForEachComponent
   }
 
   /**
-   * Контекст списка обновляется раньше ListSync — замораживаем
-   * текущие строки, чтобы ref не подставил чужие данные до leave-анимации.
+   * Смена состава списка морозит текущие строки, пока sync этого состава не пришёл:
+   * иначе ref успевает показать чужой элемент до leave.
+   * Если for-each-sync уже принёс тот же order, контекст только догоняет строки — не морозим.
    * Обновление полей внутри элементов (progress, name и т.д.) не замораживает:
    * иначе output/input перестают реагировать, т.к. ListSync при том же track не приходит.
    */
@@ -251,10 +255,31 @@ export class ForEachComponent
           return;
         }
         this.lastListStructureChecksum = structureChecksum;
+        if (this.listStructureMatchesSyncedOrder(list)) {
+          return;
+        }
         for (const row of this.elementsComponents().flat()) {
           this.componentHub.freezeConfigSubtree(row);
         }
       });
+  }
+
+  /**
+   * Состав контекста совпадает с order последнего sync.
+   * Track с ревизией (`id@revision`) считается тем же ключом, что `id` элемента.
+   */
+  private listStructureMatchesSyncedOrder(list: unknown): boolean {
+    if (this.lastSyncedOrder === null || !Array.isArray(list)) {
+      return false;
+    }
+    if (list.length !== this.lastSyncedOrder.length) {
+      return false;
+    }
+    return list.every((item, index) => {
+      const itemKey = this.listItemTrackKey(item, index);
+      const orderKey = this.lastSyncedOrder![index];
+      return orderKey === itemKey || orderKey.startsWith(`${itemKey}@`);
+    });
   }
 
   private refreshListStructureChecksum(): void {

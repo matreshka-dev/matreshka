@@ -85,7 +85,8 @@ export function contextKeysOverlap(
  * - Если в `dep.key` есть `@{…}`, сначала пробует `resolvePlaceholders` (обычно
  *   `contextHub.replacePlaceholders`).
  * - Если плейсхолдер ещё не резолвится (контекст не loaded), сравнивает по
- *   статическому префиксу до `@{` — например `cart.items.` для `cart.items.@{shop-ctx.offers.0.id}`.
+ *   статическому префиксу до `@{`. Хвостовая точка снимается, чтобы ключ массива
+ *   `cart.items` затрагивал `cart.items.@{shop-ctx.offers.0.id}`.
  *
  * @example
  * // shop-ctx загрузился
@@ -122,8 +123,11 @@ export function contextChangeAffectsRefDependency(
     } catch {
       const staticPrefix = key.slice(0, key.indexOf('@{'));
       if (staticPrefix) {
+        const prefix = staticPrefix.endsWith('.')
+          ? staticPrefix.slice(0, -1)
+          : staticPrefix;
         return payload.values.some((value) =>
-          value.key.startsWith(staticPrefix),
+          contextKeysOverlap(value.key, prefix),
         );
       }
       return payload.values.some((value) =>

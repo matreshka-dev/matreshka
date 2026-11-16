@@ -391,6 +391,57 @@ describe('ForEachComponent', () => {
 
       expect(freezeSpy).toHaveBeenCalledTimes(1);
     });
+
+    it('не замораживает строки, если $insert догоняет уже применённый sync', () => {
+      initContext([{ key: 'upload-1', progress: 0 }]);
+      mountForEachWithListRef();
+
+      const freezeSpy = vi.spyOn(componentHub, 'freezeConfigSubtree');
+
+      postman.incomingMessage$.next(
+        new ForEachSyncComponentsMessage(configId, {
+          order: ['upload-1', 'upload-2@3'],
+          upserts: [
+            {
+              key: 'upload-2@3',
+              components: [
+                {
+                  id: 'row-2',
+                  class: ServerComponentClass.UnitTest,
+                },
+              ],
+            },
+          ],
+        }),
+      );
+
+      postman.incomingMessage$.next(
+        new BffContextValuesMessage(contextId, {
+          items: {
+            $insert: [[1, [{ key: 'upload-2', progress: 0 }]]],
+          },
+        }),
+      );
+
+      expect(freezeSpy).not.toHaveBeenCalled();
+    });
+
+    it('замораживает строки при $insert, если sync этого состава ещё не было', () => {
+      initContext([{ key: 'upload-1', progress: 0 }]);
+      mountForEachWithListRef();
+
+      const freezeSpy = vi.spyOn(componentHub, 'freezeConfigSubtree');
+
+      postman.incomingMessage$.next(
+        new BffContextValuesMessage(contextId, {
+          items: {
+            $insert: [[1, [{ key: 'upload-2', progress: 0 }]]],
+          },
+        }),
+      );
+
+      expect(freezeSpy).toHaveBeenCalledTimes(1);
+    });
   });
 
   describe('ngOnDestroy', () => {

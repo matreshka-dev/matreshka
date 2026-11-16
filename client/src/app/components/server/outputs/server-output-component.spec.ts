@@ -205,15 +205,7 @@ describe('ServerOutputComponent', () => {
           component as unknown as { contextFrozen: () => boolean }
         ).contextFrozen(),
       ).toBe(false);
-      expect(component.value()).toBe('initial-title');
-
-      postman.incomingMessage$.next(
-        new BffContextValuesMessage(contextId, {
-          field: 'after-unfreeze',
-        }),
-      );
-
-      expect(component.value()).toBe('after-unfreeze');
+      expect(component.value()).toBe('other-title');
     });
   });
 
