@@ -16,7 +16,7 @@ import { ServerComponentsListComponent } from '../server-components-list/server-
 import { DialogCloseMessage } from '@matreshka/client-bff-protocol/messages/bff-to-client/components/dialog/dialog-close-message';
 import { OverlayAnchor } from '@matreshka/client-bff-protocol/types/container-overlay';
 import type { ServerComponentInteraction } from '@matreshka/client-bff-protocol/types/server-component-interaction';
-import { filter } from 'rxjs';
+import { filter, take } from 'rxjs';
 import { rem } from '../../../utils/rem';
 import { EntryServerComponent } from '../entry-server-component';
 import {
@@ -116,6 +116,7 @@ export class DialogComponent
     this.popupService.close$
       .pipe(
         filter((id) => id === this.id()),
+        take(1),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(() => {

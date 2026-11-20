@@ -11,7 +11,7 @@ import {
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { PopoverCloseMessage } from '@matreshka/client-bff-protocol/messages/bff-to-client/components/popover/popover-close-message';
 import type { PopoverConfig } from '@matreshka/client-bff-protocol/types/popover-config';
-import { filter } from 'rxjs';
+import { filter, take } from 'rxjs';
 import { OverlaysComponent } from '../../local/overlays/overlays.component';
 import { EntryServerComponent } from '../entry-server-component';
 import { ServerComponentsListComponent } from '../server-components-list/server-components-list.component';
@@ -117,6 +117,7 @@ export class PopoverComponent
     this.popupService.close$
       .pipe(
         filter((id) => id === this.id()),
+        take(1),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe(() => {
