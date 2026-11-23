@@ -3,6 +3,7 @@ export * from "./browser-platform";
 export * from "./client-platform";
 export * from "./ios-platform";
 export * from "./max-mini-app-platform";
+export * from "./media";
 export * from "./mobile-platform";
 export * from "./platform";
 export * from "./popover-show";

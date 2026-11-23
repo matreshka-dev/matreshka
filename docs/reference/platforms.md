@@ -1018,6 +1018,33 @@ platform.connectToBLEDevice(deviceId).subscribe({
 
 Эквивалент: `new BLEDevice(deviceId, client).connect()` на стороне BFF — снаружи используйте только `connectToBLEDevice`.
 
+## Аудио и видео
+
+`createAudio` и `createVideo` есть у `ClientPlatform`. `currentClientPlatform()` возвращает `Platform`, поэтому перед вызовом нужен `instanceof ClientPlatform`. Оба метода возвращают `Observable` с объектом плеера.
+
+У `Audio` и `Video` общие методы: `play`, `pause`, `load`, `seek`, `setSrc`, `setVolume`, `setMuted`, `setPlaybackRate`, `setLoop`, `setPreload`, `destroy`. Каждый возвращает `Observable<void>`. У `Video` дополнительно `requestPictureInPicture` и `exitPictureInPicture`. Если браузер не дал начать воспроизведение, observable завершается ошибкой.
+
+В конфиге можно задать `src`, `volume`, `muted`, `loop`, `playbackRate`, `autoplay`, а также `preload` (`MediaPreload`) и `crossOrigin` (`MediaCrossOrigin`). События задаются как у компонентов: одно действие или массив локальных и серверных.
+
+```ts
+import { ClientPlatform, MediaPreload } from "@matreshka/bff/platforms";
+
+if (platform instanceof ClientPlatform) {
+  platform
+    .createAudio({
+      src: "https://example.com/track.mp3",
+      preload: MediaPreload.Metadata,
+      onPlay: this.context.local.set({ playing: true }),
+      onEnded: () => this.playlist.next(),
+    })
+    .subscribe((audio) => {
+      audio.play();
+    });
+}
+```
+
+`destroy()` останавливает воспроизведение. Локальная команда контекста в обработчике привязывает клиента к этому контексту, как у компонента.
+
 ## BLEDevice
 
 После успешного `connectToBLEDevice` доступен объект с методами:

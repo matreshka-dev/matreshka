@@ -56,15 +56,11 @@ import {
   shouldRenderOverlaysInWrapper,
 } from './server-component-overlays';
 import {
-  applyContextPatch,
-  applyContextValueUpdates,
-  resolveLocalActionOperand,
-} from './utils/apply-context-value-updates';
-import {
   calculateGridItemStyles,
   calculateScaleStyles,
   calculateSizeStyles,
 } from './utils/calculate-styles';
+import { executeLocalInteraction } from './utils/execute-local-interaction';
 import {
   runComponentAnimations,
   type ComponentAnimationPayload,
@@ -180,6 +176,12 @@ export abstract class ServerComponent<T extends ServerComponentConfig>
   }
 
   /** Выполняет локальную component-команду на target instance без round-trip на BFF. */
+  runSerializedLocalAction(
+    interaction: ServerComponentInteraction,
+  ): void | Promise<void> {
+    return this.executeLocalComponentAction(interaction);
+  }
+
   protected executeLocalComponentAction(
     _interaction: ServerComponentInteraction,
   ): void | Promise<void> {}
@@ -473,103 +475,14 @@ export abstract class ServerComponent<T extends ServerComponentConfig>
       if (interaction.class === 'server-interaction') {
         return;
       }
-
-      if (interaction.class.startsWith('component-local-')) {
-        const target = (interaction.payload as { target: string }).target;
-        this.componentHub
-          .getInstancesByComponentId(target)
-          .forEach((component) => {
-            void Promise.resolve(
-              component.executeLocalComponentAction(interaction),
-            ).catch((error: unknown) => {
-              console.error(
-                `Local component action failed: ${interaction.class}`,
-                error,
-              );
-            });
-          });
+      if (interaction.class === 'animate-component') {
         return;
       }
-
-      switch (interaction.class) {
-        case 'write-text-to-clipboard':
-          navigator.clipboard.writeText(
-            this.contextHub.replacePlaceholders(
-              (interaction.payload as { text: string }).text,
-            ),
-          );
-          break;
-        case 'set-context': {
-          const payload = interaction.payload as {
-            context: string;
-            patch: Record<string, unknown>;
-          };
-          applyContextPatch(this.contextHub, payload.context, payload.patch);
-          break;
-        }
-        case 'toggle-context-value': {
-          const payload = interaction.payload as { ref: string };
-          applyContextValueUpdates(this.contextHub, [
-            {
-              ref: payload.ref,
-              value: !this.contextHub.value(payload.ref),
-            },
-          ]);
-          break;
-        }
-        case 'inc-context-value': {
-          const payload = interaction.payload as {
-            ref: string;
-            step?: unknown;
-          };
-          const current = this.contextHub.value(payload.ref);
-          const resolvedStep = resolveLocalActionOperand(
-            this.contextHub,
-            payload.step ?? { kind: 'literal', value: 1 },
-          );
-          const step = typeof resolvedStep === 'number' ? resolvedStep : 1;
-          applyContextValueUpdates(this.contextHub, [
-            {
-              ref: payload.ref,
-              value: (typeof current === 'number' ? current : 0) + step,
-            },
-          ]);
-          break;
-        }
-        case 'dec-context-value': {
-          const payload = interaction.payload as {
-            ref: string;
-            step?: unknown;
-          };
-          const current = this.contextHub.value(payload.ref);
-          const resolvedStep = resolveLocalActionOperand(
-            this.contextHub,
-            payload.step ?? { kind: 'literal', value: 1 },
-          );
-          const step = typeof resolvedStep === 'number' ? resolvedStep : 1;
-          applyContextValueUpdates(this.contextHub, [
-            {
-              ref: payload.ref,
-              value: (typeof current === 'number' ? current : 0) - step,
-            },
-          ]);
-          break;
-        }
-        case 'close-entry': {
-          const payload = interaction.payload as { target: string };
-          for (const instance of this.componentHub.getInstancesByComponentId(
-            payload.target,
-          )) {
-            this.popupService.close$.next(instance.id());
-          }
-          break;
-        }
-        case 'animate-component':
-          // skip - выполняется ниже
-          break;
-        default:
-          console.error('Unknown component interaction = ' + interaction.class);
-      }
+      executeLocalInteraction(interaction, {
+        contextHub: this.contextHub,
+        componentHub: this.componentHub,
+        popupService: this.popupService,
+      });
     });
 
     let animations = Promise.resolve([] as Animation[]);

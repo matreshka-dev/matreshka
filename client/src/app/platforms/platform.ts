@@ -35,6 +35,7 @@ import { registerWebMcpTools } from '../components/server/webmcp/register-entry-
 import { ComponentHubService } from '../services/component-hub.service';
 import { ContextHubService } from '../services/context-hub.service';
 import { FontRegistryService } from '../services/font-registry.service';
+import { PopupService } from '../services/popup.service';
 import { PostmanService } from '../services/postman.service';
 import { UpdateService } from '../services/update.service';
 import { WINDOW } from '../tokens/window';
@@ -52,6 +53,7 @@ import {
   failTargetedAction,
   runTargetedAction,
 } from '../utils/targeted-action';
+import { ClientMediaHost } from './media-host';
 
 export const PLATFORM = new InjectionToken<Platform>('');
 
@@ -62,6 +64,13 @@ export abstract class Platform {
   postman = inject(PostmanService);
   protected componentHub = inject(ComponentHubService);
   private readonly contextHub = inject(ContextHubService);
+  private readonly popupService = inject(PopupService);
+  private readonly mediaHost = new ClientMediaHost(
+    this.postman,
+    this.contextHub,
+    this.componentHub,
+    this.popupService,
+  );
   private readonly fontRegistry = inject(FontRegistryService);
   protected readonly updateService = inject(UpdateService);
   private readonly nativePickerInputs = new Map<string, HTMLInputElement>();
@@ -83,6 +92,9 @@ export abstract class Platform {
     this.applyPlatformBodyClass();
     applyStoredColorSchemePreference(this.document);
     this.postman.incomingMessage$.subscribe((message) => {
+      if (this.mediaHost.handle(message)) {
+        return;
+      }
       if (message instanceof AppReconnectInfoMessage) {
         if (this.serverInstanceId !== message.payload.serverInstanceId) {
           this.window.location.reload();

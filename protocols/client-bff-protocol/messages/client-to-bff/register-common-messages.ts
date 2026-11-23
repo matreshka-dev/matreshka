@@ -28,6 +28,22 @@ import { ContextInitMessage } from "./context/context-init-message";
 import { ContextValuesMessage } from "./context/context-values-message";
 import { ErrorMessage } from "./error-message";
 import { ClientToBffMessageReceivedMessage } from "./message-received-message";
+import {
+  MediaEndedEventMessage,
+  MediaEnterPictureInPictureEventMessage,
+  MediaErrorEventMessage,
+  MediaLeavePictureInPictureEventMessage,
+  MediaLoadedMetadataEventMessage,
+  MediaPauseEventMessage,
+  MediaPlayEventMessage,
+  MediaPlayingEventMessage,
+  MediaRateChangeEventMessage,
+  MediaSeekedEventMessage,
+  MediaSeekingEventMessage,
+  MediaTimeUpdateEventMessage,
+  MediaVolumeChangeEventMessage,
+  MediaWaitingEventMessage,
+} from "./platforms/media-event-messages";
 import { PlatformEnumerateDevicesSuccessMessage } from "./platforms/platform-enumerate-devices-success-message";
 import { PlatformWebAuthnCreateCredentialSuccessMessage } from "./platforms/platform-webauthn-create-credential-success-message";
 import { PlatformWebAuthnGetCredentialSuccessMessage } from "./platforms/platform-webauthn-get-credential-success-message";
@@ -63,6 +79,20 @@ export function registerCommonClientToBffMessages() {
   clientToBffMessageRegistry.register(FormSubmitMessage);
   clientToBffMessageRegistry.register(ActionCompletedMessage);
   clientToBffMessageRegistry.register(PlatformEnumerateDevicesSuccessMessage);
+  clientToBffMessageRegistry.register(MediaPlayEventMessage);
+  clientToBffMessageRegistry.register(MediaPauseEventMessage);
+  clientToBffMessageRegistry.register(MediaPlayingEventMessage);
+  clientToBffMessageRegistry.register(MediaWaitingEventMessage);
+  clientToBffMessageRegistry.register(MediaEndedEventMessage);
+  clientToBffMessageRegistry.register(MediaLoadedMetadataEventMessage);
+  clientToBffMessageRegistry.register(MediaSeekingEventMessage);
+  clientToBffMessageRegistry.register(MediaSeekedEventMessage);
+  clientToBffMessageRegistry.register(MediaTimeUpdateEventMessage);
+  clientToBffMessageRegistry.register(MediaVolumeChangeEventMessage);
+  clientToBffMessageRegistry.register(MediaRateChangeEventMessage);
+  clientToBffMessageRegistry.register(MediaErrorEventMessage);
+  clientToBffMessageRegistry.register(MediaEnterPictureInPictureEventMessage);
+  clientToBffMessageRegistry.register(MediaLeavePictureInPictureEventMessage);
   clientToBffMessageRegistry.register(
     PlatformWebAuthnCreateCredentialSuccessMessage,
   );
