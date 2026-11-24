@@ -117,4 +117,21 @@ describe('applyContextPatch', () => {
       { key: 'enabled', value: true },
     ]);
   });
+
+  it('при sync false не просит hub слать context-values', () => {
+    const setValues = vi.fn();
+    const replacePlaceholders = vi.fn((key: string) => key);
+    const contextHub = {
+      setValues,
+      replacePlaceholders,
+    } as unknown as ContextHubService;
+
+    applyContextPatch(contextHub, 'ctx-a', { hovered: true }, false);
+
+    expect(setValues).toHaveBeenCalledWith(
+      'ctx-a',
+      [{ key: 'hovered', value: true }],
+      { sync: false },
+    );
+  });
 });

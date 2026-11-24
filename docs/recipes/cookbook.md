@@ -109,7 +109,7 @@ context = createContext({
 textInput(this.context.ref("name"));
 ```
 
-Клиент отправляет `context-values`, а BFF обновляет ключ, потому что `name` описан в `schema`. Ключ input или `context.local` / `ref.local` без схемы клиентским сообщением не меняется. Подробнее — [Context](../guides/context.md).
+Клиент отправляет `context-values`, а BFF обновляет ключ, потому что `name` описан в `schema`. Ключ input без схемы клиентским сообщением не меняется. `context.local` / `ref.local` без `{ sync: false }` тоже требуют путь в схеме. Подробнее — [Context](../guides/context.md).
 
 ## Отобразить введенное значение
 
@@ -289,14 +289,14 @@ import { stack, text } from "@matreshka/bff/components";
 
 stack(
   {
-    onMouseEnter: this.context.local.set({ hovered: true }),
-    onMouseLeave: this.context.local.set({ hovered: false }),
+    onMouseEnter: this.context.local.set({ hovered: true }, { sync: false }),
+    onMouseLeave: this.context.local.set({ hovered: false }, { sync: false }),
   },
   [text("Наведи на меня")],
 );
 ```
 
-`hovered` меняет `context.local`, поэтому ключ описывают в `schema` контекста. Иначе BFF не применит это `context-values`.
+`hovered` нужен только клиенту. `{ sync: false }` пишет зеркало и не отправляет `context-values`, поэтому ключ не описывают в `schema`.
 
 Для server-обработчика доступен `instance` — тот же инстанс, что и при `onClick`:
 
@@ -590,7 +590,7 @@ button(
 );
 ```
 
-Клиент сразу обновляет UI и отправляет `context-values` на BFF. Пути из этих действий (`loading`, `enabled`, `quantity`, `dirty`) описывают в `schema`. Ключ вне схемы клиентским сообщением не меняется. Подробнее — [Context](../guides/context.md).
+Клиент сразу обновляет UI и отправляет `context-values` на BFF. Пути из этих действий (`loading`, `enabled`, `quantity`, `dirty`) описывают в `schema`. Чтобы оставить значение только на клиенте, передайте `{ sync: false }` — тогда путь в схему не входит. Подробнее — [Context](../guides/context.md).
 
 ## Переключение темы
 

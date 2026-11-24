@@ -51,7 +51,8 @@ describe("Context.ref и ContextRef.ref", () => {
     expectTypeOf(countRef.local.dec).toBeFunction();
     expectTypeOf(flagRef.local.set).toBeFunction();
     expectTypeOf(flagRef.local.toggle).toBeFunction();
-    expectTypeOf(titleRef.local).not.toHaveProperty("set");
+    // expectTypeOf(titleRef.local).not.toHaveProperty("set");
+    expectTypeOf(titleRef.local.set).toBeFunction();
     expectTypeOf(titleRef.local).not.toHaveProperty("inc");
     expectTypeOf(titleRef.local).not.toHaveProperty("toggle");
   });

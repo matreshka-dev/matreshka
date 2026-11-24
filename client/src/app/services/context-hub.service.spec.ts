@@ -386,6 +386,34 @@ describe('Контекст', () => {
     sub.unsubscribe();
   });
 
+  it('setValues с sync false пишет зеркало и не шлёт context-values', () => {
+    const contextId = 'ctx-client-local-only';
+    const sentMessages: ClientToBffMessage[] = [];
+    const sub = postman.outcomingMessage$.subscribe((msg) =>
+      sentMessages.push(msg),
+    );
+    const changeEvents: ContextChangeEvent[] = [];
+    service.change$.subscribe((event) => changeEvents.push(event));
+
+    service.init$(contextId);
+    postman.incomingMessage$.next(
+      new BffContextInitMessage(contextId, { hovered: false }),
+    );
+    sentMessages.length = 0;
+
+    service.setValues(contextId, [{ key: 'hovered', value: true }], {
+      sync: false,
+    });
+
+    expect(service.value(`${contextId}.hovered`)).toBe(true);
+    expect(changeEvents).toEqual([
+      { contextId, values: [{ key: 'hovered', value: true }] },
+    ]);
+    expect(sentMessages).toHaveLength(0);
+
+    sub.unsubscribe();
+  });
+
   it('переинстанс init$', () => {
     const contextId = 'ctx-repeat-init';
 
@@ -439,7 +467,7 @@ describe('Контекст', () => {
       new BffContextInitMessage(contextId, { foo: 'bar' }),
     );
 
-    const cleanupHandler = ssr.addTask.mock.results[0].value;
+    const cleanupHandler: unknown = ssr.addTask.mock.results[0].value;
     expect(ssr.cleanupTask).toHaveBeenCalledTimes(1);
     expect(ssr.cleanupTask).toHaveBeenCalledWith(cleanupHandler);
   });

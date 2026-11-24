@@ -2,12 +2,12 @@ import { JsonObject } from "@matreshka/client-bff-protocol/types/json";
 import { Observable } from "rxjs";
 import { Paths, PathValue } from "ts-essentials";
 import { z } from "zod";
-import { ActionConfig } from "../actions/action";
+import { ContextLocalActionConfig } from "../actions/context-local-action-config";
 import { decContextValue, DecContextValue } from "../actions/dec-context-value";
 import { incContextValue, IncContextValue } from "../actions/inc-context-value";
 import {
   createSetContext,
-  LocalContextPathPatch,
+  LocalDataPathPatch,
   SetContext,
 } from "../actions/set-context";
 import {
@@ -27,32 +27,129 @@ import {
   WritablePathValue,
 } from "./context";
 
+type IsAny<T> = 0 extends 1 & T ? true : false;
+
+type SyncOnConfig = ContextLocalActionConfig & { sync?: true };
+type SyncOffConfig = ContextLocalActionConfig & { sync: false };
+
+/** `any` не должен открывать обе ветки conditional type. */
+type IsWritableLocalPath<
+  ContextType extends JsonObject,
+  PathType extends string,
+  SchemaType extends z.ZodObject | undefined,
+> =
+  IsAny<PathType> extends true
+    ? false
+    : IsAny<SchemaType> extends true
+      ? false
+      : [PathType] extends [WritableContextPath<ContextType, SchemaType>]
+        ? [WritableContextPath<ContextType, SchemaType>] extends [never]
+          ? false
+          : true
+        : false;
+
+type ValueMatches<Value, Expected> =
+  IsAny<Value> extends true ? false : [Value] extends [Expected] ? true : false;
+
 type ContextRefLocalSet<
   ContextType extends JsonObject,
   PathType extends string,
   SchemaType extends z.ZodObject | undefined,
 > =
-  PathType extends WritableContextPath<ContextType, SchemaType>
+  IsWritableLocalPath<ContextType, PathType, SchemaType> extends true
     ? {
-        set: (
-          value: ValueOrContextRef<WritablePathValue<SchemaType, PathType>>,
-          config?: ActionConfig,
-        ) => SetContext<ContextType, SchemaType>;
+        set: {
+          (
+            value: ValueOrContextRef<WritablePathValue<SchemaType, PathType>>,
+            config?: SyncOnConfig,
+          ): SetContext<any, any>;
+          (
+            value: ValueOrContextRef<PathValue<ContextType, PathType>>,
+            config: SyncOffConfig,
+          ): SetContext<any, any>;
+        };
       }
-    : {};
+    : {
+        set: (
+          value: ValueOrContextRef<PathValue<ContextType, PathType>>,
+          config: SyncOffConfig,
+        ) => SetContext<any, any>;
+      };
 
-type ContextRefLocalToggle = {
-  toggle: (config?: ActionConfig) => ToggleContextValue;
-};
+type ContextRefLocalToggle<
+  ContextType extends JsonObject,
+  PathType extends string,
+  SchemaType extends z.ZodObject | undefined,
+> =
+  ValueMatches<
+    PathValue<ContextType, PathType>,
+    boolean | undefined
+  > extends true
+    ? IsWritableLocalPath<ContextType, PathType, SchemaType> extends true
+      ? ValueMatches<
+          WritablePathValue<SchemaType, PathType>,
+          boolean | undefined
+        > extends true
+        ? {
+            toggle: {
+              (config?: SyncOnConfig): ToggleContextValue;
+              (config: SyncOffConfig): ToggleContextValue;
+            };
+          }
+        : { toggle: (config: SyncOffConfig) => ToggleContextValue }
+      : { toggle: (config: SyncOffConfig) => ToggleContextValue }
+    : // eslint-disable-next-line @typescript-eslint/no-empty-object-type -- пересечение без toggle
+      {};
 
-type ContextRefLocalNumeric = {
+type ContextRefLocalNumeric<
+  ContextType extends JsonObject,
+  PathType extends string,
+  SchemaType extends z.ZodObject | undefined,
+> =
+  ValueMatches<
+    PathValue<ContextType, PathType>,
+    number | undefined
+  > extends true
+    ? IsWritableLocalPath<ContextType, PathType, SchemaType> extends true
+      ? ValueMatches<
+          WritablePathValue<SchemaType, PathType>,
+          number | undefined
+        > extends true
+        ? {
+            inc: {
+              (
+                step?: ValueOrContextRef<number>,
+                config?: SyncOnConfig,
+              ): IncContextValue;
+              (
+                step: ValueOrContextRef<number> | undefined,
+                config: SyncOffConfig,
+              ): IncContextValue;
+            };
+            dec: {
+              (
+                step?: ValueOrContextRef<number>,
+                config?: SyncOnConfig,
+              ): DecContextValue;
+              (
+                step: ValueOrContextRef<number> | undefined,
+                config: SyncOffConfig,
+              ): DecContextValue;
+            };
+          }
+        : ContextRefLocalNumericSyncOff
+      : ContextRefLocalNumericSyncOff
+    : // eslint-disable-next-line @typescript-eslint/no-empty-object-type -- пересечение без inc/dec
+      {};
+
+type ContextRefLocalNumericSyncOff = {
   inc: (
-    step?: ValueOrContextRef<number>,
-    config?: ActionConfig,
+    step: ValueOrContextRef<number> | undefined,
+    config: SyncOffConfig,
   ) => IncContextValue;
   dec: (
-    step?: ValueOrContextRef<number>,
-    config?: ActionConfig,
+    step: ValueOrContextRef<number> | undefined,
+    config: SyncOffConfig,
   ) => DecContextValue;
 };
 
@@ -62,23 +159,16 @@ export type ContextRefLocalActions<
   PathType extends string,
   SchemaType extends z.ZodObject | undefined,
 > = ContextRefLocalSet<ContextType, PathType, SchemaType> &
-  (PathType extends WritableContextPath<ContextType, SchemaType>
-    ? WritablePathValue<SchemaType, PathType> extends boolean | undefined
-      ? ContextRefLocalToggle
-      : {}
-    : {}) &
-  (PathType extends WritableContextPath<ContextType, SchemaType>
-    ? WritablePathValue<SchemaType, PathType> extends number | undefined
-      ? ContextRefLocalNumeric
-      : {}
-    : {});
+  ContextRefLocalToggle<ContextType, PathType, SchemaType> &
+  ContextRefLocalNumeric<ContextType, PathType, SchemaType>;
 
 export type AnySchemaContextRef<
   ContextType extends JsonObject = any,
   PathType extends string = any,
 > =
   | ContextRef<ContextType, PathType, undefined>
-  | ContextRef<ContextType, PathType, z.ZodObject>;
+  | ContextRef<ContextType, PathType, z.ZodObject>
+  | ContextRef<ContextType, PathType, any>;
 
 function cloneContextValue<T>(value: T): T {
   if (value !== null && typeof value === "object") {
@@ -105,25 +195,31 @@ export class ContextRef<
   readonly local = {
     set: (
       value: ValueOrContextRef<PathValue<ContextType, PathType>>,
-      config?: ActionConfig,
+      config?: ContextLocalActionConfig,
     ) => {
       const patch = {
         [this.path]: value,
-      } as LocalContextPathPatch<ContextType, SchemaType>;
+      } as LocalDataPathPatch<ContextType>;
       return createSetContext(this.context, patch, config);
     },
-    toggle: (config?: ActionConfig) =>
+    toggle: (config?: ContextLocalActionConfig) =>
       toggleContextValue(
         this as unknown as WritableContextRefOfValue<boolean | undefined>,
         config,
       ),
-    inc: (step: ValueOrContextRef<number> = 1, config?: ActionConfig) =>
+    inc: (
+      step: ValueOrContextRef<number> = 1,
+      config?: ContextLocalActionConfig,
+    ) =>
       incContextValue(
         this as unknown as WritableContextRefOfValue<number | undefined>,
         step,
         config,
       ),
-    dec: (step: ValueOrContextRef<number> = 1, config?: ActionConfig) =>
+    dec: (
+      step: ValueOrContextRef<number> = 1,
+      config?: ContextLocalActionConfig,
+    ) =>
       decContextValue(
         this as unknown as WritableContextRefOfValue<number | undefined>,
         step,

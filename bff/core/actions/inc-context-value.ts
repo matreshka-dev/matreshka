@@ -4,23 +4,30 @@ import {
   ValueOrContextRef,
   WritableContextRefOfValue,
 } from "../types/context-value-ref";
-import { ActionConfig } from "./action";
+import {
+  ContextLocalActionConfig,
+  contextLocalSyncField,
+} from "./context-local-action-config";
 import { LocalAction } from "./local-action";
 
 /** Ref на числовое поле контекста. */
 export type NumberValueRef = ContextRefOfValue<number | undefined>;
 
 /**
- * Изменение числового значения в Context на клиенте на `step`
- * (с sync на BFF через `context-values`).
+ * Изменение числового значения в Context на клиенте на `step`.
+ * По умолчанию синхронизируется на BFF через `context-values`.
+ * `config.sync: false` оставляет значение только в клиентском зеркале.
  */
 export class IncContextValue extends LocalAction {
+  private readonly sync: boolean | undefined;
+
   constructor(
     private readonly ref: NumberValueRef,
     private readonly step: ValueOrContextRef<number>,
-    config: ActionConfig = {},
+    config: ContextLocalActionConfig = {},
   ) {
     super(config.conditions);
+    this.sync = config.sync;
   }
 
   class(): string {
@@ -31,6 +38,7 @@ export class IncContextValue extends LocalAction {
     return {
       ref: this.ref,
       step: toSerializedOperand(this.step),
+      ...contextLocalSyncField(this.sync),
     };
   }
 }
@@ -43,7 +51,7 @@ export class IncContextValue extends LocalAction {
 export function incContextValue(
   ref: WritableContextRefOfValue<number | undefined>,
   step: ValueOrContextRef<number> = 1,
-  config: ActionConfig = {},
+  config: ContextLocalActionConfig = {},
 ): IncContextValue {
-  return new IncContextValue(ref as unknown as NumberValueRef, step, config);
+  return new IncContextValue(ref, step, config);
 }

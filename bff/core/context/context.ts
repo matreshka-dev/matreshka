@@ -28,12 +28,14 @@ import {
 } from "rxjs";
 import { Paths, PathValue } from "ts-essentials";
 import { z } from "zod";
-import { ActionConfig } from "../actions/action";
+import { ContextLocalActionConfig } from "../actions/context-local-action-config";
 import { decContextValue, DecContextValue } from "../actions/dec-context-value";
 import { incContextValue, IncContextValue } from "../actions/inc-context-value";
 import {
   createSetContext,
   LocalContextPathPatch,
+  LocalDataPathPatch,
+  SetContext,
 } from "../actions/set-context";
 import {
   ToggleContextValue,
@@ -102,6 +104,96 @@ export type WritableContextPath<
   T extends JsonObject,
   S extends z.ZodObject | undefined,
 > = Extract<Paths<T>, WritablePath<S>>;
+
+type BooleanDataPath<T extends JsonObject> = {
+  [K in Paths<T>]: PathValue<T, K> extends boolean | undefined ? K : never;
+}[Paths<T>];
+
+type NumberDataPath<T extends JsonObject> = {
+  [K in Paths<T>]: PathValue<T, K> extends number | undefined ? K : never;
+}[Paths<T>];
+
+type SyncOnConfig = ContextLocalActionConfig & { sync?: true };
+type SyncOffConfig = ContextLocalActionConfig & { sync: false };
+
+type WritableBooleanPath<
+  T extends JsonObject,
+  S extends z.ZodObject | undefined,
+> = {
+  [K in WritableContextPath<T, S>]: PathValue<T, K> extends boolean | undefined
+    ? WritablePathValue<S, K> extends boolean | undefined
+      ? K
+      : never
+    : never;
+}[WritableContextPath<T, S>];
+
+type WritableNumberPath<
+  T extends JsonObject,
+  S extends z.ZodObject | undefined,
+> = {
+  [K in WritableContextPath<T, S>]: PathValue<T, K> extends number | undefined
+    ? WritablePathValue<S, K> extends number | undefined
+      ? K
+      : never
+    : never;
+}[WritableContextPath<T, S>];
+
+type ContextLocalSet<
+  T extends JsonObject,
+  S extends z.ZodObject | undefined,
+> = [WritableContextPath<T, S>] extends [never]
+  ? {
+      set: (
+        patch: LocalDataPathPatch<T>,
+        config: SyncOffConfig,
+      ) => SetContext<T, S>;
+    }
+  : {
+      set: {
+        (
+          patch: LocalContextPathPatch<T, S>,
+          config?: SyncOnConfig,
+        ): SetContext<T, S>;
+        (patch: LocalDataPathPatch<T>, config: SyncOffConfig): SetContext<T, S>;
+      };
+    };
+
+type ContextLocalApi<
+  T extends JsonObject,
+  S extends z.ZodObject | undefined,
+> = ContextLocalSet<T, S> & {
+  toggle: {
+    (
+      path: WritableBooleanPath<T, S>,
+      config?: SyncOnConfig,
+    ): ToggleContextValue;
+    (path: BooleanDataPath<T>, config: SyncOffConfig): ToggleContextValue;
+  };
+  inc: {
+    (
+      path: WritableNumberPath<T, S>,
+      step?: ValueOrContextRef<number>,
+      config?: SyncOnConfig,
+    ): IncContextValue;
+    (
+      path: NumberDataPath<T>,
+      step: ValueOrContextRef<number> | undefined,
+      config: SyncOffConfig,
+    ): IncContextValue;
+  };
+  dec: {
+    (
+      path: WritableNumberPath<T, S>,
+      step?: ValueOrContextRef<number>,
+      config?: SyncOnConfig,
+    ): DecContextValue;
+    (
+      path: NumberDataPath<T>,
+      step: ValueOrContextRef<number> | undefined,
+      config: SyncOffConfig,
+    ): DecContextValue;
+  };
+};
 
 /**
  * Пустая strict-схема: клиент не может менять данные контекста через `context-values`.
@@ -233,28 +325,20 @@ export class Context<
   readonly persistent: boolean;
   /** Локальные (client-only) действия над данными этого контекста. */
   readonly local = {
-    set: (patch: LocalContextPathPatch<T, S>, config?: ActionConfig) =>
+    set: (patch: LocalDataPathPatch<T>, config?: ContextLocalActionConfig) =>
       createSetContext(this, patch, config),
-    toggle: <K extends WritableContextPath<T, S>>(
-      path: PathValue<T, K> extends boolean | undefined
-        ? WritablePathValue<S, K> extends boolean | undefined
-          ? K
-          : never
-        : never,
-      config?: ActionConfig,
+    toggle: (
+      path: BooleanDataPath<T>,
+      config?: ContextLocalActionConfig,
     ): ToggleContextValue =>
       toggleContextValue(
         this.ref(path) as WritableContextRefOfValue<boolean | undefined>,
         config,
       ),
-    inc: <K extends WritableContextPath<T, S>>(
-      path: PathValue<T, K> extends number | undefined
-        ? WritablePathValue<S, K> extends number | undefined
-          ? K
-          : never
-        : never,
+    inc: (
+      path: NumberDataPath<T>,
       step?: ValueOrContextRef<number>,
-      config?: ActionConfig,
+      config?: ContextLocalActionConfig,
     ): IncContextValue =>
       incContextValue(
         this.ref(path) as unknown as WritableContextRefOfValue<
@@ -263,14 +347,10 @@ export class Context<
         step ?? 1,
         config,
       ),
-    dec: <K extends WritableContextPath<T, S>>(
-      path: PathValue<T, K> extends number | undefined
-        ? WritablePathValue<S, K> extends number | undefined
-          ? K
-          : never
-        : never,
+    dec: (
+      path: NumberDataPath<T>,
       step?: ValueOrContextRef<number>,
-      config?: ActionConfig,
+      config?: ContextLocalActionConfig,
     ): DecContextValue =>
       decContextValue(
         this.ref(path) as unknown as WritableContextRefOfValue<
@@ -279,7 +359,7 @@ export class Context<
         step ?? 1,
         config,
       ),
-  };
+  } as ContextLocalApi<T, S>;
   /** Реактивное хранилище инициализации контекста */
   private _init$ = new ReplaySubject<void>(1);
   readonly init$ = this._init$.asObservable();

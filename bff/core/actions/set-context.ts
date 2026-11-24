@@ -1,4 +1,5 @@
 import { JsonObject } from "@matreshka/client-bff-protocol/types/json";
+import { Paths, PathValue } from "ts-essentials";
 import { z } from "zod";
 import {
   toSerializedOperand,
@@ -10,7 +11,10 @@ import {
   WritablePathValue,
 } from "../context/context";
 import { ValueOrContextRef } from "../types/context-value-ref";
-import { ActionConfig } from "./action";
+import {
+  ContextLocalActionConfig,
+  contextLocalSyncField,
+} from "./context-local-action-config";
 import { LocalAction } from "./local-action";
 
 export type LocalContextPathPatch<
@@ -20,19 +24,29 @@ export type LocalContextPathPatch<
   [K in WritableContextPath<T, S>]: ValueOrContextRef<WritablePathValue<S, K>>;
 }>;
 
+/** Patch по любому пути данных. Для `sync: false`, без проверки схемы. */
+export type LocalDataPathPatch<T extends JsonObject> = Partial<{
+  [K in Paths<T>]: ValueOrContextRef<PathValue<T, K>>;
+}>;
+
 /**
- * Локальная запись patch в Context на клиенте (с sync на BFF через `context-values`).
+ * Локальная запись patch в Context на клиенте.
+ * По умолчанию синхронизируется на BFF через `context-values`.
+ * `config.sync: false` оставляет значение только в клиентском зеркале.
  */
 export class SetContext<
   T extends JsonObject,
   S extends z.ZodObject | undefined,
 > extends LocalAction {
+  private readonly sync: boolean | undefined;
+
   constructor(
     private readonly context: Context<T, S>,
-    private readonly patch: LocalContextPathPatch<T, S>,
-    config: ActionConfig = {},
+    private readonly patch: LocalDataPathPatch<T>,
+    config: ContextLocalActionConfig = {},
   ) {
     super(config.conditions);
+    this.sync = config.sync;
   }
 
   class(): string {
@@ -48,6 +62,7 @@ export class SetContext<
           toSerializedOperand(value as UntypedActionOperand),
         ]),
       ),
+      ...contextLocalSyncField(this.sync),
     };
   }
 }
@@ -58,8 +73,8 @@ export function createSetContext<
   S extends z.ZodObject | undefined,
 >(
   context: Context<T, S>,
-  patch: LocalContextPathPatch<T, S>,
-  config: ActionConfig = {},
+  patch: LocalDataPathPatch<T>,
+  config: ContextLocalActionConfig = {},
 ): SetContext<T, S> {
   return new SetContext(context, patch, config);
 }

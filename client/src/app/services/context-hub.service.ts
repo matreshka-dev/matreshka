@@ -116,7 +116,10 @@ class Context {
     }
   }
 
-  setValues(data: { key: string; value: unknown }[]) {
+  setValues(
+    data: { key: string; value: unknown }[],
+    options?: { sync?: boolean },
+  ) {
     const values = this.values$.getValue();
     const changes: { key: string; value: unknown }[] = [];
     data.forEach((item) => {
@@ -127,7 +130,12 @@ class Context {
     changes.forEach((item) => {
       setObjectProperty(values, item.key, item.value);
     });
-    if (this.needSync && this.syncToBff && changes.length > 0) {
+    if (
+      options?.sync !== false &&
+      this.needSync &&
+      this.syncToBff &&
+      changes.length > 0
+    ) {
       this.postman.outcomingMessage$.next(
         new ClientToBffContextValuesMessage(this.id, changes),
       );
@@ -269,8 +277,12 @@ export class ContextHubService {
     return subject;
   }
 
-  setValues(contextId: string, data: { key: string; value: unknown }[]) {
-    this.contextMap.get(contextId)!.setValues(data);
+  setValues(
+    contextId: string,
+    data: { key: string; value: unknown }[],
+    options?: { sync?: boolean },
+  ) {
+    this.contextMap.get(contextId)!.setValues(data, options);
   }
 
   value(path: string): unknown {
@@ -311,7 +323,7 @@ function deriveContextChanges(
     for (let index = 0; index < diff.length; index++) {
       changes.push(
         ...deriveContextChanges(
-          diff[index] as ContextDiffNode,
+          diff[index],
           value[index],
           joinPath(path, String(index)),
         ),

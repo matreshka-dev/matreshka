@@ -2,20 +2,28 @@ import {
   ContextRefOfValue,
   WritableContextRefOfValue,
 } from "../types/context-value-ref";
-import { ActionConfig } from "./action";
+import {
+  ContextLocalActionConfig,
+  contextLocalSyncField,
+} from "./context-local-action-config";
 import { LocalAction } from "./local-action";
 
 /** Ref на boolean-поле контекста. */
 export type BooleanValueRef = ContextRefOfValue<boolean | undefined>;
 /**
- * Инверсия boolean-значения в Context на клиенте (с sync на BFF через `context-values`).
+ * Инверсия boolean-значения в Context на клиенте.
+ * По умолчанию синхронизируется на BFF через `context-values`.
+ * `config.sync: false` оставляет значение только в клиентском зеркале.
  */
 export class ToggleContextValue extends LocalAction {
+  private readonly sync: boolean | undefined;
+
   constructor(
     private readonly ref: BooleanValueRef,
-    config: ActionConfig = {},
+    config: ContextLocalActionConfig = {},
   ) {
     super(config.conditions);
+    this.sync = config.sync;
   }
 
   class(): string {
@@ -25,6 +33,7 @@ export class ToggleContextValue extends LocalAction {
   payload(): object {
     return {
       ref: this.ref,
+      ...contextLocalSyncField(this.sync),
     };
   }
 }
@@ -35,7 +44,7 @@ export class ToggleContextValue extends LocalAction {
  */
 export function toggleContextValue(
   ref: WritableContextRefOfValue<boolean | undefined>,
-  config: ActionConfig = {},
+  config: ContextLocalActionConfig = {},
 ): ToggleContextValue {
-  return new ToggleContextValue(ref as unknown as BooleanValueRef, config);
+  return new ToggleContextValue(ref, config);
 }

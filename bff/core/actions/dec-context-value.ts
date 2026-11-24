@@ -3,21 +3,28 @@ import {
   ValueOrContextRef,
   WritableContextRefOfValue,
 } from "../types/context-value-ref";
-import { ActionConfig } from "./action";
+import {
+  ContextLocalActionConfig,
+  contextLocalSyncField,
+} from "./context-local-action-config";
 import { NumberValueRef } from "./inc-context-value";
 import { LocalAction } from "./local-action";
 
 /**
- * Уменьшение числового значения в Context на клиенте на `step`
- * (с sync на BFF через `context-values`).
+ * Уменьшение числового значения в Context на клиенте на `step`.
+ * По умолчанию синхронизируется на BFF через `context-values`.
+ * `config.sync: false` оставляет значение только в клиентском зеркале.
  */
 export class DecContextValue extends LocalAction {
+  private readonly sync: boolean | undefined;
+
   constructor(
     private readonly ref: NumberValueRef,
     private readonly step: ValueOrContextRef<number>,
-    config: ActionConfig = {},
+    config: ContextLocalActionConfig = {},
   ) {
     super(config.conditions);
+    this.sync = config.sync;
   }
 
   class(): string {
@@ -28,6 +35,7 @@ export class DecContextValue extends LocalAction {
     return {
       ref: this.ref,
       step: toSerializedOperand(this.step),
+      ...contextLocalSyncField(this.sync),
     };
   }
 }
@@ -40,7 +48,7 @@ export class DecContextValue extends LocalAction {
 export function decContextValue(
   ref: WritableContextRefOfValue<number | undefined>,
   step: ValueOrContextRef<number> = 1,
-  config: ActionConfig = {},
+  config: ContextLocalActionConfig = {},
 ): DecContextValue {
-  return new DecContextValue(ref as unknown as NumberValueRef, step, config);
+  return new DecContextValue(ref, step, config);
 }

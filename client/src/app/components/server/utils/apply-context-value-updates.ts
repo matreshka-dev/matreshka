@@ -23,6 +23,7 @@ export function resolveLocalActionOperand(
 export function applyContextValueUpdates(
   contextHub: ContextHubService,
   updates: readonly ContextValueUpdate[],
+  sync = true,
 ): void {
   const byContext = new Map<string, { key: string; value: unknown }[]>();
 
@@ -39,7 +40,11 @@ export function applyContextValueUpdates(
   }
 
   for (const [contextId, data] of byContext) {
-    contextHub.setValues(contextId, data);
+    if (sync) {
+      contextHub.setValues(contextId, data);
+    } else {
+      contextHub.setValues(contextId, data, { sync: false });
+    }
   }
 }
 
@@ -50,6 +55,7 @@ export function applyContextPatch(
   contextHub: ContextHubService,
   contextId: string,
   patch: Record<string, unknown>,
+  sync = true,
 ): void {
   const data: { key: string; value: unknown }[] = [];
 
@@ -65,6 +71,10 @@ export function applyContextPatch(
   }
 
   if (data.length > 0) {
-    contextHub.setValues(contextId, data);
+    if (sync) {
+      contextHub.setValues(contextId, data);
+    } else {
+      contextHub.setValues(contextId, data, { sync: false });
+    }
   }
 }

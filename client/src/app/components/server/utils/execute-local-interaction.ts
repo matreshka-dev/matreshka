@@ -50,23 +50,37 @@ export function executeLocalInteraction(
       const payload = interaction.payload as {
         context: string;
         patch: Record<string, unknown>;
+        sync?: boolean;
       };
-      applyContextPatch(runtime.contextHub, payload.context, payload.patch);
+      applyContextPatch(
+        runtime.contextHub,
+        payload.context,
+        payload.patch,
+        payload.sync !== false,
+      );
       return;
     }
     case 'toggle-context-value': {
-      const payload = interaction.payload as { ref: string };
-      applyContextValueUpdates(runtime.contextHub, [
-        {
-          ref: payload.ref,
-          value: !runtime.contextHub.value(payload.ref),
-        },
-      ]);
+      const payload = interaction.payload as { ref: string; sync?: boolean };
+      applyContextValueUpdates(
+        runtime.contextHub,
+        [
+          {
+            ref: payload.ref,
+            value: !runtime.contextHub.value(payload.ref),
+          },
+        ],
+        payload.sync !== false,
+      );
       return;
     }
     case 'inc-context-value':
     case 'dec-context-value': {
-      const payload = interaction.payload as { ref: string; step?: unknown };
+      const payload = interaction.payload as {
+        ref: string;
+        step?: unknown;
+        sync?: boolean;
+      };
       const current = runtime.contextHub.value(payload.ref);
       const resolvedStep = resolveLocalActionOperand(
         runtime.contextHub,
@@ -74,12 +88,16 @@ export function executeLocalInteraction(
       );
       const step = typeof resolvedStep === 'number' ? resolvedStep : 1;
       const sign = interaction.class === 'inc-context-value' ? 1 : -1;
-      applyContextValueUpdates(runtime.contextHub, [
-        {
-          ref: payload.ref,
-          value: (typeof current === 'number' ? current : 0) + sign * step,
-        },
-      ]);
+      applyContextValueUpdates(
+        runtime.contextHub,
+        [
+          {
+            ref: payload.ref,
+            value: (typeof current === 'number' ? current : 0) + sign * step,
+          },
+        ],
+        payload.sync !== false,
+      );
       return;
     }
     case 'close-entry': {

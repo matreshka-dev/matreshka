@@ -23,6 +23,37 @@ describe("context.local / ref.local", () => {
     expect(payload.patch).toEqual({
       loading: { kind: "literal", value: true },
     });
+    expect(payload).not.toHaveProperty("sync");
+  });
+
+  it("set-context с sync false не включает путь в синхронизацию", async () => {
+    const context = createContext({
+      data: async () => ({
+        hovered: false as boolean,
+        loading: false as boolean,
+      }),
+      schema: z.object({ loading: z.boolean() }),
+    });
+    await context.init();
+
+    const action = context.local.set({ hovered: true }, { sync: false });
+    const payload = action.toJSON().payload as {
+      patch: { hovered: { kind: "literal"; value: boolean } };
+      sync?: boolean;
+    };
+
+    expect(payload.sync).toBe(false);
+    expect(payload.patch).toEqual({
+      hovered: { kind: "literal", value: true },
+    });
+
+    context.ref("hovered").local.set(false, { sync: false });
+    // @ts-expect-error путь вне схемы нельзя писать без sync: false
+    context.local.set({ hovered: true });
+    // @ts-expect-error ref вне схемы нельзя писать без sync: false
+    context.ref("hovered").local.set(true);
+    // sync: false разрешён и для пути схемы
+    context.local.set({ loading: true }, { sync: false });
   });
 
   it("set-context сериализует batch patch", async () => {
@@ -362,11 +393,15 @@ describe("context.local / ref.local", () => {
       data: async () => ({ flag: false as boolean }),
     });
 
+    // @ts-expect-error без schema синхронизирующая запись недоступна
     context.local.set({ flag: true });
+    context.local.set({ flag: true }, { sync: false });
+    context.ref("flag").local.set(false, { sync: false });
     // @ts-expect-error без schema writable пути отсутствуют
     context.local.toggle("flag");
-    // @ts-expect-error без schema writable пути отсутствуют
-    void context.ref("flag").local.set;
+    context.local.toggle("flag", { sync: false });
+    // @ts-expect-error без schema запись без sync: false недоступна
+    context.ref("flag").local.set(true);
   });
 
   it("запрещает writable путь вне schema", () => {
@@ -381,7 +416,8 @@ describe("context.local / ref.local", () => {
     });
 
     context.local.set({ allowed: true });
+    context.ref("denied").local.set(2, { sync: false });
     // @ts-expect-error ref на denied не writable по schema
-    void context.ref("denied").local.set;
+    context.ref("denied").local.set(2);
   });
 });

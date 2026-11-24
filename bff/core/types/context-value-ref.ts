@@ -67,11 +67,21 @@ type WritableReferenceRef<ValueType> = ContextRef<
  * сигнатуры `local` остаются как у `ContextRef.local`.
  */
 type EraseLocalContext<Local> = {
-  [K in keyof Local]: Local[K] extends (...args: infer Args) => infer Result
-    ? Result extends SetContext<any, any>
-      ? (...args: Args) => SetContext<any, any>
+  [K in keyof Local]: Local[K] extends {
+    (...args: infer A1): infer R1;
+    (...args: infer A2): infer R2;
+  }
+    ? [R1, R2] extends [SetContext<any, any>, SetContext<any, any>]
+      ? {
+          (...args: A1): SetContext<any, any>;
+          (...args: A2): SetContext<any, any>;
+        }
       : Local[K]
-    : Local[K];
+    : Local[K] extends (...args: infer Args) => infer Result
+      ? Result extends SetContext<any, any>
+        ? (...args: Args) => SetContext<any, any>
+        : Local[K]
+      : Local[K];
 };
 
 /**
