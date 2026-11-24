@@ -94,15 +94,13 @@ async function publish(name, version) {
 }
 
 async function waitForPublishedVersion(name, version) {
+  console.log(`  ожидание публикации ${name}@${version}…`);
   for (let attempt = 1; ; attempt += 1) {
     const seen = await npm(["view", `${name}@${version}`, "version"], {
       allowFailure: true,
     });
     if (seen === version) return;
-    console.log(
-      `  registry ещё не отдаёт ${name}@${version}, повтор ${attempt}`,
-    );
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 5000));
   }
 }
 

@@ -29,6 +29,7 @@
 
 Эти разделы открывайте по мере задачи:
 
+- [sync в local-действиях Context](../guides/context-local-sync.md) — `{ sync: false }` и client-only UI;
 - [Reference](../reference/README.md) — полные каталоги API;
 - [Architecture](../architecture/README.md) — протокол, доставка и reconnect;
 - [Advanced](../advanced/README.md) — адресация инстансов и сложные сценарии;

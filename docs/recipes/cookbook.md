@@ -296,7 +296,7 @@ stack(
 );
 ```
 
-`hovered` нужен только клиенту. `{ sync: false }` пишет зеркало и не отправляет `context-values`, поэтому ключ не описывают в `schema`.
+`hovered` нужен только клиенту. `{ sync: false }` пишет зеркало и не отправляет `context-values`, поэтому ключ не описывают в `schema`. Подробнее — [sync в local-действиях Context](../guides/context-local-sync.md).
 
 Для server-обработчика доступен `instance` — тот же инстанс, что и при `onClick`:
 
@@ -600,7 +600,7 @@ loadingRef.local.set(true, { sync: false });
 loadingRef.set(false);
 ```
 
-С `{ sync: false }` путь в схему не входит; сервер по-прежнему может пушить значение клиенту через `set`. Подробнее — [Context](../guides/context.md).
+С `{ sync: false }` путь в схему не входит; сервер по-прежнему может пушить значение клиенту через `set`. Подробнее — [sync в local-действиях Context](../guides/context-local-sync.md) и [Context](../guides/context.md).
 
 ## Переключение темы
 

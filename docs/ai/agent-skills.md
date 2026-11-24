@@ -94,7 +94,7 @@ npx skills add matreshka-dev/agents--skill --skill context-init-in-boot prefer-c
 
 Рекомендуемый порядок guides для человека совпадает с тем, что покрывают скиллы:
 
-1. [Context](../guides/context.md) — скиллы `context-*`, `storage-vs-context`; advanced — [context-destroy-scenarios](../advanced/context-destroy-scenarios.md)
+1. [Context](../guides/context.md) — скиллы `context-*`, `storage-vs-context`; `{ sync: false }` — [context-local-sync](../guides/context-local-sync.md); advanced — [context-destroy-scenarios](../advanced/context-destroy-scenarios.md)
 2. [Conditions](../guides/conditions.md) — `when-oneof-vs-when-any`, `rules-not-conditions-for-loading-ui`
 3. [События и действия](../guides/events-and-actions.md) — формы, `instant-ui-set-context-value`, `return-server-action-promise`
 4. [Layout](../guides/layout.md) и [Overlays](../guides/overlays.md) — layout/safe area/overlays скиллы

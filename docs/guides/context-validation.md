@@ -249,6 +249,7 @@ loadingRef.set(false);
 ```
 
 Ключ `loading` в `schema` не описывают: клиентский `true` на BFF не уходит.
+Критерий выбора sync и примеры — [sync в local-действиях Context](context-local-sync.md).
 
 ### Данные из доверенного серверного кода
 

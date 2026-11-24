@@ -210,7 +210,7 @@ button({
 
 Ссылка разрешается на клиенте в момент выполнения действия, поэтому используется её актуальное значение. **`toggle`** — только **`context.local.toggle(path)`** для boolean-полей. **`inc` / `dec`** — **`context.local.inc|dec(path, step?)`** и **`ref.local.inc|dec(step?)`** для числовых полей: клиент прибавляет или вычитает `step` (по умолчанию `1`), причём `step` также может быть числовым `ContextRef`.
 
-Без флага каждый такой путь, как и `ref` input, обязан быть в `schema` контекста: запись синхронизируется на BFF через `context-values`, и BFF применяет только ключи из схемы. `{ sync: false }` — когда серверу неважно текущее клиентское значение (hover, клиентский `loading` lock формы): пишет только зеркало, `context-values` не шлётся, путь в схему не входит — TypeScript иначе не даст вызвать действие. Сервер по-прежнему может обновить тот же ключ через `ref.set` / `context.set`. Ключи, которые пишет только сервер, в схему не входят. Подробнее — [Context](context.md).
+Без флага каждый такой путь, как и `ref` input, обязан быть в `schema` контекста: запись синхронизируется на BFF через `context-values`, и BFF применяет только ключи из схемы. `{ sync: false }` — когда серверу неважно текущее клиентское значение (hover, клиентский `loading` lock формы): пишет только зеркало, `context-values` не шлётся, путь в схему не входит — TypeScript иначе не даст вызвать действие. Сервер по-прежнему может обновить тот же ключ через `ref.set` / `context.set`. Ключи, которые пишет только сервер, в схему не входят. Подробнее — [sync в local-действиях Context](context-local-sync.md) и [Context](context.md).
 
 ## Анимация как `LocalAction`
 
@@ -393,5 +393,6 @@ class SignInPage extends Page {
 
 Дополнительно:
 
+- [sync в local-действиях Context](context-local-sync.md) — `{ sync: false }` для hover и form loading;
 - [Component instances](../advanced/component-instance.md) — instance id и команды;
 - [Platform API](../reference/platforms.md) — API клиентских платформ.

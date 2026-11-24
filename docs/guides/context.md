@@ -103,7 +103,7 @@ function finishSubmit(loadingRef: ContextRefOfValue<boolean | undefined>) {
 - без `{ sync: false }` путь должен быть описан в `schema` этого контекста;
 - тип значения по пути должен совпадать с ожидаемым типом действия/компонента.
 
-`context.local.*` и `ref.local.*` с `{ sync: false }` пишут только клиентское зеркало. Такой путь в `schema` не входит. Ставьте флаг, когда серверу неважно текущее клиентское значение (hover, клиентский lock формы): без него каждый апдейт ушёл бы на BFF через `context-values`. Сервер при этом по-прежнему может писать тот же ключ (`ref.set` / `context.set`) и доставлять новое значение клиенту.
+`context.local.*` и `ref.local.*` с `{ sync: false }` пишут только клиентское зеркало. Такой путь в `schema` не входит. Ставьте флаг, когда серверу неважно текущее клиентское значение (hover, клиентский lock формы): без него каждый апдейт ушёл бы на BFF через `context-values`. Сервер при этом по-прежнему может писать тот же ключ (`ref.set` / `context.set`) и доставлять новое значение клиенту. Подробнее — [sync в local-действиях Context](context-local-sync.md).
 
 Если `schema` не задана, writable-пути считаются недоступными на уровне TypeScript (`never`): такие вызовы не компилируются.
 
@@ -426,6 +426,7 @@ BFF применяет изменение только для ключей из 
 
 Дополнительно:
 
+- [sync в local-действиях Context](context-local-sync.md) — когда `{ sync: false }` и ключ вне schema;
 - [Сценарии уничтожения Context](../advanced/context-destroy-scenarios.md) — entry / client / component, шаблоны `destroy()`;
 - [Протокол](../architecture/protocol.md) — `context-init`, `context-values`, `context-destroy`;
 - [Жизненный цикл Context](../architecture/context-lifecycle.md) — destroy на BFF, holds и `pendingDestroy` на клиенте.

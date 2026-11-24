@@ -25,6 +25,7 @@
 
 ## Дополнительно
 
+- [sync в local-действиях Context](context-local-sync.md) — `{ sync: false }`, schema и client-only UI
 - [WebMCP](webmcp.md) — тулзы для браузерного агента на странице, в диалоге и popover
 - [Advanced: component instances](../advanced/component-instance.md)
 - [Advanced: сценарии уничтожения Context](../advanced/context-destroy-scenarios.md)
