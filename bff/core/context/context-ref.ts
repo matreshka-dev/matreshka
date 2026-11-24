@@ -50,8 +50,9 @@ type IsWritableLocalPath<
     ? false
     : IsAny<SchemaType> extends true
       ? true
-      : // Не `[PathType] extends […]`: для generic `K extends "a" | "b"`
-        // tuple-check ложно даёт false.
+      : // Не `[PathType] extends […]`: для union литералов `"a" | "b"`
+        // tuple-check ложно даёт false. Generic `K extends …` всё равно
+        // не доказывается — у таких хелперов поле типизируют union'ом.
         PathType extends WritableContextPath<ContextType, SchemaType>
         ? true
         : false;

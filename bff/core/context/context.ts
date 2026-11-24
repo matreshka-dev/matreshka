@@ -98,13 +98,9 @@ export type WritablePathValue<
   IsAny<S> extends true
     ? any
     : S extends z.ZodObject
-      ? // `Extract`: иначе generic `K extends "field"` даёт never на `P extends Paths`.
-        [Extract<P, Paths<WritableSchemaInput<S>>>] extends [never]
-        ? never
-        : PathValue<
-            WritableSchemaInput<S>,
-            Extract<P, Paths<WritableSchemaInput<S>>>
-          >
+      ? P extends Paths<WritableSchemaInput<S>>
+        ? PathValue<WritableSchemaInput<S>, P>
+        : never
       : never;
 
 /** Пересечение путей контекста и путей `schema`, доступных для client write. */
