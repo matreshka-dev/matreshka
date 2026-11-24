@@ -1,7 +1,9 @@
-import type { JsonObject } from "@matreshka/client-bff-protocol/types/json";
 import type { Observable } from "rxjs";
-import { z } from "zod";
+import type { ContextLocalActionConfig } from "../actions/context-local-action-config";
+import type { DecContextValue } from "../actions/dec-context-value";
+import type { IncContextValue } from "../actions/inc-context-value";
 import type { SetContext } from "../actions/set-context";
+import type { ToggleContextValue } from "../actions/toggle-context-value";
 import {
   AnySchemaContextRef,
   ContextRef,
@@ -48,49 +50,10 @@ export type CompatibleContextRefOfValue<
 > = ValueType extends ContextRefValueType<R> ? R : never;
 
 /**
- * Эталонный writable ref для значения `ValueType`: путь `k` гарантированно есть
- * в schema. Из него выводится `local`, так что при добавлении
- * методов в `ContextRef.local` типы вручную переписывать не нужно.
- */
-type WritableReferenceRef<ValueType> = ContextRef<
-  { k: Exclude<ValueType, undefined> } extends infer C extends JsonObject
-    ? C
-    : never,
-  "k",
-  z.ZodObject<{
-    k: z.ZodType<Exclude<ValueType, undefined>, Exclude<ValueType, undefined>>;
-  }>
->;
-
-/**
- * Стирает привязку `SetContext` к конкретному контексту/schema, остальные
- * сигнатуры `local` остаются как у `ContextRef.local`.
- */
-type EraseLocalContext<Local> = {
-  [K in keyof Local]: Local[K] extends {
-    (...args: infer A1): infer R1;
-    (...args: infer A2): infer R2;
-  }
-    ? [R1, R2] extends [SetContext<any, any>, SetContext<any, any>]
-      ? {
-          (...args: A1): SetContext<any, any>;
-          (...args: A2): SetContext<any, any>;
-        }
-      : Local[K]
-    : Local[K] extends (...args: infer Args) => infer Result
-      ? Result extends SetContext<any, any>
-        ? (...args: Args) => SetContext<any, any>
-        : Local[K]
-      : Local[K];
-};
-
-/**
  * Writable-ref с известным типом значения без generic по ref.
  *
- * Структурно совместим с `ContextRef` (остальные члены берутся из
- * `ContextRef<any, any, any>`), а `local` берётся из `ContextRef.local`
- * для эталонного writable ref, поэтому ref с путём вне schema не пройдёт
- * проверку на call site.
+ * `local.set` с optional config — sync-on ветка; ref с путём вне schema
+ * (только `sync: false`) на call site не пройдёт.
  *
  * @example
  * ```ts
@@ -100,9 +63,36 @@ type EraseLocalContext<Local> = {
  * }
  * ```
  */
+type WritableLocalByValue<ValueType> = {
+  set(
+    value: ValueOrContextRef<Exclude<ValueType, undefined>>,
+    config?: ContextLocalActionConfig & { sync?: true },
+  ): SetContext<any, any>;
+} & ([Exclude<ValueType, undefined>] extends [boolean]
+  ? {
+      toggle(
+        config?: ContextLocalActionConfig & { sync?: true },
+      ): ToggleContextValue;
+    }
+  : // eslint-disable-next-line @typescript-eslint/no-empty-object-type -- пересечение без toggle
+    {}) &
+  ([Exclude<ValueType, undefined>] extends [number]
+    ? {
+        inc(
+          step?: ValueOrContextRef<number>,
+          config?: ContextLocalActionConfig & { sync?: true },
+        ): IncContextValue;
+        dec(
+          step?: ValueOrContextRef<number>,
+          config?: ContextLocalActionConfig & { sync?: true },
+        ): DecContextValue;
+      }
+    : // eslint-disable-next-line @typescript-eslint/no-empty-object-type -- пересечение без inc/dec
+      {});
+
 export type WritableContextRefOfValue<ValueType> =
   ContextRefOfValue<ValueType> & {
-    readonly local: EraseLocalContext<WritableReferenceRef<ValueType>["local"]>;
+    readonly local: WritableLocalByValue<ValueType>;
   };
 
 /** Статическое значение или ссылка на совместимое значение в контексте. */

@@ -27,12 +27,20 @@ import {
   WritablePathValue,
 } from "./context";
 
-type IsAny<T> = 0 extends 1 & T ? true : false;
+/** `0 extends 1 & any` даёт false; этот вариант корректно ловит `any`. */
+type IsAny<T> =
+  (<G>() => G extends T ? 1 : 2) extends <G>() => G extends any ? 1 : 2
+    ? true
+    : false;
 
 type SyncOnConfig = ContextLocalActionConfig & { sync?: true };
 type SyncOffConfig = ContextLocalActionConfig & { sync: false };
 
-/** `any` не должен открывать обе ветки conditional type. */
+/**
+ * Writable для local.set без `sync: false`.
+ * `SchemaType = any` (дефолт Context) — считаем writable: иначе ломаются inputs.
+ * `PathType = any` — не writable, чтобы не открывать обе ветки conditional.
+ */
 type IsWritableLocalPath<
   ContextType extends JsonObject,
   PathType extends string,
@@ -41,15 +49,21 @@ type IsWritableLocalPath<
   IsAny<PathType> extends true
     ? false
     : IsAny<SchemaType> extends true
-      ? false
-      : [PathType] extends [WritableContextPath<ContextType, SchemaType>]
-        ? [WritableContextPath<ContextType, SchemaType>] extends [never]
-          ? false
-          : true
+      ? true
+      : // Не `[PathType] extends […]`: для generic `K extends "a" | "b"`
+        // tuple-check ложно даёт false.
+        PathType extends WritableContextPath<ContextType, SchemaType>
+        ? true
         : false;
 
 type ValueMatches<Value, Expected> =
-  IsAny<Value> extends true ? false : [Value] extends [Expected] ? true : false;
+  IsAny<Value> extends true
+    ? false
+    : [Value] extends [never]
+      ? false
+      : [Value] extends [Expected]
+        ? true
+        : false;
 
 type ContextRefLocalSet<
   ContextType extends JsonObject,
@@ -58,16 +72,12 @@ type ContextRefLocalSet<
 > =
   IsWritableLocalPath<ContextType, PathType, SchemaType> extends true
     ? {
-        set: {
-          (
-            value: ValueOrContextRef<WritablePathValue<SchemaType, PathType>>,
-            config?: SyncOnConfig,
-          ): SetContext<any, any>;
-          (
-            value: ValueOrContextRef<PathValue<ContextType, PathType>>,
-            config: SyncOffConfig,
-          ): SetContext<any, any>;
-        };
+        // Одна сигнатура с optional config: иначе overload не присваивается
+        // в WritableContextRefOfValue / CompatibleInputRef (generic `K`).
+        set: (
+          value: ValueOrContextRef<PathValue<ContextType, PathType>>,
+          config?: ContextLocalActionConfig,
+        ) => SetContext<any, any>;
       }
     : {
         set: (

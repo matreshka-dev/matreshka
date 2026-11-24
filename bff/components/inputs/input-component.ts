@@ -10,7 +10,7 @@ import {
   ComponentProperties,
 } from "../component";
 
-/** Ref на поле ввода: значение `ValueType | undefined`. */
+/** Ref на поле ввода: значение `ValueType | undefined`, путь должен быть writable. */
 export type InputContextRef<ValueType> = WritableContextRefOfValue<
   ValueType | undefined
 >;

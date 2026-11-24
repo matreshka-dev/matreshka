@@ -77,7 +77,11 @@ export type WritableSchemaInput<S extends z.ZodObject | undefined> =
     : never;
 
 /** Dotted-пути, разрешённые для клиентской записи (по `schema`). */
-type IsAny<T> = 0 extends 1 & T ? true : false;
+/** `0 extends 1 & any` даёт false; этот вариант корректно ловит `any`. */
+type IsAny<T> =
+  (<G>() => G extends T ? 1 : 2) extends <G>() => G extends any ? 1 : 2
+    ? true
+    : false;
 
 export type WritablePath<S extends z.ZodObject | undefined> =
   IsAny<S> extends true
@@ -92,11 +96,15 @@ export type WritablePathValue<
   P extends string,
 > =
   IsAny<S> extends true
-    ? unknown
+    ? any
     : S extends z.ZodObject
-      ? P extends Paths<WritableSchemaInput<S>>
-        ? PathValue<WritableSchemaInput<S>, P>
-        : never
+      ? // `Extract`: иначе generic `K extends "field"` даёт never на `P extends Paths`.
+        [Extract<P, Paths<WritableSchemaInput<S>>>] extends [never]
+        ? never
+        : PathValue<
+            WritableSchemaInput<S>,
+            Extract<P, Paths<WritableSchemaInput<S>>>
+          >
       : never;
 
 /** Пересечение путей контекста и путей `schema`, доступных для client write. */
