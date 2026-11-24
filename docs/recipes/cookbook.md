@@ -544,9 +544,9 @@ button(
 ```ts
 button(
   {
-    onClick: this.context.local.set({ loading: true }),
+    onClick: this.context.local.set({ dirty: true }),
   },
-  [text("Загрузка")],
+  [text("Пометить черновик")],
 );
 ```
 
@@ -584,13 +584,23 @@ button(
 ```ts
 button(
   {
-    onClick: this.context.local.set({ loading: true, dirty: true }),
+    onClick: this.context.local.set({ dirty: true, step: 2 }),
   },
   [text("Сохранить черновик")],
 );
 ```
 
-Клиент сразу обновляет UI и отправляет `context-values` на BFF. Пути из этих действий (`loading`, `enabled`, `quantity`, `dirty`) описывают в `schema`. Чтобы оставить значение только на клиенте, передайте `{ sync: false }` — тогда путь в схему не входит. Подробнее — [Context](../guides/context.md).
+Клиент сразу обновляет UI и по умолчанию отправляет `context-values` на BFF. Пути из этих действий (`enabled`, `quantity`, `dirty`) описывают в `schema`.
+
+Клиентский lock формы серверу не нужен — только зеркало и сброс с BFF:
+
+```ts
+loadingRef.local.set(true, { sync: false });
+// в ServerAction finally:
+loadingRef.set(false);
+```
+
+С `{ sync: false }` путь в схему не входит; сервер по-прежнему может пушить значение клиенту через `set`. Подробнее — [Context](../guides/context.md).
 
 ## Переключение темы
 

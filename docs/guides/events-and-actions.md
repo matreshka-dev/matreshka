@@ -152,14 +152,14 @@ button(
 
 ## Изменение Context как `LocalAction`
 
-Для записи в `Context` без `server-interaction` есть локальные действия. Клиент сразу обновляет своё зеркало контекста и синхронизирует изменение на BFF.
+Для записи в `Context` без `server-interaction` есть локальные действия. Клиент сразу обновляет своё зеркало контекста и по умолчанию синхронизирует изменение на BFF. Если серверу значение не нужно — `{ sync: false }` (только зеркало; путь вне `schema`).
 
 ```ts
 button(
   {
-    onClick: this.context.local.set({ loading: true }),
+    onClick: this.context.local.set({ dirty: true }),
   },
-  [text("Загрузка")],
+  [text("Пометить черновик")],
 );
 
 button(
@@ -185,13 +185,15 @@ button(
 
 button(
   {
-    onClick: this.context.local.set({ loading: true, dirty: true }),
+    onClick: this.context.local.set({ dirty: true, step: 2 }),
   },
   [text("Сохранить черновик")],
 );
 
+// Клиентский lock: серверу true не нужен; сброс — loadingRef.set(false) на BFF
+loadingRef.local.set(true, { sync: false });
+
 // Если ref уже есть (helper, forEach):
-loadingRef.local.set(true);
 enabledRef.local.toggle();
 quantityRef.local.dec();
 ```
@@ -208,7 +210,7 @@ button({
 
 Ссылка разрешается на клиенте в момент выполнения действия, поэтому используется её актуальное значение. **`toggle`** — только **`context.local.toggle(path)`** для boolean-полей. **`inc` / `dec`** — **`context.local.inc|dec(path, step?)`** и **`ref.local.inc|dec(step?)`** для числовых полей: клиент прибавляет или вычитает `step` (по умолчанию `1`), причём `step` также может быть числовым `ContextRef`.
 
-Без флага каждый такой путь, как и `ref` input, обязан быть в `schema` контекста: запись синхронизируется на BFF через `context-values`, и BFF применяет только ключи из схемы. `{ sync: false }` пишет только клиентское зеркало, и путь в схему не входит — TypeScript иначе не даст вызвать действие. Ключи, которые пишет только сервер, в схему не входят. Подробнее — [Context](context.md).
+Без флага каждый такой путь, как и `ref` input, обязан быть в `schema` контекста: запись синхронизируется на BFF через `context-values`, и BFF применяет только ключи из схемы. `{ sync: false }` — когда серверу неважно текущее клиентское значение (hover, клиентский `loading` lock формы): пишет только зеркало, `context-values` не шлётся, путь в схему не входит — TypeScript иначе не даст вызвать действие. Сервер по-прежнему может обновить тот же ключ через `ref.set` / `context.set`. Ключи, которые пишет только сервер, в схему не входят. Подробнее — [Context](context.md).
 
 ## Анимация как `LocalAction`
 
@@ -342,8 +344,8 @@ class SignInPage extends Page {
       button(
         {
           onClick: [
-            // Сразу на клиенте: UI обновляется без ожидания ответа BFF.
-            this.context.local.set({ loading: true }),
+            // Сразу на клиенте; sync: false — серверу клиентский true не нужен.
+            this.context.local.set({ loading: true }, { sync: false }),
             // На сервер уходит только если в момент клика loading ещё false.
             new ServerAction(
               () => {

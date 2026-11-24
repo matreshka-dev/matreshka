@@ -40,45 +40,46 @@ npx skills add matreshka-dev/agents--skill --skill context-init-in-boot prefer-c
 
 ### Context и сериализация страницы
 
-| Задача                                         | Скилл                                                            |
-| ---------------------------------------------- | ---------------------------------------------------------------- |
-| Новый `Context` — destroy / `persistent`       | `context-plan-destroy-on-create`                                 |
-| Process-wide кэш (`persistent: true`)          | `context-plan-destroy-on-create`                                 |
-| `context.get()` в `content()` / `overlays()`   | `context-init-in-boot`                                           |
-| Реактивный UI без лишнего `init()`             | `prefer-context-ref-in-ui`, `context-init-in-boot` (lazy + refs) |
-| Плейсхолдеры в строках и `link`                | `context-ref-in-strings`                                         |
-| Уничтожение Context с Page/Dialog              | `context-destroy-with-entry`                                     |
-| Badge/корзина в shell приложения               | `client-scoped-context-for-shared-ui`                            |
-| JWT, tenant до построения страницы             | `storage-vs-context`, `route-guard-return-undefined`             |
-| Подписка на `watch()`                          | `context-subscribe-take-until-destroy`                           |
-| Zod на полях ввода                             | `context-zod-draft-not-live-strict`                              |
-| Zod для данных из недоверенных источников      | `context-validate-untrusted-sources`                             |
+| Задача                                       | Скилл                                                            |
+| -------------------------------------------- | ---------------------------------------------------------------- |
+| Новый `Context` — destroy / `persistent`     | `context-plan-destroy-on-create`                                 |
+| Process-wide кэш (`persistent: true`)        | `context-plan-destroy-on-create`                                 |
+| `context.get()` в `content()` / `overlays()` | `context-init-in-boot`                                           |
+| Реактивный UI без лишнего `init()`           | `prefer-context-ref-in-ui`, `context-init-in-boot` (lazy + refs) |
+| Плейсхолдеры в строках и `link`              | `context-ref-in-strings`                                         |
+| Уничтожение Context с Page/Dialog            | `context-destroy-with-entry`                                     |
+| Badge/корзина в shell приложения             | `client-scoped-context-for-shared-ui`                            |
+| JWT, tenant до построения страницы           | `storage-vs-context`, `route-guard-return-undefined`             |
+| Подписка на `watch()`                        | `context-subscribe-take-until-destroy`                           |
+| Zod на полях ввода                           | `context-zod-draft-not-live-strict`                              |
+| Zod для данных из недоверенных источников    | `context-validate-untrusted-sources`                             |
+| `{ sync: false }` / client-only UI / loading | `context-local-sync-false`, `instant-ui-set-context-value`       |
 
 ### UI, списки, entry
 
-| Задача                                       | Скилл                                                                    |
-| -------------------------------------------- | ------------------------------------------------------------------------ |
-| Page/Dialog lifecycle и анимации             | `entry-lifecycle-on-enter-leave`                                         |
-| Loading на кнопке                            | `rules-not-conditions-for-loading-ui`, `prevent-duplicate-form-submit`   |
-| Списки `forEach`                             | `foreach-stable-track`, `strict-context-ref`, `context-value-ref-in-api` |
-| Shared-хелпер / метод с ref по типу значения | `context-value-ref-in-api`                                               |
-| Не тащить целый контекст / фейковый `ContextRef` ради значения | `prefer-context-value-ref`                                    |
-| Типы ref на странице (контекст + путь)       | `strict-context-ref`                                                     |
-| Функция принимает `Context` / `ContextRef`   | `preserve-context-generics`                                              |
-| OR/AND в conditions                          | `when-oneof-vs-when-any`                                                 |
-| Один Component в двух местах / animate       | `create-instance-before-serialize`                                       |
-| Color token «not found»                      | `register-color-tokens`                                                  |
+| Задача                                                         | Скилл                                                                    |
+| -------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| Page/Dialog lifecycle и анимации                               | `entry-lifecycle-on-enter-leave`                                         |
+| Loading на кнопке                                              | `rules-not-conditions-for-loading-ui`, `prevent-duplicate-form-submit`   |
+| Списки `forEach`                                               | `foreach-stable-track`, `strict-context-ref`, `context-value-ref-in-api` |
+| Shared-хелпер / метод с ref по типу значения                   | `context-value-ref-in-api`                                               |
+| Не тащить целый контекст / фейковый `ContextRef` ради значения | `prefer-context-value-ref`                                               |
+| Типы ref на странице (контекст + путь)                         | `strict-context-ref`                                                     |
+| Функция принимает `Context` / `ContextRef`                     | `preserve-context-generics`                                              |
+| OR/AND в conditions                                            | `when-oneof-vs-when-any`                                                 |
+| Один Component в двух местах / animate                         | `create-instance-before-serialize`                                       |
+| Color token «not found»                                        | `register-color-tokens`                                                  |
 
 ### События, формы, навигация
 
-| Задача                               | Скилл                               |
-| ------------------------------------ | ----------------------------------- |
-| Форма и Enter                        | `form-submit-shared-handler`        |
-| Async ошибки в UI                    | `return-server-action-promise`      |
-| Auth и инварианты в ServerAction     | `server-action-validate-in-handler` |
-| Мгновенный toggle/loading на клиенте | `instant-ui-set-context-value`      |
-| Ссылка vs программный переход        | `link-vs-navigate`                  |
-| Диалог vs меню у кнопки              | `dialog-vs-popover-platform`        |
+| Задача                               | Скилл                                                      |
+| ------------------------------------ | ---------------------------------------------------------- |
+| Форма и Enter                        | `form-submit-shared-handler`                               |
+| Async ошибки в UI                    | `return-server-action-promise`                             |
+| Auth и инварианты в ServerAction     | `server-action-validate-in-handler`                        |
+| Мгновенный toggle/loading на клиенте | `instant-ui-set-context-value`, `context-local-sync-false` |
+| Ссылка vs программный переход        | `link-vs-navigate`                                         |
+| Диалог vs меню у кнопки              | `dialog-vs-popover-platform`                               |
 
 ### Layout
 
