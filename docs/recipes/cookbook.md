@@ -659,6 +659,9 @@ button(
 
 Это особенно полезно для camera-сценариев: через `enumerateDevices()` можно получить список доступных камер (`videoinput`), показать его пользователю и использовать для переключения между устройствами.
 
+Для записи голоса/экрана и выбора микрофона по `deviceId` см. развёрнутые кейсы:
+[media-capture-and-recording.md](media-capture-and-recording.md).
+
 ## Route с параметром
 
 Задача: открыть страницу пользователя по id.
@@ -819,5 +822,6 @@ private loadMoreIfNeeded() {
 
 ## Что читать дальше
 
+- [media-capture-and-recording.md](media-capture-and-recording.md) — голос, экран, выбор устройства, preview.
 - [component-instance.md](../advanced/component-instance.md) — instance id и точечная адресация команд.
 - [`../architecture/operations.md`](../architecture/operations.md) — чтобы понять reconnect, ограничения памяти и эксплуатационные особенности runtime.

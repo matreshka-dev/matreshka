@@ -45,8 +45,18 @@ import {
   MediaWaitingEventMessage,
 } from "./platforms/media-event-messages";
 import { PlatformEnumerateDevicesSuccessMessage } from "./platforms/platform-enumerate-devices-success-message";
+import { PlatformMediaStreamSuccessMessage } from "./platforms/platform-media-stream-success-message";
 import { PlatformWebAuthnCreateCredentialSuccessMessage } from "./platforms/platform-webauthn-create-credential-success-message";
 import { PlatformWebAuthnGetCredentialSuccessMessage } from "./platforms/platform-webauthn-get-credential-success-message";
+import {
+  RecordingErrorEventMessage,
+  RecordingPauseEventMessage,
+  RecordingResumeEventMessage,
+  RecordingStartEventMessage,
+  RecordingStopEventMessage,
+  RecordingTimeUpdateEventMessage,
+} from "./platforms/recording-event-messages";
+import { RecordingStopSuccessMessage } from "./platforms/recording-stop-success-message";
 import { WebMcpToolCallMessage } from "./webmcp/web-mcp-tool-call-message";
 
 export function registerCommonClientToBffMessages() {
@@ -79,6 +89,14 @@ export function registerCommonClientToBffMessages() {
   clientToBffMessageRegistry.register(FormSubmitMessage);
   clientToBffMessageRegistry.register(ActionCompletedMessage);
   clientToBffMessageRegistry.register(PlatformEnumerateDevicesSuccessMessage);
+  clientToBffMessageRegistry.register(PlatformMediaStreamSuccessMessage);
+  clientToBffMessageRegistry.register(RecordingStopSuccessMessage);
+  clientToBffMessageRegistry.register(RecordingStartEventMessage);
+  clientToBffMessageRegistry.register(RecordingPauseEventMessage);
+  clientToBffMessageRegistry.register(RecordingResumeEventMessage);
+  clientToBffMessageRegistry.register(RecordingStopEventMessage);
+  clientToBffMessageRegistry.register(RecordingTimeUpdateEventMessage);
+  clientToBffMessageRegistry.register(RecordingErrorEventMessage);
   clientToBffMessageRegistry.register(MediaPlayEventMessage);
   clientToBffMessageRegistry.register(MediaPauseEventMessage);
   clientToBffMessageRegistry.register(MediaPlayingEventMessage);

@@ -35,6 +35,8 @@
 
 **Аудио и видео** — сессия на клиенте вне дерева компонентов. Создание и каждая команда управления (`play`, `seek`, `destroy` и остальные) — отдельный one-shot с обычным ack. События плеера, на которые есть серверный обработчик, приходят отдельными сообщениями на id этой сессии и не завершают команду. Сессия на BFF заканчивается на `destroy()` и на `client.destroy$`.
 
+**MediaStream / Recording** — `getUserMedia` / `getDisplayMedia` создают клиентский `MediaStream` и возвращают на BFF `MediaStreamRef` (success с `streamId` + метаданными треков). `stop()` на ref — one-shot, останавливает треки. `createRecording` — сессия как у плеера: create и `start` / `pause` / `resume` / `destroy` с `action-completed`; **`stop()`** завершается typed success (`recording-stop-success` с `blob:` URL). События записи (`start`, `timeupdate`, …) идут на `recordingId` и не завершают команды. Потоки после `stop()` записи не останавливаются — владелец зовёт `MediaStreamRef.stop()`.
+
 ## Схема
 
 ```mermaid

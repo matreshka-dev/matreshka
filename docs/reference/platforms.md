@@ -1045,6 +1045,73 @@ if (platform instanceof ClientPlatform) {
 
 `destroy()` останавливает воспроизведение. Локальная команда контекста в обработчике привязывает клиента к этому контексту, как у компонента.
 
+## Захват и запись медиа
+
+`getUserMedia`, `getDisplayMedia` и `createRecording` есть у `ClientPlatform` (нужен `instanceof ClientPlatform`).
+
+### `getUserMedia` / `getDisplayMedia`
+
+Запрашивают `MediaStream` на клиенте (`navigator.mediaDevices.getUserMedia` / `getDisplayMedia`). Constraints / options — structural-типы по Web API (`audio` / `video`, `deviceId`, `facingMode` и т.д.). Observable эмитит `MediaStreamRef`: поток живёт на клиенте, у ref есть `id`, `tracks` (метаданные) и `stop()`.
+
+```ts
+import { AudioInputDevice, ClientPlatform } from "@matreshka/bff/platforms";
+import { firstValueFrom } from "rxjs";
+
+if (platform instanceof ClientPlatform) {
+  // Дефолтный микрофон
+  const mic = await firstValueFrom(platform.getUserMedia({ audio: true }));
+
+  // Выбор конкретного устройства после enumerateDevices
+  const devices = await firstValueFrom(platform.enumerateDevices());
+  const chosen = devices.find((d) => d instanceof AudioInputDevice)!;
+  const selectedMic = await firstValueFrom(
+    platform.getUserMedia({
+      audio: { deviceId: { exact: chosen.deviceId } },
+    }),
+  );
+
+  selectedMic.stop();
+  mic.stop();
+}
+```
+
+Экран + микрофон:
+
+```ts
+import { combineLatest } from "rxjs";
+
+combineLatest([
+  platform.getDisplayMedia({ video: true }),
+  platform.getUserMedia({ audio: true }),
+]).subscribe(([screen, mic]) => {
+  platform.createRecording({ streams: [screen, mic] }).subscribe((rec) => {
+    rec.start().subscribe();
+  });
+});
+```
+
+### `createRecording`
+
+Принимает один или несколько `MediaStreamRef`, на клиенте склеивает треки в один `MediaStream` и пишет через `MediaRecorder`. Методы: `start`, `pause`, `resume`, `stop`, `destroy`. `stop()` возвращает `Observable<RecordingResult>` (`blob:` URL, mime, size, name, duration, `kind: MediaKind`) — тот же url можно передать в `createAudio` / `createVideo`.
+
+```ts
+platform.getUserMedia({ audio: true }).subscribe((mic) => {
+  platform.createRecording({ streams: mic }).subscribe((rec) => {
+    rec.start().subscribe();
+    // …
+    rec.stop().subscribe((file) => {
+      platform.createAudio({ src: file.url }).subscribe((audio) => {
+        audio.play();
+      });
+    });
+  });
+});
+```
+
+`getDisplayMedia` / первый `getUserMedia` зависят от permission и user gesture. После `stop()` браузерный MediaRecorder одноразовый; повторный `start()` на той же сессии создаёт новый recorder на тех же stream ref. Треки после `stop()` записи не гасятся — вызывайте `MediaStreamRef.stop()`.
+
+Детальные кейсы (чат, выбор микрофона, пауза, экран+mic, ошибки, lifecycle): [media-capture-and-recording.md](../recipes/media-capture-and-recording.md).
+
 ## BLEDevice
 
 После успешного `connectToBLEDevice` доступен объект с методами:

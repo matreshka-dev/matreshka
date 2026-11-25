@@ -54,6 +54,8 @@ import {
   runTargetedAction,
 } from '../utils/targeted-action';
 import { ClientMediaHost } from './media-host';
+import { ClientMediaStreamHost } from './media-stream-host';
+import { ClientRecordingHost } from './recording-host';
 
 export const PLATFORM = new InjectionToken<Platform>('');
 
@@ -67,6 +69,14 @@ export abstract class Platform {
   private readonly popupService = inject(PopupService);
   private readonly mediaHost = new ClientMediaHost(
     this.postman,
+    this.contextHub,
+    this.componentHub,
+    this.popupService,
+  );
+  private readonly mediaStreamHost = new ClientMediaStreamHost(this.postman);
+  private readonly recordingHost = new ClientRecordingHost(
+    this.postman,
+    this.mediaStreamHost,
     this.contextHub,
     this.componentHub,
     this.popupService,
@@ -93,6 +103,12 @@ export abstract class Platform {
     applyStoredColorSchemePreference(this.document);
     this.postman.incomingMessage$.subscribe((message) => {
       if (this.mediaHost.handle(message)) {
+        return;
+      }
+      if (this.mediaStreamHost.handle(message)) {
+        return;
+      }
+      if (this.recordingHost.handle(message)) {
         return;
       }
       if (message instanceof AppReconnectInfoMessage) {
