@@ -7,7 +7,6 @@ import { LocalFileUploadSuccessMessage } from "@matreshka/client-bff-protocol/me
 import { Observable, of, tap } from "rxjs";
 import { z } from "zod";
 import type { Client } from "../core/client";
-import { currentClientPlatform } from "./utils/client-platform";
 import { targetedClientPlatformAction } from "./utils/targeted-client-platform-action";
 import { targetedClientPlatformStream } from "./utils/targeted-client-platform-stream";
 
@@ -57,7 +56,7 @@ const localFileInitSchema = z.strictObject({
 });
 
 /**
- * Handle на клиентский blob/File: upload, save, destroy с BFF.
+ * Handle на клиентский blob/File: upload и destroy с BFF.
  */
 export class LocalFile {
   readonly id: string;
@@ -117,20 +116,6 @@ export class LocalFile {
         client.outcomingMessage$.next(new LocalFileUploadAbortMessage(scope));
       },
     });
-  }
-
-  /**
-   * Сохраняет файл на устройство пользователя через `downloadFile` платформы.
-   */
-  save(filename?: string): Observable<void> {
-    this.assertAlive();
-    const platform = currentClientPlatform() as {
-      downloadFile?: (url: string, name: string) => Observable<void>;
-    };
-    if (typeof platform.downloadFile !== "function") {
-      throw new Error("Saving local files is not supported on this platform");
-    }
-    return platform.downloadFile(this.url, filename ?? this.name);
   }
 
   /** Освобождает blob на клиенте. */

@@ -1784,11 +1784,11 @@ forEach({
 
 Callbacks:
 
-| Поле       | Сигнатура                       | Назначение                                      |
-| ---------- | ------------------------------- | ----------------------------------------------- |
-| `onSelect` | `(files: LocalFile[]) => void`  | Вызывается после выбора; всегда массив handle. |
+| Поле       | Сигнатура                      | Назначение                                     |
+| ---------- | ------------------------------ | ---------------------------------------------- |
+| `onSelect` | `(files: LocalFile[]) => void` | Вызывается после выбора; всегда массив handle. |
 
-`LocalFile` (platforms): метаданные + `upload` / `save` / `destroy`. См. [platforms.md](platforms.md#localfile).
+`LocalFile` (platforms): метаданные + `upload` / `destroy`. Сохранение на устройство — `platform.downloadFile`. См. [platforms.md](platforms.md#localfile).
 
 Пример:
 

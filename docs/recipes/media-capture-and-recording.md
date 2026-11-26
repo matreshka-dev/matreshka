@@ -25,7 +25,7 @@ getUserMedia / getDisplayMedia  →  MediaStreamRef (поток на клиен�
                 ↓
      LocalFile (blob на клиенте, url = blob:…)
                 ↓
-    createAudio / createVideo / file.upload / file.save
+    createAudio / createVideo / file.upload / platform.downloadFile
 ```
 
 - Поток (`MediaStream`) **не** уезжает на BFF — только `MediaStreamRef` с `id` и
@@ -170,7 +170,8 @@ export class VoiceChatPage extends Page {
         previewUrl: this.result.url,
         duration: this.result.duration,
       });
-      // Дальше: this.result.upload({ url }) / this.result.save()
+      // Дальше: this.result.upload({ url }) /
+      //   platform.downloadFile(this.result.url, this.result.name)
     } catch (error) {
       this.context.set({
         status: "error",
@@ -497,7 +498,7 @@ try {
 
 Рекомендуемый порядок завершения:
 
-1. `recording.stop()` → `LocalFile` (upload / preview / save)
+1. `recording.stop()` → `LocalFile` (upload / preview / downloadFile)
 2. `recording.destroy()` — снять сессию recorder (blob не revoke'аит)
 3. `stream.stop()` для каждого `MediaStreamRef`
 4. `file.destroy()` — `revokeObjectURL`, когда файл больше не нужен

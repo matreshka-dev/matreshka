@@ -1092,7 +1092,7 @@ combineLatest([
 
 ### `createRecording`
 
-Принимает один или несколько `MediaStreamRef`, на клиенте склеивает треки в один `MediaStream` и пишет через `MediaRecorder`. Методы: `start`, `pause`, `resume`, `stop`, `destroy`. `stop()` возвращает `Observable<LocalFile>` (клиентский blob + метаданные, в т.ч. `duration`, `kind`) — `file.url` можно передать в `createAudio` / `createVideo`, либо вызвать `file.upload` / `file.save`.
+Принимает один или несколько `MediaStreamRef`, на клиенте склеивает треки в один `MediaStream` и пишет через `MediaRecorder`. Методы: `start`, `pause`, `resume`, `stop`, `destroy`. `stop()` возвращает `Observable<LocalFile>` (клиентский blob + метаданные, в т.ч. `duration`, `kind`) — `file.url` можно передать в `createAudio` / `createVideo`, либо вызвать `file.upload`; сохранение на устройство — через `platform.downloadFile(file.url, file.name)`.
 
 ```ts
 platform.getUserMedia({ audio: true }).subscribe((mic) => {
@@ -1116,11 +1116,12 @@ platform.getUserMedia({ audio: true }).subscribe((mic) => {
 
 Handle на клиентский blob (из `filePicker` или `recording.stop()`). Байты на клиенте; BFF шлёт команды.
 
-| Метод | Возврат | Назначение |
-| ----- | ------- | ---------- |
+| Метод             | Возврат                                                          | Назначение                                                       |
+| ----------------- | ---------------------------------------------------------------- | ---------------------------------------------------------------- |
 | `upload(options)` | `Observable<LocalFileUploadProgress \| LocalFileUploadResponse>` | POST multipart; progress → response → complete; отписка abort'ит |
-| `save(filename?)` | `Observable<void>` | Скачать на устройство через `platform.downloadFile` |
-| `destroy()` | `Observable<void>` | `revokeObjectURL` и снять из реестра |
+| `destroy()`       | `Observable<void>`                                               | `revokeObjectURL` и снять из реестра                             |
+
+Сохранение на устройство — через `platform.downloadFile(file.url, file.name)`, не через `LocalFile`.
 
 Различие событий upload — через `instanceof LocalFileUploadProgress` / `LocalFileUploadResponse`.
 
