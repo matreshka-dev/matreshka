@@ -16,10 +16,7 @@ import { ComponentMouseLeaveMessage } from "./components/component-mouseleave-me
 import { ComponentResizeMessage } from "./components/component-resize-message";
 import { ComponentScrollMessage } from "./components/component-scroll-message";
 import { ComponentShowMessage } from "./components/component-show-message";
-import { FileUploadAreaCompleteMessage } from "./components/file-upload-area/file-upload-area-complete-message";
-import { FileUploadAreaErrorMessage } from "./components/file-upload-area/file-upload-area-error-message";
-import { FileUploadAreaProgressMessage } from "./components/file-upload-area/file-upload-area-progress-message";
-import { FileUploadAreaStartMessage } from "./components/file-upload-area/file-upload-area-start-message";
+import { FilePickerSelectMessage } from "./components/file-picker/file-picker-select-message";
 import { FormSubmitMessage } from "./components/form/form-submit-message";
 import { MapCenterChangeMessage } from "./components/map/map-center-change-message";
 import { MapZoomChangeMessage } from "./components/map/map-zoom-change-message";
@@ -28,6 +25,8 @@ import { ContextInitMessage } from "./context/context-init-message";
 import { ContextValuesMessage } from "./context/context-values-message";
 import { ErrorMessage } from "./error-message";
 import { ClientToBffMessageReceivedMessage } from "./message-received-message";
+import { LocalFileUploadProgressMessage } from "./platforms/local-file-upload-progress-message";
+import { LocalFileUploadSuccessMessage } from "./platforms/local-file-upload-success-message";
 import {
   MediaEndedEventMessage,
   MediaEnterPictureInPictureEventMessage,
@@ -82,14 +81,13 @@ export function registerCommonClientToBffMessages() {
   clientToBffMessageRegistry.register(BoardCenterChangeMessage);
   clientToBffMessageRegistry.register(BoardZoomChangeMessage);
   clientToBffMessageRegistry.register(TextEditorSelectionChangeMessage);
-  clientToBffMessageRegistry.register(FileUploadAreaStartMessage);
-  clientToBffMessageRegistry.register(FileUploadAreaProgressMessage);
-  clientToBffMessageRegistry.register(FileUploadAreaCompleteMessage);
-  clientToBffMessageRegistry.register(FileUploadAreaErrorMessage);
+  clientToBffMessageRegistry.register(FilePickerSelectMessage);
   clientToBffMessageRegistry.register(FormSubmitMessage);
   clientToBffMessageRegistry.register(ActionCompletedMessage);
   clientToBffMessageRegistry.register(PlatformEnumerateDevicesSuccessMessage);
   clientToBffMessageRegistry.register(PlatformMediaStreamSuccessMessage);
+  clientToBffMessageRegistry.register(LocalFileUploadProgressMessage);
+  clientToBffMessageRegistry.register(LocalFileUploadSuccessMessage);
   clientToBffMessageRegistry.register(RecordingStopSuccessMessage);
   clientToBffMessageRegistry.register(RecordingStartEventMessage);
   clientToBffMessageRegistry.register(RecordingPauseEventMessage);

@@ -1,10 +1,10 @@
-import type { FileUploadAreaConfig } from '@matreshka/client-bff-protocol/types/file-upload-area-config';
+import type { FilePickerConfig } from '@matreshka/client-bff-protocol/types/file-picker-config';
 import {
   getNestedConfigsByPropertyKey,
   ServerComponentDependencies,
 } from '../server-component-config';
 
-export const FileUploadAreaDependencies = {
+export const FilePickerDependencies = {
   pathsWithPlaceholdersInTemplate: [
     ...ServerComponentDependencies.pathsWithPlaceholdersInTemplate,
   ],
@@ -12,7 +12,7 @@ export const FileUploadAreaDependencies = {
     ...ServerComponentDependencies.pathsWithPlaceholdersInCode,
   ],
   requiredContextsPaths: [...ServerComponentDependencies.requiredContextsPaths],
-  getNestedConfigsPaths: (config: FileUploadAreaConfig) => {
+  getNestedConfigsPaths: (config: FilePickerConfig) => {
     return [
       ...getNestedConfigsByPropertyKey(config, 'content'),
       ...ServerComponentDependencies.getNestedConfigsPaths(config),

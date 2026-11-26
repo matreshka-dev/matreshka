@@ -380,7 +380,7 @@ forEach({
 
 - `form`
 - `forEach`
-- `fileUploadArea`
+- `filePicker`
 - `camera`
 - `map`
 - `board`

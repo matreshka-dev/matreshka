@@ -6,6 +6,7 @@ import { ActionCompletedMessage } from '@matreshka/client-bff-protocol/messages/
 import { RecordingStopSuccessMessage } from '@matreshka/client-bff-protocol/messages/client-to-bff/platforms/recording-stop-success-message';
 import { Subject } from 'rxjs';
 import { afterEach, describe, expect, it, vi } from 'vitest';
+import type { ClientLocalFileHost } from './local-file-host';
 import type { ClientMediaStreamHost } from './media-stream-host';
 import { ClientRecordingHost } from './recording-host';
 
@@ -90,9 +91,15 @@ describe('ClientRecordingHost', () => {
     const next = vi.fn();
     outcomingMessage$.subscribe(next);
 
+    const register = vi.fn();
+    const localFileHost = {
+      register,
+    } as unknown as ClientLocalFileHost;
+
     const host = new ClientRecordingHost(
       { outcomingMessage$ } as never,
       streamHost,
+      localFileHost,
       { init$: () => new Subject() } as never,
       {
         getInstancesByComponentId: () => [],
@@ -133,5 +140,11 @@ describe('ClientRecordingHost', () => {
     expect(success.payload.url).toBe('blob:recording');
     expect(success.payload.kind).toBe(MediaKind.Audio);
     expect(success.payload.size).toBeGreaterThan(0);
+    expect(register).toHaveBeenCalledWith(
+      success.payload.id,
+      expect.any(Blob),
+      'blob:recording',
+      success.payload.name,
+    );
   });
 });

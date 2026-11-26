@@ -1092,7 +1092,7 @@ combineLatest([
 
 ### `createRecording`
 
-Принимает один или несколько `MediaStreamRef`, на клиенте склеивает треки в один `MediaStream` и пишет через `MediaRecorder`. Методы: `start`, `pause`, `resume`, `stop`, `destroy`. `stop()` возвращает `Observable<RecordingResult>` (`blob:` URL, mime, size, name, duration, `kind: MediaKind`) — тот же url можно передать в `createAudio` / `createVideo`.
+Принимает один или несколько `MediaStreamRef`, на клиенте склеивает треки в один `MediaStream` и пишет через `MediaRecorder`. Методы: `start`, `pause`, `resume`, `stop`, `destroy`. `stop()` возвращает `Observable<LocalFile>` (клиентский blob + метаданные, в т.ч. `duration`, `kind`) — `file.url` можно передать в `createAudio` / `createVideo`, либо вызвать `file.upload` / `file.save`.
 
 ```ts
 platform.getUserMedia({ audio: true }).subscribe((mic) => {
@@ -1108,9 +1108,21 @@ platform.getUserMedia({ audio: true }).subscribe((mic) => {
 });
 ```
 
-`getDisplayMedia` / первый `getUserMedia` зависят от permission и user gesture. После `stop()` браузерный MediaRecorder одноразовый; повторный `start()` на той же сессии создаёт новый recorder на тех же stream ref. Треки после `stop()` записи не гасятся — вызывайте `MediaStreamRef.stop()`.
+`getDisplayMedia` / первый `getUserMedia` зависят от permission и user gesture. После `stop()` браузерный MediaRecorder одноразовый; повторный `start()` на той же сессии создаёт новый recorder на тех же stream ref. Треки после `stop()` записи не гасятся — вызывайте `MediaStreamRef.stop()`. Владение blob после `stop()` у `LocalFile`; `recording.destroy()` сессию recorder снимает, URL не revoke'аит.
 
 Детальные кейсы (чат, выбор микрофона, пауза, экран+mic, ошибки, lifecycle): [media-capture-and-recording.md](../recipes/media-capture-and-recording.md).
+
+### `LocalFile`
+
+Handle на клиентский blob (из `filePicker` или `recording.stop()`). Байты на клиенте; BFF шлёт команды.
+
+| Метод | Возврат | Назначение |
+| ----- | ------- | ---------- |
+| `upload(options)` | `Observable<LocalFileUploadProgress \| LocalFileUploadResponse>` | POST multipart; progress → response → complete; отписка abort'ит |
+| `save(filename?)` | `Observable<void>` | Скачать на устройство через `platform.downloadFile` |
+| `destroy()` | `Observable<void>` | `revokeObjectURL` и снять из реестра |
+
+Различие событий upload — через `instanceof LocalFileUploadProgress` / `LocalFileUploadResponse`.
 
 ## BLEDevice
 

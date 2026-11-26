@@ -53,6 +53,7 @@ import {
   failTargetedAction,
   runTargetedAction,
 } from '../utils/targeted-action';
+import { ClientLocalFileHost } from './local-file-host';
 import { ClientMediaHost } from './media-host';
 import { ClientMediaStreamHost } from './media-stream-host';
 import { ClientRecordingHost } from './recording-host';
@@ -74,9 +75,12 @@ export abstract class Platform {
     this.popupService,
   );
   private readonly mediaStreamHost = new ClientMediaStreamHost(this.postman);
+  /** Реестр LocalFile (picker / recording); команды upload/destroy с BFF. */
+  readonly localFileHost = new ClientLocalFileHost(this.postman);
   private readonly recordingHost = new ClientRecordingHost(
     this.postman,
     this.mediaStreamHost,
+    this.localFileHost,
     this.contextHub,
     this.componentHub,
     this.popupService,
@@ -109,6 +113,9 @@ export abstract class Platform {
         return;
       }
       if (this.recordingHost.handle(message)) {
+        return;
+      }
+      if (this.localFileHost.handle(message)) {
         return;
       }
       if (message instanceof AppReconnectInfoMessage) {

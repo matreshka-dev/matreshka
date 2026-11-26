@@ -1,4 +1,4 @@
-import { MediaTrackKind } from '@matreshka/client-bff-protocol/enums/media-track-kind';
+import { MediaKind } from '@matreshka/client-bff-protocol/enums/media-kind';
 import type { AnyBffToClientMessage } from '@matreshka/client-bff-protocol/messages/bff-to-client/bff-to-client-message';
 import { PlatformGetDisplayMediaMessage } from '@matreshka/client-bff-protocol/messages/bff-to-client/platforms/platform-get-display-media-message';
 import { PlatformGetUserMediaMessage } from '@matreshka/client-bff-protocol/messages/bff-to-client/platforms/platform-get-user-media-message';
@@ -125,7 +125,7 @@ function toTrackInfo(track: MediaStreamTrack): PlatformMediaStreamTrackInfo {
     settings = undefined;
   }
   return {
-    kind: track.kind === 'video' ? MediaTrackKind.Video : MediaTrackKind.Audio,
+    kind: track.kind === 'video' ? MediaKind.Video : MediaKind.Audio,
     label: track.label || undefined,
     settings,
   };

@@ -1,12 +1,11 @@
 import { ServerComponentClass } from "../enums/server-component-class";
 import type { ServerComponentConfig } from "./server-component-config";
 
-export type FileUploadAreaConfig = {
-  class: ServerComponentClass.FileUploadArea;
+export type FilePickerConfig = {
+  class: ServerComponentClass.FilePicker;
   properties: {
     multiple: boolean;
     content: ServerComponentConfig[];
-    url: string;
     accept?: string;
   };
 } & ServerComponentConfig;

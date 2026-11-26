@@ -1,8 +1,8 @@
 import { MediaKind } from "../../../enums/media-kind";
 import { PingableTargetedClientToBffMessage } from "../pingable-client-to-bff-message";
 
-/** Результат записи: как FileInfo + duration/kind для плеера. */
-export type RecordingResultPayload = {
+/** Результат записи: метаданные LocalFile + duration/kind. */
+export type RecordingStopSuccessPayload = {
   id: string;
   url: string;
   type: string;
@@ -13,11 +13,11 @@ export type RecordingResultPayload = {
   kind: MediaKind;
 };
 
-export class RecordingStopSuccessMessage extends PingableTargetedClientToBffMessage<RecordingResultPayload> {
+export class RecordingStopSuccessMessage extends PingableTargetedClientToBffMessage<RecordingStopSuccessPayload> {
   static readonly type = "recording-stop-success";
   constructor(
     public override readonly target: string,
-    public override readonly payload: RecordingResultPayload,
+    public override readonly payload: RecordingStopSuccessPayload,
   ) {
     super(target, payload);
   }

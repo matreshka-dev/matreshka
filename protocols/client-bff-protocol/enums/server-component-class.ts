@@ -11,7 +11,7 @@ export enum ServerComponentClass {
   Datetime = "datetime",
   Dialog = "dialog",
   Line = "line",
-  FileUploadArea = "file-upload-area",
+  FilePicker = "file-picker",
   ForEach = "for-each",
   Form = "form",
   Grid = "grid",

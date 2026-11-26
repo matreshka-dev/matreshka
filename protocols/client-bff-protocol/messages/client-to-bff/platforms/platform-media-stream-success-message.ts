@@ -1,8 +1,8 @@
-import { MediaTrackKind } from "../../../enums/media-track-kind";
+import { MediaKind } from "../../../enums/media-kind";
 import { PingableTargetedClientToBffMessage } from "../pingable-client-to-bff-message";
 
 export type PlatformMediaStreamTrackInfo = {
-  kind: MediaTrackKind;
+  kind: MediaKind;
   label?: string;
   settings?: Record<string, unknown>;
 };

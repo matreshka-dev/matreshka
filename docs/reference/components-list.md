@@ -1767,52 +1767,51 @@ forEach({
 - **`conditions` у компонентов строки** в замороженном subtree не пересчитываются по change$ контекста — остаётся последнее видимое состояние до разморозки или снятия строки из списка;
 - в BFF для взаимоисключающих блоков внутри `generator` по-прежнему надёжнее позитивные проверки (`when.oneOf` по `status`) и `when.defined` по стабильному полю элемента (`key`, `id`), если логика завязана на «элемент ещё существует».
 
-### `fileUploadArea()` / `FileUploadArea`
+### `filePicker()` / `FilePicker`
 
 Зачем нужен:
 
-- зона загрузки файлов;
-- drag-and-drop и обычный upload-сценарий.
+- зона выбора файлов (input / drag-and-drop);
+- без авто-upload — дальше файл управляется как `LocalFile` с BFF.
 
 Свойства:
 
 | Свойство   | Тип                     | Назначение                                |
 | ---------- | ----------------------- | ----------------------------------------- |
-| `content`  | `StandaloneComponent[]` | Визуальное содержимое зоны загрузки.      |
-| `url`      | `string`                | Endpoint для POST-загрузки файла.         |
-| `multiple` | `boolean`               | Разрешает множественную загрузку.         |
+| `content`  | `StandaloneComponent[]` | Визуальное содержимое зоны выбора.        |
+| `multiple` | `boolean`               | Разрешает множественный выбор.            |
 | `accept`   | `string?`               | MIME-типы и расширения допустимых файлов. |
 
 Callbacks:
 
-| Поле         | Сигнатура                            | Назначение                           |
-| ------------ | ------------------------------------ | ------------------------------------ |
-| `onStart`    | `(file: FileInfo) => void`           | Вызывается в момент старта загрузки. |
-| `onProgress` | `({ file, progress }) => void`       | Вызывается при изменении прогресса.  |
-| `onComplete` | `({ file, response }) => void`       | Вызывается после успешной загрузки.  |
-| `onError`    | `({ file, response, code }) => void` | Вызывается при ошибке загрузки.      |
+| Поле       | Сигнатура                       | Назначение                                      |
+| ---------- | ------------------------------- | ----------------------------------------------- |
+| `onSelect` | `(files: LocalFile[]) => void`  | Вызывается после выбора; всегда массив handle. |
 
-`FileInfo`:
-
-| Поле           | Тип      | Назначение                               |
-| -------------- | -------- | ---------------------------------------- |
-| `id`           | `string` | Внутренний идентификатор загрузки.       |
-| `type`         | `string` | MIME-тип файла.                          |
-| `size`         | `number` | Размер файла в байтах.                   |
-| `name`         | `string` | Имя файла.                               |
-| `lastModified` | `number` | Время последней модификации.             |
-| `url`          | `string` | `blob:`-URL локального файла на клиенте. |
+`LocalFile` (platforms): метаданные + `upload` / `save` / `destroy`. См. [platforms.md](platforms.md#localfile).
 
 Пример:
 
 ```ts
-fileUploadArea(
+filePicker(
   {
-    url: "/upload",
     multiple: true,
     accept: "image/*",
+    onSelect: (files) => {
+      for (const file of files) {
+        file.upload({ url: "/upload" }).subscribe({
+          next: (e) => {
+            if (e instanceof LocalFileUploadProgress) {
+              /* e.progress */
+            } else if (e instanceof LocalFileUploadResponse) {
+              /* e.response */
+            }
+          },
+        });
+      }
+    },
   },
-  [text("Перетащите файлы сюда")],
+  [text("Выберите или перетащите файлы")],
 );
 ```
 

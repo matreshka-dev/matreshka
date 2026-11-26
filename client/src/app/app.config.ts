@@ -33,8 +33,8 @@ import { ContainerDependencies } from './components/server/container/container-c
 import { ContainerComponent } from './components/server/container/container.component';
 import { DialogDependencies } from './components/server/dialog/dialog-config';
 import { DialogComponent } from './components/server/dialog/dialog.component';
-import { FileUploadAreaDependencies } from './components/server/file-upload-area/file-upload-area-config';
-import { FileUploadAreaComponent } from './components/server/file-upload-area/file-upload-area.component';
+import { FilePickerDependencies } from './components/server/file-picker/file-picker-config';
+import { FilePickerComponent } from './components/server/file-picker/file-picker.component';
 import { ForEachDependencies } from './components/server/for-each/for-each-config';
 import { ForEachComponent } from './components/server/for-each/for-each.component';
 import { FormDependencies } from './components/server/form/form-config';
@@ -128,9 +128,9 @@ export const appConfig: ApplicationConfig = {
           component: DialogComponent,
           dependencies: DialogDependencies,
         },
-        [ServerComponentClass.FileUploadArea]: {
-          component: FileUploadAreaComponent,
-          dependencies: FileUploadAreaDependencies,
+        [ServerComponentClass.FilePicker]: {
+          component: FilePickerComponent,
+          dependencies: FilePickerDependencies,
         },
         [ServerComponentClass.Stack]: {
           component: StackComponent,

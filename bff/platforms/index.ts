@@ -2,6 +2,7 @@ export * from "./android-platform";
 export * from "./browser-platform";
 export * from "./client-platform";
 export * from "./ios-platform";
+export * from "./local-file";
 export * from "./max-mini-app-platform";
 export * from "./media";
 export * from "./media-stream-ref";

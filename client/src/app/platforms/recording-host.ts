@@ -32,6 +32,7 @@ import {
   completeTargetedAction,
   failTargetedAction,
 } from '../utils/targeted-action';
+import type { ClientLocalFileHost } from './local-file-host';
 import type { ClientMediaStreamHost } from './media-stream-host';
 
 const TIMEUPDATE_INTERVAL_MS = 250;
@@ -48,7 +49,6 @@ type RecordingSession = {
   pausedTotalMs: number;
   timeUpdateTimer?: ReturnType<typeof setInterval>;
   lastTimeUpdateSent: number;
-  objectUrl?: string;
 };
 
 /**
@@ -60,6 +60,7 @@ export class ClientRecordingHost {
   constructor(
     private readonly postman: PostmanService,
     private readonly streamHost: ClientMediaStreamHost,
+    private readonly localFileHost: ClientLocalFileHost,
     private readonly contextHub: ContextHubService,
     private readonly componentHub: ComponentHubService,
     private readonly popupService: PopupService,
@@ -231,11 +232,6 @@ export class ClientRecordingHost {
       }
       const duration = elapsedSeconds(session);
       this.emitEvent(recordingId, session, 'stop');
-      if (session.objectUrl) {
-        URL.revokeObjectURL(session.objectUrl);
-      }
-      const url = URL.createObjectURL(blob);
-      session.objectUrl = url;
       session.recorder = undefined;
       session.chunks = [];
       const kind = this.hasVideoTrack(session)
@@ -247,13 +243,16 @@ export class ClientRecordingHost {
           ? 'ogg'
           : 'webm';
       const name = `recording-${Date.now()}.${extension}`;
+      const id = crypto.randomUUID();
+      const url = URL.createObjectURL(blob);
+      const type =
+        blob.type || (kind === MediaKind.Video ? 'video/webm' : 'audio/webm');
+      this.localFileHost.register(id, blob, url, name);
       this.postman.outcomingMessage$.next(
         new RecordingStopSuccessMessage(message.target, {
-          id: crypto.randomUUID(),
+          id,
           url,
-          type:
-            blob.type ||
-            (kind === MediaKind.Video ? 'video/webm' : 'audio/webm'),
+          type,
           size: blob.size,
           name,
           lastModified: Date.now(),
@@ -331,10 +330,6 @@ export class ClientRecordingHost {
       return;
     }
     this.teardownRecorder(session);
-    if (session.objectUrl) {
-      URL.revokeObjectURL(session.objectUrl);
-      session.objectUrl = undefined;
-    }
     this.sessions.delete(recordingId);
   }
 

@@ -23,15 +23,16 @@ getUserMedia / getDisplayMedia  →  MediaStreamRef (поток на клиен�
                 ↓
     start / pause / resume / stop
                 ↓
-     RecordingResult.url = blob:…
+     LocalFile (blob на клиенте, url = blob:…)
                 ↓
-         createAudio / createVideo
+    createAudio / createVideo / file.upload / file.save
 ```
 
 - Поток (`MediaStream`) **не** уезжает на BFF — только `MediaStreamRef` с `id` и
   метаданными треков.
 - После `recording.stop()` треки **не** останавливаются сами: вызовите
-  `stream.stop()`, когда поток больше не нужен.
+  `stream.stop()`, когда поток больше не нужен. Blob результата принадлежит
+  `LocalFile`; освобождайте через `file.destroy()`.
 - `getDisplayMedia` и первый `getUserMedia` зависят от permission и user
   gesture — вызывайте из UI-действия пользователя.
 
@@ -40,8 +41,7 @@ getUserMedia / getDisplayMedia  →  MediaStreamRef (поток на клиен�
 ## 1. Голосовое сообщение в чате
 
 Задача: по кнопке записать голос с дефолтного микрофона, остановить, прослушать
-локально и отдать `blob:` URL дальше (upload / сохранение — на стороне
-приложения).
+локально и при необходимости загрузить через `LocalFile.upload`.
 
 ```ts
 import { button, createContext, Page, text } from "@matreshka/bff";
@@ -49,9 +49,9 @@ import { when } from "@matreshka/bff/core/conditions";
 import {
   ClientPlatform,
   currentClientPlatform,
+  LocalFile,
   type MediaStreamRef,
   type Recording,
-  type RecordingResult,
 } from "@matreshka/bff/platforms";
 import { firstValueFrom } from "rxjs";
 import { z } from "zod";
@@ -66,7 +66,7 @@ type VoiceChatState = {
 export class VoiceChatPage extends Page {
   private mic?: MediaStreamRef;
   private recording?: Recording;
-  private result?: RecordingResult;
+  private result?: LocalFile;
 
   context = createContext({
     schema: z.object({
@@ -170,7 +170,7 @@ export class VoiceChatPage extends Page {
         previewUrl: this.result.url,
         duration: this.result.duration,
       });
-      // Дальше: upload по this.result.url / type / size / name
+      // Дальше: this.result.upload({ url }) / this.result.save()
     } catch (error) {
       this.context.set({
         status: "error",
@@ -195,7 +195,10 @@ export class VoiceChatPage extends Page {
   }
 
   private async reset() {
-    this.result = undefined;
+    if (this.result) {
+      await firstValueFrom(this.result.destroy());
+      this.result = undefined;
+    }
     this.context.set({
       status: "idle",
       duration: 0,
@@ -213,8 +216,8 @@ export class VoiceChatPage extends Page {
 }
 ```
 
-`RecordingResult` совместим по полям с `FileInfo` у `fileUploadArea` (`id`,
-`url`, `type`, `size`, `name`, `lastModified`) плюс `duration` и `kind`.
+`recording.stop()` и `filePicker.onSelect` отдают один и тот же тип `LocalFile`
+(у записи дополнительно `duration` и `kind`).
 
 ---
 
@@ -494,12 +497,10 @@ try {
 
 Рекомендуемый порядок завершения:
 
-1. `recording.stop()` → сохранить / проиграть `RecordingResult`
-2. `recording.destroy()` — снять сессию recorder на клиенте
+1. `recording.stop()` → `LocalFile` (upload / preview / save)
+2. `recording.destroy()` — снять сессию recorder (blob не revoke'аит)
 3. `stream.stop()` для каждого `MediaStreamRef`
-4. Не держите лишние ссылки на `blob:` дольше нужного (клиент
-
-   `revokeObjectURL` при `destroy` записи и при повторном `stop`)
+4. `file.destroy()` — `revokeObjectURL`, когда файл больше не нужен
 
 При `client.destroy$` сессии на BFF закрываются; на клиенте потоки тоже нужно
 не оставлять «висящими» — явный `stop()` на ref остаётся ответственностью

@@ -1,4 +1,4 @@
-import { MediaTrackKind } from "@matreshka/client-bff-protocol/enums/media-track-kind";
+import { MediaKind } from "@matreshka/client-bff-protocol/enums/media-kind";
 import { PlatformGetDisplayMediaMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/platforms/platform-get-display-media-message";
 import { PlatformGetUserMediaMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/platforms/platform-get-user-media-message";
 import { PlatformMediaStreamStopMessage } from "@matreshka/client-bff-protocol/messages/bff-to-client/platforms/platform-media-stream-stop-message";
@@ -12,17 +12,16 @@ import { z } from "zod";
 import type { Client } from "../core/client";
 import { targetedClientPlatformAction } from "./utils/targeted-client-platform-action";
 
-export { MediaTrackKind };
 export type { DisplayMediaStreamOptions, MediaStreamConstraints };
 
 export type MediaStreamTrackInfo = {
-  kind: MediaTrackKind;
+  kind: MediaKind;
   label?: string;
   settings?: Record<string, unknown>;
 };
 
 const trackInfoSchema = z.strictObject({
-  kind: z.enum(MediaTrackKind),
+  kind: z.enum(MediaKind),
   label: z.string().optional(),
   settings: z.record(z.string(), z.unknown()).optional(),
 });

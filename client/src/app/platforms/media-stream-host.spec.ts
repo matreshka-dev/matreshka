@@ -1,4 +1,4 @@
-import { MediaTrackKind } from '@matreshka/client-bff-protocol/enums/media-track-kind';
+import { MediaKind } from '@matreshka/client-bff-protocol/enums/media-kind';
 import { PlatformGetUserMediaMessage } from '@matreshka/client-bff-protocol/messages/bff-to-client/platforms/platform-get-user-media-message';
 import { PlatformMediaStreamStopMessage } from '@matreshka/client-bff-protocol/messages/bff-to-client/platforms/platform-media-stream-stop-message';
 import { ActionCompletedMessage } from '@matreshka/client-bff-protocol/messages/client-to-bff/action-completed-message';
@@ -56,7 +56,7 @@ describe('ClientMediaStreamHost', () => {
       streamId: 'media-stream-1',
       tracks: [
         {
-          kind: MediaTrackKind.Audio,
+          kind: MediaKind.Audio,
           label: 'Mic',
           settings: { deviceId: 'dev-1' },
         },

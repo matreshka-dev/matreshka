@@ -29,21 +29,11 @@ import { runWithClient } from "../core/client-context";
 import type { ComponentInstance } from "../core/types/component-instance";
 import type { Componentable } from "../core/types/componentable";
 import { incomingMessageObserver } from "../core/utils/incoming-message-observer";
+import { LocalFile } from "./local-file";
 import type { MediaStreamRef } from "./media-stream-ref";
 import { targetedClientPlatformAction } from "./utils/targeted-client-platform-action";
 
 export { MediaKind };
-
-export type RecordingResult = {
-  id: string;
-  url: string;
-  type: string;
-  size: number;
-  name: string;
-  lastModified: number;
-  duration: number;
-  kind: MediaKind;
-};
 
 export type RecordingProgressPayload = {
   duration: number;
@@ -106,19 +96,6 @@ const recordingProgressEventSchema = z.strictObject({
 const recordingErrorEventSchema = z.strictObject({
   message: z.string(),
   handlers: recordingHandlersSchema,
-});
-
-const recordingResultSchema = z.strictObject({
-  id: z.string(),
-  url: z.string().refine((val) => val.startsWith("blob:"), {
-    message: "url must be a blob",
-  }),
-  type: z.string(),
-  size: z.number(),
-  name: z.string(),
-  lastModified: z.number(),
-  duration: z.number(),
-  kind: z.nativeEnum(MediaKind),
 });
 
 function recordingEventSchema(message: RecordingIncomingEvent) {
@@ -203,15 +180,15 @@ export class Recording {
     );
   }
 
-  stop(): Observable<RecordingResult> {
-    return targetedClientPlatformAction<RecordingResult>(this.client, {
+  stop(): Observable<LocalFile> {
+    return targetedClientPlatformAction<LocalFile>(this.client, {
       outgoingMessage: (scope) =>
         new RecordingStopMessage(scope, { recordingId: this.id }),
       parseSuccess: (unsafeMessage) => {
         if (!(unsafeMessage instanceof RecordingStopSuccessMessage)) {
           return;
         }
-        return recordingResultSchema.parse(unsafeMessage.payload);
+        return new LocalFile(this.client, unsafeMessage.payload);
       },
     });
   }

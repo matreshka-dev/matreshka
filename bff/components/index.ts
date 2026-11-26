@@ -25,7 +25,7 @@ export * from "./page";
 
 export * from "./dialog";
 
-export * from "./file-upload-area";
+export * from "./file-picker";
 export * from "./for-each";
 export * from "./inputs/input-component";
 export * from "./inputs/number-input";
