@@ -174,8 +174,18 @@ async function distTag(name, version, tag) {
     return;
   }
   logLine(`${tag}  →  ${target}`);
-  await npmInteractive(["dist-tag", "add", target, tag]);
-  logLine(`ok  ${tag}  →  ${target}`);
+  const args = ["dist-tag", "add", target, tag];
+  // После publish registry/OTP иногда ещё не готовы — повторяем.
+  for (let attempt = 1; ; attempt += 1) {
+    try {
+      await npmInteractive(args);
+      logLine(`ok  ${tag}  →  ${target}`);
+      return;
+    } catch (error) {
+      logLine(`retry dist-tag (${attempt}): ${error.message}`);
+      await new Promise((resolve) => setTimeout(resolve, 5000));
+    }
+  }
 }
 
 async function buildClientPlatform(platform) {
