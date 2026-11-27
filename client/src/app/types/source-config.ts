@@ -5,5 +5,5 @@ export type SourceConfig =
     }
   | {
       type: 'sse';
-      params: { eventsUrl: string; sendingMessagesUrl: string };
+      params: { url: string };
     };

@@ -18,22 +18,26 @@ Matreshka — **server-driven UI** на BFF: вы описываете стра�
 4. [Состояние и события](getting-started/state-and-events.md) — Context и форма
 5. [Следующие шаги](getting-started/next-steps.md) — продолжение обязательного маршрута
 
+Готовый клиент с npm (без сборки Angular): [Клиент из npm](getting-started/client-from-npm.md).
+
+Обновление BFF и клиента: [Обновление пакетов](getting-started/updating.md).
+
 После onboarding не переходите сразу к рецептам: страница «Следующие шаги»
 последовательно проведёт через основы роутинга, состояния, компонентов, событий,
 layout и overlays. Только после этого маршрут ведёт в Cookbook.
 
 ## Разделы документации
 
-| Раздел | Для кого | Ссылка |
-| ------ | -------- | ------ |
-| Getting started | Первое знакомство | [getting-started/](getting-started/overview.md) |
-| Guides | Пошаговые темы после onboarding | [guides/README.md](guides/README.md) |
-| Recipes | Одна задача — один рецепт | [recipes/cookbook.md](recipes/cookbook.md) |
-| Reference | Полные каталоги API | [reference/README.md](reference/README.md) |
-| Advanced | Сложные сценарии | [advanced/README.md](advanced/README.md) |
-| Architecture | Протокол, доставка, reconnect | [architecture/README.md](architecture/README.md) |
-| Gateway | Несколько BFF / единая точка входа | [gateway/README.md](gateway/README.md) |
-| AI | Agent skills для Cursor | [ai/agent-skills.md](ai/agent-skills.md) |
+| Раздел          | Для кого                           | Ссылка                                           |
+| --------------- | ---------------------------------- | ------------------------------------------------ |
+| Getting started | Первое знакомство                  | [getting-started/](getting-started/overview.md)  |
+| Guides          | Пошаговые темы после onboarding    | [guides/README.md](guides/README.md)             |
+| Recipes         | Одна задача — один рецепт          | [recipes/cookbook.md](recipes/cookbook.md)       |
+| Reference       | Полные каталоги API                | [reference/README.md](reference/README.md)       |
+| Advanced        | Сложные сценарии                   | [advanced/README.md](advanced/README.md)         |
+| Architecture    | Протокол, доставка, reconnect      | [architecture/README.md](architecture/README.md) |
+| Gateway         | Несколько BFF / единая точка входа | [gateway/README.md](gateway/README.md)           |
+| AI              | Agent skills для Cursor            | [ai/agent-skills.md](ai/agent-skills.md)         |
 
 **Reference**, **Architecture**, **Advanced** и **Gateway** не входят в основной
 маршрут — открывайте их по мере задачи.

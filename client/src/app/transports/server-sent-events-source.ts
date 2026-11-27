@@ -18,15 +18,13 @@ export class ServerSentEventsSource extends Source {
   private http = inject(HttpClient);
   eventSourceClass = inject(EVENT_SOURCE);
 
-  constructor(
-    private params: { eventsUrl: string; sendingMessagesUrl: string },
-  ) {
+  constructor(private params: { url: string }) {
     super();
     this.outcomingMessage$.subscribe((message) => {
       if (this.canSendMessage(message)) {
         this.http
           .post(
-            this.params.sendingMessagesUrl,
+            this.params.url,
             { message: JSON.stringify(message) },
             {
               headers: this.token ? { Authorization: this.token } : undefined,
@@ -40,7 +38,7 @@ export class ServerSentEventsSource extends Source {
   }
 
   connect() {
-    console.log(`Init connection ` + this.params.eventsUrl);
+    console.log(`Init connection ` + this.params.url);
     this.closeEventSource();
 
     const params: Record<string, string> = {};
@@ -48,7 +46,7 @@ export class ServerSentEventsSource extends Source {
       params['token'] = this.token;
     }
     const eventSource = (this.eventSource = new this.eventSourceClass(
-      this.params.eventsUrl + '?' + new URLSearchParams(params),
+      this.params.url + '?' + new URLSearchParams(params),
     ));
 
     eventSource.addEventListener('open', () => {

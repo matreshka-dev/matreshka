@@ -23,17 +23,7 @@
       "./type-roots"
     ],
     "paths": {
-      "ymaps3": ["./node_modules/@yandex/ymaps3-types"],
-      "@matreshka/client-bff-protocol/protocol-version": [
-        "../protocols/client-bff-protocol/dist/protocol-version"
-      ],
-      "@matreshka/client-bff-protocol/package.json": [
-        "../protocols/client-bff-protocol/dist/package.json"
-      ],
-      "@matreshka/client-bff-protocol/*": [
-        "../protocols/client-bff-protocol/*"
-      ],
-      "@matreshka/shared/*": ["../shared/*"]
+      "ymaps3": ["./node_modules/@yandex/ymaps3-types"]
     }
   },
   "angularCompilerOptions": {

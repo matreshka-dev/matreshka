@@ -29,6 +29,8 @@
 
 Эти разделы открывайте по мере задачи:
 
+- [Клиент из npm](client-from-npm.md) — production-бандл `@matreshka/client-*`, sync и `config.json`;
+- [Обновление пакетов](updating.md) — контракт, dist-tag, BFF и клиент;
 - [sync в local-действиях Context](../guides/context-local-sync.md) — `{ sync: false }` и client-only UI;
 - [Reference](../reference/README.md) — полные каталоги API;
 - [Architecture](../architecture/README.md) — протокол, доставка и reconnect;

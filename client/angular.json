@@ -25,7 +25,14 @@
             "polyfills": [],
             "tsConfig": "tsconfig.app.json",
             "inlineStyleLanguage": "scss",
-            "assets": ["src/assets"],
+            "assets": [
+              {
+                "glob": "**/*",
+                "input": "src/assets",
+                "output": "assets",
+                "ignore": ["**/config.json"]
+              }
+            ],
             "styles": ["src/styles.scss"],
             "scripts": []
           },
@@ -54,7 +61,15 @@
             "development": {
               "optimization": false,
               "extractLicenses": false,
-              "sourceMap": true
+              "sourceMap": true,
+              "assets": [
+                "src/favicon.svg",
+                "src/favicon.png",
+                "src/pwa.svg",
+                "src/pwa.png",
+                "src/.well-known",
+                "src/assets"
+              ]
             },
             "android": {
               "fileReplacements": [
@@ -122,7 +137,12 @@
                 "src/pwa.svg",
                 "src/pwa.png",
                 "src/.well-known",
-                "src/assets"
+                {
+                  "glob": "**/*",
+                  "input": "src/assets",
+                  "output": "assets",
+                  "ignore": ["**/config.json"]
+                }
               ]
             }
           },

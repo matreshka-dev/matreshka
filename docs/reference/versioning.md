@@ -6,7 +6,12 @@ Semver для каждого пакета монорепозитория Matresh
 
 | Пакет                             | npm           | Роль                                           |
 | --------------------------------- | ------------- | ---------------------------------------------- |
-| `@matreshka/client`               | нет (private) | Универсальный Angular-клиент, PWA / Capacitor  |
+| `@matreshka/client`               | нет (private) | Исходное Angular-приложение (не в workspace)   |
+| `@matreshka/client-browser`       | да            | Production-бандл клиента для browser / PWA     |
+| `@matreshka/client-android`       | да            | Production-бандл клиента для Android           |
+| `@matreshka/client-ios`           | да            | Production-бандл клиента для iOS               |
+| `@matreshka/client-telegram`      | да            | Production-бандл клиента для Telegram Mini App |
+| `@matreshka/client-max`           | да            | Production-бандл клиента для MAX Mini App      |
 | `@matreshka/bff`                  | да            | Runtime и DSL на сервере                       |
 | `@matreshka/client-bff-protocol`  | да            | Связь client ↔ BFF                            |
 | `@matreshka/gateway-bff-protocol` | да            | Связь gateway ↔ BFF                           |
@@ -23,7 +28,7 @@ Semver для каждого пакета монорепозитория Matresh
 
 **Не поднимать** версию за правки docs, тестов, форматирования и внутреннего рефакторинга без изменения публичного поведения и типов.
 
-`@matreshka/client`: версия в `client/package.json` — метка поставки приложения; PWA дополнительно опирается на хэш бандла в Service Worker. Поднимайте её при каждой выкладке клиента.
+`@matreshka/client`: версия в `client/package.json` — общая метка поставки для всех `@matreshka/client-*` platform-пакетов (публикуются из `scripts/publish-packages.mjs` как production-бандлы). PWA дополнительно опирается на хэш бандла в Service Worker. Поднимайте её при каждой выкладке клиента. Как поставить бандл в свой проект — [Клиент из npm](../getting-started/client-from-npm.md).
 
 ## Зависимости
 
@@ -107,5 +112,7 @@ Patch protocol в линейке `0.1.x` обычно **не** требует н
 ## Для прикладного BFF
 
 В `package.json` держите `@matreshka/client-bff-protocol` в одной линейке с задеплоенным универсальным клиентом. Версию `@matreshka/bff` можно обновлять отдельно, пока не меняется строка protocol и не ломается ваш код на новом API.
+
+Практический порядок апдейта через dist-tag `client-bff-protocol-<ver>`: [Обновление пакетов](../getting-started/updating.md).
 
 Контрибьюторам: корневая сборка `npm run build`, публикация — `prepublish:packages` в корне; см. [AGENTS.md](../../AGENTS.md).

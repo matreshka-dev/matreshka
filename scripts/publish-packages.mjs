@@ -6,16 +6,20 @@
  *
  * Пакеты без зависимостей друг на друга публикуются параллельно.
  * Между волнами нет опроса registry: npm publish завершается после приёма tarball.
- * dist-tag для @matreshka/bff ставится в конце, с повторами на случай задержки registry.
+ * После workspace-пакетов собирает и публикует production-бандлы клиента
+ * (@matreshka/client-<platform>). dist-tag совместимости ставится только на
+ * пакеты, опубликованные в этом запуске (bff и/или client-*).
  */
 import { execFile, spawn } from "node:child_process";
-import { readFile } from "node:fs/promises";
+import { cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { promisify } from "node:util";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 
 const execFileAsync = promisify(execFile);
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..");
+const clientDir = path.join(root, "client");
+const clientBuildOut = path.join(clientDir, "dist", "matreshka", "browser");
 const dryRun = process.argv.includes("--dry-run");
 
 const packages = {
@@ -34,10 +38,52 @@ const waves = [
   ["@matreshka/bff"],
 ];
 
-async function npm(args, { allowFailure = false } = {}) {
+// TODO: вернуть android, ios, telegram, max
+const clientPlatforms = ["browser"];
+
+function clientPackageName(platform) {
+  return `@matreshka/client-${platform}`;
+}
+
+function pad(value, width) {
+  const text = String(value);
+  return text.length >= width ? text : text + " ".repeat(width - text.length);
+}
+
+function logSection(title) {
+  console.log("");
+  console.log(title);
+}
+
+function logRow(columns, widths) {
+  console.log(columns.map((value, i) => pad(value, widths[i])).join("  "));
+}
+
+function logKv(key, value) {
+  console.log(`${pad(key, 12)}  ${value}`);
+}
+
+function logLine(text) {
+  console.log(`  ${text}`);
+}
+
+function printDecisionTable(items) {
+  const widths = [34, 10, 10, 8];
+  logRow(["package", "local", "registry", "action"], widths);
+  logRow(
+    widths.map((width) => "-".repeat(width)),
+    widths,
+  );
+  for (const item of items) {
+    const action = item.remote === item.local ? "skip" : "publish";
+    logRow([item.name, item.local, item.remote ?? "—", action], widths);
+  }
+}
+
+async function npm(args, { allowFailure = false, cwd = root } = {}) {
   try {
     const { stdout } = await execFileAsync("npm", args, {
-      cwd: root,
+      cwd,
       env: process.env,
     });
     return stdout.trim();
@@ -60,6 +106,17 @@ async function localVersion(name) {
   return manifest.version;
 }
 
+async function clientAppVersion() {
+  const file = path.join(clientDir, "package.json");
+  const manifest = JSON.parse(await readFile(file, "utf8"));
+  if (typeof manifest.version !== "string") {
+    throw new Error(
+      "@matreshka/client: в client/package.json нет строкового version",
+    );
+  }
+  return manifest.version;
+}
+
 async function remoteVersion(name) {
   const stdout = await npm(["view", `${name}@latest`, "version"], {
     allowFailure: true,
@@ -67,10 +124,10 @@ async function remoteVersion(name) {
   return stdout || null;
 }
 
-function npmInteractive(args) {
+function npmInteractive(args, { cwd = root } = {}) {
   return new Promise((resolve, reject) => {
     const child = spawn("npm", args, {
-      cwd: root,
+      cwd,
       env: process.env,
       stdio: "inherit",
     });
@@ -83,19 +140,25 @@ function npmInteractive(args) {
   });
 }
 
+function explainNpmAuthPrompt() {
+  console.log(
+    "npm может запросить подтверждение в браузере (Enter → npmjs.com → вернуться в терминал).",
+  );
+}
+
 async function publish(name, version) {
   if (dryRun) {
-    console.log(`  будет опубликован ${name}@${version}`);
+    logLine(`${name}@${version}  (dry-run)`);
     return;
   }
-  console.log(`  публикация ${name}@${version}…`);
+  logLine(`${name}@${version}`);
   await npmInteractive(["publish", "-w", name]);
-  console.log(`  опубликован ${name}@${version}`);
+  logLine(`ok  ${name}@${version}`);
 }
 
 async function waitForPublishedVersion(name, version) {
-  console.log(`  ожидание публикации ${name}@${version}…`);
-  for (let attempt = 1; ; attempt += 1) {
+  logLine(`wait  ${name}@${version}`);
+  for (;;) {
     const seen = await npm(["view", `${name}@${version}`, "version"], {
       allowFailure: true,
     });
@@ -104,14 +167,88 @@ async function waitForPublishedVersion(name, version) {
   }
 }
 
-async function distTag(bffVersion, tag) {
-  const args = ["dist-tag", "add", `@matreshka/bff@${bffVersion}`, tag];
+async function distTag(name, version, tag) {
+  const target = `${name}@${version}`;
   if (dryRun) {
-    console.log(`  будет dist-tag ${tag} → @matreshka/bff@${bffVersion}`);
+    logLine(`${tag}  →  ${target}  (dry-run)`);
     return;
   }
-  await npmInteractive(args);
-  console.log(`dist-tag ${tag} → @matreshka/bff@${bffVersion}`);
+  logLine(`${tag}  →  ${target}`);
+  await npmInteractive(["dist-tag", "add", target, tag]);
+  logLine(`ok  ${tag}  →  ${target}`);
+}
+
+async function buildClientPlatform(platform) {
+  logLine(`build  client ${platform},production`);
+  await execFileAsync(
+    "npx",
+    ["ng", "build", `--configuration=${platform},production`],
+    {
+      cwd: clientDir,
+      env: process.env,
+      maxBuffer: 20 * 1024 * 1024,
+    },
+  );
+}
+
+async function clientPackageReadme(name, platform) {
+  const template = await readFile(
+    path.join(clientDir, "npm-readme.template.md"),
+    "utf8",
+  );
+  return template
+    .replaceAll("{{PACKAGE_NAME}}", name)
+    .replaceAll("{{PLATFORM}}", platform);
+}
+
+async function prepareClientStaging(platform, version) {
+  const name = clientPackageName(platform);
+  const staging = path.join(clientDir, "dist", "npm", platform);
+  await rm(staging, { recursive: true, force: true });
+  await mkdir(staging, { recursive: true });
+  await cp(clientBuildOut, staging, { recursive: true });
+  const manifest = {
+    name,
+    version,
+    description: `Matreshka client production build for ${platform}`,
+    files: ["*"],
+    author: "Dmitriy Tretyakov <dmitriy.tretyakov.work@gmail.com>",
+    license: "CC-BY-NC-4.0",
+    repository: {
+      type: "git",
+      url: "git+https://github.com/matreshka-dev/matreshka.git",
+      directory: "client",
+    },
+    bugs: {
+      url: "https://github.com/matreshka-dev/matreshka/issues",
+    },
+    homepage:
+      "https://github.com/matreshka-dev/matreshka/blob/main/docs/getting-started/client-from-npm.md",
+    publishConfig: {
+      access: "public",
+    },
+  };
+  await writeFile(
+    path.join(staging, "package.json"),
+    `${JSON.stringify(manifest, null, 2)}\n`,
+    "utf8",
+  );
+  await writeFile(
+    path.join(staging, "README.md"),
+    await clientPackageReadme(name, platform),
+    "utf8",
+  );
+  return { name, staging };
+}
+
+async function publishClientPackage(name, version, staging) {
+  if (dryRun) {
+    logLine(`${name}@${version}  (dry-run)`);
+    return;
+  }
+  logLine(`${name}@${version}`);
+  await npmInteractive(["publish"], { cwd: staging });
+  logLine(`ok  ${name}@${version}`);
 }
 
 const who = await npm(["whoami"], { allowFailure: true });
@@ -121,13 +258,14 @@ if (!who && !dryRun) {
   );
   process.exit(1);
 }
-if (who) console.log(`npm: ${who}`);
-if (dryRun) {
-  console.log("режим dry-run: в registry ничего не отправляется");
-}
+
+logSection("session");
+if (who) logKv("npm", who);
+logKv("mode", dryRun ? "dry-run" : "publish");
+if (!dryRun) explainNpmAuthPrompt();
 
 const published = [];
-const skipped = [];
+const waveDecisions = [];
 
 for (const wave of waves) {
   const decisions = await Promise.all(
@@ -137,59 +275,99 @@ for (const wave of waves) {
       return { name, local, remote };
     }),
   );
+  waveDecisions.push(decisions);
+}
 
-  const toPublish = [];
-  for (const item of decisions) {
-    if (item.remote === item.local) {
-      skipped.push(item);
-      console.log(
-        `пропуск ${item.name}@${item.local}: эта версия уже в registry`,
-      );
-    } else {
-      toPublish.push(item);
-      if (item.remote) {
-        console.log(
-          `${item.name}: registry ${item.remote} → локально ${item.local}`,
-        );
-      } else {
-        console.log(
-          `${item.name}: в registry нет latest, локально ${item.local}`,
-        );
-      }
-    }
-  }
+const bffVersion = await localVersion("@matreshka/bff");
+const clientProtocol = await localVersion("@matreshka/client-bff-protocol");
+const gatewayProtocol = await localVersion("@matreshka/gateway-bff-protocol");
+const clientVersion = await clientAppVersion();
+const protocolTag = `client-bff-protocol-${clientProtocol}`;
 
+const clientDecisions = await Promise.all(
+  clientPlatforms.map(async (platform) => {
+    const name = clientPackageName(platform);
+    const remote = await remoteVersion(name);
+    return { name, platform, local: clientVersion, remote };
+  }),
+);
+
+const allDecisions = [...waveDecisions.flat(), ...clientDecisions];
+logSection("plan");
+printDecisionTable(allDecisions);
+
+const workspaceToPublish = waveDecisions.map((decisions) =>
+  decisions.filter((item) => item.remote !== item.local),
+);
+
+const clientToPublish = clientDecisions.filter(
+  (item) => item.remote !== item.local,
+);
+
+const willPublish =
+  workspaceToPublish.some((wave) => wave.length > 0) ||
+  clientToPublish.length > 0;
+
+if (willPublish) {
+  logSection("publish");
+}
+
+for (const toPublish of workspaceToPublish) {
   for (const item of toPublish) {
     await publish(item.name, item.local);
   }
   published.push(...toPublish);
 }
 
-const bffVersion = await localVersion("@matreshka/bff");
-const clientProtocol = await localVersion("@matreshka/client-bff-protocol");
-const gatewayProtocol = await localVersion("@matreshka/gateway-bff-protocol");
-
-if (!dryRun) {
-  await waitForPublishedVersion("@matreshka/bff", bffVersion);
+for (const item of clientToPublish) {
+  if (dryRun) {
+    logLine(`${item.name}@${item.local}  build ${item.platform}  (dry-run)`);
+  } else {
+    await buildClientPlatform(item.platform);
+    const { staging } = await prepareClientStaging(item.platform, item.local);
+    await publishClientPackage(item.name, item.local, staging);
+  }
+  published.push(item);
 }
 
-await distTag(bffVersion, `client-bff-protocol-${clientProtocol}`);
-await distTag(bffVersion, `gateway-bff-protocol-${gatewayProtocol}`);
+const bffPublished = published.some((item) => item.name === "@matreshka/bff");
+const clientsPublished = clientToPublish;
 
-const summary = published
-  .map((item) => `${item.name}@${item.local}`)
-  .join(", ");
+if (bffPublished || clientsPublished.length) {
+  logSection("dist-tags");
+}
+
+if (bffPublished) {
+  if (!dryRun) {
+    await waitForPublishedVersion("@matreshka/bff", bffVersion);
+  }
+  await distTag("@matreshka/bff", bffVersion, protocolTag);
+  await distTag(
+    "@matreshka/bff",
+    bffVersion,
+    `gateway-bff-protocol-${gatewayProtocol}`,
+  );
+}
+
+for (const item of clientsPublished) {
+  if (!dryRun) {
+    await waitForPublishedVersion(item.name, item.local);
+  }
+  await distTag(item.name, item.local, protocolTag);
+}
+
+logSection("summary");
 if (dryRun) {
-  console.log(
+  logLine(
     published.length
-      ? `dry-run, ничего не опубликовано. К публикации: ${summary}`
-      : "dry-run: новых версий нет, публиковать нечего",
+      ? `dry-run, к публикации: ${published.map((item) => `${item.name}@${item.local}`).join(", ")}`
+      : "dry-run, публиковать нечего",
   );
 } else {
-  console.log(
-    published.length ? `опубликовано: ${summary}` : "новых версий нет",
+  logLine(
+    published.length
+      ? published.map((item) => `${item.name}@${item.local}`).join(", ")
+      : "новых версий нет",
   );
 }
-if (skipped.length) {
-  console.log(`без изменений: ${skipped.map((item) => item.name).join(", ")}`);
-}
+console.log("");
